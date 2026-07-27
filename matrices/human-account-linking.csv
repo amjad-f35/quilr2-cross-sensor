@@ -1,0 +1,11 @@
+Account type,Strong key,Required proof,Automatic link,Candidate only,Split or unlink trigger
+OIDC account,issuer+subject,Verified issuer metadata/token,Exact authoritative mapping or approved link,email-only,Issuer changed or subject conflict
+Pairwise OIDC accounts,issuer+sector/client-specific subject,Provider account-link claim or authoritative directory mapping,Authoritative mapping required,similar claims/email,Mapping withdrawn
+SCIM account,provider tenant+resource ID,SCIM record and externalId semantics,Exact provider ID,displayName/userName,Provider reports distinct immutable IDs
+HR employment,HRIS+immutable employment ID,HRIS record,Authoritative crosswalk,email/manager/name,Rehire policy creates distinct employment relationship
+Microsoft Entra account,tenant issuer+object/sub ID,Verified Entra token/directory,Directory crosswalk,UPN/email,Tenant/object conflict
+Okta account,issuer+user ID/sub,Verified Okta token/directory,Directory crosswalk,email,Issuer/user conflict
+Google Workspace account,issuer+subject/directory ID,Verified Google token/directory,Directory crosswalk,email,Workspace/subject conflict
+GitHub account,forge+numeric user ID,Provider API,Explicit employee-account link,login/email,Account transfer or link revoked
+Slack account,workspace+user ID,Provider API,Directory/SCIM crosswalk,display name/email,Workspace/user conflict
+SaaS local account,provider tenant+account ID,Provider API/OAuth subject,Explicit/provider mapping,account email,Personal/enterprise split evidence

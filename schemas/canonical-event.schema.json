@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "tenant_id",
+    "event_type",
+    "event_version",
+    "occurred_at",
+    "observed_at",
+    "ingested_at",
+    "source",
+    "actors",
+    "correlation",
+    "entities",
+    "confidence",
+    "evidence_references",
+    "raw_payload_references"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "enum": [
+        "asset.observed",
+        "asset.discovered",
+        "asset.updated",
+        "asset.merged",
+        "asset.split",
+        "asset.stale",
+        "asset.reactivated",
+        "asset.retired",
+        "ownership.assigned",
+        "ownership.changed",
+        "identity.observed",
+        "account.observed",
+        "relationship.observed",
+        "relationship.established",
+        "relationship.changed",
+        "relationship.revoked",
+        "credential.observed",
+        "credential.revoked",
+        "ai.application.used",
+        "ai.interaction.started",
+        "ai.interaction.completed",
+        "prompt.submitted",
+        "response.received",
+        "model.invocation.started",
+        "model.invocation.completed",
+        "agent.session.started",
+        "agent.run.started",
+        "agent.run.completed",
+        "agent.run.failed",
+        "agent.step.started",
+        "agent.step.completed",
+        "agent.delegated",
+        "tool.discovered",
+        "tool.call.requested",
+        "tool.call.completed",
+        "tool.call.failed",
+        "action.requested",
+        "action.decided",
+        "action.executed",
+        "action.failed",
+        "action.reconciled",
+        "data.read",
+        "data.uploaded",
+        "data.downloaded",
+        "data.transferred",
+        "data.redacted",
+        "data.retained",
+        "data.deleted",
+        "policy.evaluated",
+        "decision.allowed",
+        "decision.denied",
+        "approval.requested",
+        "approval.granted",
+        "approval.rejected",
+        "control.warned",
+        "control.blocked",
+        "exception.created",
+        "exception.expired",
+        "sensor.heartbeat",
+        "sensor.stale",
+        "sensor.self_test_failed",
+        "connector.degraded",
+        "provider.degraded",
+        "runtime.failed",
+        "cost.recorded",
+        "budget.threshold_crossed",
+        "task.succeeded",
+        "task.failed",
+        "outcome.verified",
+        "finding.opened",
+        "finding.updated",
+        "finding.assigned",
+        "finding.suppressed",
+        "finding.resolved",
+        "finding.reopened"
+      ]
+    },
+    "event_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "sensor_id",
+        "sensor_type",
+        "native_event_id",
+        "schema_version"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "sensor_id": {
+          "type": "string"
+        },
+        "sensor_type": {
+          "type": "string"
+        },
+        "native_event_id": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        }
+      }
+    },
+    "actors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "entities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "array",
+          "null"
+        ]
+      }
+    },
+    "action": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "data": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "governance": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "outcome": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "usage": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "raw_payload_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  },
+  "title": "Quilr canonical event"
+}

@@ -1,0 +1,15 @@
+Current identity mechanism,Target mechanism,Reuse plan
+JWT user context,Federated human/account identity,Preserve verified token claims as observations; add issuer+subject identifiers and person/account separation
+tenant/subscriber headers,Verified tenant context,Preserve as aliases; require decoder/issuer binding and tenant predicate on every lookup
+app IDs,Canonical product/surface/tenant application/account identities,Retain every app ID under a source namespace; resolve only at the correct layer
+Neo4j nodes,Rebuildable typed relationship graph,Backfill nodes/edges with provenance; operational ledger becomes authority
+Git commit references,Source provenance identifiers,"Store full OID, algorithm, object type, repository; optionally add appropriate SWHID"
+API keys,Credential inventory,Index metadata/issuer/key ID/safe fingerprint only; map consumers and rotate toward short-lived credentials
+deployment image tag,Immutable artifact digest,Observe tag but resolve registry digest at deploy and runtime
+agent name,Agent definition plus version/deployment/runtime/run,Keep name as alias; introduce manifest digest and runtime binding
+model name,Model family plus version/artifact/deployment/endpoint/route,Keep observed name; resolve provider/account/version at invocation time
+email,Person/account alias,Keep history and source; never reuse as canonical person ID
+service account/process identity,Workload/service principal plus runtime instance,Preserve source record; add cryptographic workload identity and attestation
+sensor name,Sensor product/deployment/instance,"Treat caller name as claim; bind enrolled instance to credential, version, tenant, and artifact"
+OAuth integration,Client+grant+credential+connection+provider account,Decompose current connection records and preserve provider-native IDs
+policy name/version,Policy definition+version+bundle+deployment,Backfill exact version/digest and decision snapshot

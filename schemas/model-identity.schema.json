@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/model-identity.schema.json",
+  "title": "Quilr Model Identity Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "provider",
+    "family",
+    "version",
+    "deployment",
+    "route"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_provider_id",
+        "name"
+      ],
+      "properties": {
+        "model_provider_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provider_account_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provider_tenant_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_family_id",
+        "name"
+      ],
+      "properties": {
+        "model_family_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_version_id",
+        "provider_native_id",
+        "identity_availability"
+      ],
+      "properties": {
+        "model_version_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "provider_native_id": {
+          "type": "string"
+        },
+        "snapshot_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_artifact_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_manifest_digest": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "sha256",
+                    "sha512",
+                    "git-sha1",
+                    "git-sha256",
+                    "swhid",
+                    "other"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tokenizer_digest": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "sha256",
+                    "sha512",
+                    "git-sha1",
+                    "git-sha256",
+                    "swhid",
+                    "other"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "adapter_digests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "enum": [
+                  "sha256",
+                  "sha512",
+                  "git-sha1",
+                  "git-sha256",
+                  "swhid",
+                  "other"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "configuration_digest": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "sha256",
+                    "sha512",
+                    "git-sha1",
+                    "git-sha256",
+                    "swhid",
+                    "other"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "identity_availability": {
+          "type": "string",
+          "enum": [
+            "provider_claim_only",
+            "provider_snapshot",
+            "artifact_manifest_verified"
+          ]
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_deployment_id",
+        "endpoint",
+        "region",
+        "environment"
+      ],
+      "properties": {
+        "model_deployment_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "serving_workload_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runtime_image_digest": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "sha256",
+                    "sha512",
+                    "git-sha1",
+                    "git-sha256",
+                    "swhid",
+                    "other"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deployed_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_route_id",
+        "alias",
+        "resolved_model_version_id",
+        "resolved_deployment_id",
+        "valid_from",
+        "resolver_version"
+      ],
+      "properties": {
+        "model_route_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "resolved_model_version_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "resolved_deployment_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "routing_policy_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resolver_version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

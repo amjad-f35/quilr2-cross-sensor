@@ -1,0 +1,16 @@
+Event type,Human,Agent,Workload,Effective principal,Credential,Decision,Sensor
+Browser prompt/upload,Persona/email claim,Unknown agent,Browser installation/native host,Current user/account,Persona/bearer token,Allow/block may exist,Vanguard/Sentinel/BES
+Endpoint process/network action,OS/Persona candidate,Possible agent label,Device+process,OS/service account,Usually not inventoried,Proxy/DLP decision,Endpoint proxy/sensor
+LLM model invocation,JWT/API-key owner/email when present,Client metadata when present,Gateway only; provider workload unavailable,API-key/JWT subject,API key/JWT/provider credential,Gateway policy outcome,LLM gateway
+MCP tool call,Expected but contract incomplete,Expected agent/run,External gateway/server unresolved,Grant subject unresolved,OAuth/upstream credential unresolved,External policy analytics,External MCP Gateway
+Agent run,Not consistently present,Definition/version often unresolved,Runtime/workload unresolved,Credential principal,Credential not separately bound,Policy/source-specific,Gateway/endpoint/MCP sources
+Child-agent call,Inherited initiator unresolved,Parent/child metadata unresolved,Shared worker possible,Effective principal unresolved,Delegated credential unresolved,Decision unresolved,Requires new telemetry
+Policy decision,Request user context where present,Agent context inconsistent,Decision service identity not canonical,Authorized subject/source-specific,Credential metadata partial,Policy/version identity incomplete,Gateway/BES/endpoint/Quilr
+Approval,Approver user record,N/A,Application session,Approver role,Session/token,Approval record,Quilr/gateway
+Credential issuance,Issuer subject,Agent/service possible,Issuer workload unresolved,Grant subject,Credential ID varies,Issuance policy unresolved,External issuer/partial gateway
+Credential use,User/account when encoded,Agent often missing,Presenting workload missing,Token/key subject,Key/token,Resource policy,Gateway/current services
+Artifact build,Commit author not builder identity,N/A,CI worker unresolved,Build service,CI credential unresolved,Build policy absent,Build systems
+Artifact deployment,Deployer sometimes pipeline/user,Agent/model deployment target,Orchestrator workload unresolved,Deployment service,Cloud/cluster credential unresolved,Deployment policy unresolved,Manifests/Jenkins
+Runtime artifact verification,N/A,Agent/model identity target,Exact workload required,Verifier service,Verifier workload credential,Trust policy required,Target only
+Finding resolution,Operator user,Affected agent if any,UI/API service,Operator role,Session/token,Resolution workflow,Quilr source-specific
+Sensor observation,Claimed user if available,Claimed agent if available,Sensor instance not strongly authenticated everywhere,Sensor principal,Persona/token/channel,N/A,Every sensor

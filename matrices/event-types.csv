@@ -1,0 +1,76 @@
+Event type,Source events,Entities,Required fields,Dedup rule,Retention,Product use,Availability
+asset.observed,All discovery sensors,source observation; entity hint,"observation_id, source, occurred/observed time",source native ID + schema version,Tenant/source policy with replay and legal-hold requirements,Operational + evidence,Available now
+asset.discovered,Resolver/materializer,canonical entity,"canonical entity ID, first_seen",entity ID + first_seen transition,Tenant/source policy with replay and legal-hold requirements,Inventory timeline,Derivable now
+asset.updated,Materializer,canonical entity,"entity ID, changed fields, before/after refs",entity ID + materialization version,Tenant/source policy with replay and legal-hold requirements,Inventory timeline,Derivable now
+asset.merged,Resolver,canonical entities/observations,"survivor, absorbed IDs, rule, confidence",resolver decision ID,Audit/workflow retention with immutable history,Resolution Center,MVS
+asset.split,Resolver/manual workflow,canonical entities/observations,"prior merge, resulting IDs, actor/reason",split decision ID,Audit/workflow retention with immutable history,Resolution Center,MVS
+asset.stale,Freshness materializer,canonical entity/source,"last_seen, threshold, coverage",entity + source + threshold window,Tenant/source policy with replay and legal-hold requirements,Coverage/inventory,Derivable now
+asset.reactivated,Freshness materializer,canonical entity,new observation after stale/retired,entity + transition version,Tenant/source policy with replay and legal-hold requirements,Inventory,Derivable now
+asset.retired,Lifecycle workflow,canonical entity,"entity, actor/policy/reason",entity + lifecycle version,Tenant/source policy with replay and legal-hold requirements,Inventory,MVS
+ownership.assigned,Platform/CMDB,entity + owner,"entity, owner, actor",assignment ID,Tenant/source policy with replay and legal-hold requirements,Inventory/action,Requires assignment/integration
+ownership.changed,Platform/CMDB,entity + owners,"before/after, actor",assignment version,Tenant/source policy with replay and legal-hold requirements,Audit,Requires assignment/integration
+identity.observed,Persona/IdP/gateway,human/service/workload identity,"source IDs, identifiers",source native identity ID,Tenant/source policy with replay and legal-hold requirements,Evidence,Available now
+account.observed,Connector/browser/gateway,application account,provider account ID/type evidence,source account ID,Tenant/source policy with replay and legal-hold requirements,Inventory,Derivable partly
+relationship.observed,All sensors,typed relationship hint,"subject/object hints, source",observation + relationship tuple,Tenant/source policy with replay and legal-hold requirements,Evidence,MVS
+relationship.established,Relationship materializer,canonical relationship,subject/object/type/valid_from,relationship ID + version,Tenant/source policy with replay and legal-hold requirements,Context graph,MVS
+relationship.changed,Relationship materializer,canonical relationship,changed attributes/validity,relationship ID + version,Tenant/source policy with replay and legal-hold requirements,Context graph,MVS
+relationship.revoked,Relationship materializer,canonical relationship,valid_until/reason,relationship ID + version,Tenant/source policy with replay and legal-hold requirements,Context graph,MVS
+credential.observed,Gateway/connector/endpoint,credential fingerprint,"kind, fingerprint, owner hint",tenant + fingerprint + source,Tenant/source policy with replay and legal-hold requirements,Credential inventory/evidence,Derivable partly
+credential.revoked,Provider/platform,credential,"credential ID, actor, time",provider revocation event ID,Tenant/source policy with replay and legal-hold requirements,Finding resolution,Requires external integration
+ai.application.used,Browser/endpoint/gateway,user + tenant application,user/app/account/device context,source event ID,Tenant/source policy with replay and legal-hold requirements,Activity/adoption,Available now
+ai.interaction.started,Browser/gateway,interaction/session,"context_id, actor, application",source context + start,Tenant/source policy with replay and legal-hold requirements,Activity,Derivable now
+ai.interaction.completed,Browser/gateway,interaction/session,"outcome, duration, usage",source context + completion,Tenant/source policy with replay and legal-hold requirements,Activity,Derivable now
+prompt.submitted,Browser/gateway/IDE,prompt evidence + actors,"content reference, size, classifications",source request/prompt ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Protected activity,Available now
+response.received,Browser/gateway,response evidence + actors,"content reference, size, classifications",source request ID + direction,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Protected activity,Available now
+model.invocation.started,LLM gateway,model deployment + actor/run,provider/model/route/request,request_id + attempt,Tenant/source policy with replay and legal-hold requirements,Activity/latency,Available now
+model.invocation.completed,LLM gateway,model deployment + actor/run,"outcome, tokens, latency, cost",request_id + attempt + terminal state,Tenant/source policy with replay and legal-hold requirements,Activity/metrics,Available now
+agent.session.started,Agent runtime,agent session,agent/runtime/user/workload,source session ID,Tenant/source policy with replay and legal-hold requirements,Activity,Requires new telemetry
+agent.run.started,Agent runtime,agent run,agent/version/deployment/session,source run ID,Tenant/source policy with replay and legal-hold requirements,Activity,Requires new telemetry
+agent.run.completed,Agent runtime,agent run,"outcome, cost, duration",source run ID + terminal,Tenant/source policy with replay and legal-hold requirements,Activity/outcomes,Requires new telemetry
+agent.run.failed,Agent runtime,agent run,"error class, failed step",source run ID + terminal,Tenant/source policy with replay and legal-hold requirements,Finding signal,Requires new telemetry
+agent.step.started,Agent runtime,run step,"run, parent step, action kind",run ID + step ID,Tenant/source policy with replay and legal-hold requirements,Event explorer,Requires new telemetry
+agent.step.completed,Agent runtime,run step,outcome/evidence,run ID + step ID + terminal,Tenant/source policy with replay and legal-hold requirements,Event explorer,Requires new telemetry
+agent.delegated,Agent runtime,parent/subagent,"delegator, delegate, scope",run + delegation ID,Tenant/source policy with replay and legal-hold requirements,Governance,Requires new telemetry
+tool.discovered,Endpoint/MCP Gateway,server + tool/schema,"server ID, tool name, schema digest",server + schema digest,Tenant/source policy with replay and legal-hold requirements,Tool inventory,Derivable partly
+tool.call.requested,MCP Gateway/agent runtime,run + tool + target,"arguments evidence ref, actor",source call ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Activity/finding signal,Requires MCP telemetry
+tool.call.completed,MCP Gateway/agent runtime,run + tool + result,"outcome, result ref, latency",source call ID + terminal,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Activity/metrics,Requires MCP telemetry
+tool.call.failed,MCP Gateway/agent runtime,run + tool,"error, retryability",source call ID + terminal,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Finding signal,Requires MCP telemetry
+action.requested,Endpoint/MCP/agent,actor + target,"action, target, requested effect",source action ID,Tenant/source policy with replay and legal-hold requirements,Activity,Derivable partly
+action.decided,Policy engine,decision + action,"policy, result, reason",decision ID,Tenant/source policy with replay and legal-hold requirements,Explainability,Derivable partly
+action.executed,Endpoint/MCP/agent,action + target,observed effect/evidence,source action/effect ID,Tenant/source policy with replay and legal-hold requirements,Activity/assurance,Requires effect telemetry
+action.failed,Endpoint/MCP/agent,action + target,failure/error,source action ID + terminal,Tenant/source policy with replay and legal-hold requirements,Finding signal,Derivable partly
+action.reconciled,Effect reconciler,requested + observed action,match/mismatch/confidence,action ID + reconciliation version,Tenant/source policy with replay and legal-hold requirements,Assurance,Future capability
+data.read,Endpoint/tool/connector,actor + data asset/class,"asset/class, size, evidence",source action ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Protected activity,Requires data identity
+data.uploaded,Browser/endpoint/gateway,actor + destination + data,"file/content ref, size, class",correlation group + direction,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Activity/finding,Derivable now
+data.downloaded,Browser/endpoint/gateway,actor + source + data,"file/content ref, size, class",correlation group + direction,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Activity/finding,Derivable now
+data.transferred,Correlation engine,source/destination/data,"supporting observations, confidence",correlation group ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Activity/finding,Derivable with correlation
+data.redacted,DLP/gateway,content + control,"before/after refs, categories",decision/action ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Evidence,Available now
+data.retained,Provider/memory/connector,data + store,retention rule/evidence,provider event ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Finding signal,Requires external integration
+data.deleted,Provider/platform,data + store,delete actor/proof,provider event ID,Metadata per analytical/audit policy; protected content/evidence has separate minimal retention,Finding resolution,Requires external integration
+policy.evaluated,Policy engine/gateway/endpoint,policy + context,"inputs version, result, explanation",decision ID,Tenant/source policy with replay and legal-hold requirements,Explainability,Derivable partly
+decision.allowed,Policy/enforcement,decision/action,"policy, enforcement point",decision ID,Audit/workflow retention with immutable history,Activity,Available now
+decision.denied,Policy/enforcement,decision/action,"policy, enforcement point",decision ID,Audit/workflow retention with immutable history,Activity,Available now
+approval.requested,Policy/workflow,action + approver,"scope, expiry",approval ID,Audit/workflow retention with immutable history,Workflow,Requires workflow telemetry
+approval.granted,Policy/workflow,approval + actor,"decision, actor, expiry",approval ID + terminal,Audit/workflow retention with immutable history,Workflow,Derivable partly
+approval.rejected,Policy/workflow,approval + actor,reason,approval ID + terminal,Audit/workflow retention with immutable history,Workflow,Derivable partly
+control.warned,Browser/endpoint/gateway,control + actor/action,message/decision,source event ID,Tenant/source policy with replay and legal-hold requirements,Activity/UX metric,Available now
+control.blocked,Browser/endpoint/gateway,control + actor/action,decision/evidence,source event ID,Tenant/source policy with replay and legal-hold requirements,Activity/finding,Available now
+exception.created,Policy workflow,exception + scope,"actor, reason, expiry",exception ID,Tenant/source policy with replay and legal-hold requirements,Governance,Requires unified policy model
+exception.expired,Policy workflow,exception,expiry/effective state,exception ID + transition,Tenant/source policy with replay and legal-hold requirements,Finding signal,Requires unified policy model
+sensor.heartbeat,Browser/endpoint/gateway,sensor,"version, coverage, last report",source heartbeat ID/bucket,Tenant/source policy with replay and legal-hold requirements,Coverage,Available now
+sensor.stale,Coverage materializer,sensor,"last report, expected cadence",sensor + threshold window,Tenant/source policy with replay and legal-hold requirements,Coverage/finding,Derivable now
+sensor.self_test_failed,Sensor,sensor,"test, error, version",source diagnostic ID,Tenant/source policy with replay and legal-hold requirements,Finding,Requires standardized telemetry
+connector.degraded,Connector monitor,integration instance,error/rate/lag,connector + incident window,Tenant/source policy with replay and legal-hold requirements,Coverage/finding,Requires external integration
+provider.degraded,Gateway health,provider/deployment,probe failures/latency,provider + window,Tenant/source policy with replay and legal-hold requirements,Finding,Derivable now
+runtime.failed,Endpoint/gateway/agent,runtime,error/version/context,source runtime event ID,Tenant/source policy with replay and legal-hold requirements,Finding signal,Available partly
+cost.recorded,Gateway/provider/billing,cost record + attribution,"amount, currency, usage",source cost record ID,Tenant/source policy with replay and legal-hold requirements,Metrics,Derivable partly
+budget.threshold_crossed,Cost materializer,owner/scope,"budget, actual, window",scope + budget + period,Tenant/source policy with replay and legal-hold requirements,Finding,Requires budget integration
+task.succeeded,Agent/outcome verifier,agent run + outcome,outcome evidence,run + outcome type,Tenant/source policy with replay and legal-hold requirements,Value metrics,Requires outcome telemetry
+task.failed,Agent/outcome verifier,agent run + outcome,failure evidence,run + outcome type,Tenant/source policy with replay and legal-hold requirements,Value metrics/finding,Requires outcome telemetry
+outcome.verified,Outcome verifier,outcome + evidence,method/confidence,outcome + verifier version,Tenant/source policy with replay and legal-hold requirements,Value,Future capability
+finding.opened,Finding materializer,finding + affected entities,"condition, severity, owner, evidence",finding dedup key + generation,Audit/workflow retention with immutable history,Findings,MVS
+finding.updated,Finding materializer,finding,new evidence/severity/confidence,finding ID + version,Audit/workflow retention with immutable history,Findings,MVS
+finding.assigned,Workflow,finding + owner,"actor, assignee",finding ID + assignment version,Audit/workflow retention with immutable history,Findings,MVS
+finding.suppressed,Workflow,finding,"actor, reason, expiry",finding ID + suppression version,Audit/workflow retention with immutable history,Findings,MVS
+finding.resolved,Finding materializer/workflow,finding,resolution condition/evidence,finding ID + generation,Audit/workflow retention with immutable history,Findings,MVS
+finding.reopened,Finding materializer,finding,recurrence evidence,dedup key + new generation,Audit/workflow retention with immutable history,Findings,MVS

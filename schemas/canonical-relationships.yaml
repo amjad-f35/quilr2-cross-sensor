@@ -1,0 +1,834 @@
+version: 1
+relationships:
+  - subject: "Human User"
+    relation: "MEMBER_OF"
+    object: "Group"
+    source: "IdP/HR"
+    authority: "Direct when authoritative"
+    lifecycle: "Temporal"
+    availability: "Available through external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Group related through MEMBER_OF from Human User"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Group"
+    relation: "PART_OF"
+    object: "Organization Unit"
+    source: "IdP/HR"
+    authority: "Direct when authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Organization Unit related through PART_OF from Group"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Organization Unit"
+    relation: "CHARGED_TO"
+    object: "Organization Unit"
+    source: "Finance/CMDB"
+    authority: "Direct with subtype constraint Project->CostCenter"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Organization Unit related through CHARGED_TO from Organization Unit"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "OWNED_BY"
+    object: "Organization Unit"
+    source: "Explicit platform assignment"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires assignment/external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Organization Unit related through OWNED_BY from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tenant Application"
+    relation: "OWNED_BY"
+    object: "Human User"
+    source: "Explicit platform assignment"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires assignment"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Human User related through OWNED_BY from Tenant Application"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Data Asset"
+    relation: "OWNED_BY"
+    object: "Human User"
+    source: "Data catalog/explicit assignment"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Human User related through OWNED_BY from Data Asset"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Human User"
+    relation: "USES"
+    object: "Tenant Application"
+    source: "Browser/endpoint/gateway events"
+    authority: "Inferred from activity"
+    lifecycle: "Temporal"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tenant Application related through USES from Human User"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Human User"
+    relation: "LOGGED_INTO"
+    object: "Application Account"
+    source: "Browser/account/connector evidence"
+    authority: "Direct only where account ID observed"
+    lifecycle: "Temporal"
+    availability: "Requires telemetry for browser account certainty"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Application Account related through LOGGED_INTO from Human User"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Application Installation"
+    relation: "INSTALLED_ON"
+    object: "Device"
+    source: "Endpoint"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Available now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Device related through INSTALLED_ON from Application Installation"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Application Surface"
+    relation: "SURFACE_OF"
+    object: "AI Product"
+    source: "Catalog resolver"
+    authority: "Curated/derived"
+    lifecycle: "Bitemporal"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find AI Product related through SURFACE_OF from Application Surface"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tenant Application"
+    relation: "INSTANCE_OF"
+    object: "AI Product"
+    source: "Resolver/catalog"
+    authority: "Derived"
+    lifecycle: "Bitemporal"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find AI Product related through INSTANCE_OF from Tenant Application"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Application Account"
+    relation: "ACCOUNT_FOR"
+    object: "Tenant Application"
+    source: "Connector/browser/gateway"
+    authority: "Direct or inferred"
+    lifecycle: "Temporal"
+    availability: "Derivable with evidence"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tenant Application related through ACCOUNT_FOR from Application Account"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tenant Subscription"
+    relation: "SUBSCRIPTION_FOR"
+    object: "AI Product"
+    source: "Connector/billing"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find AI Product related through SUBSCRIPTION_FOR from Tenant Subscription"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Human User"
+    relation: "USES"
+    object: "Agent Definition"
+    source: "Agent run/IDE/gateway"
+    authority: "Direct or correlated"
+    lifecycle: "Temporal"
+    availability: "Requires stable run identity"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Definition related through USES from Human User"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "USED_BY"
+    object: "Organization Unit"
+    source: "Usage + event-time membership"
+    authority: "Inferred analytical relationship"
+    lifecycle: "Temporal"
+    availability: "Derivable with identity history"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Organization Unit related through USED_BY from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "HAS_VERSION"
+    object: "Agent Version"
+    source: "Repository/deployment"
+    authority: "Direct"
+    lifecycle: "Bitemporal"
+    availability: "Requires new telemetry for digest"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Version related through HAS_VERSION from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Deployment"
+    relation: "DEPLOYS"
+    object: "Agent Version"
+    source: "Deployment system"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Version related through DEPLOYS from Agent Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Runtime"
+    relation: "INSTANCE_OF"
+    object: "Agent Deployment"
+    source: "Runtime sensor"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires runtime telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Deployment related through INSTANCE_OF from Agent Runtime"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Deployment"
+    relation: "RUNS_AS"
+    object: "Workload Identity"
+    source: "Cloud/identity"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Workload Identity related through RUNS_AS from Agent Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "INITIATED_BY"
+    object: "Human User"
+    source: "Run context"
+    authority: "Direct when supplied"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Human User related through INITIATED_BY from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "ACTS_ON_BEHALF_OF"
+    object: "Human User"
+    source: "Delegation/authorization record"
+    authority: "Authoritative when delegation supplied"
+    lifecycle: "Temporal"
+    availability: "Requires authorization graph"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Human User related through ACTS_ON_BEHALF_OF from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Human User"
+    relation: "DELEGATED_TO"
+    object: "Agent Definition"
+    source: "Delegation/authorization record"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires authorization graph"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Definition related through DELEGATED_TO from Human User"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "EXECUTED_BY"
+    object: "Agent Runtime"
+    source: "Agent runtime"
+    authority: "Direct"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Runtime related through EXECUTED_BY from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "USES"
+    object: "Model Deployment"
+    source: "Endpoint config/gateway activity"
+    authority: "Direct config or inferred activity"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Deployment related through USES from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "USES"
+    object: "Tool"
+    source: "Endpoint config/MCP activity"
+    authority: "Direct config or inferred activity"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tool related through USES from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "CONNECTED_THROUGH"
+    object: "Integration Instance"
+    source: "Agent config"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires integration telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Integration Instance related through CONNECTED_THROUGH from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "MCP Client"
+    relation: "CONNECTS_TO"
+    object: "MCP Server Deployment"
+    source: "Endpoint config/MCP gateway"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find MCP Server Deployment related through CONNECTS_TO from MCP Client"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "MCP Client"
+    relation: "CLIENT_SURFACE_OF"
+    object: "Application Surface"
+    source: "Endpoint/application catalog/MCP Gateway"
+    authority: "Derived from strong client/application identity"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Application Surface related through CLIENT_SURFACE_OF from MCP Client"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "MCP Server Deployment"
+    relation: "INSTANCE_OF"
+    object: "MCP Server Product"
+    source: "Catalog resolver"
+    authority: "Derived"
+    lifecycle: "Bitemporal"
+    availability: "Future catalog"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find MCP Server Product related through INSTANCE_OF from MCP Server Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "MCP Server Deployment"
+    relation: "PROVIDES"
+    object: "Tool"
+    source: "Tool discovery/manifest"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires MCP source contract"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tool related through PROVIDES from MCP Server Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tool"
+    relation: "HAS_VERSION"
+    object: "Tool Version"
+    source: "Schema/manifest digest"
+    authority: "Derived"
+    lifecycle: "Temporal"
+    availability: "Requires MCP source contract"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tool Version related through HAS_VERSION from Tool"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Model Version"
+    relation: "PROVIDED_BY"
+    object: "Model Provider"
+    source: "Gateway/provider catalog"
+    authority: "Direct/curated"
+    lifecycle: "Bitemporal"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Provider related through PROVIDED_BY from Model Version"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Model Version"
+    relation: "VERSION_OF"
+    object: "Model Family"
+    source: "Gateway/provider catalog"
+    authority: "Curated/derived"
+    lifecycle: "Bitemporal"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Family related through VERSION_OF from Model Version"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Model Deployment"
+    relation: "DEPLOYS"
+    object: "Model Version"
+    source: "Gateway/provider API"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Derivable now in gateway paths"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Version related through DEPLOYS from Model Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Model Route"
+    relation: "RESOLVES_TO"
+    object: "Model Deployment"
+    source: "Gateway routing decision"
+    authority: "Direct per invocation/config"
+    lifecycle: "Temporal"
+    availability: "Requires route decision telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Deployment related through RESOLVES_TO from Model Route"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "RETRIEVES_FROM"
+    object: "Knowledge Base"
+    source: "Agent config/tool events"
+    authority: "Direct or inferred"
+    lifecycle: "Temporal"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Knowledge Base related through RETRIEVES_FROM from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Definition"
+    relation: "WRITES_TO"
+    object: "Memory Store"
+    source: "Agent config/activity"
+    authority: "Direct or inferred"
+    lifecycle: "Temporal"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Memory Store related through WRITES_TO from Agent Definition"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Credential"
+    relation: "AUTHENTICATES"
+    object: "Integration Instance"
+    source: "Connector/gateway"
+    authority: "Direct via fingerprint only"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Integration Instance related through AUTHENTICATES from Credential"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Application Account"
+    relation: "GRANTS_ACCESS_TO"
+    object: "Data Asset"
+    source: "Provider/data catalog"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Asset related through GRANTS_ACCESS_TO from Application Account"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Endpoint Process"
+    relation: "INSTANCE_OF"
+    object: "Application Installation"
+    source: "Endpoint correlation"
+    authority: "Derived"
+    lifecycle: "Point-in-time"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Application Installation related through INSTANCE_OF from Endpoint Process"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Endpoint Process"
+    relation: "CONNECTED_TO"
+    object: "Application Surface"
+    source: "Endpoint proxy"
+    authority: "Direct/correlated"
+    lifecycle: "Point-in-time"
+    availability: "Derivable now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Application Surface related through CONNECTED_TO from Endpoint Process"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tenant Application"
+    relation: "ACCESSED_FROM"
+    object: "Browser Instance"
+    source: "Browser interaction"
+    authority: "Direct observation"
+    lifecycle: "Point-in-time"
+    availability: "Available now"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Browser Instance related through ACCESSED_FROM from Tenant Application"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tenant Application"
+    relation: "ACCESSES"
+    object: "Data Asset"
+    source: "Gateway/endpoint/DLP correlation"
+    authority: "Inferred"
+    lifecycle: "Temporal"
+    availability: "Requires data identity"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Asset related through ACCESSES from Tenant Application"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Model Deployment"
+    relation: "PROCESSES"
+    object: "Data Class"
+    source: "DLP + model event"
+    authority: "Inferred from correlated event"
+    lifecycle: "Point-in-time"
+    availability: "Derivable now with correlation"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Class related through PROCESSES from Model Deployment"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tool"
+    relation: "READS"
+    object: "Data Asset"
+    source: "Tool result/action telemetry"
+    authority: "Direct when target ID supplied"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Asset related through READS from Tool"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Tool"
+    relation: "MODIFIES"
+    object: "Data Asset"
+    source: "Tool action telemetry"
+    authority: "Direct when target/effect supplied"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Asset related through MODIFIES from Tool"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Data Asset"
+    relation: "LOCATED_IN"
+    object: "Organization Unit"
+    source: "Data catalog"
+    authority: "Direct"
+    lifecycle: "Temporal"
+    availability: "Requires external integration"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Organization Unit related through LOCATED_IN from Data Asset"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Policy"
+    relation: "APPLIES_TO"
+    object: "Tenant Application"
+    source: "Policy configuration"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tenant Application related through APPLIES_TO from Policy"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Policy"
+    relation: "ENFORCED_AT"
+    object: "Enforcement Point"
+    source: "Control deployment"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Requires coverage registry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Enforcement Point related through ENFORCED_AT from Policy"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Decision"
+    relation: "GOVERNED_BY"
+    object: "Policy"
+    source: "Decision record"
+    authority: "Direct"
+    lifecycle: "Point-in-time"
+    availability: "Derivable now in some paths"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Policy related through GOVERNED_BY from Decision"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Decision"
+    relation: "ENFORCED_BY"
+    object: "Enforcement Point"
+    source: "Sensor result"
+    authority: "Direct"
+    lifecycle: "Point-in-time"
+    availability: "Derivable partly"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: true
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Enforcement Point related through ENFORCED_BY from Decision"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "CONTAINS"
+    object: "Decision"
+    source: "Correlation ID"
+    authority: "Direct"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Decision related through CONTAINS from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "CONTAINS"
+    object: "Canonical Event"
+    source: "Run/step correlation"
+    authority: "Direct when run/step IDs supplied"
+    lifecycle: "Point-in-time"
+    availability: "Requires new telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Canonical Event related through CONTAINS from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "INVOKED"
+    object: "Model Deployment"
+    source: "Gateway event"
+    authority: "Direct/correlated"
+    lifecycle: "Point-in-time"
+    availability: "Derivable with IDs"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Model Deployment related through INVOKED from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Agent Run"
+    relation: "CALLED"
+    object: "Tool"
+    source: "MCP event"
+    authority: "Direct/correlated"
+    lifecycle: "Point-in-time"
+    availability: "Requires MCP source contract"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tool related through CALLED from Agent Run"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Canonical Event"
+    relation: "OBSERVED_BY"
+    object: "Sensor"
+    source: "Observation envelope"
+    authority: "Direct"
+    lifecycle: "Point-in-time"
+    availability: "MVS"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Sensor related through OBSERVED_BY from Canonical Event"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Canonical Event"
+    relation: "TARGETED"
+    object: "Data Asset"
+    source: "Action/event target identity"
+    authority: "Direct when target ID supplied; otherwise inferred"
+    lifecycle: "Point-in-time"
+    availability: "Requires data/action telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Data Asset related through TARGETED from Canonical Event"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Finding"
+    relation: "AFFECTS"
+    object: "Tenant Application"
+    source: "Finding materializer"
+    authority: "Derived"
+    lifecycle: "Temporal"
+    availability: "MVS"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tenant Application related through AFFECTS from Finding"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Finding"
+    relation: "SUPPORTED_BY"
+    object: "Evidence Record"
+    source: "Finding materializer"
+    authority: "Authoritative link"
+    lifecycle: "Temporal"
+    availability: "MVS"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Evidence Record related through SUPPORTED_BY from Finding"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Evidence Record"
+    relation: "PROVES"
+    object: "Decision"
+    source: "Decision/evidence contract"
+    authority: "Authoritative only with sufficient integrity"
+    lifecycle: "Point-in-time"
+    availability: "Requires unified evidence"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Decision related through PROVES from Evidence Record"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Finding"
+    relation: "CAUSED_BY"
+    object: "Tenant Application"
+    source: "Correlation"
+    authority: "Derived"
+    lifecycle: "Temporal"
+    availability: "MVS"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Tenant Application related through CAUSED_BY from Finding"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Certification"
+    relation: "COVERS"
+    object: "Sensor"
+    source: "Assurance registry"
+    authority: "Authoritative"
+    lifecycle: "Temporal"
+    availability: "Future capability"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Sensor related through COVERS from Certification"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Cost Record"
+    relation: "ATTRIBUTED_TO"
+    object: "Agent Run"
+    source: "Gateway/billing correlation"
+    authority: "Direct/derived"
+    lifecycle: "Point-in-time"
+    availability: "Requires cost telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Run related through ATTRIBUTED_TO from Cost Record"
+    tenant_scoped: true
+    preserve_supporting_observations: true
+  - subject: "Outcome"
+    relation: "RESULT_OF"
+    object: "Agent Run"
+    source: "Outcome verifier"
+    authority: "Direct/verified"
+    lifecycle: "Point-in-time"
+    availability: "Requires outcome telemetry"
+    cardinality: "Many-to-many unless constrained by the entity-specific schema"
+    affects_access_or_policy: false
+    removal: "Close validity on revoke/delete/expiry; preserve bitemporal history"
+    example_query: "Find Agent Run related through RESULT_OF from Outcome"
+    tenant_scoped: true
+    preserve_supporting_observations: true

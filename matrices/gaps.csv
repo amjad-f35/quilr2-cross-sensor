@@ -1,0 +1,20 @@
+Gap,Affected domain,Consequence,Required work,Priority
+Authoritative MCP Gateway schema/source,"MCP entities, calls, policies, OAuth, actions",Blocks verified MCP event/tool lineage,Obtain repository/contracts and sample payloads,P0
+Stable agent/run/step identity,Agent attribution and outcomes,Blocks agent correlation/findings/cost,Instrument definition/version/deployment/run/step IDs,P0
+Browser account identity/type,Personal vs enterprise account,Prevents high-confidence personal-account findings,Capture provider account/tenant ID with consent or connector join,P0
+Source observation envelope,Every source,No replayable canonical input,Implement adapter contract and raw evidence reference,P0
+Per-field provenance and bitemporal history,Canonical entities/relationships,Merge/explain/replay unsafe,Operational canonical ledger,P0
+Manual merge/split workflow,Entity resolution,False merges not reversible,Resolution Center + decision/event history,P0
+Immutable raw/evidence store,All sensors,Audit/reprocessing incomplete,Tenant-scoped object storage and evidence metadata,P0
+Coverage/capability registry,Sensors/enforcement points,Cannot distinguish unknown from absent/enforceable,Heartbeat + declared/observed capability materializer,P0
+Unified policy/decision version contract,Endpoint/browser/LLM/MCP,Cannot explain/replay decisions,Emit policy/control/version/input/decision/enforcement IDs,P1
+Tool schema/call/result/effect telemetry,MCP/agents,Blocks action and MCP findings,Standard MCP adapter events and effect reconciliation,P1
+Credential fingerprints and owner links,Gateway/connectors/agents,Blocks shared/orphan credential findings,Nonreversible tenant-scoped fingerprints,P1
+Data asset identity/catalog integration,Files/repos/KB/memory,DLP classes cannot link to governed assets,Integrate catalog and content-safe identifiers,P1
+Model deployment/route decision identity,LLM gateway/provider,Aliases/providers can be conflated,Emit deployment endpoint/account/region/route target,P1
+Cost/billing attribution,Products/models/tools/connectors,Spend/value findings incomplete,Provider/billing connectors + cost record contract,P1
+Outcome verification,Agent/task value,Success/cost-per-outcome unavailable,Run/outcome contract and verifier,P2
+Certification/artifact digests,Sensors/agents,Assurance findings unavailable,Version/digest attestation and certification registry,P2
+Search index,Canonical estate/events,Cross-object/alias search weak,Build from canonical projections; no authority,P2
+Authoritative IdP/HR org contract,Users/groups/departments,Ownership and role-change findings incomplete,IdP/HR connector with bitemporal sync,P1
+Connector/account lifecycle contract,SaaS integrations,Account/subscription/access findings incomplete,Normalize connector instance/account/OAuth events,P1

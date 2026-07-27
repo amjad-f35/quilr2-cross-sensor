@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-07-27T18:19:28.877Z",
+  "input_documents": 419,
+  "source_fields": 578,
+  "sensors_and_sources": 17,
+  "canonical_entity_types": 54,
+  "relationship_types": 64,
+  "event_types": 75,
+  "actionable_findings": 119,
+  "metrics": 33,
+  "source_extraction_paths": 17,
+  "current_to_target_rows": 31,
+  "gaps": 19,
+  "target_traceability_rows": 345
+}

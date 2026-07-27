@@ -1,0 +1,579 @@
+Native datum,Sensor,Inventory,Relationship,Event,Finding signal,Metric,Evidence,Raw only,Source
+requestId / upload message id,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:9
+File.name,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:10
+File.size,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:11
+File.type,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:12
+File.lastModified,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:13
+Upload,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:14
+UploadContentInspection,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:15
+kb,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:16
+decision,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:17
+pendingUploads,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:18
+uploadResponses,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:19
+UploadScanStage,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:20
+persona tenant,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:21
+persona subscriber,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:22
+persona token,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:23
+detect_url,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:24
+upload.detections,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:25
+upload.isSensitive,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:26
+diagnostic stage,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:27
+diagnostic workflow cap,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:28
+diagnostic idle timeout,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:29
+PLASMO_PUBLIC_BFF_ENDPOINT,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:35
+PLASMO_PUBLIC_DLP_END_POINT,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:36
+PLASMO_PUBLIC_DIAGNOSTIC_ENABLED,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:37
+buildCounts,Browser extension / native host / BES,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:38
+native host name,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:39
+native length prefix,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:47
+native Message.type,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:48
+native Message.data,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:49
+SystemEvent.id,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:50
+event key,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:51
+FileMetadata.name,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:52
+FileMetadata.size,Browser extension / native host / BES,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:53
+FileMetadata.last_modified,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:54
+FilePath.path,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:55
+TaskInfo.status_state,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:56
+DLP remote toggle,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:57
+DLP max scan bytes,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:58
+"HIGH_WORKERS, MEDIUM_WORKERS, LOW_WORKERS",Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:59
+SQLite DB URL,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:60
+disable_agent,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:66
+agent_behaviour_whitelisting,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:67
+clipboard enable_listener,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:68
+clipboard content flags,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:69
+max_content_size,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:70
+extraction timeout/attempt/delay,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:71
+clipboard content,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:72
+clipboard hash,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:73
+RELEASE_CHECK_URL,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:74
+RELEASE_CHECK_INTERVAL_SECS,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:75
+updater version,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:76
+updater force_update,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:77
+updater binary_type,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:78
+"updater checksum, size",Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:79
+updater download_url,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:80
+A/B staged path,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:81
+tenant / selected tenant,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:87
+subscriber / subscriberid,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:88
+email/user principal,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:89
+x-trace-id,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:90
+client ID,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:91
+token type,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:92
+permission tuple,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:93
+x-api-version,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:94
+forwarded client IP,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:95
+bucket epoch,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:101
+bucket tenant,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:102
+device ID,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:103
+email,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:104
+personaId,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:105
+last-access timestamp,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:106
+"browser name/version, extension version",Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:107
+host/device/OS/agent/available version,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:108
+rules/relays/lookups/DLP last sync,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:109
+Kafka chunk size,Browser extension / native host / BES,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:110
+queryId,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:116
+exportType,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:117
+format,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:118
+start/end time ms,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:119
+status,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:120
+extra_info,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:121
+owner email / tenant,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:122
+file path,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:123
+customer/identity,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:133
+correlation/time,Browser extension / native host / BES,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:134
+policy/action,Browser extension / native host / BES,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:135
+application/account,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:136
+DLP/AI content,Browser extension / native host / BES,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:137
+telemetry,Browser extension / native host / BES,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:138
+ui_app_settings_pending:<tenant>:<appId>,Browser extension / native host / BES,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:146
+ui_app_settings_sync_lock,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:147
+endpoint_whitelist_pg_migration_done,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:148
+multipart cap,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:149
+Tomcat connections/accept queue,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:150
+Hikari pool,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:151
+heartbeat bucket,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:152
+export expiry,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:153
+app settings scheduler,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:154
+configuration reload,Browser extension / native host / BES,,,,,,,Yes,Browser-extension-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:155
+root manifest Version,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:7
+update version,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:8
+checksum_sha256,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:9
+force_update,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:10
+manifest_signature,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:11
+installer environment,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:12
+work email,Endpoint agent ecosystem,Yes,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:13
+CA certificate/key,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:14
+.last_downloaded_checksum,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:15
+download failure/quarantine state,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:16
+rollback ZIPs,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:17
+test-server Config,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:18
+captured Message/RawMessage,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:19
+local CDN root,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:20
+sentinel_token,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:28
+sentinel_identity,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:29
+token query parameter,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:30
+identity.exp,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:31
+"['assets', params]",Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:32
+['overview'],Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:33
+['relationships'],Endpoint agent ecosystem,,Yes,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:34
+"['settings','policy']",Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:35
+DLP tuple,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:36
+skill tuple,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:37
+dangerous permission key,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:38
+ScriptManifest.version,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:46
+ScriptEntry.entry,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:47
+ScriptEntry.capabilities,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:48
+ScriptEntry.timeout_ms,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:49
+scan_context,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:50
+__event_data,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:51
+SENTINEL_ALLOW_UNSIGNED_SCRIPTS,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:52
+SENTINEL_WORKSPACE_DIRS,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:53
+manifest.json.sig,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:54
+signing_public_key.pem,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:55
+ScriptResult,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:56
+risk/scope/type strings,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:57
+Detection.entity,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:65
+Detection.category / sub_category,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:66
+extended detection metadata,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:67
+Entity.start / end,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:68
+Entity.confidence,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:69
+DlpEvent.id,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:70
+JustificationContext.default_justification,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:71
+timeout_secs,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:72
+resp_sender,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:73
+template_name,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:74
+popup_active,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:75
+popup_sequence_num,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:76
+popup_queue,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:77
+UserJustification.event_id,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:78
+UserJustification.value,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:79
+comments / command originalText,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:80
+sentinel-core version,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:88
+default features,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:89
+grpc_server,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:90
+implicit compress-tools,Endpoint agent ecosystem,Yes,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:91
+MAX_EXTRACTION_DEPTH,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:92
+MAX_EXTRACTION_TIMEOUT,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:93
+COPY_BUFFER_SIZE,Endpoint agent ecosystem,,,,,Yes,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:94
+CPU_UTILIZATION_PERCENT,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:95
+STRICT_NESTED_MAGIC,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:96
+archive result tuple,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:97
+protobuf table,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:98
+operation,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:99
+params_json / result_json,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:100
+op_id / acks,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:101
+archive fixtures,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:102
+benchmark “512” text,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:103
+bootstrap-test environment,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:104
+fixed test Vault keys,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:105
+entity id,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:113
+canonical_id,Endpoint agent ecosystem,Yes,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:114
+EntityKind,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:115
+governance approval,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:116
+criticality,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:117
+execution policy,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:118
+sync state,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:119
+delta cursor,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:120
+pending governance key,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:121
+PID / parent PID,Endpoint agent ecosystem,,Yes,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:122
+process-map entry,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:123
+exclusion rule field,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:124
+cache timestamp,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:125
+Persona tenant/subscriber,Endpoint agent ecosystem,Yes,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:126
+access token,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:127
+device ID,Endpoint agent ecosystem,Yes,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:128
+scan rule,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:129
+Lua scan_context,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:130
+raw Lua entity/relationship/risk,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:131
+hook frame length,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:132
+hook decision,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:133
+hook session ID,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:134
+prompt/tool/file data,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:135
+activity channel/batch,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:136
+popup cooldown,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:137
+kill attempt counter,Endpoint agent ecosystem,,,,,Yes,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:138
+type,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:146
+request_id,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:147
+template_name,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:148
+template_type,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:149
+title / description,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:150
+original_text,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:151
+theme colors,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:152
+criticality,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:153
+show_timer,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:154
+timeout_seconds,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:155
+show_dismiss_button,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:156
+justifications,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:157
+branding_text,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:158
+logo_url,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:159
+show_logo,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:160
+response decision,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:161
+justification / comments,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:162
+broker source / response target,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:163
+dedup_count,Endpoint agent ecosystem,,,,,Yes,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:164
+created_at,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:165
+regular active limit / FIFO limit,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:166
+notification active/FIFO limit,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:167
+registry key,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:168
+backend content,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:169
+status counts,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:170
+--ipc-socket,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:178
+IPC_SOCKET,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:179
+RUST_LOG,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:180
+endpoint name,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:181
+frame length,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:182
+payload,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:183
+candidate,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:184
+exit code,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:185
+parent accept deadline,Endpoint agent ecosystem,,Yes,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:186
+parent payload cap,Endpoint agent ecosystem,,Yes,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:187
+payload id,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:195
+timestamp,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:196
+level,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:197
+category,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:198
+component,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:199
+code,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:200
+message,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:201
+context,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:202
+envelope type,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:203
+lifecycle type,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:204
+lifecycle process ID,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:205
+lifecycle timestamp,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:206
+broker channel/service,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:207
+local base path,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:208
+.log records,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:209
+.sent records,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:210
+buffer capacity/threshold,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:211
+batch size,Endpoint agent ecosystem,,,,,Yes,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:212
+retry/poll delay,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:213
+Bulk index,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:214
+IpcAddress.path,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:222
+service IPC path,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:223
+ProcessConfig.binary_path,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:224
+ProcessConfig.args,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:225
+ProcessConfig.env,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:226
+working_dir,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:227
+ipc_address,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:228
+run_in_user_space,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:229
+SENTINEL_SERVICE_MODE,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:230
+SERVICE_NAME / IPC_SOCKET / NO_COLOR,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:231
+SENTINEL_LOG_DIR,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:232
+SENTINEL_DLP_TEMPLATE_DIR,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:233
+IPC_LIGHT_PIPE_PATH_IPC_LIGHT_BROKER,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:234
+cached executable directory,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:235
+cached exit status,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:236
+Job Object handle,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:237
+macOS target PID,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:238
+timeouts/polls,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:239
+proxy bind/HTTP/HTTPS ports,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:247
+monitored TCP/UDP ports,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:248
+intercept_tls,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:249
+process allow/deny names/PIDs,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:250
+RequestContext identity,Endpoint agent ecosystem,,,Yes,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:251
+request/response body bytes,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:252
+DLP finding,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:253
+DLP action,Endpoint agent ecosystem,,,,Yes,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:254
+justification response,Endpoint agent ecosystem,,,,,,Yes,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:255
+uniqueness key,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:256
+OCR cache key/value,Endpoint agent ecosystem,,,,,,,Yes,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:257
+destination cache entry,Endpoint agent ecosystem,,Yes,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:258
+circuit state,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:259
+Windows C2S/S2C tuple maps,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:260
+UDP attribution key,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:261
+macOS control frame,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:262
+relay metadata,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:263
+Swift TCP source,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:264
+heartbeat request,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:265
+health response,Endpoint agent ecosystem,,,,,,,,Endpoint-agent-sensor-analysis/repository-analysis/08-data-dictionary.md:266
+tenant_id / tenant,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:9
+request_id,LLM/DLP gateway ecosystem,,,Yes,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:10
+event_id,LLM/DLP gateway ecosystem,,,Yes,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:11
+behavior_id,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:12
+user_id,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:13
+user_email,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:14
+subscriber / subscriber_id,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:15
+context_id / conversation ID,LLM/DLP gateway ecosystem,,,Yes,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:16
+api_key_hash,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:17
+Authorization,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:23
+api-key,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:24
+sk-quilr-...,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:25
+JWT iss,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:26
+JWT azp / client_id,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:27
+JWT kid,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:28
+JWT exp,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:29
+JWT email claims,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:30
+X-User-Email,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:31
+Entra state cookie/value,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:32
+Entra session cookie,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:33
+Provider API keys/secrets,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:34
+text / user_prompt,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:40
+enabled_categories,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:41
+enabled_oob_data_risk_categories,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:42
+enabled_oob_adversarial_risk_categories,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:43
+enabled_oob_edm_sub_categories,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:44
+enabled_oob_insider_risk_categories,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:45
+enabled_custom_categories,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:46
+category_sensitivities,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:47
+sub_category_sensitivities,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:48
+data_risk_sensitivity,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:49
+gpu_predictions_disabled,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:50
+include_all_enabled_predictions,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:51
+metadata / _metadata,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:52
+response_budget_seconds / deadline,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:53
+properties.dlp_request.extractions.content,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:59
+Process/application/request path,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:60
+excluded_processes / browser process names,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:61
+Scoped DLP/hook config version,LLM/DLP gateway ecosystem,,,,,,,Yes,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:62
+policy_engine_url,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:63
+Policy action,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:64
+"policy, user_interaction",LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:65
+"applied_scopes, matched config summary/reason",LLM/DLP gateway ecosystem,,,,,,,Yes,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:66
+response type,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:72
+id,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:73
+name / code_name,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:74
+sensitive_entities,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:75
+entity_texts_with_subcategories,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:76
+reason,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:77
+detection_type / detection_metadata,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:78
+timing_info,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:79
+result_count,LLM/DLP gateway ecosystem,,,,,Yes,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:80
+all_enabled_predictions,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:81
+completed / completed_policy,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:82
+error,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:83
+model / deployment,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:89
+messages,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:90
+tools / tool calls,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:91
+stream,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:92
+token counts/usage,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:93
+provider_name,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:94
+routing groups/additional providers,LLM/DLP gateway ecosystem,Yes,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:95
+category_actions,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:96
+Guardian decision,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:97
+Hallucination result,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:98
+"rate-limit duration/count, concurrency, token limits",LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:99
+dlp.req.data_risk / DLP_REQUESTS,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:105
+dlp.req.exploit_detection / DLP_REQUESTS,LLM/DLP gateway ecosystem,,,,Yes,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:106
+dlp.req.custom_categories,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:107
+dlp.req.prompt_category,LLM/DLP gateway ecosystem,,,,,,Yes,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:108
+dlp.req.conversation_title,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:109
+dlp.req.hallucination,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:110
+dlp.res.* / DLP_RESPONSES,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:111
+redteam.run_test / RED_TEAMING,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:112
+fp_analysis.run / false-positive stream,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:113
+db.writes / DB_WRITES,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:114
+dlp.stage1_oob.predict,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:115
+dlp.hallucination.predict_chunk,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:116
+dlp.embeddings.predict,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:117
+dlp.embeddings.predict.v2,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:118
+DLP_SERVER_DATA_DIR,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:135
+Endpoint manager URL,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:136
+File parser,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:137
+Intent handler,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:138
+DLP text limit,LLM/DLP gateway ecosystem,,,,,,,Yes,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:139
+File document chunks,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:140
+Health rollup days,LLM/DLP gateway ecosystem,,,,,,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:141
+Health rollup cache,LLM/DLP gateway ecosystem,,,,,,,Yes,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:142
+Rate cleanup,LLM/DLP gateway ecosystem,,,,,Yes,,,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:143
+ClickHouse startup retry,LLM/DLP gateway ecosystem,,,,,,,Yes,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md:144
+Authorization,Quilr 1 aggregation/query platform,,,,,,Yes,,quilr-platform-analysis/08-data-dictionary.md:9
+subscriberid / subscriber ID,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:10
+tenant ID,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:11
+user ID / user email,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:12
+traceId,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:13
+requestId,Quilr 1 aggregation/query platform,,,Yes,,,,,quilr-platform-analysis/08-data-dictionary.md:14
+auth cookie name,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:20
+auth cookie value,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:21
+external-auth cookie,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:22
+roles cookie,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:23
+permission map,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:24
+authenticated user,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:25
+PostHog identity/properties,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:26
+queryName / processor name,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:32
+time range,Quilr 1 aggregation/query platform,,,Yes,,,,,quilr-platform-analysis/08-data-dictionary.md:33
+page,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:34
+pageSize,Quilr 1 aggregation/query platform,,,,,Yes,,,quilr-platform-analysis/08-data-dictionary.md:35
+"sortBy, orderBy, sortOrder",Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:36
+filters,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:37
+search / searchFields,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:38
+source,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:39
+"response status, message, data",Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:40
+event status,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:46
+event ID / behavior ID,Quilr 1 aggregation/query platform,,,Yes,,,,,quilr-platform-analysis/08-data-dictionary.md:47
+resolution items,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:48
+summary filters,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:49
+filter values,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:50
+masked conversation attributes,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:56
+encrypted token,Quilr 1 aggregation/query platform,,,,,,Yes,,quilr-platform-analysis/08-data-dictionary.md:57
+whitelisted behavior,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:58
+user-app approval,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:59
+smart-group membership/operation,Quilr 1 aggregation/query platform,,Yes,,,,,,quilr-platform-analysis/08-data-dictionary.md:60
+master audit code,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:61
+asset identity,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:67
+metadata JSON,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:68
+search/filter/sort field names,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:69
+page/count,Quilr 1 aggregation/query platform,,,,,Yes,,,quilr-platform-analysis/08-data-dictionary.md:70
+interaction caches,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:76
+application/settings caches,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:77
+sync queue,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:78
+distributed lock key,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:79
+last-run key,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:80
+app-admin processed marker,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:81
+master bootstrap CAS state,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:82
+alerts/findings/status,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:90
+applications/settings,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:91
+users/groups/approvals,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:92
+interactions/visits,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:93
+assets/devices,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:94
+compliance/policy,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:95
+password findings,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:96
+audit/reference,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:97
+red teaming,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:98
+summary materializations,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:99
+backend application port,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:107
+frontend application port,Quilr 1 aggregation/query platform,Yes,,,,,,,quilr-platform-analysis/08-data-dictionary.md:108
+ClickHouse operations row limit,Quilr 1 aggregation/query platform,,,,,,,Yes,quilr-platform-analysis/08-data-dictionary.md:109
+dashboard executor,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:110
+interaction cache TTL,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:111
+OAuth cookie age,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:112
+PostHog sanitizer depth,Quilr 1 aggregation/query platform,,,,,,,,quilr-platform-analysis/08-data-dictionary.md:113
+status page defaults,Quilr 1 aggregation/query platform,,,,Yes,,,,quilr-platform-analysis/08-data-dictionary.md:114
+subscriber,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:14
+tenant,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:15
+subscriberid,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:16
+tenantid,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:17
+event_time,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:18
+user_principalname,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:19
+alert_userprincipalname,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:20
+user_name,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:21
+login_user_id,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:22
+context_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:23
+prompt_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:24
+alert_original_prompt,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:25
+alert_final_prompt,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:26
+alert_is_initial_sensitive,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:27
+alert_is_final_sensitive,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:28
+alert_type,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:29
+alert_status,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:30
+alert_action_taken,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:31
+prompt_changed,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:32
+event_name,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:33
+log_type,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:34
+control,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:35
+resolution_channel,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:36
+mode,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:37
+action_name,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:38
+summary_header,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:39
+summary_title,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:40
+summary_ack_buttons,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:41
+cred_fingerprint_id,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:42
+org_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:43
+org_l2_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:44
+final_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:45
+final_l2_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:46
+browser_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:47
+extension,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:48
+source_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:49
+app_name,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:50
+source_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:51
+domain,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:52
+source_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:53
+original_prompt_response,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:54
+alert_original_prompt_size,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:55
+quilr_latency,Browser Extension Service transformation schema,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:56
+llm_latency,Browser Extension Service transformation schema,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:57
+subscriber,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:66
+tenant,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:67
+event_time,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:68
+user_principalname,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:69
+user_name,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:70
+login_user_id,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:71
+context_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:72
+event_name,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:73
+control,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:74
+resolution_channel,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:75
+mode,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:76
+action_name,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:77
+summary_header,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:78
+sensitive,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:79
+org_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:80
+org_l2_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:81
+cp_org_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:82
+file_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:83
+browser_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:84
+extension,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:85
+source_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:86
+source_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:87
+user_justification,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:88
+outcome,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:89
+source_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:90
+check_id,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:91
+request_size,Browser Extension Service transformation schema,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:92
+dest_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:93
+dest_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:94
+dest_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:95
+subscriber,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:104
+tenant,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:105
+event_time,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:106
+user_principalname,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:107
+user_name,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:108
+login_user_id,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:109
+context_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:110
+event_name,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:111
+control,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:112
+org_control,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:113
+resolution_channel,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:114
+mode,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:115
+action_name,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:116
+summary_header,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:117
+sensitive,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:118
+org_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:119
+org_l2_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:120
+final_l1_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:121
+final_l2_categories,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:122
+file_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:123
+browser_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:124
+extension,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:125
+source_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:126
+source_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:127
+source_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:128
+check_id,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:129
+credential_shared_status,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:130
+credential_shared,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:131
+password_strength,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:132
+compromised_password,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:133
+credentials_reuse,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:134
+using_pwd_manager,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:135
+be_mfa_enabled,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:136
+source_user_mail,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:137
+request_size,Browser Extension Service transformation schema,,,,,Yes,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:138
+dest_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:139
+dest_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:140
+dest_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:141
+subscriber,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:150
+tenant,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:151
+event_time,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:152
+context_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:153
+user_justification,Browser Extension Service transformation schema,,,,,,Yes,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:154
+outcome,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:155
+subscriber,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:164
+tenant,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:165
+event_time,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:166
+user_principalname,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:167
+user_name,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:168
+login_user_id,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:169
+context_id,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:170
+event_name,Browser Extension Service transformation schema,,,Yes,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:171
+control,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:172
+resolution_channel,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:173
+mode,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:174
+action_name,Browser Extension Service transformation schema,,,,Yes,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:175
+summary_header,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:176
+browser_details,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:177
+extension,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:178
+check_id,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:179
+dest_application_name,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:180
+dest_application_domain,Browser Extension Service transformation schema,Yes,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:181
+dest_appauthtype,Browser Extension Service transformation schema,,,,,,,,Browser-extension-sensor-analysis/outputs/repository-analysis/generated/browser-extension-service-schema-ledger.md:182

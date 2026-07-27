@@ -1,0 +1,35 @@
+Method,Path,Purpose,Authorization,Idempotency,Evidence/audit,Error and staleness behavior
+POST,/identities/resolve,Resolve one identifier/observation set,identity.resolve,Idempotency key,Resolution decision+evidence,404 no candidate; 409 conflict; 422 invalid namespace
+POST,/identities/resolve/batch,Resolve bounded batch,identity.resolve.batch,Batch+item keys,Per-item decisions,207 per-item failures; no cross-item rollback
+GET,/identities/{id},Canonical identity,identity.read,N/A,Claims/state/provenance/freshness,404 tenant-scoped
+GET,/identities/by-identifier,Tenant-safe identifier lookup,identity.read,N/A,Exact/candidate results with confidence,400 namespace missing; 409 ambiguity
+POST,/identity-observations,Ingest immutable observation,identity.observe,source+native event ID,Observation receipt,409 duplicate mismatch; 422 schema/proof error
+GET,/identities/{id}/observations,Observation history,identity.evidence.read,N/A,Paginated redacted observations,403 evidence tier
+GET,/identities/{id}/identifiers,Identifier history,identity.read,N/A,Namespaced identifiers,404 tenant-scoped
+POST,/identities/{id}/identifiers,Add verified/claimed identifier,identity.identifier.write,request key,Identifier record,409 contradiction
+POST,/identity-resolution/merge,Audited merge,identity.resolve.approve,operation key,Merge event/redirect,409 cross-tenant/contradiction
+POST,/identity-resolution/split,Audited split,identity.resolve.approve,operation key,Split/reassignment plan,409 active dependency conflict
+POST,/identity-resolution/not-same,Negative match assertion,identity.resolve.approve,pair+version,Constraint record,409 stale candidate
+GET,/identity-resolution/candidates,Resolution work queue,identity.resolve.review,N/A,Candidates/evidence,N/A
+POST,/identities/{id}/verify,Verify claims/proofs,identity.verify,proof digest,Verification record,422 unverifiable proof
+POST,/workloads/attest,Verify runtime selectors/evidence,workload.attest,nonce+instance,Attestation/binding,401/403 failed trust or selector
+POST,/artifacts/verify,Verify digest/signature/provenance,artifact.verify,artifact digest+policy,Verification summary,422 trust/predicate mismatch
+GET,/attestations/{id},Attestation/evidence metadata,identity.evidence.read,N/A,Redacted attestation,403 evidence tier
+GET,/federations,Federation inventory,federation.read,N/A,Federation state,N/A
+POST,/federations,Register trust relationship,federation.admin,issuer/trust-domain key,Federation record,409 collision
+POST,/federations/{id}/verify,Refresh metadata/bundles/mappings,federation.verify,metadata version,Verification event,422 trust failure
+POST,/federations/{id}/revoke,Revoke federation,federation.admin,operation key,Revocation event,409 dependent active grants unless cascade accepted
+POST,/delegations,Create attenuated delegation,delegation.create,intent/grant key,Delegation+credential grant,403 authority expansion
+POST,/delegations/{id}/attenuate,Create child/subset delegation,delegation.create,parent+constraints key,Child delegation,403 subset validation failure
+POST,/delegations/{id}/revoke,Revoke delegation/descendants,delegation.revoke,operation key,Revocation/cascade status,202 propagation pending
+GET,/delegations/{id}/chain,Full authority chain,delegation.read,N/A,Parent/child chain,404 tenant-scoped
+POST,/credential-grants,Create grant,credential.grant,intent+subject+resource,Grant metadata,403 policy denial
+POST,/credential-grants/{id}/exchange,Issue attenuated credential,credential.exchange,grant+audience+nonce,Short-lived credential handle/metadata,403/409 expired/revoked/expansion
+POST,/credentials/{id}/revoke,Revoke credential,credential.revoke,operation key,Revocation status,202 issuer propagation
+GET,/credentials/{id}/metadata,Credential metadata only,credential.read,N/A,Issuer/subject/audience/scope/expiry/status,Never returns secret/token value
+GET,/runs/{id}/actor-chain,Run attribution,attribution.read,N/A,Actor chain+evidence,404/206 incomplete chain
+GET,/events/{id}/actor-chain,Event attribution,attribution.read,N/A,Actor chain+evidence,404/206 incomplete chain
+GET,/actions/{id}/attribution,Action causality and authority,attribution.read,N/A,Actor/decision/sensor chain,404/206 incomplete chain
+POST,/access/check,Decision-ready effective access,access.check,request/action/resource snapshot,Decision+identity snapshot,403 deny; 409 stale context
+GET,/identities/{id}/effective-access,Effective grants/paths,access.read,N/A,Plain-language paths+evidence,404 tenant-scoped
+GET,/resources/{id}/authorized-identities,Reverse effective access,access.read,N/A,Authorized identities/paths,404 tenant-scoped

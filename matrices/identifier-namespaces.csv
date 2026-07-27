@@ -1,0 +1,35 @@
+Namespace,Applies to,Scope,Identifier construction,Assurance or caveat
+quilr,Tenant canonical entity,Tenant,Opaque UUIDv7,Durable database identity; not proof
+quilr-catalog,Global catalog object,Global,Opaque UUIDv7,Curated catalog authority
+oidc,Human/account identity,Issuer,issuer+subject,Strong when issuer and token are verified
+scim,Directory resource,Provider tenant,provider+resource ID,Authoritative directory record
+hris,Person/employment,Employer,system+immutable worker ID,Authoritative employment record
+saml,Federated account,IdP,issuer+NameID with format/persistence policy,Depends on IdP guarantees
+oauth-client,OAuth client,Authorization server,issuer+client_id,Registration identity
+oauth-grant,Authorization grant,Issuer,issuer+grant ID,Authority relationship
+spiffe,Logical workload,Trust domain,SPIFFE URI,Cryptographically authenticated by valid SVID
+x509,Certificate,Issuer,issuer+serial+public-key fingerprint,Validated chain and policy required
+jwk,Public key,Cryptographic,RFC 7638 thumbprint+algorithm,Content-derived public-key identifier
+kms,Managed key version,KMS authority,resource URI+version,Provider authoritative
+kubernetes,Workload instance,Cluster,cluster+pod UID,Orchestrator authoritative
+cloud-workload,Cloud principal/instance,Cloud account/project,provider subject/resource ID,Cloud issuer authoritative
+mdm,Managed device,MDM tenant,provider+device object ID,Management authority
+edr,Observed device/process,EDR tenant,provider+device/process ID,Runtime authority
+git,Git object,Repository/object format,full OID+algorithm+object type,Content-derived within Git semantics
+swhid,Archived source object,SWH scheme,qualified SWHID,Intrinsic source-object identifier
+oci,Container artifact,Registry/repository,manifest/index digest+algorithm,Content-derived
+purl,Package coordinate,Package ecosystem,Package URL,Coordinate; add content digest
+sbom,SBOM document,Issuer/tool,document ID+digest,"Evidence, not artifact identity alone"
+sigstore,Signature/transparency entry,Fulcio/Rekor or private instance,bundle/log entry UUID+digest,Verified against explicit trust root
+in-toto,Attestation,Predicate/issuer,statement digest+subject digest,Signed claim about subjects
+slsa,Provenance,Builder,attestation ID+subject digest,Verified build/source provenance
+provider-model,Provider-hosted model,Provider account,provider+account+native model/snapshot/deployment ID,Provider claim/API
+model-registry,Self-hosted model artifact,Registry,repository revision+manifest digest,Registry plus content proof
+mcp,MCP registration/tool,Registry/server,registration ID or server ID+tool namespace+schema digest,Server/registry claim; verify runtime separately
+saas,SaaS tenant/account/resource,Provider tenant,provider+organization/account/resource ID,Provider authoritative
+sensor,Sensor instance,Tenant enrollment,deployment+instance+certificate/key ID,Authenticated enrollment/channel
+event,Event,Tenant/source,event UUIDv7+source native ID,Authenticated source observation
+evidence,Evidence record,Tenant,evidence UUIDv7+content digest,Immutable evidence envelope
+decision,Policy decision,Tenant,decision UUIDv7,Decision service record
+finding,Finding lineage,Tenant,finding UUIDv7+dedup key+generation,Materializer authority
+secret-manager,Secret metadata/version,Vault/provider,resource ID+version,Manager authoritative; never copy value

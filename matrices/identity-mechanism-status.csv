@@ -1,0 +1,27 @@
+Mechanism,Current classification,Evidence summary,Evidence,Target treatment
+Full Git object IDs,Referenced only,Analysis snapshots use commit hashes; runtime canonical use is not established,quilr-platform-analysis/15-build-deployment-and-operations.md,Store full OID+algorithm+object type+repository
+Git commit IDs,Referenced only,Pinned repository-analysis anchors and build labels,quilr-platform-analysis/15-build-deployment-and-operations.md,Use as source revision identifiers
+Git tree IDs,Absent,No current canonical tree identity found in supplied analysis,quilr-platform-analysis/15-build-deployment-and-operations.md,Add when source-tree identity is required
+SWHIDs,Absent,No SWHID use found in supplied analysis,docs/quilr2-cross-sensor/42-current-quilr1-identity-audit.md,Optional source-object alias where archive/private-source policy permits
+OCI image digests,Unresolved,Analysis explicitly says rendered production image digests were unavailable,quilr-platform-analysis/15-build-deployment-and-operations.md,Resolve and verify at build/deploy/runtime
+Package digests,Referenced only,Checksums/hashes appear in build/update contexts but not as universal canonical artifact identity,Endpoint-agent-sensor-analysis/repository-analysis/15-build-deployment-and-operations.md,Normalize algorithm+digest+artifact
+Package URLs,Absent,No PURL identity model found,docs/quilr2-cross-sensor/42-current-quilr1-identity-audit.md,Add for package coordinates
+SBOM identifiers,Absent,Analyses note absent/unresolved SBOM stages,Endpoint-agent-sensor-analysis/repository-analysis/15-build-deployment-and-operations.md,Add SBOM document+subject digest
+Agent manifest digests,Absent,No canonical behavior manifest digest,docs/quilr2-cross-sensor/31-agent-identity.md,Required for Agent Version
+Prompt-bundle digests,Absent,No canonical prompt bundle artifact,docs/quilr2-cross-sensor/31-agent-identity.md,Add canonicalized digest
+Model-weight digests,Unresolved,Provider models do not expose them; local model asset provenance is inconsistent,LLM-gateway-sensor-analysis/outputs/repository-analysis/09-data-models-and-storage.md,Require manifest for self-hosted only
+Model-registry revision IDs,Partially implemented,Provider/model/deployment strings exist; registry authority is not universal,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md,Namespace by provider/account/registry
+SPIFFE IDs,Absent,No SPIFFE/SPIRE evidence in supplied analysis,docs/quilr2-cross-sensor/42-current-quilr1-identity-audit.md,Proposed workload identity
+X.509-SVIDs,Absent,No SVID evidence,docs/quilr2-cross-sensor/42-current-quilr1-identity-audit.md,Proposed for mTLS workloads
+JWT-SVIDs,Absent,"JWT exists, but not SPIFFE JWT-SVID",quilr-platform-analysis/12-security-model.md,Use only where X.509 is impractical
+Cloud workload identity,Unresolved,Cloud/deployed IAM state unavailable,quilr-platform-analysis/15-build-deployment-and-operations.md,Integrate where platform-native
+Kubernetes projected service-account identity,Unresolved,Service-account/RBAC and live objects were unresolved,quilr-platform-analysis/15-build-deployment-and-operations.md,Audience-bound projected tokens or SPIFFE federation
+Artifact signatures,Unresolved,No verified signing/verification pipeline in supplied analyses,docs/quilr2-cross-sensor/39-provenance-signing-and-attestation.md,Sigstore or enterprise PKI under trust policy
+in-toto attestations,Absent,No current evidence,docs/quilr2-cross-sensor/39-provenance-signing-and-attestation.md,Proposed attestation envelope
+SLSA provenance,Absent,No current evidence,docs/quilr2-cross-sensor/39-provenance-signing-and-attestation.md,Proposed build/source provenance
+Sigstore certificates/transparency records,Absent,No current evidence,docs/quilr2-cross-sensor/39-provenance-signing-and-attestation.md,Evaluate public/private Sigstore
+TPM or hardware attestation,Unresolved,Hardware/device proof not available in supplied analysis,Endpoint-agent-sensor-analysis/repository-analysis/12-security-model.md,Evaluate for high-assurance devices/nodes
+Signed deployment manifests,Absent,No verified signed deployment binding,quilr-platform-analysis/15-build-deployment-and-operations.md,Sign canonical deployment binding
+JWK thumbprints,Absent,JWT kid/public-key configuration exists without canonical JWK identity model,LLM-gateway-sensor-analysis/outputs/repository-analysis/08-data-dictionary.md,Add RFC 7638 thumbprint
+Certificate fingerprints,Unresolved,"Some TLS/certificate paths exist, but canonical certificate inventory is not demonstrated",docs/quilr2-cross-sensor/36-secrets-credentials-and-keys.md,Normalize issuer+serial+fingerprints
+KMS key versions,Unresolved,Production secret/KMS state external,quilr-platform-analysis/15-build-deployment-and-operations.md,Inventory resource+version without key material

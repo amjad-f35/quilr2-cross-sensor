@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/federation.schema.json",
+  "title": "Quilr Federation Relationship",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "federation_id",
+    "tenant_id",
+    "federation_type",
+    "local_trust_domain",
+    "remote_issuer_or_trust_domain",
+    "trust_anchors",
+    "accepted_audiences",
+    "subject_mapping",
+    "claim_mapping",
+    "permitted_entity_types",
+    "effective_from",
+    "owner_id",
+    "last_verified",
+    "status"
+  ],
+  "properties": {
+    "federation_id": {
+      "type": "string",
+      "pattern": "^federation:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "federation_type": {
+      "type": "string",
+      "enum": [
+        "oidc",
+        "saml",
+        "spiffe",
+        "cloud-workload",
+        "kubernetes-cloud",
+        "cicd-cloud",
+        "oauth",
+        "other"
+      ]
+    },
+    "local_trust_domain": {
+      "type": "string"
+    },
+    "remote_issuer_or_trust_domain": {
+      "type": "string"
+    },
+    "trust_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "reference",
+          "fingerprint_or_version"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "jwks",
+              "x509_bundle",
+              "spiffe_bundle",
+              "saml_metadata",
+              "cloud_issuer",
+              "other"
+            ]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "fingerprint_or_version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "accepted_audiences": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "subject_mapping": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "claim_mapping": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "permitted_entity_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Tenant",
+          "Organization Unit",
+          "Human User",
+          "Group",
+          "Service Account",
+          "Workload Identity",
+          "Credential",
+          "Session",
+          "AI Product",
+          "Application Surface",
+          "Tenant Application",
+          "Application Installation",
+          "Tenant Subscription",
+          "Application Account",
+          "Device",
+          "Browser Instance",
+          "Endpoint Process",
+          "Model Provider",
+          "Model Family",
+          "Model Version",
+          "Model Deployment",
+          "Model Route",
+          "Agent Definition",
+          "Agent Version",
+          "Agent Deployment",
+          "Agent Runtime",
+          "Agent Run",
+          "MCP Client",
+          "MCP Server Product",
+          "MCP Server Deployment",
+          "Tool",
+          "Tool Version",
+          "Connector",
+          "Integration Instance",
+          "Connected Account",
+          "Data Asset",
+          "Data Class",
+          "Knowledge Base",
+          "Vector Index",
+          "Memory Store",
+          "Prompt Template",
+          "Gateway",
+          "Sensor",
+          "Enforcement Point",
+          "Policy",
+          "Control",
+          "Exception",
+          "Approval",
+          "Decision",
+          "Finding",
+          "Evidence Record",
+          "Certification",
+          "Cost Record",
+          "Outcome",
+          "Person",
+          "Employment Relationship",
+          "Directory Account",
+          "IdP Account",
+          "SaaS User Account",
+          "Local Application Account",
+          "Privileged Account",
+          "Browser Product",
+          "Browser Installation",
+          "Browser Profile",
+          "Browser Extension Installation",
+          "Physical Hardware",
+          "OS Installation",
+          "Managed Device Record",
+          "Cloud VM Instance",
+          "Current Boot",
+          "Workload Deployment",
+          "Workload Instance",
+          "Agent Configuration",
+          "Agent Artifact",
+          "Agent Session",
+          "Agent Step",
+          "Sub-agent",
+          "Agent Account",
+          "Model Artifact",
+          "Model Configuration",
+          "Model Fine-tune",
+          "Model Adapter",
+          "Model Quantized Variant",
+          "Serving Endpoint",
+          "Model-serving Workload",
+          "MCP Server Definition",
+          "MCP Server Version",
+          "MCP Connection",
+          "Connector Product",
+          "Connector Version",
+          "OAuth Client",
+          "OAuth Grant",
+          "Synchronization Job",
+          "Source Repository",
+          "Source Revision",
+          "Build Invocation",
+          "Build Platform",
+          "Software Artifact",
+          "Release",
+          "Software Deployment",
+          "Runtime Instance",
+          "Secret Record",
+          "Secret Version",
+          "Authorization Grant",
+          "Token",
+          "Cryptographic Key",
+          "Certificate",
+          "Trust Anchor",
+          "Federation",
+          "Delegation",
+          "Artifact Signature",
+          "Attestation",
+          "Provenance Record",
+          "SBOM",
+          "Policy Version",
+          "Compiled Policy Bundle",
+          "Policy Deployment",
+          "Policy Evaluation"
+        ]
+      }
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "metadata_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trust_bundle_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "owner_id": {
+      "type": "string",
+      "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "configured",
+        "verified",
+        "degraded",
+        "expired",
+        "revoked"
+      ]
+    },
+    "verification_evidence_ref": {
+      "type": "string"
+    }
+  }
+}

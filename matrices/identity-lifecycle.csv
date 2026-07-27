@@ -1,0 +1,21 @@
+Dimension,State,Meaning,Entry condition,Allowed next states,Authority
+Resolution state,candidate,Observation cannot yet be assigned,First observation,resolved or suppressed,Resolver/manual decision
+Resolution state,correlated,Candidate cluster has supporting matches,Secondary matches,"resolved, conflict, or candidate",Resolver
+Resolution state,resolved,Observations assigned to one canonical identity,Strong/authoritative match,"conflict, merged, split",Resolver/operator
+Resolution state,conflict,Authoritative or strong identifiers disagree,Contradiction,resolved or split,Resolution center
+Resolution state,merged,Prior canonical ID redirects to survivor,Approved resolution event,split only through audited operation,Resolution service
+Existence state,observed,At least one valid source saw the entity,Identity observation,"active, stale, deleted",Observation materializer
+Existence state,active,Fresh confirming observation exists,Confirmation within window,"stale, deleted",Reconciler
+Existence state,stale,No required confirmation inside entity/source window,stale_after reached,active/reappeared or retired,Reconciler
+Existence state,deleted,Authoritative source reported deletion,Source deletion observation,reappeared or retired,Authoritative adapter
+Lifecycle state,suspended,Use is intentionally paused,Administrative/policy action,"active, revoked, retired",Owner/admin
+Lifecycle state,revoked,Authority or trust was explicitly invalidated,Revocation event,reissued or retired,Issuer/authority
+Lifecycle state,retired,Entity is no longer intended for use,Owner/authority action and confirmation,reappeared,Owner/authority
+Lifecycle state,reappeared,A retired/stale identity is observed again,New observation,active or new identity candidate,Resolver/reconciler
+Authentication state,authenticated,Presenter proved control under accepted method,Successful verification,expired/revoked/failed,Authenticator
+Attestation state,attested,Signed/runtime claims satisfy trust policy,Attestation verification,expired/failed,Attestation verifier
+Credential state,active,"Credential is valid, unexpired, unrevoked",Issuance/validation,rotated/expired/revoked,Issuer
+Ownership state,owned,Accountable owner assignment is current,Explicit assignment,unowned/review_due,Registry
+Management state,managed,Entity is under approved governance,Management record/control,unmanaged/exception,Control plane
+Certification state,certified,Review/evaluation is current,Certification issuance,expired/revoked,Certifier
+Freshness state,fresh,Claim reconfirmed within policy window,Observation/reconciliation,aging/stale,Reconciler

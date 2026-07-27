@@ -1,0 +1,31 @@
+Identifier,Strength class,Entity layer,Required context or proof,Prohibited inference
+OIDC issuer+subject,Strong deterministic,Human/account,Verified issuer and token; account-link policy still required,Never merge on subject without issuer
+SCIM provider+resource ID,Strong deterministic,Human/group,Authoritative provider record,Provider tenant required
+HRIS+immutable employment ID,Strong deterministic,Person/employment,Authoritative employment record,Rehire semantics must be explicit
+Provider organization/account ID,Strong deterministic,Tenant/application account,Provider API,Provider namespace required
+SPIFFE ID+valid SVID,Strong cryptographic,Logical workload,Trust-domain bundle and SVID validation,"Logical workload, not runtime instance or artifact"
+Kubernetes cluster+pod UID,Strong runtime,Workload instance,Orchestrator record,Ephemeral by design
+Cloud workload subject,Strong cryptographic,Workload principal,Verified cloud issuer token,Audience and environment required
+Device MDM/EDR ID,Strong deterministic,Managed device,Provider authority,Re-enrollment/reimage semantics required
+Full Git OID,Content-derived,Git object,"Algorithm, object type, repository context",Not a build/runtime identity
+Qualified SWHID,Content-derived,Archived source object,SWHID syntax/object/qualifiers,Not universal; private-source policy required
+OCI manifest digest,Content-derived,Container artifact,Registry retrieval and digest verification,Tag is not identity
+Package digest,Content-derived,Package artifact,Digest verification,Coordinate alone is weaker
+JWK thumbprint,Content-derived,Public key,Canonicalized JWK per RFC 7638,"Key identity, not owner authorization"
+Certificate issuer+serial+fingerprint,Strong cryptographic,Certificate,"Path, time, revocation, and policy validation",Certificate is not private-key identity by itself
+KMS resource+version,Strong deterministic,Managed key,KMS authority,Alias is mutable
+Agent manifest digest,Content-derived,Agent version,Canonical manifest and digest,"Bind to source, artifact, deployment, workload"
+Model manifest digest,Content-derived,Self-hosted model artifact,All required weight/config/tokenizer/adapter files,Provider-hosted models may not expose this
+Tool schema digest,Content-derived,Tool version,Canonical input/output schema,Also require server identity
+Application bundle/package ID,Secondary,Application surface/install,OS/package authority,Code signer and version strengthen match
+Verified domain,Secondary,Product/surface,DNS/provider/catalog verification,Domain can move
+Repository native ID,Secondary,Repository,Forge+installation+repository ID,URL/name can change
+Email,Weak,Account/person candidate,Source assertion only,Mutable and reassignable
+Display name,Weak,Any,Claim only,Never auto-merge alone
+Hostname,Weak,Device,Runtime claim,Mutable/reusable
+PID,Weak,Process,OS observation,Require boot ID and start time
+Process filename,Weak,Application/process,Endpoint observation,Ambiguous
+Model alias,Weak route,Model route,Routing config snapshot,Mutable; resolve at event time
+Container/image tag,Weak route,Artifact deployment,Registry tag observation,Mutable; require digest
+Tool name,Weak,Tool,Server claim,Namespace by server and schema
+API key prefix,Weak metadata,Credential,Issuer-safe fragment,Not proof of possession or full identity

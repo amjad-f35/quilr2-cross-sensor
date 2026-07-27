@@ -1,0 +1,9 @@
+Delegation type,Original principal,Current actor,Authority,Attenuation,Credential mechanism,Expiration,Revocation
+Direct human action,Human/account,Human/account,Session,No delegation,Session/token,Session/policy expiry,Revoke session/grant
+Agent on behalf of human,Human,Agent/effective principal,Agent+action+resource+data+spend,No broader than user grant,Token exchange/RAR/resource-bound token,Run/grant TTL,Revoke parent and descendants
+Agent as own principal,Agent/service principal,Agent principal,Approved autonomous scope,Service policy,Workload-bound credential,Short-lived,Agent/workload/grant revocation
+Parent agent to child agent,Parent agent/run,Child agent/run,Subset of parent authority,Depth/actions/resources/data/audience/duration/spend,Exchanged capability/credential,Child run TTL,Cascade from parent
+Service impersonation,Service/admin,Effective human/service,Explicit impersonation scope,Preserve actor and subject,Exchange/assume-role credential,Very short,Stop session and revoke assumption
+Temporary admin elevation,Human admin,Elevated role,Approved role/resources/environment,Separation of duties and expiry,Step-up session/grant,Minutes/hours,Approval/session revoke
+Connector delegated access,Human/admin/provider account,Connector/OAuth client,Provider scopes/resources,Consent and audience constraints,OAuth grant/access token,Provider token TTL,Revoke provider grant/connection
+CI/CD delegation,Human/workflow,Build/deploy job,Repository/environment/action,Workflow/ref/environment policy,OIDC federation short-lived token,Job TTL,Cancel job/revoke federation

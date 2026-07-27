@@ -1,0 +1,24 @@
+Identity domain,Current support,Missing proof,Consequence,Target mechanism,Priority
+Canonical identity,Source-specific IDs and application inventory,No generalized identifier/proof registry,Duplicate/conflated entities and brittle joins,Tenant-safe UUIDv7 canonical registry plus aliases,P0
+Continuous discovery,"Minute/hour jobs, event/request paths, startup/manual tasks","No uniform cursors, tombstones, staleness, reconciliation",Silent drift and false deletion,Observation stream+incremental sync+periodic reconciliation,P0
+Human identity,JWT/user/email/tenant context,Issuer+subject/person/account separation and JML authority,Misattribution and leaver risk,IdP/SCIM/HRIS integrations,P0
+Agent identity,Labels and partial discovery/activity,Definition/version/artifact/deployment/runtime/run binding,Cannot attest which agent acted,Agent registry+signed manifests+runtime binder,P0
+Workload identity,Service/process/deployment context,Cryptographic workload identity/attestation,Shared or spoofable runtime attribution,SPIFFE/cloud workload identity,P0
+Actor chain,User/request/agent hints in separate records,Initiator→agent→workload→grant→decision chain,Actions not fully attributable,Canonical actor chain on consequential events,P0
+Tenant proof,Headers/token context; some caller-controlled paths,Uniform verified tenant binding,Cross-tenant risk,Identity context assembler and mandatory tenant predicates,P0
+Sensor identity,Names/persona/tokens/components,"Per-instance credential, version, artifact, replay protection",Untrusted evidence source,Sensor enrollment and signed/authenticated envelopes,P0
+Credential inventory,API keys/JWT/cookies/provider secrets fragmented,Owner/consumer/grant/expiry/revocation graph,Orphaned/shared long-lived credentials,Credential broker+metadata inventory,P0
+Artifact identity,Tags/versions/commit anchors,Immutable digest for every production artifact,Mutable/unverifiable deployments,Artifact registry and digest enforcement,P0
+Provenance,Build/deploy paths documented,Signed source→build→artifact→release→deploy chain,Cannot prove production origin,SLSA/in-toto/Sigstore or enterprise equivalent,P1
+Model identity,Provider/model/deployment/route strings,Snapshot/artifact/account/endpoint/runtime binding,Model drift and poor attribution,Provider/model registry adapters,P1
+MCP identity,External analytics/UI boundary,Authoritative client/server/tool/connection schemas,Tool ambiguity and unattributed calls,MCP registry/gateway integration,P0
+Federation,OAuth/SAML/Entra paths exist,Canonical issuer/trust/audience/mapping registry,Trust drift not continuously detected,Federation registry/reconciler,P1
+Delegation,No universal chain/attenuation model,"Parent grants, depth, purpose, resource, spend constraints",Privilege expansion,Token exchange/RAR/capability policy,P0
+Secrets,Environment/files/SQLite/Vault references; risky committed defaults identified,Manager/version/owner/consumer metadata,Exposure and rotation gaps,Secret inventory adapter; no values,P0
+Device identity,Persona/device IDs and local attributes,MDM/EDR/hardware/OS-install separation,Reimage/reassignment collisions,MDM/EDR adapters and device layers,P1
+Evidence snapshots,Source events/audits,Historical identity/graph/policy snapshot per decision,Cannot reproduce old decisions,Identity evidence store,P0
+Merge/split,Source-specific deduplication,Reversible canonical resolution history,Irreversible wrong merges,Resolution service and review center,P0
+Revocation,Token/key/account flags in some systems,Cascade across sessions/grants/delegations/workloads,Authority persists after revoke,Revocation and status service,P0
+Field authority,Entity/source-wide implicit precedence,Claim-level authority/proof/freshness,Wrong source overwrites truth,Claim ledger and authority policy,P0
+Search,Source-specific UI/API queries,Cross-identifier search projection,Operators cannot resolve identities,Canonical search projection,P1
+Privacy,Sensitive identity/content crosses several stores,Purpose/retention/access controls for identity proof,Overcollection and exposure,Protected evidence tiers and minimization,P0

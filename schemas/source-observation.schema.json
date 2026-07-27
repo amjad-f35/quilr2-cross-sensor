@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observation_id",
+    "tenant_id",
+    "source_sensor_id",
+    "source_sensor_type",
+    "source_object_type",
+    "observed_at",
+    "ingested_at",
+    "collection_method",
+    "native_identifiers",
+    "native_attributes",
+    "confidence",
+    "raw_payload_reference",
+    "schema_version",
+    "ingestion_version",
+    "operation"
+  ],
+  "properties": {
+    "observation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_sensor_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_sensor_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_sensor_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_native_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_object_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entity_kind_hint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_from": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "first_observed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "last_observed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "collection_method": {
+      "type": "string"
+    },
+    "collection_scope": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "native_identifiers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "normalized_identifiers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "native_attributes": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "normalized_attributes": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "proposed_relationships": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "mentioned_entities": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "raw_payload_reference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ingestion_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation": {
+      "enum": [
+        "upsert",
+        "delete",
+        "correct",
+        "tombstone"
+      ]
+    },
+    "sequence": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    }
+  },
+  "title": "Quilr source observation"
+}

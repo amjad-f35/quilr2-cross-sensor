@@ -1,0 +1,31 @@
+Canonical field,Primary authority,Current fallback,Conflict rule,Refresh mechanism
+Human employment state,HRIS,IdP,"Until authoritative HRIS integration, mark unresolved",Per HRIS event/full reconciliation
+Human authentication identity,IdP,Quilr token/user context,Issuer+subject only,At authentication and issuer sync
+Group membership,IdP/directory,Gateway smart group or graph,Preserve source/type; do not equate smart group with directory group,Event/change sync plus full reconciliation
+Department/cost center,HRIS/org directory,Tenant/user metadata,Names are aliases,Joiner/mover/leaver sync
+Business ownership,Explicit assignment,Source owner/admin fields,Never infer authentication from ownership,On assignment/change and certification
+Device management state,MDM,Endpoint device observation,Observation cannot prove management,Webhook/change sync plus inventory
+Device runtime process,Endpoint sensor,None,Bind device+boot+PID+start time,Event-driven
+Browser activity,Browser extension,BES,Bind installation/profile/session where possible,Event-driven plus heartbeat
+Application product metadata,Curated catalog,Sensor name/domain/process,Runtime signals create candidates,Catalog update
+Application last used,Runtime sensor,Warehouse aggregation,Use newest authenticated observation,Continuous
+SaaS enterprise account ID,SaaS provider,Browser/gateway account hints,Account type stays unknown without proof,Provider sync/runtime observation
+Agent owner,Explicit agent registry assignment,Discovery metadata,Unowned is actionable,Assignment/certification
+Agent version,Agent registry/build authority,Agent label/source revision,Require immutable manifest digest,Build/release/deploy
+Agent artifact digest,Build/deployment system,Image/package labels,Verify deployed bytes,Build and runtime verification
+Workload identity,SPIFFE/cloud workload authority,Service account/process,Credential validation plus attestation,At connection and renewal
+Workload instance,Orchestrator/runtime,Host/process observation,Use pod/instance UID,Start/stop/heartbeat
+Model provider/native ID,Provider API,Gateway request/config,Namespace by provider account,Invocation plus catalog sync
+Model artifact digest,Model registry,File/path/model name,Manifest covers weights/config/tokenizer/adapters,Publish/deploy/verify
+Model route resolution,Routing service,Gateway config,Record valid interval and resolver version,Every invocation/config change
+Tool schema,MCP server or signed manifest,Observed tool call,Canonical schema digest,Registration/schema change
+Data classification,Data catalog/DLP,Sensor detector,Separate declared class from observed classification,Catalog sync and detection
+Credential version/status,Issuer/secret manager,Usage observation,Never inventory secret value,Issue/rotate/revoke/use
+Artifact provenance,Build attestation,Repository/build labels,Verify signature and subject digest,Build/release/deploy
+Current deployment,Orchestrator,Configured image tag,Bind release+artifact digest+config digest,Deployment and reconciliation
+Sensor version/artifact,Deployment authority,Sensor self-report,Do not trust caller name alone,Enrollment/heartbeat/runtime verify
+Policy version,Policy service,Config/table name,Canonical bundle digest and interval,Publish/deploy/decision
+Decision result,Decision service,Source action/outcome,Reference policy/graph/identity snapshot,Every decision
+Finding state,Finding materializer,Source-specific alert/status,Preserve source alerts as evidence,On supporting evidence/change
+Cost,Provider billing/usage record,Gateway estimate,Mark estimate versus billed,Usage ingest/reconciliation
+Last seen,Most recent valid observation,Any source,Per-source freshness and trust,Continuous

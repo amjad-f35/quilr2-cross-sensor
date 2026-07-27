@@ -1,0 +1,28 @@
+Entity,Canonical field,Source field,Source authority,Transformation,Merge rule,Freshness
+Tenant,tenant_id,tenant / tenant_id / selected tenant,Decoded identity or authoritative tenant registry,Validate and map source tenant alias,Never merge across tenant,Per identity/config sync
+Human User,primary_identity,IdP subject; Persona email; gateway user_id/email,IdP subject,Issuer-qualified subject; email alias is temporal,Field authority per source and valid time,Per sync/observation
+Human User,department,IdP/HR department; endpoint currently null,HR/IdP,Resolve org unit at event time,Authoritative source wins; retain conflicts,Per HR/IdP sync
+Device,device_id,BES device ID; endpoint device ID/serial,MDM/EDR if integrated; endpoint otherwise,Tenant-qualified identifier registry,Strong ID only; hostname never auto-merges,Heartbeat/discovery
+Device,os_version,BES heartbeat; endpoint device_context,Endpoint/MDM,Normalize platform/version,Newest valid observation with provenance,Heartbeat/discovery
+AI Product,vendor,apps_db; curated catalog; provider/domain mappings,Curated catalog,Catalog mapping from strong surface identifiers,Catalog authority; tenant observations never overwrite,Catalog release
+AI Product,name,apps_db/app names; endpoint app name; browser app name,Curated catalog,Alias registry and localization,Catalog canonical name; preserve native names,Catalog release
+Application Surface,domain,browser source_application_domain/domain,Verified origin observation + catalog,Lowercase IDNA origin/registrable domain with scope,One product may own many domains; shared domains need review,Per observation/catalog
+Application Surface,bundle_or_package_id,endpoint ApplicationData/package/process info,Endpoint/MDM,Platform-qualified exact ID,Exact signed ID; path is secondary,Per scan
+Tenant Application,governance_state,app_tenant_settings; endpoint governance; approvals,Explicit platform assignment/policy,Separate governance dimension,Explicit current assignment over inferred defaults,On decision/sync
+Tenant Application,first_seen,all source observation times,Observation ledger,Minimum valid observed_at,Recomputed excluding invalidated observations,Streaming/replay
+Tenant Application,last_seen,all source observation times,Observation ledger,Maximum valid observed_at by healthy source,Never take cache write time,Streaming/replay
+Application Account,account_type,browser auth type; connector/IdP account metadata,Connector/IdP,personal/enterprise/unknown with evidence,Unknown stays unknown; domain inference is weak,Session/sync
+Model Version,provider_model_id,gateway model field/provider response,Gateway/provider API,Provider-qualified exact identifier,"Alias is Model Route, not Model Version",Per invocation/catalog
+Model Deployment,region,provider endpoint/config,Provider integration,Normalize provider region,Gateway guess is not authoritative,Config/provider sync
+Model Route,target,gateway routing decision/additional providers,Gateway decision,Bitemporal RESOLVES_TO edge,Preserve every decision target,Per invocation/config
+Agent Definition,definition_id,endpoint AgentData/path/app; future manifest/repository ID,Repository/deployment registry,Tenant + repository/path/native ID,Name-only records remain unresolved,Scan/deployment sync
+Agent Version,artifact_digest,future deployment/runtime digest,Artifact registry,Cryptographic digest,Mutable tags retained only as aliases,Per deployment
+MCP Server Deployment,endpoint_identity,endpoint transport/command/args/env names/url; external MCP ID,MCP Gateway/manifest,URL+TLS or stdio package/manifest/host identity,Current endpoint tenant:name UUID is an alias only,Discovery/config
+Tool,schema_digest,MCP tool schema,MCP Gateway/manifest,Canonical JSON schema digest,Same name/different server never merges automatically,Tool discovery
+Credential,fingerprint,gateway api_key_hash; provider key ID; future connector fingerprint,Provider/connector/gateway,Tenant HMAC; never raw value,Rotation creates a new credential unless provider stable ID links it,Usage/config sync
+Data Asset,classification,DLP detections/category/subcategory,Data catalog/DLP,Map source taxonomy to Data Class with confidence,Catalog authority for asset; DLP for event-time classification,Per event/catalog sync
+Gateway,health,gateway-health probes; service diagnostics,Direct health/heartbeat,Separate health dimension,Latest valid probe plus SLO,Probe cadence
+Sensor,version,heartbeat/diagnostic/source sensor version,Sensor self-report + deployment registry,Semver/digest where available,Missing stays unknown,Heartbeat
+Policy,version,gateway/endpoint config versions; app settings,Policy system,Immutable version reference,Do not reconstruct from current mutable config,Per change/evaluation
+Finding,severity,legacy alert fields + canonical correlation,Finding materializer,Rule + impact + confidence + coverage,Recompute on evidence change; preserve history,On signal/graph change
+Cost Record,amount,gateway usage/provider/billing,Provider/billing,Currency-normalized amount plus native amount,Never infer price without rate-card version,Per event/billing sync

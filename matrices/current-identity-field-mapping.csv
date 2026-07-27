@@ -1,0 +1,21 @@
+Current field,Current meaning,Identity layer,Preserve,Normalize,Replace,Reason
+JWT/user ID,Request/account subject under current decoder/auth service,Account authentication,Yes,issuer+subject identifier record,Unqualified user_id as person identity,"Subject is issuer-scoped and may identify an account, not a person"
+user_email/email,User/account attribute and frequent correlation key,Display/account alias,Yes,Case/domain normalization with source and valid interval,Email as permanent person key,Mutable and reassignable
+tenant_id,Tenant isolation/context key,Tenant scope,Yes,Verified tenant canonical ID and source claim,Caller-controlled/unverified tenant selection,Every lookup requires verified tenant boundary
+subscriber_id,Customer/subscriber context,Tenant/account attribute,Yes,Namespaced identifier/relationship,Universal tenant identity,Semantics vary across sources
+app_id/application ID,Source/warehouse application identifier,Application/product/account,Yes,Namespaced alias on correct layer,Cross-sensor identity authority,"May identify product, tenant app, or record"
+application name,Display/correlation field,Display identity,Yes,Alias with source/validity,Automatic merge key,Weak and mutable
+domain/origin,Browser/application surface indicator,Surface identifier,Yes,Verified domain alias with validity,Product/account identity by itself,Domains move and host several products
+device ID,Sensor/persona/native device key,Device/installation,Yes,Namespace by issuer/source and map to canonical device,Universal hardware identity,May change on reimage/enrollment
+hostname/MAC,Endpoint attributes,Display/network alias,Yes,Historical aliases,Sole device key,Mutable/recyclable
+PID/process name/path,Runtime process attribution,Process observation,Yes,device+boot+PID+start and binary identity,Stable process/application identity,Ephemeral/ambiguous
+agent name,Agent label/discovered application concept,Agent definition display,Yes,Agent definition alias,Agent version/runtime identity,Does not bind behavior or execution
+model/model_name,Provider model or route label,Model route/family/version candidate,Yes,Provider-account scoped ID plus resolved version/deployment,Immutable model identity,Aliases are mutable
+request_id/context_id,Request/conversation correlation,Event/session,Yes,Namespaced source event/run alias,Actor identity,Execution-scoped only
+api_key_hash/prefix/name,Credential lookup/display metadata,Credential,Yes,Issuer+credential record and safe fingerprint,Agent/person/account identity,Shared/rotated credentials break attribution
+Authorization bearer value,Authentication/authorization credential,Credential presentation,No raw value,Token metadata and proof reference,Inventory identifier,Sensitive and short-lived
+OAuth client/connection fields,Integration registration and connection,Client/grant/connected account,Yes,"Separate canonical client, grant, credential, connection",Single integration identity,Several layers and lifecycles
+Git commit hashes,Repository-analysis anchors and some build/source labels,Source revision,"Yes, full values",algorithm+object type+repository context,Universal entity/artifact identity,"Commit is source object, not build/deployment/runtime"
+image tag/latest,Deployment artifact reference,Mutable route,Yes as observation,Resolve and store immutable OCI digest,Artifact identity,Tag can move
+policy/config IDs,Source-specific policy/config identity,Policy/version/deployment,Yes,Canonical policy+version+bundle digest,Mutable name as decision proof,Historical decisions need exact snapshot
+finding/status IDs,Source-specific alert/finding state,Finding/evidence,Yes,Canonical finding lineage and evidence aliases,Cross-source canonical finding ID,Current IDs are fragmented

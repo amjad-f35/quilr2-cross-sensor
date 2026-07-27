@@ -1,0 +1,440 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/agent-identity.schema.json",
+  "title": "Quilr Agent Identity Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "definition",
+    "version",
+    "deployment",
+    "runtime_binding"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string"
+    },
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_definition_id",
+        "name",
+        "purpose",
+        "business_owner_id",
+        "technical_owner_id",
+        "lifecycle_state"
+      ],
+      "properties": {
+        "agent_definition_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "business_owner_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "technical_owner_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "intended_users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "intended_systems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "intended_data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "approved_capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prohibited_capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lifecycle_state": {
+          "type": "string",
+          "enum": [
+            "defined",
+            "approved",
+            "active",
+            "suspended",
+            "retired"
+          ]
+        }
+      }
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_version_id",
+        "semantic_version",
+        "manifest_digest",
+        "source_revision",
+        "artifact_digest"
+      ],
+      "properties": {
+        "agent_version_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "semantic_version": {
+          "type": "string"
+        },
+        "manifest_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "source_revision": {
+          "type": "object",
+          "required": [
+            "repository_id",
+            "algorithm",
+            "object_type",
+            "oid"
+          ],
+          "properties": {
+            "repository_id": {
+              "type": "string"
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "git-sha1",
+                "git-sha256"
+              ]
+            },
+            "object_type": {
+              "const": "commit"
+            },
+            "oid": {
+              "type": "string"
+            },
+            "swhid": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "artifact_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "prompt_bundle_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "tool_manifest_digests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "properties": {
+              "algorithm": {
+                "type": "string",
+                "enum": [
+                  "sha256",
+                  "sha512",
+                  "git-sha1",
+                  "git-sha256",
+                  "swhid",
+                  "other"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "model_routing_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "configuration_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "evaluation_suite_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_deployment_id",
+        "environment",
+        "region",
+        "deployment_revision",
+        "artifact_digest",
+        "configuration_digest",
+        "deployed_by",
+        "deployed_at"
+      ],
+      "properties": {
+        "agent_deployment_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "deployment_revision": {
+          "type": "string"
+        },
+        "artifact_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "configuration_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "deployed_by": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "deployed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "runtime_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workload_id",
+        "binding_verified_at"
+      ],
+      "properties": {
+        "workload_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "runtime_instance_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "binding_attestation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "binding_verified_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

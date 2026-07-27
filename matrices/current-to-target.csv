@@ -1,0 +1,32 @@
+Current Quilr object/API/table,Current meaning,Target object,Reuse,Migration
+quilr_asset_inventory; /ai-assets/v1/*; AI Assets UI,Warehouse rows presented as AI assets; source-specific composite UI,Canonical entity projections with source observations,Backfill into canonical model,"Adapter, alias seeding, dual-read, retire direct DAO"
+apps_db,Application master/details,AI Product catalog seed / Tenant Application evidence,Reuse behind adapter,Separate global catalog facts from tenant state
+apps_db_cache,Application cache/materialized copy,Read cache only,Deprecate as authority,Rebuild from canonical materializer
+app_tenant_settings,Tenant application settings,Tenant Application governance attributes,Backfill/reuse,Map app IDs to aliases; retain history
+app_tenant_settings_cache,Cached tenant settings,Read cache only,Deprecate as authority,Canonical cache projection
+app_process_info,Application/process mapping,Surface/install/process identifier evidence,Reuse behind adapter,Normalize bundle/binary/path identifiers
+quilr_idp_apps,IdP application records,Tenant Application/Account observations,Reuse behind adapter,Preserve IdP IDs and source authority
+users,Warehouse user rows,Human User observations,Backfill,Resolve to IdP subject; email secondary
+smart_groups,Derived/managed groups,Group + membership relationships,Refactor,Distinguish IdP authority from platform smart group
+user_app_approvals,User/application approval states,Approval/Decision events and relationship attributes,Backfill,Version and link policy/actor/evidence
+quilr_tenant_action_rel,Tenant/action relationships,Policy/control relationship observations,Investigate then adapt,Define authority/cardinality before promotion
+quilr_interaction_logs,Browser/interaction events,Canonical interaction/prompt/response events,Backfill,Normalize source and entity links
+quilly_interactions,Assistant interactions,Canonical interaction events,Backfill,Preserve product-specific fields in observation/evidence
+quilly_summaries,Interaction summaries,Analytical projection,Reuse behind adapter,Never use as event/evidence authority
+visit_app_logs,Application visits,ai.application.used events,Backfill,Resolve app/user/device aliases
+enriched_events,Enriched source events,Source observations/canonical events,Backfill conditionally,Record enrichment version and raw provenance
+ep_user_devices,Endpoint user/device rows,Device and user-device relationships,Backfill,Prefer authoritative device IDs; bitemporal edges
+quilr_alert_events and alert tables,Sensor-specific alerts/findings inputs,Finding signals and legacy finding migration,Refactor,Correlate root cause; do not import every row as finding
+quilr_status_event_master/drilldown,Open/resolved status state,Finding workflow compatibility projection,Reuse behind adapter,Reconcile split writes; migrate dedup/lifecycle
+quilr_audit_logs / audit master codes,Audit rows/reference codes,Canonical audit/evidence events,Backfill/reuse,Bind immutable state/evidence references
+quilr_compliance* and rai_policy_details,Compliance/policy views,Policy/control/config + analytical projections,Refactor,Separate source policy from calculated compliance
+redteaming_results,Red-team result rows,Security test events/findings evidence,Reuse behind adapter,Correlate campaigns/results and admission-test findings
+aiuser_*_insights_summary,Precomputed user/group/department metrics,Canonical analytical aggregates,Replace/recompute,Avoid source duplicate counting
+Neo4j nodes/relationships,"Graph enrichment, cache seeds, counts",Typed relationship projection,Refactor,Authority ledger + bitemporal relationship source; reconcile drift
+Redis caches/queues/markers,"Caches, sync queues, locks, completion markers",Read acceleration and job coordination only,Refactor,No identity/lifecycle authority; durable outbox/work ledger
+Frontend source tabs and multi-API joins,Browser/endpoint/LLM/MCP-specific presentation,Canonical AI Estate with source facets,Replace,Unified query API; retain Sources & Observations drill-down
+/findings/* and status-event APIs,Request-time source/static/graph enrichment,Unified finding API,Compatibility adapter then deprecate,"Root-cause dedup, evidence/owner/resolution fields"
+/interactions/* strategies and source enum-like field,Source-specific query selection,Canonical event explorer API,Reuse behind adapter,Global event source registry and canonical event schema
+/mcp/gateway/* analytics,MCP warehouse projections,MCP/Tool activity projections,Reuse behind adapter,Obtain authoritative MCP source contract
+/guardrails/v1/*,LLM gateway request/KPI/latency projections,Model invocation/findings/metrics projections,Reuse behind adapter,Normalize provider/model/deployment/actor IDs
+/executive/dashboard/* and /qb/query,Request-time dashboards/named processors,Canonical metrics API,Replace progressively,Materialized metric definitions with coverage

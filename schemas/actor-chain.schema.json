@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/actor-chain.schema.json",
+  "title": "Quilr Canonical Actor Chain",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actor_chain_id",
+    "tenant_id",
+    "agent",
+    "runtime",
+    "authority",
+    "approval",
+    "causality"
+  ],
+  "properties": {
+    "actor_chain_id": {
+      "type": "string",
+      "pattern": "^actor-chain:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "human_initiator": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "person_id",
+            "account_id",
+            "session_id"
+          ],
+          "properties": {
+            "person_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "account_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "session_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "agent_definition_id",
+            "agent_version_id",
+            "agent_deployment_id"
+          ],
+          "properties": {
+            "agent_definition_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "agent_version_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "agent_deployment_id": {
+              "type": "string",
+              "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+            },
+            "parent_agent_run_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workload_id",
+        "workload_instance_id",
+        "artifact_digest"
+      ],
+      "properties": {
+        "workload_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "workload_instance_id": {
+          "type": "string"
+        },
+        "process_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifact_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "attestation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effective_principal_id",
+        "grant_id",
+        "credential_id"
+      ],
+      "properties": {
+        "original_principal_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "delegating_principal_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "effective_principal_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "delegation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "grant_id": {
+          "type": "string"
+        },
+        "credential_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "purpose": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audience": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "approval_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approved_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "authentication_strength": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "causality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "step_id"
+      ],
+      "properties": {
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "parent_run_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "step_id": {
+          "type": "string"
+        },
+        "intent_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decision_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observed_by_sensor_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/workload-identity.schema.json",
+  "title": "Quilr Workload Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "workload_id",
+    "tenant_id",
+    "trust_domain",
+    "logical_identity",
+    "deployment_id",
+    "instance",
+    "credential",
+    "attestation",
+    "artifact_binding",
+    "status"
+  ],
+  "properties": {
+    "workload_id": {
+      "type": "string",
+      "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "trust_domain": {
+      "type": "string"
+    },
+    "logical_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "identifier"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "enum": [
+            "spiffe",
+            "cloud-workload",
+            "kubernetes",
+            "enterprise-pki",
+            "other"
+          ]
+        },
+        "identifier": {
+          "type": "string"
+        }
+      }
+    },
+    "deployment_id": {
+      "type": "string",
+      "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "instance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime_instance_id",
+        "started_at"
+      ],
+      "properties": {
+        "runtime_instance_id": {
+          "type": "string"
+        },
+        "pod_uid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "container_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "process_identity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "node_identity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "region": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "environment": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "stopped_at": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "credential": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "credential_id",
+        "type",
+        "issued_at",
+        "expires_at"
+      ],
+      "properties": {
+        "credential_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "x509-svid",
+            "jwt-svid",
+            "cloud-token",
+            "projected-service-account-token",
+            "device-certificate",
+            "other"
+          ]
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "public_key_fingerprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attestation_id",
+        "result",
+        "verified_at",
+        "selectors",
+        "trust_policy_version"
+      ],
+      "properties": {
+        "attestation_id": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "failed",
+            "expired",
+            "unresolved"
+          ]
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "selectors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "trust_policy_version": {
+          "type": "string"
+        }
+      }
+    },
+    "artifact_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "artifact_digest",
+        "configuration_digest",
+        "verified_at"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "artifact_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "configuration_digest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "value"
+          ],
+          "properties": {
+            "algorithm": {
+              "type": "string",
+              "enum": [
+                "sha256",
+                "sha512",
+                "git-sha1",
+                "git-sha256",
+                "swhid",
+                "other"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "agent_version_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model_deployment_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "binding_signature_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "attested",
+        "active",
+        "stale",
+        "revoked",
+        "retired"
+      ]
+    },
+    "last_renewed_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "revoked_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

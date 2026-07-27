@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/identity-observation.schema.json",
+  "title": "Quilr Identity Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observation_id",
+    "tenant_id",
+    "source_id",
+    "source_instance_id",
+    "source_event_id",
+    "observed_at",
+    "ingested_at",
+    "entity_kind",
+    "identifiers",
+    "claims",
+    "evidence_ref"
+  ],
+  "properties": {
+    "observation_id": {
+      "type": "string",
+      "pattern": "^identity-observation:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "source_instance_id": {
+      "type": "string"
+    },
+    "source_event_id": {
+      "type": "string"
+    },
+    "sequence_number": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_from": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "valid_until": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "entity_kind": {
+      "type": "string",
+      "enum": [
+        "Tenant",
+        "Organization Unit",
+        "Human User",
+        "Group",
+        "Service Account",
+        "Workload Identity",
+        "Credential",
+        "Session",
+        "AI Product",
+        "Application Surface",
+        "Tenant Application",
+        "Application Installation",
+        "Tenant Subscription",
+        "Application Account",
+        "Device",
+        "Browser Instance",
+        "Endpoint Process",
+        "Model Provider",
+        "Model Family",
+        "Model Version",
+        "Model Deployment",
+        "Model Route",
+        "Agent Definition",
+        "Agent Version",
+        "Agent Deployment",
+        "Agent Runtime",
+        "Agent Run",
+        "MCP Client",
+        "MCP Server Product",
+        "MCP Server Deployment",
+        "Tool",
+        "Tool Version",
+        "Connector",
+        "Integration Instance",
+        "Connected Account",
+        "Data Asset",
+        "Data Class",
+        "Knowledge Base",
+        "Vector Index",
+        "Memory Store",
+        "Prompt Template",
+        "Gateway",
+        "Sensor",
+        "Enforcement Point",
+        "Policy",
+        "Control",
+        "Exception",
+        "Approval",
+        "Decision",
+        "Finding",
+        "Evidence Record",
+        "Certification",
+        "Cost Record",
+        "Outcome",
+        "Person",
+        "Employment Relationship",
+        "Directory Account",
+        "IdP Account",
+        "SaaS User Account",
+        "Local Application Account",
+        "Privileged Account",
+        "Browser Product",
+        "Browser Installation",
+        "Browser Profile",
+        "Browser Extension Installation",
+        "Physical Hardware",
+        "OS Installation",
+        "Managed Device Record",
+        "Cloud VM Instance",
+        "Current Boot",
+        "Workload Deployment",
+        "Workload Instance",
+        "Agent Configuration",
+        "Agent Artifact",
+        "Agent Session",
+        "Agent Step",
+        "Sub-agent",
+        "Agent Account",
+        "Model Artifact",
+        "Model Configuration",
+        "Model Fine-tune",
+        "Model Adapter",
+        "Model Quantized Variant",
+        "Serving Endpoint",
+        "Model-serving Workload",
+        "MCP Server Definition",
+        "MCP Server Version",
+        "MCP Connection",
+        "Connector Product",
+        "Connector Version",
+        "OAuth Client",
+        "OAuth Grant",
+        "Synchronization Job",
+        "Source Repository",
+        "Source Revision",
+        "Build Invocation",
+        "Build Platform",
+        "Software Artifact",
+        "Release",
+        "Software Deployment",
+        "Runtime Instance",
+        "Secret Record",
+        "Secret Version",
+        "Authorization Grant",
+        "Token",
+        "Cryptographic Key",
+        "Certificate",
+        "Trust Anchor",
+        "Federation",
+        "Delegation",
+        "Artifact Signature",
+        "Attestation",
+        "Provenance Record",
+        "SBOM",
+        "Policy Version",
+        "Compiled Policy Bundle",
+        "Policy Deployment",
+        "Policy Evaluation"
+      ]
+    },
+    "identifiers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "namespace",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "algorithm": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "issuer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "deletion_observed": {
+      "type": "boolean",
+      "default": false
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channel",
+        "result"
+      ],
+      "properties": {
+        "channel": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "authenticated",
+            "unverified",
+            "failed"
+          ]
+        },
+        "credential_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "replay_protected": {
+          "type": "boolean"
+        }
+      }
+    },
+    "evidence_ref": {
+      "type": "string"
+    },
+    "raw_payload_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "git-sha1",
+            "git-sha256",
+            "swhid",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0"
+    }
+  }
+}

@@ -1,0 +1,525 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/canonical-identity.schema.json",
+  "title": "Quilr Canonical Identity",
+  "description": "Stable tenant-safe identity with independent lifecycle dimensions and claim-level provenance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "canonical_id",
+    "entity_kind",
+    "tenant_scope",
+    "identity_namespace",
+    "created_at",
+    "states",
+    "identifiers",
+    "claims"
+  ],
+  "properties": {
+    "canonical_id": {
+      "type": "string",
+      "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "entity_kind": {
+      "type": "string",
+      "enum": [
+        "Tenant",
+        "Organization Unit",
+        "Human User",
+        "Group",
+        "Service Account",
+        "Workload Identity",
+        "Credential",
+        "Session",
+        "AI Product",
+        "Application Surface",
+        "Tenant Application",
+        "Application Installation",
+        "Tenant Subscription",
+        "Application Account",
+        "Device",
+        "Browser Instance",
+        "Endpoint Process",
+        "Model Provider",
+        "Model Family",
+        "Model Version",
+        "Model Deployment",
+        "Model Route",
+        "Agent Definition",
+        "Agent Version",
+        "Agent Deployment",
+        "Agent Runtime",
+        "Agent Run",
+        "MCP Client",
+        "MCP Server Product",
+        "MCP Server Deployment",
+        "Tool",
+        "Tool Version",
+        "Connector",
+        "Integration Instance",
+        "Connected Account",
+        "Data Asset",
+        "Data Class",
+        "Knowledge Base",
+        "Vector Index",
+        "Memory Store",
+        "Prompt Template",
+        "Gateway",
+        "Sensor",
+        "Enforcement Point",
+        "Policy",
+        "Control",
+        "Exception",
+        "Approval",
+        "Decision",
+        "Finding",
+        "Evidence Record",
+        "Certification",
+        "Cost Record",
+        "Outcome",
+        "Person",
+        "Employment Relationship",
+        "Directory Account",
+        "IdP Account",
+        "SaaS User Account",
+        "Local Application Account",
+        "Privileged Account",
+        "Browser Product",
+        "Browser Installation",
+        "Browser Profile",
+        "Browser Extension Installation",
+        "Physical Hardware",
+        "OS Installation",
+        "Managed Device Record",
+        "Cloud VM Instance",
+        "Current Boot",
+        "Workload Deployment",
+        "Workload Instance",
+        "Agent Configuration",
+        "Agent Artifact",
+        "Agent Session",
+        "Agent Step",
+        "Sub-agent",
+        "Agent Account",
+        "Model Artifact",
+        "Model Configuration",
+        "Model Fine-tune",
+        "Model Adapter",
+        "Model Quantized Variant",
+        "Serving Endpoint",
+        "Model-serving Workload",
+        "MCP Server Definition",
+        "MCP Server Version",
+        "MCP Connection",
+        "Connector Product",
+        "Connector Version",
+        "OAuth Client",
+        "OAuth Grant",
+        "Synchronization Job",
+        "Source Repository",
+        "Source Revision",
+        "Build Invocation",
+        "Build Platform",
+        "Software Artifact",
+        "Release",
+        "Software Deployment",
+        "Runtime Instance",
+        "Secret Record",
+        "Secret Version",
+        "Authorization Grant",
+        "Token",
+        "Cryptographic Key",
+        "Certificate",
+        "Trust Anchor",
+        "Federation",
+        "Delegation",
+        "Artifact Signature",
+        "Attestation",
+        "Provenance Record",
+        "SBOM",
+        "Policy Version",
+        "Compiled Policy Bundle",
+        "Policy Deployment",
+        "Policy Evaluation"
+      ]
+    },
+    "tenant_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_type",
+        "tenant_id"
+      ],
+      "properties": {
+        "scope_type": {
+          "type": "string",
+          "enum": [
+            "tenant",
+            "global_catalog"
+          ]
+        },
+        "tenant_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "identity_namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolution_state",
+        "lifecycle_state",
+        "existence_state",
+        "management_state",
+        "authentication_state",
+        "attestation_state",
+        "credential_state",
+        "ownership_state",
+        "certification_state",
+        "freshness_state"
+      ],
+      "properties": {
+        "resolution_state": {
+          "type": "string",
+          "enum": [
+            "candidate",
+            "correlated",
+            "resolved",
+            "conflict",
+            "merged",
+            "split",
+            "suppressed"
+          ]
+        },
+        "lifecycle_state": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "active",
+            "stale",
+            "suspended",
+            "revoked",
+            "retired",
+            "reappeared"
+          ]
+        },
+        "existence_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "observed",
+            "active",
+            "stale",
+            "deleted",
+            "retired",
+            "reappeared"
+          ]
+        },
+        "management_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "managed",
+            "unmanaged",
+            "excepted"
+          ]
+        },
+        "authentication_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "authenticated",
+            "failed",
+            "expired",
+            "revoked"
+          ]
+        },
+        "attestation_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "claimed",
+            "attested",
+            "failed",
+            "expired",
+            "revoked"
+          ]
+        },
+        "credential_state": {
+          "type": "string",
+          "enum": [
+            "none",
+            "unknown",
+            "active",
+            "rotating",
+            "expired",
+            "revoked"
+          ]
+        },
+        "ownership_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "owned",
+            "unowned",
+            "review_due"
+          ]
+        },
+        "certification_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "uncertified",
+            "certified",
+            "expired",
+            "revoked"
+          ]
+        },
+        "freshness_state": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "fresh",
+            "aging",
+            "stale"
+          ]
+        }
+      }
+    },
+    "first_seen": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_seen": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_confirmed": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stale_after": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "deleted_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "retired_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "revoked_at": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "identifiers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^id-record:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "field",
+          "value",
+          "source_id",
+          "observed_at",
+          "authority_level",
+          "assurance",
+          "confidence",
+          "resolver_version"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^claim:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          },
+          "field": {
+            "type": "string"
+          },
+          "value": {},
+          "source_id": {
+            "type": "string"
+          },
+          "source_native_field": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_from": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "valid_until": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority_level": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "cryptographic",
+              "direct_observation",
+              "corroborating",
+              "claimed",
+              "unknown"
+            ]
+          },
+          "assurance": {
+            "type": "string",
+            "enum": [
+              "claimed",
+              "observed",
+              "correlated",
+              "authoritative_record",
+              "cryptographically_authenticated",
+              "runtime_attested",
+              "hardware_attested"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "proof_reference": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolver_version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "merged_from": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "uniqueItems": true
+    },
+    "merged_into": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "split_from": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "uniqueItems": true
+    },
+    "superseded_by": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/identity/artifact-identity.schema.json",
+  "title": "Quilr Artifact Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_id",
+    "tenant_id",
+    "artifact_type",
+    "coordinate",
+    "digest",
+    "created_at",
+    "source_revisions",
+    "verification_status"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^entity:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "tenant_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "oci_manifest",
+        "oci_index",
+        "package",
+        "binary",
+        "agent_manifest",
+        "prompt_bundle",
+        "tool_manifest",
+        "model_manifest",
+        "policy_bundle",
+        "configuration_bundle",
+        "sbom",
+        "other"
+      ]
+    },
+    "coordinate": {
+      "type": "string"
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "git-sha1",
+            "git-sha256",
+            "swhid",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_revisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "repository_id",
+          "algorithm",
+          "object_type",
+          "oid"
+        ],
+        "properties": {
+          "repository_id": {
+            "type": "string"
+          },
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "git-sha1",
+              "git-sha256"
+            ]
+          },
+          "object_type": {
+            "type": "string",
+            "enum": [
+              "blob",
+              "tree",
+              "commit",
+              "annotated_tag"
+            ]
+          },
+          "oid": {
+            "type": "string"
+          },
+          "swhid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "build_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "release_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sbom_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signature_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provenance_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "verified",
+        "failed",
+        "revoked",
+        "expired"
+      ]
+    },
+    "trust_policy_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

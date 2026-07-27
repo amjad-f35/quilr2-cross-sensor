@@ -1,0 +1,19 @@
+Artifact type,Coordinate,Content digest,Source ID,Signature,Provenance,Deployment binding
+Git blob,repository+full OID,git-sha1/git-sha256,Repository+object type,Optional source signature,Source/SWH metadata,Input to build
+Git tree,repository+full tree OID,git-sha1/git-sha256,Repository+tree,Optional,Source/SWH provenance,Build input snapshot
+Git commit,repository+full commit OID,git-sha1/git-sha256,Repository+commit,Commit/tag signature optional,Source provenance,"Build input, not artifact"
+SWH source object,qualified SWHID,Scheme-defined intrinsic ID,SWH object+qualifiers,Archive proof separate,Archive/provenance metadata,Source identity only
+OCI image manifest,registry/repository@digest,sha256/sha512,Source revision/build inputs,Cosign/enterprise,SLSA/in-toto,Deployment must pin digest
+OCI image index,registry/repository@index digest,sha256/sha512,Platform manifests,Cosign/enterprise,SLSA/in-toto,Resolve platform digest
+Binary/package,purl/registry coordinate,sha256/sha512,Source revision/build,Sigstore/enterprise,SLSA/in-toto,Deployment package digest
+Agent manifest,agent definition+semantic version,sha256 over canonical manifest,Source/prompt/tool/model/config inputs,Release signer,Release attestation,Bind to agent version/deployment
+Prompt bundle,prompt bundle coordinate,sha256 over canonical bundle,Source revision/template set,Release signer,Build/release attestation,Bind to agent version
+Tool manifest,server+tool namespace+version,sha256 over canonical schema/implementation refs,Server/source,Server/release signer,Attestation,Bind registration/runtime
+Model manifest,model registry+revision,sha256/sha512 manifest and file digests,Weights/tokenizer/config/adapters,Registry/release signer,Model build/release provenance,Bind model deployment/workload
+Policy bundle,policy ID+version,sha256 over canonical bundle,Policy source/compiler,Policy publisher,Compile/test attestation,Bind decision/deployment
+Configuration bundle,deployment config revision,sha256 over canonical config,Config source,Deployment authority,Deployment attestation,Bind workload
+SBOM,document namespace/serial,sha256,Artifact digest,Attestation signer,SBOM attestation,Verify subject matches deployed artifact
+Release,product+release ID/version,Digest of release manifest,Source revisions+artifact set,Publisher,Release attestation,Deployment references release
+Build output collection,build ID,Digest per output,Builder+inputs,Builder/signing authority,SLSA build provenance,Release consumes exact outputs
+Browser extension package,store/bundle ID+version,Package digest,Source/build,Store/vendor signer,Build/release proof,Installation observed on browser
+Endpoint installer/binary,package/release coordinate,Binary/package digest,Source/build,Code signer,Build/release proof,Installed/runtime binary verification

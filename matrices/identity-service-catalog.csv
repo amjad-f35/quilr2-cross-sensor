@@ -1,0 +1,17 @@
+Service,Responsibility,Inputs,Outputs,Priority,Disposition
+Identity Observation Ingestor,Receive identity claims/events from all sources,Source observations; authenticated source context,Immutable identity observations,P0,Build
+Canonical Identity Registry,Stable entities and separate state dimensions,Resolved observations/operations,Canonical identity/claim records,P0,Build
+Identifier and Alias Registry,"Native IDs, historical aliases, fingerprints, digests",Identifier records,Tenant-safe lookup index,P0,Build
+Identity Resolution Engine,"Candidates, deterministic matches, contradictions, merge/split",Observations/identifiers/proofs,Resolution decisions/events,P0,Build
+Identity Reconciler,Incremental and full authoritative comparison,Provider cursors/snapshots,"Freshness, tombstones, discrepancies",P0,Build
+Federation Registry,"Issuers, trust domains, audiences, mappings, bundles",OIDC/SAML/SPIFFE/cloud metadata,Verified federation state,P1,Build/integrate
+Workload Identity Service,Issue or integrate runtime workload credentials,Attestation selectors/platform identity,Short-lived workload credential,P0,Integrate SPIFFE/cloud
+Runtime Identity Binder,Bind workload to deployment/version/artifact/config/tenant,Attestation+orchestrator+registry,Signed/verified deployment binding,P0,Build
+Credential Broker,"Issue attenuated, audience-bound, short-lived credentials",Parent grant+intent+policy,Credential/grant/delegation records,P0,Build/integrate
+Secret Inventory Adapter,Index secret metadata without values,Secret manager APIs,Secret/consumer/rotation metadata,P0,Integrate
+Access Graph Materializer,"Membership, ownership, entitlement, delegation, effective access",Identity/authorization relationships,Bitemporal access projection,P0,Build
+Artifact and Provenance Registry,"Source, build, artifact, signature, release, deployment",Registry/build/attestation/deploy events,Verified supply-chain records,P1,Build/integrate
+Identity Context Assembler,"Decision-ready actor, authority, proof, freshness context",Registry/access/revocation/evidence,Versioned identity snapshot,P0,Build
+Revocation and Status Service,Current invalidation state and cascade,Issuer/admin/policy events,Low-latency revocation answer,P0,Build/integrate
+Identity Evidence Store,"Proofs, attestations, signatures, snapshots, verification",Evidence envelopes,Immutable protected evidence,P0,Build
+Identity Search Projection,Search aliases/native IDs/fingerprints/owners,Canonical identity/identifier streams,Tenant-safe search index,P1,Build

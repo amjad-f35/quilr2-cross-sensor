@@ -1,0 +1,194 @@
+version: 1
+materializers:
+  - name: "catalog"
+    input: "Curated product/provider/model/MCP metadata"
+    output: "Catalog entities and aliases"
+    idempotency_key: "catalog object/version"
+    trigger: "On catalog release"
+    freshness_target: "<5 min"
+    storage: "PostgreSQL + search"
+    owner: "catalog domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "identity"
+    input: "Identity/Persona/connector observations"
+    output: "Users, accounts, groups, identities"
+    idempotency_key: "tenant + source + native ID + version"
+    trigger: "Observation arrival/sync"
+    freshness_target: "<5 min"
+    storage: "PostgreSQL"
+    owner: "identity domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "asset"
+    input: "Resolved application/device/model/agent/MCP/tool observations"
+    output: "Current canonical entities + source coverage"
+    idempotency_key: "entity + resolver/materializer version"
+    trigger: "Observation or resolver decision"
+    freshness_target: "<2 min"
+    storage: "PostgreSQL + search"
+    owner: "asset domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "relationship"
+    input: "Resolved relationship observations"
+    output: "Typed bitemporal edges/projections"
+    idempotency_key: "relationship tuple + validity + version"
+    trigger: "Observation/resolution/lifecycle"
+    freshness_target: "<5 min"
+    storage: "PostgreSQL ledger + Neo4j projection"
+    owner: "relationship domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "activity"
+    input: "Canonical events"
+    output: "Usage/current activity summaries"
+    idempotency_key: "event ID + projection version"
+    trigger: "Event arrival/replay"
+    freshness_target: "<2 min"
+    storage: "ClickHouse"
+    owner: "activity domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "agent_run"
+    input: "Agent session/run/step events"
+    output: "Run/step timelines and outcomes"
+    idempotency_key: "tenant + run + step + version"
+    trigger: "Event arrival"
+    freshness_target: "<1 min"
+    storage: "ClickHouse + PostgreSQL current state"
+    owner: "agent_run domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "decision"
+    input: "Policy/approval/enforcement events"
+    output: "Decision timeline and coverage state"
+    idempotency_key: "decision ID + version"
+    trigger: "Event arrival"
+    freshness_target: "<1 min"
+    storage: "ClickHouse + PostgreSQL"
+    owner: "decision domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "finding"
+    input: "Signals, entities, relationships, coverage"
+    output: "Root-cause findings and workflow state"
+    idempotency_key: "finding type + root cause + scope + generation"
+    trigger: "Signal/relationship/coverage change"
+    freshness_target: "<5 min"
+    storage: "PostgreSQL + ClickHouse evidence links"
+    owner: "finding domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "cost"
+    input: "Usage/cost/provider/billing events"
+    output: "Attributed cost aggregates"
+    idempotency_key: "source cost ID; aggregate grain + window"
+    trigger: "Event/billing sync"
+    freshness_target: "<15 min"
+    storage: "ClickHouse"
+    owner: "cost domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "outcome"
+    input: "Agent/task/business outcome events"
+    output: "Outcome/value aggregates"
+    idempotency_key: "outcome ID + verifier version"
+    trigger: "Outcome evidence"
+    freshness_target: "<15 min"
+    storage: "ClickHouse + PostgreSQL"
+    owner: "outcome domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "coverage"
+    input: "Sensor heartbeat/config/certification"
+    output: "Coverage/freshness/enforceability"
+    idempotency_key: "sensor + capability + window"
+    trigger: "Heartbeat/config"
+    freshness_target: "<5 min"
+    storage: "PostgreSQL + ClickHouse"
+    owner: "coverage domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
+  - name: "evidence"
+    input: "Raw payload references and hashes"
+    output: "Immutable evidence records/retention state"
+    idempotency_key: "tenant + content hash + source"
+    trigger: "Ingestion"
+    freshness_target: "<1 min"
+    storage: "Object storage + PostgreSQL metadata"
+    owner: "evidence domain team with platform data-contract stewardship"
+    retry: exponential_with_jitter
+    dead_letter: required
+    replay: versioned_and_tenant_scoped
+    backfill: uses_same_contract_with_backfill_run_id_and_watermark
+    tenant_isolation: required_on_every_key_partition_and_query
+    schema_versioning: input_and_output_versions_are_persisted
+    failure_behavior: preserve_last_good_projection_and_surface_lag_or_partial_state
+    observability: "input/output rate, oldest pending, watermark lag, retries, DLQ, reconciliation drift, schema versions"
