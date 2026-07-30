@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quilr:starliner:schema:v1:insight-definition",
+  "title": "Quilr Insight Definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "definition_id",
+    "version",
+    "status",
+    "owner",
+    "title",
+    "customer_problem",
+    "entity_classes",
+    "evidence",
+    "coverage",
+    "identity",
+    "grouping",
+    "severity",
+    "confidence",
+    "lifecycle",
+    "suppression",
+    "accepted_risk",
+    "remediation",
+    "quality",
+    "availability",
+    "recompute",
+    "rollback"
+  ],
+  "properties": {
+    "definition_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "status": {"enum": ["experimental", "preview", "ga", "deprecated", "disabled"]},
+    "owner": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+    "customer_problem": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "entity_classes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicates", "minimum_independent_sources", "activity_required", "lookback"],
+      "properties": {
+        "predicates": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "minimum_independent_sources": {"type": "integer", "minimum": 1},
+        "activity_required": {"type": "boolean"},
+        "lookback": {"type": "string", "minLength": 1},
+        "excluded_evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_capabilities", "minimum", "freshness", "on_degradation"],
+      "properties": {
+        "required_capabilities": {"type": "array", "items": {"type": "string"}},
+        "minimum": {"type": "string", "minLength": 1},
+        "freshness": {"type": "string", "minLength": 1},
+        "on_degradation": {"enum": ["not_evaluable", "evaluation_degraded", "hold_last_state"]},
+        "requires_absence_authority": {"type": "boolean"}
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_confidence", "conflict_behavior"],
+      "properties": {
+        "minimum_confidence": {"type": "string", "minLength": 1},
+        "conflict_behavior": {"enum": ["not_evaluable", "lower_confidence", "queue_review"]},
+        "required_claims": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "grouping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "member_identity", "temporal_semantics"],
+      "properties": {
+        "key": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "member_identity": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "temporal_semantics": {"type": "string", "minLength": 1},
+        "over_grouping_tests": {"type": "array", "items": {"type": "string"}},
+        "fragmentation_tests": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "severity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rubric_version", "dimensions", "default_category"],
+      "properties": {
+        "rubric_version": {"type": "string", "minLength": 1},
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["impact", "exposure", "data_control_class", "likelihood", "breadth_duration", "policy_criticality", "actual_outcome"]}
+        },
+        "default_category": {"enum": ["informational", "low", "medium", "high", "critical"]}
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_version", "evidence_inputs", "identity_inputs", "assurance_inputs", "coverage_treatment"],
+      "properties": {
+        "method_version": {"type": "string", "minLength": 1},
+        "evidence_inputs": {"type": "array", "items": {"type": "string"}},
+        "identity_inputs": {"type": "array", "items": {"type": "string"}},
+        "assurance_inputs": {"type": "array", "items": {"type": "string"}},
+        "coverage_treatment": {"type": "string", "minLength": 1}
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["open_condition", "update_condition", "resolution_condition", "reopen_condition"],
+      "properties": {
+        "open_condition": {"type": "string", "minLength": 1},
+        "update_condition": {"type": "string", "minLength": 1},
+        "resolution_condition": {"type": "string", "minLength": 1},
+        "reopen_condition": {"type": "string", "minLength": 1},
+        "auto_resolution": {"type": "boolean"}
+      }
+    },
+    "suppression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "requires_reason", "requires_expiry"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "requires_reason": {"type": "boolean"},
+        "requires_expiry": {"const": true},
+        "maximum_scope": {"type": "string"}
+      }
+    },
+    "accepted_risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "authority_policy", "requires_reason", "requires_review_or_expiry"],
+      "properties": {
+        "allowed": {"type": "boolean"},
+        "authority_policy": {"type": "string", "minLength": 1},
+        "requires_reason": {"const": true},
+        "requires_review_or_expiry": {"const": true},
+        "required_compensating_controls": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "remediation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recommendations", "automation"],
+      "properties": {
+        "recommendations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "automation": {"enum": ["none", "workflow_only", "approved_command"]},
+        "effect_verification": {"type": ["string", "null"]}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["test_corpus", "precision", "review_workload", "known_false_positive_modes", "known_false_negative_modes"],
+      "properties": {
+        "test_corpus": {"type": "string", "minLength": 1},
+        "precision": {"type": "string", "minLength": 1},
+        "review_workload": {"type": "string", "minLength": 1},
+        "known_false_positive_modes": {"type": "array", "items": {"type": "string"}},
+        "known_false_negative_modes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product_tier", "regions", "deployment_profiles"],
+      "properties": {
+        "product_tier": {"type": "string"},
+        "regions": {"type": "array", "items": {"type": "string"}},
+        "deployment_profiles": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "recompute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_namespace", "pinned_inputs", "impact_diff", "promotion", "manual_state_policy"],
+      "properties": {
+        "candidate_namespace": {"const": true},
+        "pinned_inputs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "impact_diff": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "promotion": {"const": "atomic"},
+        "manual_state_policy": {"type": "string", "minLength": 1}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kill_switch", "prior_version", "finding_disposition"],
+      "properties": {
+        "kill_switch": {"type": "string", "minLength": 1},
+        "prior_version": {"type": ["string", "null"]},
+        "finding_disposition": {"enum": ["retain_frozen", "reevaluate", "withdraw_with_audit"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+schema_version: "1.0"
+authority: "evidence inventory only; dispositions are in 01-context-disposition.md"
+review:
+  completed: true
+  reviewed_on: "2026-07-28"
+  file_count: 25
+  total_lines: 19397
+  rule: "A digest identifies the reviewed bytes. It does not approve their claims."
+sources:
+  - id: CTX-RFC-README
+    origin: quilr-platform-rfcs/README.md
+    sha256: 1fd9f79462b6cc6c3121cff356a08adbaeb51d051e419995f8143d889ded1575
+    lines: 49
+  - id: CTX-RFC-0000
+    origin: quilr-platform-rfcs/RFC-0000-platform-planes-and-principles.md
+    sha256: a0b256afdde423c475fed10c628b490f8ff9d1f6d899f9aa9229e67552951fb5
+    lines: 327
+  - id: CTX-RFC-0001
+    origin: quilr-platform-rfcs/RFC-0001-canonical-contracts.md
+    sha256: 5fa5c288c569a9f63a6ff4bcbe027a7fce2896d5cd4a87d095e75eebb78c0544
+    lines: 624
+  - id: CTX-RFC-0002
+    origin: quilr-platform-rfcs/RFC-0002-decision-plane-policy-enforcement.md
+    sha256: b5794cf0e36cf66a72f243876dfdbfcc88a8fbac6e64486c5a7351d67a83cb32
+    lines: 396
+  - id: CTX-RFC-0003
+    origin: quilr-platform-rfcs/RFC-0003-sensor-plane-and-gateway-migration.md
+    sha256: a99f8c469f61f4276e71a8943e22ce43260918d4d2752345e68e7916b22d116a
+    lines: 368
+  - id: CTX-RFC-0004
+    origin: quilr-platform-rfcs/RFC-0004-intelligence-inventory-graph-findings.md
+    sha256: f2647cc00e9519dfa5e1b34ad51e684d82c02cfa5684ff7254ef53c6431e62a3
+    lines: 435
+  - id: CTX-RFC-0005
+    origin: quilr-platform-rfcs/RFC-0005-evidence-events-ui-finops.md
+    sha256: b22d0c89fdabf669b398e91432a15df8bd1c9d7f46af2f6a731f01e995855d73
+    lines: 317
+  - id: CTX-RFC-0006
+    origin: quilr-platform-rfcs/RFC-0006-mcp-state-externalization-and-scalability.md
+    sha256: af1882e8512e4a3a15f41f72894e412367a8e6072a0b8fbecab154ee5c0293bb
+    lines: 287
+  - id: CTX-RFC-0007
+    origin: quilr-platform-rfcs/RFC-0007-starliner-sensor-compatibility-layer.md
+    sha256: 654d13384e0f9edab108ff0db0f8d6c30ca1af21c0e75b89b2a20a5e6f90ff64
+    lines: 1237
+  - id: CTX-RFC-0008
+    origin: quilr-platform-rfcs/RFC-0008-endpoint-agent-sensor-compatibility.md
+    sha256: 36af051e44522bb1bf63f93c38426d8502f35f72e6648e10ab213553d25f1e7d
+    lines: 524
+  - id: CTX-RFC-0009
+    origin: quilr-platform-rfcs/RFC-0009-browser-extension-and-endpoint-backend-compatibility.md
+    sha256: 0c3079b35eb3028599b485ed49ef87f0722b293d7771234e2bdf12b9a78eccc9
+    lines: 497
+  - id: CTX-RFC-0010
+    origin: quilr-platform-rfcs/RFC-0010-contract-harness-and-mock-server-upgrade.md
+    sha256: fce1310dd8c985eef6ff7989a1d5b85d277223205d33c0b437b5a724f1c5abc2
+    lines: 405
+  - id: CTX-QFG-000
+    origin: qfg_specs/QFG-000-finding-system-doctrine.md
+    sha256: 085935d345ee43ef1e481af1cc7edf95e41edfd624f7585a2ef6cbac07cd5866
+    lines: 133
+  - id: CTX-QFG-001
+    origin: qfg_specs/QFG-001-finding-signal-extraction.md
+    sha256: bab8f7a30b0710ebaf71e1053dd1efa1ec9fca25b14cc5ce68b2d4e51c4b093c
+    lines: 165
+  - id: CTX-QFG-002
+    origin: qfg_specs/QFG-002-dedupe-and-grouping.md
+    sha256: 83f25f788b366a6f0108a2c13fb3e92fe3433606323b00958562f7bef3b0611b
+    lines: 196
+  - id: CTX-QFG-003
+    origin: qfg_specs/QFG-003-severity-confidence-and-risk.md
+    sha256: 9f69f126ea6167d70797e7ac887d9b96c8132d35d55ed52d37916aefd9d47726
+    lines: 216
+  - id: CTX-QFG-004
+    origin: qfg_specs/QFG-004-lifecycle-state-machine.md
+    sha256: 26466ace1fb87f7cc2bb431145def05da5589cf798d80b540c127f2293774c85
+    lines: 191
+  - id: CTX-QFG-005
+    origin: qfg_specs/QFG-005-evidence-entity-and-relationship-linkage.md
+    sha256: a4448ccb4cad4e03372650e7e44ed4ea7d5e08894c2153099004e248a0ef84e5
+    lines: 172
+  - id: CTX-QFG-006
+    origin: qfg_specs/QFG-006-recompute-versioning-and-backfill.md
+    sha256: 41f6f05aff4dd5bf392c154389538c7754af7b08c1f7384882ce7b0c7495cfff
+    lines: 163
+  - id: CTX-QFG-007
+    origin: qfg_specs/QFG-007-api-ui-display-and-debug-contract.md
+    sha256: b363b9dabbc41698a0df18f4327115134bee48570f38c90d8304356743b467aa
+    lines: 186
+  - id: CTX-QFG-008
+    origin: qfg_specs/QFG-008-golden-fixtures-and-ci-gates.md
+    sha256: f2a76fe9976300d2cb7b4b76fd509da362b20abb5173061750f43e9422c11fe6
+    lines: 126
+  - id: CTX-QFG-README
+    origin: qfg_specs/README.md
+    sha256: 43ffda16b05ec9a24800137cf2c26fa20c8fe0e5142363f5fe8ee8a81594fa10
+    lines: 59
+  - id: CTX-CONTRAST
+    origin: Contrast_quilr1_vs_2_and_environment_setup.md
+    sha256: 021963e2be7f6e3388bb546cfb338d598a32538c04aae7adde678de2f8b4fd34
+    lines: 2478
+  - id: CTX-ARCH-WORKFLOWS
+    origin: Context_potential_platform_architecture_design_and_workflows.md
+    sha256: a3c1670e0ac6db8202c16c61b10b14e17414d38c8401156d8f80c10d82abd92f
+    lines: 2916
+  - id: CTX-DIRTY-CONVERSATION
+    origin: Additional_might_be_false_context.md
+    sha256: 84946ffa766068a3f5fbe80b06a49ca7f625fb6509c93102f3f2e6f9ba6b652b
+    lines: 6930

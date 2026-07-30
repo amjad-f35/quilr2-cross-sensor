@@ -1,0 +1,52 @@
+schema_version: "1.0"
+rule: "A typed relationship payload is semantically admitted only when its profile, source subject type, source predicate, source object type and semantic match exactly one row. The row's canonical pair must exist in predicates.yaml. Unmatched payloads remain immutable evidence and are quarantined from canonical truth."
+
+mcp_exposes_scope_rule: "Every MCP exposes relationship must declare capability_scope. authorization_context requires tenant-keyed authorization_context_token and endpoint_configuration_token; shared_legacy_cache remains a lower-assurance scoped claim. Relationship identity, validity, retraction and UI aggregation include capability scope, so observations are never unioned across authorization contexts."
+
+profiles:
+  browser:
+    - [installation, installed_on, device, structural, browser_installation, installed_on, device]
+    - [application, has_account, account, structural, application_surface, has_account, application_account]
+
+  endpoint:
+    - [endpoint_installation, installed_on, device, structural, endpoint_installation, installed_on, device]
+    - [application_installation, installed_on, device, structural, application_deployment, installed_on, device]
+    - [process, deployed_on, device, structural, workload, deployed_on, device]
+    - [process, executed_as, local_user, observed, workload, executed_as, directory_account]
+    - [application_installation, configured_with, agent_definition, configured, application_deployment, configured_with, agent_definition]
+    - [agent_deployment, instance_of, agent_definition, structural, agent_deployment, instance_of, agent_definition]
+    - [agent_deployment, deployed_on, device, structural, agent_deployment, deployed_on, device]
+    - [agent_deployment, executed_as, local_user, observed, agent_deployment, executed_as, directory_account]
+    - [application_installation, configured_to_use, mcp_server_deployment, configured, application_deployment, configured_to_use, mcp_server_deployment]
+    - [mcp_server_deployment, deployed_on, device, structural, mcp_server_deployment, deployed_on, device]
+    - [mcp_server_deployment, instance_of, mcp_server, structural, mcp_server_deployment, instance_of, mcp_server_product]
+    - [application_installation, configured_to_use, model_product, configured, application_deployment, configured_to_use, model_product]
+    - [application_installation, configured_with, agent_hook, configured, application_deployment, configured_with, agent_hook]
+    - [application_installation, configured_with, agent_skill, configured, application_deployment, configured_with, agent_skill]
+    - [application_installation, configured_with, agent_plugin, configured, application_deployment, configured_with, agent_plugin]
+    - [application_installation, configured_with, configured_permission_rule, configured, application_deployment, configured_with, configured_permission_rule]
+    - [application_installation, configured_for, repository, configured, application_deployment, configured_for, repository]
+
+  llm_gateway:
+    - [provider_account, belongs_to, provider, structural, provider_account, belongs_to, provider]
+    - [model_deployment, belongs_to, provider_account, structural, model_deployment, belongs_to, provider_account]
+    - [model_version, instance_of, model_product, structural, model_version, instance_of, model_product]
+    - [model_deployment, instance_of, model_version, structural, model_deployment, instance_of, model_version]
+    - [model_deployment, instance_of, model_product, structural, model_deployment, instance_of, model_product]
+    - [model_version, version_of, model_family, structural, model_version, version_of, model_family]
+    - [model_route, routes_to, model_deployment, configured, model_route, routes_to, model_deployment]
+    - [agent_deployment, instance_of, agent_definition, structural, agent_deployment, instance_of, agent_definition]
+    - [client_application, called, model_deployment, observed, application_deployment, called, model_deployment]
+    - [agent_deployment, called, model_deployment, observed, agent_deployment, called, model_deployment]
+    - [workload, called, model_deployment, observed, workload, called, model_deployment]
+
+  mcp_gateway:
+    - [server_deployment, instance_of, server_product, structural, mcp_server_deployment, instance_of, mcp_server_product]
+    - [server_deployment, exposes, tool, structural, mcp_server_deployment, exposes, mcp_tool]
+    - [server_deployment, exposes, native_tool, structural, mcp_server_deployment, exposes, mcp_tool]
+    - [server_deployment, exposes, resource, structural, mcp_server_deployment, exposes, mcp_resource_definition]
+    - [server_deployment, exposes, prompt, structural, mcp_server_deployment, exposes, mcp_prompt_definition]
+    - [agent_deployment, instance_of, agent_definition, structural, agent_deployment, instance_of, agent_definition]
+    - [client_application, invoked, tool, observed, application_deployment, invoked, mcp_tool]
+    - [agent_deployment, invoked, tool, observed, agent_deployment, invoked, mcp_tool]
+    - [run, invoked, tool, observed, workload, invoked, mcp_tool]

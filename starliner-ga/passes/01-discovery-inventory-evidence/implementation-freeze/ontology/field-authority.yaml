@@ -1,0 +1,112 @@
+schema_version: "1.0"
+ontology_version: die.ontology.field-authority.v1
+
+defaults:
+  unknown_is_explicit: true
+  empty_clears: false
+  conflict: retain_current_and_open_conflict
+  weak_observation_never_assigns_owner: true
+
+fields:
+  display_name:
+    precedence: [authoritative_connector, declared_config, source_native, observed_runtime, legacy]
+    sensitivity: public_product
+    freshness: lifecycle
+  vendor:
+    precedence: [provider_catalog, authoritative_connector, declared_config, source_native]
+    sensitivity: public_product
+    freshness: lifecycle
+  owner_entity_id:
+    precedence: [authoritative_connector, explicit_tenant_configuration, reviewed_correction]
+    sensitivity: internal
+    disallowed_sources: [observed_runtime, last_observed_actor]
+  business_scope_id:
+    precedence: [authoritative_connector, explicit_tenant_configuration, reviewed_correction]
+    sensitivity: internal
+    fallback: producer_enrollment_scope
+  activity.business_scope_id:
+    precedence: [verified_actor_scope, verified_workload_scope, primary_resource_scope, producer_enrollment_scope]
+    sensitivity: internal
+    rule: "The first verified value wins. If no narrower scope is verified, use the producer enrollment scope; that scope is the tenant root for unclassified producers."
+  activity.environment:
+    precedence: [verified_workload_environment, primary_resource_environment, producer_environment]
+    sensitivity: internal
+  activity.sensitivity:
+    selection: maximum_of_admitted_activity_fields_and_linked_safe_references
+    sensitivity: internal
+  environment:
+    precedence: [declared_deployment, authoritative_connector, source_native]
+    sensitivity: internal
+  application_account.account_context:
+    precedence: [authenticated_provider_context, browser_backend_context, browser_source_native, reviewed_correction]
+    allowed_values: [personal, organization, authenticated_unknown, flyby, unknown]
+    sensitivity: sensitive_metadata
+    freshness: observation
+    rule: "Browser Guest maps to flyby. Browser CredsBased maps only to authenticated_unknown. Personal or organization requires an accepted stronger classification claim with recorded writer and authority."
+  model_product.provider_model_id:
+    precedence: [provider_gateway_native, declared_configuration, endpoint_inference]
+    sensitivity: internal
+  model_deployment.deployment_id:
+    precedence: [provider_gateway_native, declared_configuration]
+    sensitivity: sensitive_metadata
+  application_surface.origin:
+    precedence: [browser_source_native, authoritative_catalog, endpoint_observation]
+    sensitivity: sensitive_metadata
+  application_deployment.package_identity:
+    precedence: [endpoint_source_native, authoritative_software_inventory]
+    sensitivity: internal
+  application_product.technology_class:
+    precedence: [authoritative_catalog, managed_configuration, reviewed_correction, source_native]
+    allowed_values: [generative_ai, other_ai, non_ai, unknown]
+    sensitivity: public_product
+    freshness: lifecycle
+    rule: "Absence of an AI classification is unknown, never non_ai."
+  application_product.agentic_capability:
+    precedence: [authoritative_catalog, managed_configuration, reviewed_correction, source_native]
+    allowed_values: [present, absent, unknown]
+    sensitivity: public_product
+    freshness: lifecycle
+  agent_deployment.version:
+    precedence: [source_native_installation, declared_deployment, observed_runtime]
+    sensitivity: public_product
+    freshness: observation
+    rule: "Version is materialized history and never participates in local agent deployment identity."
+  agent_deployment.integrity_level:
+    precedence: [endpoint_source_native, observed_runtime]
+    sensitivity: internal
+    freshness: observation
+  agent_deployment.auto_approve:
+    precedence: [declared_configuration, endpoint_source_native]
+    sensitivity: sensitive_metadata
+    freshness: observation
+  device.machine_id:
+    precedence: [authoritative_device_connector, endpoint_source_native, browser_backend_native]
+    sensitivity: sensitive_metadata
+    freshness: lifecycle
+  device.os_platform:
+    precedence: [authoritative_device_connector, endpoint_source_native, browser_source_native]
+    sensitivity: public_product
+    freshness: observation
+  directory_account.account_name:
+    precedence: [authoritative_connector, endpoint_source_native, browser_backend_context]
+    sensitivity: sensitive_metadata
+    freshness: observation
+  mcp_server_deployment.transport:
+    precedence: [mcp_registry_native, endpoint_configuration, negotiated_session]
+    sensitivity: internal
+  mcp_server_deployment.locality:
+    precedence: [endpoint_configuration, mcp_registry_native, declared_configuration]
+    allowed_values: [local, remote, unknown]
+    sensitivity: internal
+  mcp_server_deployment.configuration_scope:
+    precedence: [endpoint_configuration, mcp_registry_native, declared_configuration]
+    sensitivity: sensitive_metadata
+  mcp_tool.schema_digest:
+    precedence: [mcp_registry_native, negotiated_session]
+    sensitivity: internal
+  first_observed_at:
+    selection: minimum_eligible_direct_observation_time
+    sensitivity: public_product
+  last_observed_at:
+    selection: maximum_eligible_direct_observation_time
+    sensitivity: public_product

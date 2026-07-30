@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.example/die/canonical-change-pointer.schema.json",
+  "title": "DIE canonical change pointer v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "outbox_id",
+    "aggregate_type",
+    "aggregate_id",
+    "aggregate_version",
+    "change_type",
+    "partition_key",
+    "payload_version",
+    "aggregate_digest",
+    "causation",
+    "payload",
+    "created_at"
+  ],
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "outbox_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "aggregate_type": {
+      "enum": ["entity", "relationship", "activity", "coverage", "evidence"]
+    },
+    "aggregate_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "aggregate_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "change_type": {
+      "enum": [
+        "created",
+        "updated",
+        "ended",
+        "staled",
+        "retired",
+        "tombstoned",
+        "restored",
+        "merged",
+        "split",
+        "ambiguous",
+        "coverage_changed",
+        "evidence_disposition_changed"
+      ]
+    },
+    "partition_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "payload_version": {
+      "const": "die.outbox.pointer.v1"
+    },
+    "aggregate_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "causation": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "execution_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "audit_event_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "evidence_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "maxProperties": 32,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_.:-]{1,128}$"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 4096
+          },
+          {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "number",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "aggregate_type": { "const": "entity" } }, "required": ["aggregate_type"] },
+      "then": {
+        "properties": {
+          "change_type": {
+            "enum": ["created", "updated", "staled", "retired", "tombstoned", "restored", "merged", "split", "ambiguous"]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "aggregate_type": { "const": "relationship" } }, "required": ["aggregate_type"] },
+      "then": {
+        "properties": {
+          "change_type": {
+            "enum": ["created", "updated", "ended", "staled", "restored", "ambiguous"]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "aggregate_type": { "const": "activity" } }, "required": ["aggregate_type"] },
+      "then": {
+        "properties": {
+          "change_type": {
+            "enum": ["created", "updated", "tombstoned", "restored"]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "aggregate_type": { "const": "coverage" } }, "required": ["aggregate_type"] },
+      "then": { "properties": { "change_type": { "const": "coverage_changed" } } }
+    },
+    {
+      "if": { "properties": { "aggregate_type": { "const": "evidence" } }, "required": ["aggregate_type"] },
+      "then": { "properties": { "change_type": { "const": "evidence_disposition_changed" } } }
+    }
+  ]
+}

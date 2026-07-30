@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quilr:starliner:schema:v1:ga-evidence-package",
+  "title": "Quilr Release Gate Evidence Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "package_id",
+    "gate_id",
+    "candidate",
+    "scope",
+    "requirements",
+    "decisions",
+    "artifacts",
+    "tests",
+    "security_privacy",
+    "reliability",
+    "migration",
+    "product",
+    "operations",
+    "risks",
+    "needs_input",
+    "approvals",
+    "decision"
+  ],
+  "properties": {
+    "package_id": {"type": "string", "minLength": 1},
+    "gate_id": {"enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6"]},
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["release_id", "created_at", "source_revision", "configuration_version"],
+      "properties": {
+        "release_id": {"type": "string", "minLength": 1},
+        "created_at": {"type": "string", "format": "date-time"},
+        "source_revision": {"type": "string", "minLength": 1},
+        "configuration_version": {"type": "string", "minLength": 1}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilities", "regions", "deployment_profiles", "source_profiles", "customer_cohorts"],
+      "properties": {
+        "capabilities": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "regions": {"type": "array", "items": {"type": "string"}},
+        "deployment_profiles": {"type": "array", "items": {"type": "string"}},
+        "source_profiles": {"type": "array", "items": {"type": "string"}},
+        "customer_cohorts": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "requirements": {"$ref": "#/$defs/evidenceList"},
+    "decisions": {"$ref": "#/$defs/evidenceList"},
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "digest", "provenance", "sbom", "signature", "certification"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "digest": {"type": "string", "minLength": 1},
+          "provenance": {"type": "string", "minLength": 1},
+          "sbom": {"type": "string", "minLength": 1},
+          "signature": {"type": "string", "minLength": 1},
+          "certification": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "tests": {"$ref": "#/$defs/evidenceList"},
+    "security_privacy": {"$ref": "#/$defs/evidenceList"},
+    "reliability": {"$ref": "#/$defs/evidenceList"},
+    "migration": {"$ref": "#/$defs/evidenceList"},
+    "product": {"$ref": "#/$defs/evidenceList"},
+    "operations": {"$ref": "#/$defs/evidenceList"},
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["risk_id", "disposition", "owner"],
+        "properties": {
+          "risk_id": {"type": "string", "minLength": 1},
+          "disposition": {"enum": ["mitigated", "accepted", "blocks"]},
+          "owner": {"type": "string", "minLength": 1},
+          "exception_id": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "needs_input": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input_id", "status", "evidence"],
+        "properties": {
+          "input_id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["resolved", "not_applicable", "blocks"]},
+          "evidence": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "principal", "decision", "at", "signature"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "principal": {"type": "string", "minLength": 1},
+          "decision": {"enum": ["approve", "reject"]},
+          "at": {"type": "string", "format": "date-time"},
+          "signature": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "decided_at", "authority"],
+      "properties": {
+        "status": {"enum": ["approved", "rejected", "not_ready"]},
+        "decided_at": {"type": "string", "format": "date-time"},
+        "authority": {"type": "string", "minLength": 1},
+        "conditions": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "$defs": {
+    "evidenceList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "evidence"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["pass", "fail", "not_applicable", "waived"]},
+          "evidence": {"type": "string", "minLength": 1},
+          "exception_id": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Starliner Edge Ingest and Configuration API
+  version: 1.0.0
+  description: Producer-facing API for the frozen DIE pass.
+servers:
+  - url: /
+security:
+  - mutualTLS: []
+  - producerOAuth: []
+paths:
+  /starliner/ingest/v1/batches:
+    post:
+      operationId: ingestStarlinerBatch
+      tags: [Ingest]
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, minLength: 16, maxLength: 256}
+        - name: Content-Encoding
+          in: header
+          schema: {type: string, enum: [identity, gzip, zstd], default: identity}
+        - name: X-Request-ID
+          in: header
+          schema: {type: string, maxLength: 256}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/delivery-batch.schema.json
+      responses:
+        '200':
+          description: Batch parsed; inspect every per-record disposition. A sequence conflict is a rejected record inside this response and never fails otherwise valid sibling records.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/ingest-receipt.schema.json
+        '400': {$ref: '#/components/responses/Problem'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409':
+          description: The batch Idempotency-Key was already used with a different RFC-8785 request digest, or the authenticated producer identity conflicts with batch-wide request metadata. Per-record conflicts are returned in HTTP 200.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '415': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+  /starliner/management/v1/configuration:
+    get:
+      operationId: getStarlinerEdgeConfiguration
+      tags: [Management]
+      parameters:
+        - name: If-None-Match
+          in: header
+          schema: {type: string, maxLength: 256}
+        - name: current_generation
+          in: query
+          schema: {type: integer, minimum: 0, maximum: 9007199254740991}
+      responses:
+        '200':
+          description: Signed configuration for the authenticated producer.
+          headers:
+            ETag:
+              schema: {type: string}
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/edge-configuration.schema.json
+        '304':
+          description: Current generation remains effective.
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+components:
+  securitySchemes:
+    mutualTLS:
+      type: mutualTLS
+      description: Certificate subject is mapped to one enrolled tenant and producer.
+    producerOAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token
+          scopes:
+            starliner.ingest: Deliver evidence for the enrolled producer.
+            starliner.configuration.read: Read signed edge configuration.
+  responses:
+    Problem:
+      description: Safe producer-facing error.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, request_id, retryable]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string}
+        status: {type: integer, minimum: 400, maximum: 599}
+        code: {type: string}
+        detail: {type: string}
+        request_id: {type: string}
+        retryable: {type: boolean}
+        retry_after_ms: {type: integer, minimum: 1, maximum: 300000}

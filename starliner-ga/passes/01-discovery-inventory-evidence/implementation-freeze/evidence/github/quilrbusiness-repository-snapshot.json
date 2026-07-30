@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "organization": "quilrbusiness",
+  "generated_at": "2026-07-30T21:24:30.110Z",
+  "repository_count": 377,
+  "archived_count": 164,
+  "deprecated_or_archived_count": 164,
+  "poc_demo_or_test_candidate_count": 11,
+  "active_candidate_count": 202,
+  "repositories_sha256": "1faf7dc19905e5c613348579bd0bf9b9619071f9a4e6b74f06a0af6dbd695247"
+}

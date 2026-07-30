@@ -1,0 +1,132 @@
+schema_version: "1.0"
+services:
+  - id: contract-registry
+    authority: protocol schemas, source profiles, compatibility, release metadata
+    plane: global_control
+    owner_role: protocol_lead
+    criticality: tier_1
+  - id: producer-enrollment
+    authority: producer/workload registration and admitted capabilities
+    plane: tenant_cell_control
+    owner_role: security_lead
+    criticality: tier_1
+  - id: regional-ingest
+    authority: protocol admission and durable acceptance receipts
+    plane: tenant_cell_data
+    owner_role: ingest_lead
+    criticality: tier_0
+  - id: evidence-ledger
+    authority: immutable accepted source evidence and retention state
+    plane: tenant_cell_data
+    owner_role: ingest_lead
+    criticality: tier_0
+  - id: quarantine
+    authority: isolated rejected or suspicious source records
+    plane: tenant_cell_data
+    owner_role: ingest_lead
+    criticality: tier_1
+  - id: normalizer
+    authority: versioned normalized observations
+    plane: tenant_cell_data
+    owner_role: normalization_lead
+    criticality: tier_1
+  - id: source-catalog
+    authority: field authority, lifecycle, privacy, and normalization rules
+    plane: tenant_cell_control
+    owner_role: normalization_lead
+    criticality: tier_1
+  - id: identity-resolver
+    authority: resolution decisions and canonical ID assignment
+    plane: tenant_cell_data
+    owner_role: data_identity_lead
+    criticality: tier_0
+  - id: canonical-ledger
+    authority: canonical entity, relationship, ownership, governance, and workflow state
+    plane: tenant_cell_data
+    owner_role: data_identity_lead
+    criticality: tier_0
+  - id: projection-runner
+    authority: projection checkpoints only
+    plane: tenant_cell_data
+    owner_role: platform_lead
+    criticality: tier_1
+  - id: activity-correlator
+    authority: versioned correlated execution decisions
+    plane: tenant_cell_data
+    owner_role: activity_lead
+    criticality: tier_1
+  - id: finding-engine
+    authority: finding instances and system lifecycle evaluations
+    plane: tenant_cell_data
+    owner_role: insights_lead
+    criticality: tier_1
+  - id: metric-engine
+    authority: metric definitions and materialized analytical outputs
+    plane: tenant_cell_data
+    owner_role: analytics_lead
+    criticality: tier_1
+  - id: policy-service
+    authority: policy, exception, and compiled bundle lifecycle
+    plane: tenant_cell_control
+    owner_role: policy_control_lead
+    criticality: tier_0
+  - id: decision-service
+    authority: central policy decisions
+    plane: tenant_cell_control
+    owner_role: policy_control_lead
+    criticality: tier_0
+  - id: command-orchestrator
+    authority: authorized command state and delivery
+    plane: tenant_cell_control
+    owner_role: policy_control_lead
+    criticality: tier_0
+  - id: workflow-service
+    authority: case, task, approval, and remediation workflow
+    plane: tenant_cell_control
+    owner_role: workflow_lead
+    criticality: tier_1
+  - id: connector-runtime
+    authority: external-source cursors, snapshots, and webhook receipts
+    plane: tenant_cell_data
+    owner_role: connector_lead
+    criticality: tier_1
+  - id: control-connector-runtime
+    authority: native control delivery result under typed command authority
+    plane: tenant_cell_control
+    owner_role: policy_control_lead
+    criticality: tier_1
+  - id: response-connector-runtime
+    authority: external notification, ticket, and approval synchronization references
+    plane: tenant_cell_control
+    owner_role: workflow_lead
+    criticality: tier_2
+  - id: product-api
+    authority: no new truth; serves authorized canonical/product read models
+    plane: tenant_cell_product
+    owner_role: api_lead
+    criticality: tier_0
+  - id: search
+    authority: rebuildable search projection
+    plane: tenant_cell_product
+    owner_role: api_lead
+    criticality: tier_2
+  - id: analytics-query
+    authority: rebuildable analytical projection
+    plane: tenant_cell_product
+    owner_role: analytics_lead
+    criticality: tier_1
+  - id: export-jobs
+    authority: watermarked authorized export snapshots
+    plane: tenant_cell_product
+    owner_role: api_lead
+    criticality: tier_2
+  - id: audit-ledger
+    authority: immutable customer, service, support, identity, policy, and command audit
+    plane: tenant_cell_control
+    owner_role: security_lead
+    criticality: tier_0
+  - id: cell-operations
+    authority: deployment, routing, backup, restore, health, and operational configuration
+    plane: operations
+    owner_role: sre_lead
+    criticality: tier_0

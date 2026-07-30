@@ -1,0 +1,128 @@
+schema_version: "1.0"
+rule: "An item remains open until the accountable role supplies approved evidence. Placeholder development values cannot become production defaults."
+items:
+  - id: DIE-NI-001
+    input: "Named product, protocol, edge, sensor, ingest, identity, API, frontend, migration, security, SRE, quality, and support owners with backups"
+    blocks: [DIE-0]
+    accountable_role: executive_sponsor
+    evidence: approved_pass_raci
+  - id: DIE-NI-002
+    input: "Authorized exact-source checkout of quilrbusiness/project-starliner; selected current and deployed revisions; complete implementation fit-gap/disposition audit; target module destinations; build ownership; release branches; and deployment paths"
+    blocks: [DIE-0]
+    accountable_role: program_lead
+    evidence: project_starliner_repository_audit_and_deployment_map
+  - id: DIE-NI-003
+    input: "Selected pilot and DIE-GA deployment/operations profile and customer/vendor responsibility matrix"
+    blocks: [DIE-0, DIE-3]
+    accountable_role: executive_sponsor
+    evidence: approved_deployment_profile
+  - id: DIE-NI-004
+    input: "Exact workload identity issuer, trust domain, enrollment, certificate/token lifetime, rotation, and revocation"
+    blocks: [DIE-1]
+    accountable_role: security_lead
+    evidence: workload_identity_specification
+  - id: DIE-NI-005
+    input: "KMS/HSM, signing, storage encryption, export keys, backup keys, and recovery profile"
+    blocks: [DIE-1]
+    accountable_role: security_lead
+    evidence: cryptographic_key_plan
+  - id: DIE-NI-006
+    input: "Endpoint signing/CA incident distribution scope, revocation, rotation, clean artifacts, provenance, and customer update"
+    blocks: [DIE-0, DIE-1]
+    accountable_role: security_lead
+    evidence: signed_incident_disposition
+  - id: DIE-NI-007
+    input: "Approved authenticated local IPC design for endpoint and browser native messaging"
+    blocks: [DIE-1]
+    accountable_role: security_lead
+    evidence: local_ipc_security_review
+  - id: DIE-NI-008
+    input: "Exact deployed sensor revisions, artifacts, optional/private dependencies, effective configurations, versions, topology, and permissions"
+    blocks: [DIE-1, DIE-3]
+    accountable_role: quality_lead
+    evidence: deployed_sensor_inventory
+  - id: DIE-NI-009
+    input: "Concrete profile schemas, receipt/management API, product OpenAPI, SDK languages, and generated artifact ownership"
+    blocks: [DIE-0]
+    accountable_role: protocol_lead
+    evidence: versioned_contract_release
+  - id: DIE-NI-010
+    input: "Production PostgreSQL DDL, indexes, partitions, RLS/access strategy, migrations, and transaction ownership"
+    blocks: [DIE-0, DIE-1]
+    accountable_role: data_identity_lead
+    evidence: physical_data_model_review
+  - id: DIE-NI-011
+    input: "PostgreSQL/object-storage/ClickHouse products, versions, tenancy, backup, capacity, and operational ownership"
+    blocks: [DIE-1]
+    accountable_role: sre_lead
+    evidence: cell_storage_profile
+  - id: DIE-NI-012
+    input: "Worker work-table schemas, partition keys, lease/fencing behavior, retry/dead-letter rules, quotas, and autoscaling"
+    blocks: [DIE-1]
+    accountable_role: platform_lead
+    evidence: worker_runtime_specification
+  - id: DIE-NI-013
+    input: "Browser service-worker WAL quota/eviction/restart design, keyed native correlation, and browser/backend transport choice"
+    blocks: [DIE-1]
+    accountable_role: browser_sensor_lead
+    evidence: browser_runtime_certification
+  - id: DIE-NI-014
+    input: "LLM provider/transport launch matrix including streaming, cancellation, retries, failover, usage, and status semantics"
+    blocks: [DIE-1, DIE-3]
+    accountable_role: llm_gateway_lead
+    evidence: llm_transport_certification_matrix
+  - id: DIE-NI-015
+    input: "MCP Direct, OneMCP, native, resource, prompt, session, progress/cancel, optional dependency, and scale launch matrix"
+    blocks: [DIE-1, DIE-3]
+    accountable_role: mcp_sensor_lead
+    evidence: mcp_surface_certification_matrix
+  - id: DIE-NI-016
+    input: "Resolution authority rules, automatic/review thresholds, evaluation corpus, false-merge bar, and correction policy"
+    blocks: [DIE-2, DIE-3]
+    accountable_role: data_identity_lead
+    evidence: resolver_quality_report
+  - id: DIE-NI-017
+    input: "Expected producer/population sources and coverage semantics for pilot tenants"
+    blocks: [DIE-2, DIE-3]
+    accountable_role: product_lead
+    evidence: coverage_contract
+  - id: DIE-NI-018
+    input: "Approved collection, prohibited-field, pseudonymization, retention, deletion, legal-hold, residency, export, and audit policies"
+    blocks: [DIE-1, DIE-3]
+    accountable_role: privacy_lead
+    evidence: pass_data_governance_policy
+  - id: DIE-NI-019
+    input: "Human identity issuer, Quilr 1 SSO compatibility, roles, business scopes, support access, and evidence/export permissions"
+    blocks: [DIE-2, DIE-3]
+    accountable_role: security_lead
+    evidence: pass_access_control_specification
+  - id: DIE-NI-020
+    input: "Live Quilr 1 tenants, stores, volumes, schemas, jobs, APIs, exports, consumers, credentials, regions, retention, and data quality"
+    blocks: [DIE-2, DIE-3]
+    accountable_role: migration_lead
+    evidence: quilr1_production_inventory
+  - id: DIE-NI-021
+    input: "Legacy ID/field/event/relationship/API/export mappings and unsupported behavior disposition"
+    blocks: [DIE-2, DIE-3]
+    accountable_role: migration_lead
+    evidence: approved_compatibility_catalog
+  - id: DIE-NI-022
+    input: "Pilot tenants, parity thresholds, cohorts, cutover watermarks, stabilization window, rollback triggers, and customer communication"
+    blocks: [DIE-3, DIE-GA]
+    accountable_role: migration_lead
+    evidence: approved_cohort_plan
+  - id: DIE-NI-023
+    input: "Certified tenant/source/load profile, SLOs, error budgets, resource reserve, cost, and expansion runbooks"
+    blocks: [DIE-3, DIE-GA]
+    accountable_role: sre_lead
+    evidence: capacity_and_slo_report
+  - id: DIE-NI-024
+    input: "Backup geography, RPO/RTO, restore profile, failover behavior, game-day evidence, and business continuity commitments"
+    blocks: [DIE-3, DIE-GA]
+    accountable_role: sre_lead
+    evidence: approved_recovery_profile
+  - id: DIE-NI-025
+    input: "Launch source support matrix, customer documentation, support tiers, on-call, escalation, incident communication, and status behavior"
+    blocks: [DIE-GA]
+    accountable_role: product_lead
+    evidence: customer_operational_readiness

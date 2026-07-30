@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quilr:starliner:schema:v1:envelope",
+  "title": "Starliner Protocol v1 Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "record_id",
+    "record_type",
+    "schema_version",
+    "source_profile",
+    "source_profile_version",
+    "claimed_tenant_id",
+    "source_definition_id",
+    "source_installation_id",
+    "runtime_instance_id",
+    "claimed_producer_identity",
+    "adapter_id",
+    "adapter_version",
+    "claimed_certification_id",
+    "operation",
+    "occurred_at",
+    "observed_at",
+    "enqueued_at",
+    "sequence",
+    "correlation",
+    "privacy",
+    "idempotency_key",
+    "body_hash",
+    "record_hash",
+    "body"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "starliner.protocol.v1"
+    },
+    "record_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "record_type": {
+      "type": "string",
+      "enum": [
+        "entity_snapshot",
+        "source_observation",
+        "relationship_assertion",
+        "action_event",
+        "decision_result",
+        "execution_outcome",
+        "effect_observation",
+        "finding_signal",
+        "trace_span",
+        "metric_event",
+        "cost_event",
+        "sensor_health_event",
+        "control_config_event",
+        "audit_event",
+        "reconciliation_started",
+        "reconciliation_page_committed",
+        "reconciliation_completed",
+        "reconciliation_failed",
+        "source_gap_notice",
+        "sampling_summary",
+        "source_manifest",
+        "self_test_result",
+        "contract_test_result",
+        "certification_record",
+        "policy_bundle_status",
+        "command_lifecycle_event"
+      ]
+    },
+    "schema_version": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "source_profile": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "source_profile_version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "claimed_tenant_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "source_definition_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "source_installation_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "runtime_instance_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "claimed_producer_identity": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "adapter_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "adapter_version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "claimed_certification_id": {
+      "$ref": "#/$defs/opaqueId"
+    },
+    "operation": {
+      "type": "string",
+      "enum": ["upsert", "correct", "delete", "tombstone"]
+    },
+    "source_native_id": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "source_revision": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "supersedes_record_id": {
+      "oneOf": [
+        {"$ref": "#/$defs/opaqueId"},
+        {"type": "null"}
+      ]
+    },
+    "occurred_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "observed_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "enqueued_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "clock": {
+      "$ref": "#/$defs/clock"
+    },
+    "sequence": {
+      "$ref": "#/$defs/sequence"
+    },
+    "correlation": {
+      "$ref": "#/$defs/correlation"
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "body_hash": {
+      "$ref": "#/$defs/digest"
+    },
+    "record_hash": {
+      "$ref": "#/$defs/digest"
+    },
+    "signature": {
+      "oneOf": [
+        {"$ref": "#/$defs/signature"},
+        {"type": "null"}
+      ]
+    },
+    "body": {
+      "type": "object",
+      "description": "Validated by schema_version and source_profile. It MUST NOT contain a producer-minted canonical entity identifier."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"operation": {"const": "correct"}},
+        "required": ["operation"]
+      },
+      "then": {
+        "required": ["supersedes_record_id", "source_revision"],
+        "properties": {
+          "supersedes_record_id": {"$ref": "#/$defs/opaqueId"},
+          "source_revision": {"type": "string", "minLength": 1, "maxLength": 512}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "opaqueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "semanticVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*:[A-Za-z0-9_-]+$",
+      "maxLength": 512
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quality"],
+      "properties": {
+        "quality": {
+          "type": "string",
+          "enum": ["synchronized", "estimated", "monotonic_only", "unknown"]
+        },
+        "offset_ms": {"type": ["integer", "null"]},
+        "uncertainty_ms": {"type": ["integer", "null"], "minimum": 0},
+        "boot_epoch_id": {"type": ["string", "null"], "maxLength": 256},
+        "monotonic_ns": {"type": ["string", "null"], "pattern": "^[0-9]+$"}
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stream_id", "epoch", "number"],
+      "properties": {
+        "stream_id": {"$ref": "#/$defs/opaqueId"},
+        "epoch": {"$ref": "#/$defs/opaqueId"},
+        "number": {"type": "string", "pattern": "^[0-9]+$"},
+        "previous_record_hash": {
+          "oneOf": [
+            {"$ref": "#/$defs/digest"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "traceparent",
+        "tracestate",
+        "observation_id",
+        "session_id",
+        "request_id",
+        "run_id",
+        "step_id",
+        "action_id",
+        "decision_id",
+        "command_id",
+        "reconciliation_run_id",
+        "trail_id"
+      ],
+      "properties": {
+        "traceparent": {"type": ["string", "null"], "maxLength": 256},
+        "tracestate": {"type": ["string", "null"], "maxLength": 1024},
+        "observation_id": {"type": ["string", "null"], "maxLength": 256},
+        "session_id": {"type": ["string", "null"], "maxLength": 256},
+        "request_id": {"type": ["string", "null"], "maxLength": 256},
+        "run_id": {"type": ["string", "null"], "maxLength": 256},
+        "step_id": {"type": ["string", "null"], "maxLength": 256},
+        "action_id": {"type": ["string", "null"], "maxLength": 256},
+        "decision_id": {"type": ["string", "null"], "maxLength": 256},
+        "command_id": {"type": ["string", "null"], "maxLength": 256},
+        "reconciliation_run_id": {"type": ["string", "null"], "maxLength": 256},
+        "trail_id": {"type": ["string", "null"], "maxLength": 256}
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collection_policy_id",
+        "collection_policy_version",
+        "highest_classification",
+        "content_reference_count",
+        "capture_summary"
+      ],
+      "properties": {
+        "collection_policy_id": {"$ref": "#/$defs/opaqueId"},
+        "collection_policy_version": {"$ref": "#/$defs/nonEmptyString"},
+        "highest_classification": {
+          "type": "string",
+          "enum": ["structural", "enterprise_identifier", "pseudonymous", "sensitive_metadata"]
+        },
+        "content_reference_count": {"type": "integer", "minimum": 0},
+        "capture_summary": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "key_id", "value"],
+      "properties": {
+        "algorithm": {"$ref": "#/$defs/nonEmptyString"},
+        "key_id": {"$ref": "#/$defs/nonEmptyString"},
+        "value": {"type": "string", "minLength": 1, "maxLength": 8192}
+      }
+    }
+  }
+}

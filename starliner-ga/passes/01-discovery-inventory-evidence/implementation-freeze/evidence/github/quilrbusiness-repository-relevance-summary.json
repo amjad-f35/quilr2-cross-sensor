@@ -1,0 +1,19 @@
+{
+  "schema": "quilr.github.repository_relevance.v1",
+  "source": "evidence/github/quilrbusiness-repositories.json",
+  "total_repositories": 377,
+  "classifications": {
+    "ACTIVE_ORG_REPOSITORY_OUTSIDE_CURRENT_TRACE": 140,
+    "ARCHIVED_OR_DEPRECATED": 164,
+    "LG008_BUILD_RUNTIME_DEPENDENCY": 10,
+    "LG008_CURRENT_INGRESS_CONSUMER": 8,
+    "LG008_DEPLOYMENT_REACHABILITY_EVIDENCE": 8,
+    "LG008_PLATFORM_OR_TARGET_CONTEXT": 6,
+    "LG008_PRIMARY_PRODUCER": 5,
+    "LG008_RELATED_CANDIDATE_NOT_PROVEN_REACHABLE": 22,
+    "LG008_SENSOR_CONFIGURATION": 3,
+    "POC_DEMO_TEST_CANDIDATE": 11
+  },
+  "classified_rows_sha256": "32ee84154e4943a5f4b25d334f24171d4a67572686e22c45dc3afe1337269cd5",
+  "warning": "Machine-triaged rows are discovery aids, not proof of production reachability. Manual rows state their evidence basis."
+}

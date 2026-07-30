@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:quilr:starliner:schema:v1:metric-definition",
+  "title": "Quilr Metric Definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metric_id",
+    "version",
+    "status",
+    "owner",
+    "name",
+    "purpose",
+    "unit",
+    "grain",
+    "eligible_population",
+    "numerator",
+    "denominator",
+    "sources",
+    "coverage",
+    "time",
+    "deduplication",
+    "late_data",
+    "dimensions",
+    "privacy",
+    "retention",
+    "validation"
+  ],
+  "properties": {
+    "metric_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "status": {"enum": ["experimental", "preview", "ga", "deprecated", "disabled"]},
+    "owner": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1, "maxLength": 256},
+    "purpose": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "symbol"],
+      "properties": {
+        "kind": {"enum": ["count", "ratio", "percentage", "duration", "currency", "bytes", "tokens", "rate", "score"]},
+        "symbol": {"type": "string"},
+        "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"}
+      }
+    },
+    "grain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_entity_class", "time_grain"],
+      "properties": {
+        "canonical_entity_class": {"type": "string", "minLength": 1},
+        "time_grain": {"enum": ["point", "hour", "day", "week", "month", "billing_period"]}
+      }
+    },
+    "eligible_population": {"type": "string", "minLength": 1},
+    "numerator": {"type": "string", "minLength": 1},
+    "denominator": {"type": ["string", "null"]},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["profile", "fields", "authority"],
+        "properties": {
+          "profile": {"type": "string", "minLength": 1},
+          "fields": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "authority": {"enum": ["authoritative", "direct_observation", "attested", "derived", "user_asserted", "imported_legacy"]}
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "freshness", "incomplete_behavior"],
+      "properties": {
+        "minimum": {"type": "string", "minLength": 1},
+        "freshness": {"type": "string", "minLength": 1},
+        "incomplete_behavior": {"enum": ["not_evaluable", "partial_with_disclosure", "hold_last_complete"]}
+      }
+    },
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "window", "timezone"],
+      "properties": {
+        "basis": {"enum": ["event_time", "valid_time", "system_time", "billing_time"]},
+        "window": {"type": "string", "minLength": 1},
+        "timezone": {"type": "string", "minLength": 1},
+        "comparison": {"type": ["string", "null"]}
+      }
+    },
+    "deduplication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "rule"],
+      "properties": {
+        "key": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "rule": {"type": "string", "minLength": 1}
+      }
+    },
+    "late_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correction_window", "after_window", "restatement_versioned"],
+      "properties": {
+        "correction_window": {"type": "string", "minLength": 1},
+        "after_window": {"enum": ["ignore_with_count", "restatement", "next_period_adjustment"]},
+        "restatement_versioned": {"const": true}
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "source", "cardinality_limit", "privacy_class"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "cardinality_limit": {"type": "integer", "minimum": 1},
+          "privacy_class": {"enum": ["public", "operational", "sensitive", "restricted"]}
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "minimum_group_size", "restricted_content"],
+      "properties": {
+        "classification": {"enum": ["public", "operational", "sensitive", "restricted"]},
+        "minimum_group_size": {"type": "integer", "minimum": 1},
+        "restricted_content": {"const": false}
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detail", "aggregate"],
+      "properties": {
+        "detail": {"type": "string", "minLength": 1},
+        "aggregate": {"type": "string", "minLength": 1}
+      }
+    },
+    "cost_semantics": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["kind", "price_version", "currency_source", "attribution_confidence"],
+      "properties": {
+        "kind": {"enum": ["estimated", "provider_billed", "customer_contract"]},
+        "price_version": {"type": "string", "minLength": 1},
+        "currency_source": {"type": "string", "minLength": 1},
+        "attribution_confidence": {"type": "string", "minLength": 1}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtures", "source_crosscheck", "performance_budget", "owner_approval"],
+      "properties": {
+        "fixtures": {"type": "string", "minLength": 1},
+        "source_crosscheck": {"type": "string", "minLength": 1},
+        "performance_budget": {"type": "string", "minLength": 1},
+        "owner_approval": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "saturation_version": "lg008-static-saturation/1.0.0",
+  "executed_at": "2026-07-30",
+  "pass_one": {
+    "build": "{\"profiles\":5,\"records\":148,\"native_fields\":1837,\"access_recipes\":422,\"target_fields\":931,\"current_delta_files\":140,\"required_derivation_gaps\":0,\"rejected_profiles\":0}",
+    "validation": "LG-008 five-profile authority passed: 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
+    "generated_digests": {
+      "authority-manifest.json": "59764c568563712cf86913aa1e56114ebdd623fca3c772c94ee3daa3b05a815c",
+      "profile-admission.csv": "1251a887efb5081b072c110ef6e7b74fba28a58e9aab520be3c0a3bae5c5e162",
+      "native-field-disposition.csv": "c0bbba1b760fcbed62b688dd4bbf290c18244810d0d9d2d07c4336024ad7150c",
+      "record-catalog.csv": "eb5751887966f28a8ae09b2f443cb82bb5b16a3f96f80693f3412ecc079aa16a",
+      "access-recipes.csv": "03484af266051ab1dffa3fe46d29648f871532526b5441f16f79508615fe7695",
+      "current-source-delta-files.csv": "700af45e5be9f007823729a41678bfc4d978c53b7c44147e79dac2b9107184d1",
+      "target-field-traceability.csv": "a0d1d0f349111a6b28b103ed4d49a2bc09eb3a42b1cb57f05c571a309c95f2d9"
+    }
+  },
+  "pass_two": {
+    "build": "{\"profiles\":5,\"records\":148,\"native_fields\":1837,\"access_recipes\":422,\"target_fields\":931,\"current_delta_files\":140,\"required_derivation_gaps\":0,\"rejected_profiles\":0}",
+    "validation": "LG-008 five-profile authority passed: 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
+    "generated_digests": {
+      "authority-manifest.json": "59764c568563712cf86913aa1e56114ebdd623fca3c772c94ee3daa3b05a815c",
+      "profile-admission.csv": "1251a887efb5081b072c110ef6e7b74fba28a58e9aab520be3c0a3bae5c5e162",
+      "native-field-disposition.csv": "c0bbba1b760fcbed62b688dd4bbf290c18244810d0d9d2d07c4336024ad7150c",
+      "record-catalog.csv": "eb5751887966f28a8ae09b2f443cb82bb5b16a3f96f80693f3412ecc079aa16a",
+      "access-recipes.csv": "03484af266051ab1dffa3fe46d29648f871532526b5441f16f79508615fe7695",
+      "current-source-delta-files.csv": "700af45e5be9f007823729a41678bfc4d978c53b7c44147e79dac2b9107184d1",
+      "target-field-traceability.csv": "a0d1d0f349111a6b28b103ed4d49a2bc09eb3a42b1cb57f05c571a309c95f2d9"
+    }
+  },
+  "zero_new_item_result": "PASS",
+  "changed_generated_files": [],
+  "counts": {
+    "profiles": 5,
+    "records": 148,
+    "native_fields": 1837,
+    "access_recipes": 422,
+    "target_fields": 931,
+    "current_delta_files": 140,
+    "required_derivation_gaps": 0,
+    "rejected_profiles": 0
+  },
+  "assurance_boundary": {
+    "closed": "Static selected-source reconciliation and deterministic contract propagation for five profiles.",
+    "separate_live_gate": "LG-005 native capture-to-profile certification for each built artifact and supported runtime."
+  }
+}

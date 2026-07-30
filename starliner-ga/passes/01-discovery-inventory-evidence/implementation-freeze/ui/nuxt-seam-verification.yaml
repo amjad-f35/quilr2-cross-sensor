@@ -1,0 +1,59 @@
+schema_version: "1.0"
+verification_id: die.nuxt-seam.2026-07-30
+repository:
+  path: /Users/t4ctic4l/STAR-PLATFORM/quilr-platform-nuxt
+  inspected_revision: 8c745c88e56cb6fc88a022415a596b5d436a5264
+  branch: main
+  worktree_state: dirty
+  mutation_performed_by_this_review: false
+
+source_evidence:
+  fixture_repository:
+    path: app/lib/api/readModels.js
+    status: fixture_only
+    evidence:
+      - "line 4 names a future /v1/* stand-in rather than the frozen /die/v1 API"
+      - "canonicalId() at line 72 creates colon-delimited IDs incompatible with the OpenAPI OpaqueId contract"
+      - "baseEntity() at line 182 derives risk_score, which is outside this bounded pass"
+  fixture_registry:
+    path: app/mock/api.ts
+    status: fixture_only
+    evidence:
+      - "imports findings, policies, spend, incidents, credentials and decisions that are outside this pass"
+  package:
+    path: package.json
+    status: reusable_shell
+    evidence:
+      - "Nuxt 4, Vue 3, TypeScript and shadcn-vue dependencies are present"
+      - "no generated DIE OpenAPI client or OpenAPI response validator dependency is present"
+
+readiness:
+  shell_and_components: reusable
+  live_die_repository: not_implemented
+  generated_client: not_implemented
+  production_fixture_exclusion: not_implemented
+  authorization_state_e2e: not_implemented
+  api_error_freshness_coverage_states: not_implemented
+  verdict: blocked_for_live_ui_binding
+
+required_transition_gates:
+  - id: UI-GATE-001
+    assertion: Generate TypeScript DTOs and operations from openapi/die-v1.openapi.yaml; prohibit handwritten transport DTOs.
+  - id: UI-GATE-002
+    assertion: Replace colon-delimited local IDs with opaque server IDs and treat IDs as non-decomposable strings.
+  - id: UI-GATE-003
+    assertion: Route every pass screen through one DieRepository interface backed by /die/v1.
+  - id: UI-GATE-004
+    assertion: Keep fixtures only behind an explicit development/test provider; production build fails if that provider is reachable.
+  - id: UI-GATE-005
+    assertion: Remove risk, findings, policy, spend, recommendation and approval projections from production pass routes.
+  - id: UI-GATE-006
+    assertion: Gate each action by its own server-advertised capability, including evidence.object.read, identity.review, authz.admin and export.download.
+  - id: UI-GATE-007
+    assertion: Add contract fixtures for loading, empty, partial, stale, unsupported, unknown, unauthorized, not-found, retryable and invariant-error states.
+  - id: UI-GATE-008
+    assertion: Verify cursor invalidation, authorization-revision invalidation, projection-generation invalidation and 404 existence-hiding behavior.
+  - id: UI-GATE-009
+    assertion: Verify field_redactions never reveal withheld values and dynamic attribute maps render only API-returned keys.
+  - id: UI-GATE-010
+    assertion: Run unit, typecheck, lint, component, accessibility and authenticated browser E2E gates against the generated client.

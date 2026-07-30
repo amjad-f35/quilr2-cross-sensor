@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/profiles/llm-gateway/1.0.0/payload.schema.json",
+  "title": "LLM Gateway Source Profile 1.0.0",
+  "oneOf": [
+    { "$ref": "#/$defs/entity" },
+    { "$ref": "#/$defs/relationship" },
+    { "$ref": "#/$defs/invocation" },
+    { "$ref": "#/$defs/nativeDecision" },
+    { "$ref": "#/$defs/nativeEffect" },
+    { "$ref": "#/$defs/snapshot" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/gap" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "labels": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "type": "string", "maxLength": 96 } },
+    "attributionSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "algorithm", "key_id", "value"],
+      "properties": {
+        "format": { "const": "jws-detached-jcs" },
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 8192 }
+      }
+    },
+    "crossSensorAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertion_id",
+        "issuer_producer_id",
+        "subject_profile",
+        "subject_namespace",
+        "agent_deployment_source_id",
+        "issued_at",
+        "expires_at",
+        "nonce",
+        "audience_gateway_source_id",
+        "request_binding_digest",
+        "assurance",
+        "signature"
+      ],
+      "properties": {
+        "assertion_id": { "type": "string", "format": "uuid" },
+        "issuer_producer_id": { "type": "string", "format": "uuid" },
+        "subject_profile": { "const": "endpoint" },
+        "subject_namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "workload_source_id": { "$ref": "#/$defs/id" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "nonce": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "audience_gateway_source_id": { "$ref": "#/$defs/id" },
+        "request_binding_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "assurance": { "const": "signed_starliner_context" },
+        "signature": { "$ref": "#/$defs/attributionSignature" }
+      },
+      "description": "Short-lived endpoint-issued request attribution. The gateway and central normalizer independently verify tenant, issuer enrollment/certification, audience, expiry, unused nonce, request digest and signature before producing a cross-producer activity binding."
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entity_type", "source_id", "lifecycle"],
+      "properties": {
+        "kind": { "const": "llm.entity" },
+        "entity_type": {
+          "enum": [
+            "gateway_deployment",
+            "provider",
+            "provider_account",
+            "model_product",
+            "model_family",
+            "model_version",
+            "model_deployment",
+            "model_route",
+            "client_application",
+            "workload",
+            "workload_identity",
+            "agent_definition",
+            "agent_deployment"
+          ]
+        },
+        "source_id": { "$ref": "#/$defs/id" },
+        "parent_source_id": { "$ref": "#/$defs/id" },
+        "lifecycle": { "enum": ["observed", "changed", "disabled", "tombstoned"] },
+        "provider": { "type": "string", "maxLength": 256 },
+        "provider_model_id": { "type": "string", "maxLength": 512 },
+        "deployment_name": { "type": "string", "maxLength": 512 },
+        "route_name": { "type": "string", "maxLength": 512 },
+        "region": { "type": "string", "maxLength": 96 },
+        "display_name": { "type": "string", "maxLength": 512 },
+        "owner_source_id": { "$ref": "#/$defs/id" },
+        "definition_source_id": { "$ref": "#/$defs/id" },
+        "execution_identity_source_id": { "$ref": "#/$defs/id" },
+        "deployment_locality": { "enum": ["local", "remote", "cloud", "gateway", "unknown"] },
+        "agent_kind": { "enum": ["workflow", "service", "client", "unknown"] },
+        "key_fingerprint_id": { "type": "string", "maxLength": 256 },
+        "labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "subject_type", "subject_id", "predicate", "object_type", "object_id", "semantic", "operation"],
+      "properties": {
+        "kind": { "const": "llm.relationship" },
+        "subject_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "subject_id": { "$ref": "#/$defs/id" },
+        "predicate": { "enum": ["instance_of", "version_of", "belongs_to", "routes_to", "called"] },
+        "object_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "object_id": { "$ref": "#/$defs/id" },
+        "semantic": { "enum": ["structural", "configured", "observed", "ownership"] },
+        "operation": { "enum": ["upsert", "end"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "invocation_id", "stage", "model_source_id", "status"],
+      "properties": {
+        "kind": { "const": "llm.invocation" },
+        "invocation_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["accepted", "routed", "stream_started", "stream_completed", "completed", "cancelled", "failed", "timed_out", "rejected", "retried", "failed_over"] },
+        "provider_request_id": { "$ref": "#/$defs/id" },
+        "model_source_id": { "$ref": "#/$defs/id" },
+        "deployment_source_id": { "$ref": "#/$defs/id" },
+        "route_source_id": { "$ref": "#/$defs/id" },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "workload_source_id": { "$ref": "#/$defs/id" },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "cross_sensor_attribution": { "$ref": "#/$defs/crossSensorAttribution" },
+        "status": { "enum": ["succeeded", "failed", "blocked", "cancelled", "timed_out", "unknown"] },
+        "http_status_class": { "enum": ["1xx", "2xx", "3xx", "4xx", "5xx", "none", "unknown"] },
+        "request_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "response_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cached_input_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cache_write_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "reasoning_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "total_tokens": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "upstream_latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "gateway_latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "guardrail_latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "time_to_first_token_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "route_group": { "type": "string", "maxLength": 256 },
+        "route_mode": { "enum": ["direct", "load_balanced", "fallback", "failover", "unknown"] },
+        "template_source_id": { "$ref": "#/$defs/id" },
+        "conversation_source_id": { "$ref": "#/$defs/id" },
+        "thread_source_id": { "$ref": "#/$defs/id" },
+        "run_source_id": { "$ref": "#/$defs/id" },
+        "span_source_id": { "$ref": "#/$defs/id" },
+        "step_source_id": { "$ref": "#/$defs/id" },
+        "workflow_source_id": { "$ref": "#/$defs/id" },
+        "tool_names": { "$ref": "#/$defs/labels" },
+        "tool_call_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "was_blocked": { "type": "boolean" },
+        "was_anonymized": { "type": "boolean" },
+        "was_monitored": { "type": "boolean" },
+        "guardrail_outcome": { "enum": ["passed", "matched", "blocked", "redacted", "failed", "not_run", "unknown"] },
+        "feature_labels": { "$ref": "#/$defs/labels" },
+        "streamed": { "type": "boolean" },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "data_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "nativeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "invocation_id", "decision"],
+      "properties": {
+        "kind": { "const": "llm.native_decision" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "invocation_id": { "$ref": "#/$defs/id" },
+        "decision": { "enum": ["allow", "block", "warn", "redact", "route", "rate_limit", "unknown"] },
+        "policy_source_id": { "$ref": "#/$defs/id" },
+        "classification_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "nativeEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "invocation_id", "effect"],
+      "properties": {
+        "kind": { "const": "llm.native_effect" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "invocation_id": { "$ref": "#/$defs/id" },
+        "effect": { "enum": ["provider_called", "prevented", "modified", "rerouted", "delayed", "not_observed"] },
+        "provider_request_id": { "$ref": "#/$defs/id" },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "classification_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "snapshot_id", "stage", "scope_type", "completeness"],
+      "properties": {
+        "kind": { "const": "llm.snapshot" },
+        "snapshot_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["started", "page", "completed", "failed"] },
+        "scope_type": { "enum": ["providers", "models", "deployments", "routes", "callers", "agents"] },
+        "scope_source_id": { "$ref": "#/$defs/id" },
+        "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cursor": { "type": "string", "maxLength": 512 },
+        "members": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity_type", "source_id"],
+            "properties": {
+              "entity_type": {
+                "enum": [
+                  "gateway_deployment",
+                  "provider",
+                  "provider_account",
+                  "model_product",
+                  "model_family",
+                  "model_version",
+                  "model_deployment",
+                  "model_route",
+                  "client_application",
+                  "workload",
+                  "workload_identity",
+                  "agent_definition",
+                  "agent_deployment"
+                ]
+              },
+              "source_id": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "expected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "completeness": { "enum": ["full", "partial", "unknown"] },
+        "source_revision": { "type": "string", "maxLength": 256 },
+        "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      },
+      "allOf": [
+        { "if": { "properties": { "stage": { "const": "page" } }, "required": ["stage"] }, "then": { "required": ["page_sequence", "members"] } },
+        { "if": { "properties": { "stage": { "const": "completed" } }, "required": ["stage"] }, "then": { "required": ["page_count", "observed_count", "snapshot_digest"] } },
+        { "if": { "properties": { "stage": { "const": "failed" } }, "required": ["stage"] }, "then": { "required": ["reason_code"] } }
+      ]
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "component", "state", "transports"],
+      "properties": {
+        "kind": { "const": "llm.health" },
+        "component": { "enum": ["gateway", "provider_route", "classifier", "db_writer", "delivery"] },
+        "state": { "enum": ["healthy", "degraded", "unhealthy", "offline", "unknown"] },
+        "transports": { "$ref": "#/$defs/labels" },
+        "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "oldest_queue_age_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "transport", "from", "reason_code"],
+      "properties": {
+        "kind": { "const": "llm.gap" },
+        "transport": { "type": "string", "maxLength": 128 },
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": ["string", "null"], "format": "date-time" },
+        "reason_code": { "enum": ["queue_publish_unconfirmed", "process_restart", "provider_path_uninstrumented", "stream_abandoned", "storage_unavailable", "unsupported", "unknown_loss"] },
+        "estimated_records": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    }
+  }
+}

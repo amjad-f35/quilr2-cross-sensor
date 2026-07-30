@@ -1,0 +1,195 @@
+schema_version: "1.0"
+rule: "Values remain NEEDS_INPUT until a named accountable authority supplies and approves evidence. Fixtures may not become production defaults."
+items:
+  - id: NI-001
+    input: Launch regions and residency commitments
+    blocks: [G1, G2]
+    accountable_role: product_lead
+    consulted: [privacy_lead, security_lead, sre_lead, legal]
+    evidence: approved_launch_profile
+  - id: NI-002
+    input: Shared SaaS versus dedicated or on-prem launch deployment profile
+    blocks: [G0]
+    accountable_role: executive_sponsor
+    consulted: [product_lead, chief_architect, sre_lead]
+    evidence: deployment_profile_decision
+  - id: NI-003
+    input: Tenant and environment identifier source and migration mapping
+    blocks: [G1]
+    accountable_role: platform_lead
+    consulted: [migration_lead, security_lead]
+    evidence: tenant_registry_contract
+  - id: NI-004
+    input: Customer identity issuer, federation modes, and SCIM launch scope
+    blocks: [G2]
+    accountable_role: security_lead
+    consulted: [product_lead, connector_lead]
+    evidence: iam_launch_specification
+  - id: NI-005
+    input: Workload identity issuer, trust domain, certificate lifetime, and rotation
+    blocks: [G1]
+    accountable_role: security_lead
+    consulted: [edge_lead, sre_lead]
+    evidence: workload_identity_specification
+  - id: NI-006
+    input: KMS/HSM providers, regional keys, customer-managed-key scope, and rotation
+    blocks: [G1, G2]
+    accountable_role: security_lead
+    consulted: [privacy_lead, sre_lead]
+    evidence: cryptographic_key_plan
+  - id: NI-007
+    input: Customer data retention defaults by object class
+    blocks: [G2]
+    accountable_role: privacy_lead
+    consulted: [product_lead, legal, data_identity_lead]
+    evidence: retention_schedule
+  - id: NI-008
+    input: Backup geography, RPO, RTO, and disaster-recovery commitments
+    blocks: [G2]
+    accountable_role: sre_lead
+    consulted: [product_lead, privacy_lead]
+    evidence: approved_dr_profile
+  - id: NI-009
+    input: Product and service SLO targets and error-budget policy
+    blocks: [G2, G3, G4, G5]
+    accountable_role: product_lead
+    consulted: [sre_lead, service_owners]
+    evidence: slo_contracts
+  - id: NI-010
+    input: Certified tenant/load profiles and capacity reserve
+    blocks: [G1, G2, G3, G4, G5]
+    accountable_role: sre_lead
+    consulted: [finance, service_owners]
+    evidence: capacity_model_and_test
+  - id: NI-011
+    input: Supported browser, operating system, gateway, MCP protocol, and deployment versions
+    blocks: [G2, G3, G5]
+    accountable_role: product_lead
+    consulted: [sensor_leads, quality_lead, support_lead]
+    evidence: support_matrix
+  - id: NI-012
+    input: Launch IdP, MDM/CMDB, provider, and ticketing connectors
+    blocks: [G2, G3]
+    accountable_role: product_lead
+    consulted: [connector_lead, customer_lead]
+    evidence: connector_launch_scope
+  - id: NI-013
+    input: Business owner source and precedence for launch tenants
+    blocks: [G2]
+    accountable_role: product_lead
+    consulted: [data_identity_lead, customer_lead]
+    evidence: ownership_authority_policy
+  - id: NI-014
+    input: Resolver automatic-link thresholds and high-impact review policy
+    blocks: [G2, G3]
+    accountable_role: data_identity_lead
+    consulted: [product_lead, quality_lead]
+    evidence: resolver_evaluation_report
+  - id: NI-015
+    input: Finding severity rubric, precision bar, and customer SLA defaults
+    blocks: [G2, G3]
+    accountable_role: insights_lead
+    consulted: [product_lead, security_lead, customer_lead]
+    evidence: insight_quality_policy
+  - id: NI-016
+    input: Price sources, currencies, contract discount scope, and restatement policy
+    blocks: [G4]
+    accountable_role: analytics_lead
+    consulted: [finance, product_lead, privacy_lead]
+    evidence: cost_semantics_contract
+  - id: NI-017
+    input: Policy default posture, approval classes, and break-glass authorities
+    blocks: [G5]
+    accountable_role: policy_control_lead
+    consulted: [security_lead, product_lead, customer_lead]
+    evidence: control_authority_policy
+  - id: NI-018
+    input: Edge CPU, memory, disk, network, latency, and offline budgets per profile
+    blocks: [G1, G2, G3, G5]
+    accountable_role: edge_lead
+    consulted: [sensor_leads, quality_lead]
+    evidence: profile_certification_results
+  - id: NI-019
+    input: Customer/support access model and approval workflow
+    blocks: [G2]
+    accountable_role: security_lead
+    consulted: [support_lead, privacy_lead, legal]
+    evidence: production_access_policy
+  - id: NI-020
+    input: On-call owners, escalation, incident communication, and status page
+    blocks: [G1, G2]
+    accountable_role: sre_lead
+    consulted: [support_lead, product_lead]
+    evidence: operational_readiness_review
+  - id: NI-021
+    input: Quilr 1 live production stores, tenants, volumes, consumers, and data quality
+    blocks: [G2, G6]
+    accountable_role: migration_lead
+    consulted: [legacy_service_owners, data_identity_lead]
+    evidence: production_migration_inventory
+  - id: NI-022
+    input: Quilr 1 coexistence duration, cutover cohorts, parity thresholds, and rollback window
+    blocks: [G2, G6]
+    accountable_role: migration_lead
+    consulted: [product_lead, customer_lead, sre_lead]
+    evidence: approved_cutover_plan
+  - id: NI-023
+    input: Compliance certifications and regulated-market launch commitments
+    blocks: [G2]
+    accountable_role: executive_sponsor
+    consulted: [security_lead, privacy_lead, legal, sales]
+    evidence: compliance_launch_scope
+  - id: NI-024
+    input: Actual named owners and backups for all accountable program roles
+    blocks: [G0]
+    accountable_role: executive_sponsor
+    consulted: [program_lead]
+    evidence: approved_raci
+  - id: NI-025
+    input: Named repository owners, target implementation repositories and module destinations, release-selected source revisions, build ownership, and deployment paths
+    blocks: [G1]
+    accountable_role: program_lead
+    consulted: [service_owners, release_lead]
+    evidence: repository_implementation_map
+  - id: NI-026
+    input: Production service names, DNS and API endpoints, issuer and JWKS locations, infrastructure resources, and secret references
+    blocks: [G1]
+    accountable_role: sre_lead
+    consulted: [security_lead, service_owners]
+    evidence: approved_environment_configuration
+  - id: NI-027
+    input: Workstream staffing, team capacity, dependency commitments, and target gate increments
+    blocks: [G0]
+    accountable_role: executive_sponsor
+    consulted: [program_lead, workstream_leads]
+    evidence: funded_delivery_plan
+  - id: NI-028
+    input: Launch customer data classifications, regulated data handling, and permitted content/metadata collection policy
+    blocks: [G1, G2]
+    accountable_role: privacy_lead
+    consulted: [security_lead, product_lead, legal, customer_lead]
+    evidence: approved_data_collection_policy
+  - id: NI-029
+    input: Finding-family grouping windows, thresholds, lifecycle defaults, suppression, accepted-risk, and reopen policy
+    blocks: [G2, G3]
+    accountable_role: insights_lead
+    consulted: [product_lead, security_lead, customer_lead, quality_lead]
+    evidence: approved_versioned_finding_definitions
+  - id: NI-030
+    input: Company systems of record and owners for code, architecture, requirements, work, engineering catalog, runtime operations, incidents, and assurance evidence
+    blocks: [G0]
+    accountable_role: program_lead
+    consulted: [chief_architect, release_lead, sre_lead, security_lead]
+    evidence: approved_engineering_control_system_map
+  - id: NI-031
+    input: Endpoint signing and CA private-key incident scope, artifact and customer distribution, revocation, rotation, clean artifacts, provenance, and customer update plan after source presence was verified
+    blocks: [G0, G1]
+    accountable_role: security_lead
+    consulted: [endpoint_sensor_lead, release_lead, sre_lead, legal]
+    evidence: signed_security_incident_disposition
+  - id: NI-032
+    input: Remote-current delta and deployed-runtime verification against the audited sensor revisions including exact artifacts, optional dependencies, effective configuration, topology, identities, storage, controls, security posture, and support versions
+    blocks: [G1, G2]
+    accountable_role: program_lead
+    consulted: [sensor_leads, security_lead, sre_lead, quality_lead]
+    evidence: current_sensor_implementation_audit

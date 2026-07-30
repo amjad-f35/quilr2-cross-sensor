@@ -1,0 +1,117 @@
+schema_version: "1.0"
+authority: "starliner-ga architecture constitution and accepted ADRs"
+decisions:
+  - id: ADR-0001
+    title: Central canonical identity
+    status: accepted
+    record: ../adrs/0001-central-canonical-identity.md
+    owners: [chief_architect, data_identity_lead]
+    affects: [protocol, sensors, connectors, identity, product, migration]
+  - id: ADR-0002
+    title: Dual outboxes and durable acceptance
+    status: accepted
+    record: ../adrs/0002-dual-outboxes-and-durable-acceptance.md
+    owners: [edge_lead, ingest_lead, sre_lead]
+    affects: [edge, ingest, evidence, canonical, projections, dr]
+  - id: ADR-0003
+    title: Small envelope and typed profiles
+    status: accepted
+    record: ../adrs/0003-small-envelope-and-typed-profiles.md
+    owners: [protocol_lead]
+    affects: [protocol, sdk, sensors, connectors, ingest]
+  - id: ADR-0004
+    title: Immutable evidence and bitemporal ledgers
+    status: accepted
+    record: ../adrs/0004-immutable-evidence-and-bitemporal-ledgers.md
+    owners: [data_identity_lead, ingest_lead]
+    affects: [evidence, identity, canonical, retention, replay]
+  - id: ADR-0005
+    title: PostgreSQL authority and rebuildable projections
+    status: accepted
+    record: ../adrs/0005-postgresql-authority-and-rebuildable-projections.md
+    owners: [chief_architect, platform_lead]
+    affects: [canonical, outbox, analytics, graph, search, cache]
+  - id: ADR-0006
+    title: Tenant data-cell architecture
+    status: accepted
+    record: ../adrs/0006-tenant-data-cell-architecture.md
+    owners: [chief_architect, sre_lead, privacy_lead]
+    affects: [deployment, tenancy, residency, operations]
+  - id: ADR-0007
+    title: Restricted content separation
+    status: accepted
+    record: ../adrs/0007-restricted-content-separation.md
+    owners: [privacy_lead, security_lead]
+    affects: [protocol, edge, evidence, api, analytics]
+  - id: ADR-0008
+    title: Separate telemetry and control planes
+    status: accepted
+    record: ../adrs/0008-separate-telemetry-and-control-planes.md
+    owners: [policy_control_lead, edge_lead, security_lead]
+    affects: [edge, ingest, policy, commands, incidents]
+  - id: ADR-0009
+    title: Coverage before absence or rate claims
+    status: accepted
+    record: ../adrs/0009-coverage-before-absence-or-rate-claims.md
+    owners: [data_identity_lead, insights_lead, product_lead]
+    affects: [sources, connectors, findings, metrics, product]
+  - id: ADR-0010
+    title: Versioned findings and metrics
+    status: accepted
+    record: ../adrs/0010-versioned-findings-and-metrics.md
+    owners: [insights_lead, analytics_lead, product_lead]
+    affects: [findings, metrics, analytics, api, ui]
+  - id: ADR-0011
+    title: Minimal product information architecture
+    status: accepted
+    record: ../adrs/0011-minimal-product-information-architecture.md
+    owners: [product_lead, frontend_lead]
+    affects: [product, api, materializers]
+  - id: ADR-0012
+    title: First slice is cross-sensor
+    status: accepted_principle_scope_superseded_by_ADR-0019
+    record: ../adrs/0012-first-slice-is-cross-sensor.md
+    owners: [product_lead, chief_architect, program_lead]
+    affects: [delivery, sensors, identity, product]
+  - id: ADR-0013
+    title: Workload identity and certified capabilities
+    status: accepted
+    record: ../adrs/0013-workload-identity-and-certified-capabilities.md
+    owners: [security_lead, protocol_lead, release_lead]
+    affects: [enrollment, ingest, edge, control, release]
+  - id: ADR-0014
+    title: Quilr 1 migrates as evidence
+    status: accepted
+    record: ../adrs/0014-quilr1-migrates-as-evidence.md
+    owners: [migration_lead, data_identity_lead]
+    affects: [migration, evidence, identity, compatibility]
+  - id: ADR-0015
+    title: Correlation identifiers not universal traces
+    status: accepted
+    record: ../adrs/0015-correlation-identifiers-not-universal-traces.md
+    owners: [protocol_lead, activity_lead, sre_lead]
+    affects: [protocol, tracing, activity, reconciliation]
+  - id: ADR-0016
+    title: Integration roles not vendor-shaped connectors
+    status: accepted
+    record: ../adrs/0016-integration-roles-not-vendor-shaped-connectors.md
+    owners: [connector_lead, policy_control_lead, chief_architect]
+    affects: [sensors, connectors, telemetry, control, response, product]
+  - id: ADR-0017
+    title: Finding definitions own grouping and severity
+    status: accepted
+    record: ../adrs/0017-finding-definitions-own-grouping-and-severity.md
+    owners: [insights_lead, data_identity_lead, product_lead]
+    affects: [findings, severity, lifecycle, recompute, product, quality]
+  - id: ADR-0018
+    title: Engineering truth and feature traceability
+    status: accepted
+    record: ../adrs/0018-engineering-truth-and-feature-traceability.md
+    owners: [chief_architect, program_lead, release_lead]
+    affects: [requirements, catalog, repositories, operations, release, gates]
+  - id: ADR-0019
+    title: First customer release is Discovery Inventory and Evidence
+    status: accepted
+    record: ../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md
+    owners: [product_lead, chief_architect, program_lead, migration_lead]
+    affects: [delivery, sensors, evidence, identity, inventory, product, migration, gates]

@@ -1,0 +1,67 @@
+schema_version: "1.0"
+purpose: "Disposition the parent pass NEEDS_INPUT register after the implementation freeze."
+
+resolved_by_this_freeze:
+  - parent_id: DIE-NI-002
+    resolution: "Audited project-starliner main at b747393468045425b3f07a24775dcbc93d380cb5 and froze target repository/module disposition."
+  - parent_id: DIE-NI-009
+    resolution: "Froze common envelope, five typed profiles, receipts, normalized schema, product OpenAPI and generated Go/Python/TypeScript ownership."
+  - parent_id: DIE-NI-010
+    resolution: "Provided PostgreSQL authority schema, indexes, RLS, versioning and transaction ownership baseline."
+  - parent_id: DIE-NI-012
+    resolution: "Froze PostgreSQL work leasing, fencing, partition keys, retry, quarantine, backpressure and scaling."
+  - parent_id: DIE-NI-016
+    resolution: "Froze exact-only automatic resolution, negative constraints, review-only weak candidates and correction behavior."
+  - parent_id: DIE-NI-019
+    resolution: "Froze product RBAC/ReBAC/ABAC roles, capabilities, scopes, field security and decision contract; issuer mappings remain environment bindings."
+
+implementation_not_blocked_environment_or_certification:
+  - parent_id: DIE-NI-001
+    classification: organization_binding
+  - parent_id: DIE-NI-003
+    classification: deployment_portfolio_deferred
+  - parent_id: DIE-NI-004
+    classification: production_identity_binding
+  - parent_id: DIE-NI-005
+    classification: production_crypto_binding
+  - parent_id: DIE-NI-006
+    classification: security_incident_and_artifact_certification
+  - parent_id: DIE-NI-007
+    classification: sensor_artifact_certification
+  - parent_id: DIE-NI-008
+    classification: deployed_artifact_inventory
+  - parent_id: DIE-NI-011
+    classification: storage_product_and_capacity_binding
+  - parent_id: DIE-NI-013
+    classification: browser_artifact_certification
+  - parent_id: DIE-NI-014
+    classification: LLM_transport_certification
+  - parent_id: DIE-NI-015
+    classification: MCP_surface_certification
+  - parent_id: DIE-NI-017
+    classification: tenant_expected_population_binding
+  - parent_id: DIE-NI-018
+    classification: approved_data_governance_values
+  - parent_id: DIE-NI-023
+    classification: measured_capacity_certification
+  - parent_id: DIE-NI-024
+    classification: contractual_recovery_binding
+  - parent_id: DIE-NI-025
+    classification: launch_operations_binding
+
+outside_current_pass:
+  - parent_id: DIE-NI-020
+    classification: Quilr_1_migration
+  - parent_id: DIE-NI-021
+    classification: Quilr_1_compatibility_catalog
+  - parent_id: DIE-NI-022
+    classification: Quilr_1_cutover
+
+rule: "No item in environment/certification or outside-current-pass permits a coding agent to change frozen architecture or semantics."
+
+supplied_analysis_evidence:
+  register: "registers/source-analysis-inputs.csv"
+  gate_register: "registers/lg-evidence-needs.csv"
+  owner_input_register: "registers/lg008-owner-inputs.csv"
+  intake_verdict: "24-source-analysis-intake-and-lg-gate-plan.md"
+  rule: "Supplied analyses are content-addressed evidence inputs. Admission requires central semantic reconciliation; file counts, generated rows, or a profile-local validator do not confer target authority."

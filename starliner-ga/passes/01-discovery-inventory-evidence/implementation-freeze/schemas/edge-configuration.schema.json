@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/management/v1/edge-configuration.schema.json",
+  "title": "Starliner Edge Configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "generation",
+    "issued_at",
+    "expires_at",
+    "tenant_id",
+    "producer_id",
+    "ingest",
+    "profiles",
+    "privacy",
+    "trust",
+    "signature"
+  ],
+  "properties": {
+    "api_version": { "const": "starliner.management.v1" },
+    "generation": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "producer_id": { "type": "string", "format": "uuid" },
+    "ingest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "max_batch_records", "max_compressed_bytes", "max_decompressed_bytes", "max_record_bytes", "compressions", "retry"],
+      "properties": {
+        "url": { "type": "string", "format": "uri", "maxLength": 2048 },
+        "max_batch_records": { "type": "integer", "minimum": 1, "maximum": 500 },
+        "max_compressed_bytes": { "type": "integer", "minimum": 1, "maximum": 4194304 },
+        "max_decompressed_bytes": { "type": "integer", "minimum": 1, "maximum": 8388608 },
+        "max_record_bytes": { "type": "integer", "minimum": 1, "maximum": 262144 },
+        "compressions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["identity", "gzip", "zstd"] }
+        },
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["initial_ms", "maximum_ms", "multiplier", "full_jitter"],
+          "properties": {
+            "initial_ms": { "type": "integer", "minimum": 1, "maximum": 60000 },
+            "maximum_ms": { "type": "integer", "minimum": 1, "maximum": 3600000 },
+            "multiplier": { "type": "number", "minimum": 1.1, "maximum": 10 },
+            "full_jitter": { "const": true }
+          }
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["profile", "profile_version", "schema_ref", "schema_sha256", "capabilities"],
+        "properties": {
+          "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+          "profile_version": { "type": "string", "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$" },
+          "schema_ref": { "type": "string", "maxLength": 256 },
+          "schema_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "capabilities": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "maxLength": 128 }
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_version", "policy_sha256", "policy_ref"],
+      "properties": {
+        "policy_version": { "type": "string", "maxLength": 128 },
+        "policy_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "policy_ref": { "type": "string", "maxLength": 512 }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["certification_id", "artifact_digest", "contract_digest"],
+      "properties": {
+        "certification_id": { "type": "string", "format": "uuid" },
+        "artifact_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "contract_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protected", "signature"],
+      "properties": {
+        "protected": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "signature": { "type": "string", "minLength": 1, "maxLength": 2048 }
+      },
+      "description": "Detached JWS over RFC 8785 canonical JSON excluding this signature property; ES256 is mandatory and EdDSA may be certified outside FIPS profiles."
+    }
+  }
+}

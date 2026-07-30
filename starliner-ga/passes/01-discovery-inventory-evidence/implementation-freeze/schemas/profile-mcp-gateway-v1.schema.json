@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/profiles/mcp-gateway/1.0.0/payload.schema.json",
+  "title": "MCP Gateway Source Profile 1.0.0",
+  "oneOf": [
+    { "$ref": "#/$defs/entity" },
+    { "$ref": "#/$defs/relationship" },
+    { "$ref": "#/$defs/toolCall" },
+    { "$ref": "#/$defs/operation" },
+    { "$ref": "#/$defs/rejection" },
+    { "$ref": "#/$defs/nativeDecision" },
+    { "$ref": "#/$defs/nativeEffect" },
+    { "$ref": "#/$defs/snapshot" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/gap" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "labels": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "type": "string", "maxLength": 96 } },
+    "attributionSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "algorithm", "key_id", "value"],
+      "properties": {
+        "format": { "const": "jws-detached-jcs" },
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 8192 }
+      }
+    },
+    "crossSensorAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assertion_id",
+        "issuer_producer_id",
+        "subject_profile",
+        "subject_namespace",
+        "agent_deployment_source_id",
+        "issued_at",
+        "expires_at",
+        "nonce",
+        "audience_gateway_source_id",
+        "request_binding_digest",
+        "assurance",
+        "signature"
+      ],
+      "properties": {
+        "assertion_id": { "type": "string", "format": "uuid" },
+        "issuer_producer_id": { "type": "string", "format": "uuid" },
+        "subject_profile": { "const": "endpoint" },
+        "subject_namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "workload_source_id": { "$ref": "#/$defs/id" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "nonce": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "audience_gateway_source_id": { "$ref": "#/$defs/id" },
+        "request_binding_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "assurance": { "const": "signed_starliner_context" },
+        "signature": { "$ref": "#/$defs/attributionSignature" }
+      },
+      "description": "Short-lived endpoint-issued request attribution. The gateway and central normalizer independently verify tenant, issuer enrollment/certification, audience, expiry, unused nonce, request digest and signature before producing a cross-producer activity binding."
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entity_type", "source_id", "lifecycle"],
+      "properties": {
+        "kind": { "const": "mcp.entity" },
+        "entity_type": {
+          "enum": [
+            "gateway_deployment",
+            "server_product",
+            "server_deployment",
+            "tool",
+            "native_tool",
+            "resource",
+            "prompt",
+            "agent_definition",
+            "agent_deployment",
+            "workflow_version",
+            "schedule",
+            "run",
+            "client_application",
+            "directory_account",
+            "service_principal"
+          ]
+        },
+        "source_id": { "$ref": "#/$defs/id" },
+        "server_source_id": { "$ref": "#/$defs/id" },
+        "parent_source_id": { "$ref": "#/$defs/id" },
+        "lifecycle": { "enum": ["observed", "changed", "disabled", "removed", "tombstoned"] },
+        "name": { "type": "string", "maxLength": 512 },
+        "safe_description": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Adapter-sanitized descriptive metadata admitted by the privacy policy; dynamic content and secrets are forbidden."
+        },
+        "version": { "type": "string", "maxLength": 256 },
+        "product_source_id": { "$ref": "#/$defs/id" },
+        "definition_source_id": { "$ref": "#/$defs/id" },
+        "execution_identity_source_id": { "$ref": "#/$defs/id" },
+        "host_source_id": { "$ref": "#/$defs/id" },
+        "deployment_locality": { "enum": ["local", "remote", "cloud", "gateway", "unknown"] },
+        "mcp_locality": { "enum": ["local", "remote", "unknown"] },
+        "configuration_scope_token": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Policy-approved stable configuration scope token or tenant-keyed pseudonym; raw filesystem paths and credentials are forbidden."
+        },
+        "authorization_context_token": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$",
+          "description": "Tenant-keyed pseudonym derived by the adapter from the source authorization-context key. The source hash and all credentials are forbidden."
+        },
+        "endpoint_configuration_token": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$",
+          "description": "Tenant-keyed pseudonym derived by the adapter from the source endpoint fingerprint. Raw origins, paths, queries, headers and credentials are forbidden."
+        },
+        "protocol_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "transport": { "enum": ["stdio", "sse", "streamable_http", "websocket", "internal", "unknown"] },
+        "origin_pseudonym": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Tenant-keyed pseudonym for a credential-free server origin. It is not a raw URL, command line or filesystem path."
+        },
+        "input_schema_digest": { "type": "string", "maxLength": 128 },
+        "capability_labels": { "$ref": "#/$defs/labels" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "entity_type": { "const": "server_deployment" } }, "required": ["entity_type"] },
+          "then": { "required": ["product_source_id", "configuration_scope_token", "mcp_locality", "transport"] }
+        },
+        {
+          "if": { "properties": { "entity_type": { "const": "agent_deployment" } }, "required": ["entity_type"] },
+          "then": { "required": ["definition_source_id", "deployment_locality"] }
+        }
+      ]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "subject_type", "subject_id", "predicate", "object_type", "object_id", "semantic", "operation"],
+      "properties": {
+        "kind": { "const": "mcp.relationship" },
+        "subject_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "subject_id": { "$ref": "#/$defs/id" },
+        "predicate": { "enum": ["instance_of", "exposes", "invoked"] },
+        "object_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "object_id": { "$ref": "#/$defs/id" },
+        "semantic": { "enum": ["structural", "configured", "observed", "ownership"] },
+        "operation": { "enum": ["upsert", "end"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "capability_scope": {
+          "enum": ["authorization_context", "shared_legacy_cache"],
+          "description": "Required on exposes edges. A shared legacy cache is a lower-assurance gateway view and may not be flattened into an authorization-scoped catalog."
+        },
+        "authorization_context_token": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+        },
+        "endpoint_configuration_token": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+        },
+        "protocol_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "predicate": { "const": "exposes" } }, "required": ["predicate"] },
+          "then": { "required": ["capability_scope"] }
+        },
+        {
+          "if": { "properties": { "capability_scope": { "const": "authorization_context" } }, "required": ["capability_scope"] },
+          "then": { "required": ["authorization_context_token", "endpoint_configuration_token"] }
+        }
+      ]
+    },
+    "toolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "call_id", "surface", "stage", "server_source_id", "tool_source_id", "status"],
+      "properties": {
+        "kind": { "const": "mcp.tool_call" },
+        "call_id": { "$ref": "#/$defs/id" },
+        "surface": { "enum": ["direct", "onemcp", "native", "workflow", "unknown"] },
+        "stage": { "enum": ["requested", "confirmation_required", "confirmation_granted", "confirmation_denied", "started", "completed", "failed", "cancelled", "timed_out", "progress"] },
+        "server_source_id": { "$ref": "#/$defs/id" },
+        "tool_source_id": { "$ref": "#/$defs/id" },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "session_source_id": { "$ref": "#/$defs/id" },
+        "cross_sensor_attribution": { "$ref": "#/$defs/crossSensorAttribution" },
+        "status": { "enum": ["succeeded", "failed", "blocked", "cancelled", "timed_out", "unknown"] },
+        "argument_keys": { "type": "array", "maxItems": 128, "uniqueItems": true, "items": { "type": "string", "maxLength": 128 } },
+        "argument_size_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "result_size_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "data_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "operation_id", "activity_type", "server_source_id", "status"],
+      "properties": {
+        "kind": { "const": "mcp.operation" },
+        "operation_id": { "$ref": "#/$defs/id" },
+        "activity_type": {
+          "enum": [
+            "initialize",
+            "tools_list",
+            "resources_list",
+            "resource_read",
+            "prompts_list",
+            "prompt_requested",
+            "session_started",
+            "session_ended",
+            "request_cancelled",
+            "progress_reported",
+            "capability_changed",
+            "connection_changed"
+          ]
+        },
+        "surface": { "enum": ["direct", "onemcp", "native", "workflow", "resource", "prompt", "session", "unknown"] },
+        "server_source_id": { "$ref": "#/$defs/id" },
+        "resource_source_id": { "$ref": "#/$defs/id" },
+        "request_source_id": { "$ref": "#/$defs/id" },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "session_source_id": { "$ref": "#/$defs/id" },
+        "cross_sensor_attribution": { "$ref": "#/$defs/crossSensorAttribution" },
+        "status": { "enum": ["succeeded", "failed", "blocked", "cancelled", "timed_out", "unknown"] },
+        "argument_keys": { "type": "array", "maxItems": 128, "uniqueItems": true, "items": { "type": "string", "maxLength": 128 } },
+        "payload_size_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "data_labels": { "$ref": "#/$defs/labels" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "activity_type": { "enum": ["resource_read", "prompt_requested"] } }, "required": ["activity_type"] },
+          "then": { "required": ["resource_source_id"] }
+        },
+        {
+          "if": { "properties": { "activity_type": { "enum": ["session_started", "session_ended"] } }, "required": ["activity_type"] },
+          "then": { "required": ["session_source_id"] }
+        },
+        {
+          "if": { "properties": { "activity_type": { "enum": ["request_cancelled", "progress_reported"] } }, "required": ["activity_type"] },
+          "then": { "required": ["request_source_id"] }
+        }
+      ]
+    },
+    "rejection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "request_id", "surface", "reason_code", "status"],
+      "properties": {
+        "kind": { "const": "mcp.rejection" },
+        "request_id": { "$ref": "#/$defs/id" },
+        "call_id": { "$ref": "#/$defs/id" },
+        "surface": { "enum": ["direct", "onemcp", "native", "workflow", "resource", "prompt", "session", "unknown"] },
+        "server_source_id": { "$ref": "#/$defs/id" },
+        "tool_source_id": { "$ref": "#/$defs/id" },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "agent_deployment_source_id": { "$ref": "#/$defs/id" },
+        "session_source_id": { "$ref": "#/$defs/id" },
+        "reason_code": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "status": { "const": "blocked" },
+        "http_status_class": { "enum": ["4xx", "5xx", "none", "unknown"] },
+        "policy_source_id": { "$ref": "#/$defs/id" },
+        "classification_labels": { "$ref": "#/$defs/labels" },
+        "error_class": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "nativeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "call_id", "decision"],
+      "properties": {
+        "kind": { "const": "mcp.native_decision" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "call_id": { "$ref": "#/$defs/id" },
+        "decision": { "enum": ["allow", "block", "confirm", "warn", "redact", "unknown"] },
+        "policy_source_id": { "$ref": "#/$defs/id" },
+        "classification_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "nativeEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "call_id", "effect"],
+      "properties": {
+        "kind": { "const": "mcp.native_effect" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "call_id": { "$ref": "#/$defs/id" },
+        "effect": { "enum": ["invoked", "prevented", "modified", "awaiting_human", "user_overrode", "not_observed"] },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "classification_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "snapshot_id", "stage", "scope_type", "completeness"],
+      "properties": {
+        "kind": { "const": "mcp.snapshot" },
+        "snapshot_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["started", "page", "completed", "failed"] },
+        "scope_type": { "enum": ["servers", "tools", "resources", "prompts", "agents", "workflows", "sessions"] },
+        "scope_source_id": { "$ref": "#/$defs/id" },
+        "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cursor": { "type": "string", "maxLength": 512 },
+        "members": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity_type", "source_id"],
+            "properties": {
+              "entity_type": {
+                "enum": [
+                  "gateway_deployment",
+                  "server_product",
+                  "server_deployment",
+                  "tool",
+                  "native_tool",
+                  "resource",
+                  "prompt",
+                  "agent_definition",
+                  "agent_deployment",
+                  "workflow_version",
+                  "schedule",
+                  "run",
+                  "client_application",
+                  "directory_account",
+                  "service_principal"
+                ]
+              },
+              "source_id": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "expected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "completeness": { "enum": ["full", "partial", "unknown"] },
+        "source_revision": { "type": "string", "maxLength": 256 },
+        "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      },
+      "allOf": [
+        { "if": { "properties": { "stage": { "const": "page" } }, "required": ["stage"] }, "then": { "required": ["page_sequence", "members"] } },
+        { "if": { "properties": { "stage": { "const": "completed" } }, "required": ["stage"] }, "then": { "required": ["page_count", "observed_count", "snapshot_digest"] } },
+        { "if": { "properties": { "stage": { "const": "failed" } }, "required": ["stage"] }, "then": { "required": ["reason_code"] } }
+      ]
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "component", "state", "surfaces"],
+      "properties": {
+        "kind": { "const": "mcp.health" },
+        "component": { "enum": ["gateway", "registry", "direct_handler", "onemcp_handler", "workflow_runner", "delivery"] },
+        "state": { "enum": ["healthy", "degraded", "unhealthy", "offline", "unknown"] },
+        "surfaces": { "$ref": "#/$defs/labels" },
+        "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "active_sessions": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "surface", "from", "reason_code"],
+      "properties": {
+        "kind": { "const": "mcp.gap" },
+        "surface": { "enum": ["direct", "onemcp", "native", "workflow", "resource", "prompt", "session", "unknown"] },
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": ["string", "null"], "format": "date-time" },
+        "reason_code": { "enum": ["surface_uninstrumented", "process_restart", "queue_overflow", "session_lost", "storage_unavailable", "unsupported", "unknown_loss"] },
+        "estimated_records": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    }
+  }
+}

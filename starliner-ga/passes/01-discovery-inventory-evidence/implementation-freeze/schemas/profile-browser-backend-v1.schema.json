@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/profiles/browser-backend/1.0.0/payload.schema.json",
+  "title": "Browser Backend Source Profile 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "operation", "source_id", "status"],
+  "properties": {
+    "kind": {
+      "enum": ["application_catalog", "application_configuration", "browser_event", "native_decision", "action_outcome", "installation", "heartbeat", "publication_gap", "reconciliation_snapshot"]
+    },
+    "operation": { "enum": ["observed", "changed", "tombstoned", "accepted", "transformed", "published", "decided", "effect_observed", "started", "page", "completed", "failed"] },
+    "source_id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "client_record_id": { "type": "string", "maxLength": 1024 },
+    "application_source_id": { "type": "string", "maxLength": 1024 },
+    "application_product_source_id": { "type": "string", "maxLength": 1024 },
+    "application_surface_source_id": { "type": "string", "maxLength": 1024 },
+    "user_source_id": { "type": "string", "maxLength": 1024 },
+    "account_source_id": { "type": "string", "maxLength": 1024 },
+    "observed_identity_source_id": {
+      "type": "string",
+      "maxLength": 1024,
+      "description": "Stable source-native identity only; never sufficient by itself to assert a canonical person."
+    },
+    "account_name": { "type": "string", "maxLength": 256 },
+    "email": { "type": "string", "format": "email", "maxLength": 320 },
+    "full_name": { "type": "string", "maxLength": 512 },
+    "identity_assurance": { "enum": ["stable_source_id", "authenticated_backend", "managed_domain", "display_only", "unknown"] },
+    "device_source_id": { "type": "string", "maxLength": 1024 },
+    "authentication_context": { "enum": ["guest", "credentialed", "unknown"] },
+    "account_usage_type": {
+      "enum": ["personal", "corporate", "guest", "unknown"],
+      "description": "Optional legacy/backend-native classification. The adapter must omit it unless the exact writer and classification authority are traceable."
+    },
+    "technology_class": { "enum": ["generative_ai", "other_ai", "non_ai", "unknown"] },
+    "agentic_capability": { "enum": ["present", "absent", "unknown"] },
+    "classification_authority": { "enum": ["authoritative_catalog", "managed_configuration", "source_native", "unknown"] },
+    "installation_source_id": { "type": "string", "maxLength": 1024 },
+    "status": { "enum": ["succeeded", "failed", "partial", "blocked", "unknown"] },
+    "native_decision": { "enum": ["allow", "block", "warn", "redact", "monitor", "unknown"] },
+    "effect": { "enum": ["forwarded", "prevented", "modified", "published", "not_observed", "unknown"] },
+    "downstream": { "enum": ["kafka", "postgresql", "neo4j", "redis", "dwh", "file", "none", "unknown"] },
+    "config_version": { "type": "string", "maxLength": 256 },
+    "catalog_revision": { "type": "string", "maxLength": 256 },
+    "artifact_version": { "type": "string", "maxLength": 256 },
+    "latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "safe_labels": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "type": "string", "maxLength": 96 }
+    },
+    "snapshot_id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "scope_type": { "enum": ["application_catalog", "application_configuration", "installations", "accounts"] },
+    "scope_source_id": { "type": "string", "maxLength": 1024 },
+    "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "cursor": { "type": "string", "maxLength": 512 },
+    "members": {
+      "type": "array",
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity_type", "source_id"],
+        "properties": {
+          "entity_type": { "enum": ["application_product", "application_surface", "application_deployment", "application_account", "directory_account", "device", "browser_installation"] },
+          "source_id": { "type": "string", "minLength": 1, "maxLength": 1024 }
+        }
+      }
+    },
+    "expected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "completeness": { "enum": ["full", "partial", "unknown"] },
+    "source_revision": { "type": "string", "maxLength": 256 },
+    "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "reason_code": { "type": "string", "maxLength": 128 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "reconciliation_snapshot" } }, "required": ["kind"] },
+      "then": {
+        "required": ["snapshot_id", "scope_type", "completeness"],
+        "properties": {
+          "operation": { "enum": ["started", "page", "completed", "failed"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": { "const": "reconciliation_snapshot" },
+          "operation": { "const": "page" }
+        },
+        "required": ["kind", "operation"]
+      },
+      "then": { "required": ["page_sequence", "members"] }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": { "const": "reconciliation_snapshot" },
+          "operation": { "const": "completed" }
+        },
+        "required": ["kind", "operation"]
+      },
+      "then": { "required": ["page_count", "observed_count", "snapshot_digest"] }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": { "const": "reconciliation_snapshot" },
+          "operation": { "const": "failed" }
+        },
+        "required": ["kind", "operation"]
+      },
+      "then": { "required": ["reason_code"] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "application_catalog" } }, "required": ["kind"] },
+      "then": {
+        "required": ["application_source_id", "catalog_revision"],
+        "properties": {
+          "operation": { "enum": ["observed", "changed", "tombstoned"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "application_configuration" } }, "required": ["kind"] },
+      "then": {
+        "required": ["application_source_id", "config_version"],
+        "properties": {
+          "operation": { "enum": ["observed", "changed", "tombstoned"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "browser_event" } }, "required": ["kind"] },
+      "then": {
+        "required": ["client_record_id", "installation_source_id"],
+        "properties": {
+          "operation": { "enum": ["accepted", "transformed", "published"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "native_decision" } }, "required": ["kind"] },
+      "then": {
+        "required": ["client_record_id", "native_decision"],
+        "not": { "required": ["effect"] },
+        "properties": {
+          "operation": { "const": "decided" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "action_outcome" } }, "required": ["kind"] },
+      "then": {
+        "required": ["client_record_id", "effect"],
+        "properties": {
+          "operation": { "const": "effect_observed" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "installation" } }, "required": ["kind"] },
+      "then": {
+        "required": ["installation_source_id"],
+        "properties": {
+          "operation": { "enum": ["observed", "changed", "tombstoned"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "heartbeat" } }, "required": ["kind"] },
+      "then": {
+        "required": ["installation_source_id"],
+        "properties": {
+          "operation": { "const": "observed" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "publication_gap" } }, "required": ["kind"] },
+      "then": {
+        "required": ["installation_source_id", "reason_code"],
+        "properties": {
+          "operation": { "enum": ["started", "completed"] }
+        }
+      }
+    }
+  ]
+}

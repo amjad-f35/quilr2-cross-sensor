@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/profiles/browser/1.0.0/payload.schema.json",
+  "title": "Browser Source Profile 1.0.0",
+  "oneOf": [
+    { "$ref": "#/$defs/installation" },
+    { "$ref": "#/$defs/device" },
+    { "$ref": "#/$defs/application" },
+    { "$ref": "#/$defs/accountContext" },
+    { "$ref": "#/$defs/relationship" },
+    { "$ref": "#/$defs/localBinding" },
+    { "$ref": "#/$defs/activity" },
+    { "$ref": "#/$defs/upload" },
+    { "$ref": "#/$defs/nativeOutcome" },
+    { "$ref": "#/$defs/snapshot" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/gap" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "safeLabels": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "type": "string", "maxLength": 96 }
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "installation_source_id", "component", "lifecycle"],
+      "properties": {
+        "kind": { "const": "browser.installation" },
+        "installation_source_id": { "$ref": "#/$defs/id" },
+        "component": { "enum": ["extension", "native_host"] },
+        "lifecycle": { "enum": ["observed", "changed", "stopped", "tombstoned"] },
+        "browser_family": { "enum": ["chrome", "edge", "firefox", "safari", "chromium", "unknown"] },
+        "device_source_id": { "$ref": "#/$defs/id" },
+        "management_mode": { "enum": ["enterprise_managed", "user_installed", "unmanaged", "unknown"] },
+        "component_version": { "type": "string", "maxLength": 256 },
+        "capability_labels": { "$ref": "#/$defs/safeLabels" }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "device_source_id", "lifecycle"],
+      "properties": {
+        "kind": { "const": "browser.device" },
+        "device_source_id": { "$ref": "#/$defs/id" },
+        "lifecycle": { "enum": ["observed", "changed", "tombstoned"] },
+        "machine_id": { "$ref": "#/$defs/id" },
+        "hostname": { "type": "string", "maxLength": 253 },
+        "os_platform": { "enum": ["windows", "macos", "linux", "chromeos", "unknown"] },
+        "os_version": { "type": "string", "maxLength": 128 },
+        "device_type": { "enum": ["workstation", "server", "mobile", "virtual", "unknown"] }
+      }
+    },
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "application_id", "origin", "display_name", "lifecycle"],
+      "properties": {
+        "kind": { "const": "browser.application" },
+        "application_id": { "$ref": "#/$defs/id" },
+        "origin": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*://[^/?#@]+$",
+          "maxLength": 2048,
+          "description": "Scheme and authority only. User information, path, query and fragment are forbidden."
+        },
+        "registrable_domain": { "type": "string", "maxLength": 253 },
+        "display_name": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "vendor": { "type": "string", "maxLength": 256 },
+        "surface": { "enum": ["web", "extension", "embedded", "unknown"] },
+        "product_source_id": { "$ref": "#/$defs/id" },
+        "technology_class": { "enum": ["generative_ai", "other_ai", "non_ai", "unknown"] },
+        "agentic_capability": { "enum": ["present", "absent", "unknown"] },
+        "classification_authority": { "enum": ["authoritative_catalog", "managed_configuration", "source_native", "unknown"] },
+        "catalog_revision": { "type": "string", "maxLength": 256 },
+        "lifecycle": { "enum": ["observed", "changed", "tombstoned"] },
+        "labels": { "$ref": "#/$defs/safeLabels" }
+      }
+    },
+    "accountContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "application_id", "authentication_context"],
+      "properties": {
+        "kind": { "const": "browser.account_context" },
+        "application_id": { "$ref": "#/$defs/id" },
+        "account_source_id": { "$ref": "#/$defs/id" },
+        "observed_identity_source_id": {
+          "$ref": "#/$defs/id",
+          "description": "Stable source-native identity only. It normalizes to a source-scoped directory_account unless an authoritative issuer/subject proves a person."
+        },
+        "account_name": { "type": "string", "maxLength": 256 },
+        "email": { "type": "string", "format": "email", "maxLength": 320 },
+        "full_name": { "type": "string", "maxLength": 512 },
+        "identity_assurance": {
+          "enum": ["stable_source_id", "authenticated_page_signal", "managed_domain", "display_only", "unknown"]
+        },
+        "device_source_id": { "$ref": "#/$defs/id" },
+        "session_id": { "$ref": "#/$defs/id" },
+        "authentication_context": { "enum": ["guest", "credentialed", "unknown"] },
+        "account_usage_type": {
+          "enum": ["personal", "corporate", "guest", "unknown"],
+          "description": "Optional stronger source claim. The adapter must omit this field unless it can identify the exact producer/writer and authority of the classification."
+        },
+        "organization_source_id": { "$ref": "#/$defs/id" },
+        "evidence_method": { "enum": ["extension_native", "browser_backend", "legacy_database", "managed_domain", "page_signal", "session_signal", "unknown"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "subject_type", "subject_id", "predicate", "object_type", "object_id", "semantic", "operation"],
+      "properties": {
+        "kind": { "const": "browser.relationship" },
+        "subject_type": { "enum": ["installation", "device", "application", "account"] },
+        "subject_id": { "$ref": "#/$defs/id" },
+        "predicate": { "enum": ["installed_on", "has_account"] },
+        "object_type": { "enum": ["installation", "device", "application", "account"] },
+        "object_id": { "$ref": "#/$defs/id" },
+        "semantic": { "enum": ["structural", "configured", "observed"] },
+        "operation": { "enum": ["upsert", "end"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "subject_type": { "const": "installation" },
+                "predicate": { "const": "installed_on" },
+                "object_type": { "const": "device" },
+                "semantic": { "const": "structural" }
+              }
+            },
+            {
+              "properties": {
+                "subject_type": { "const": "application" },
+                "predicate": { "const": "has_account" },
+                "object_type": { "const": "account" },
+                "semantic": { "const": "structural" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "endpointDeviceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "namespace", "object_type", "object_id"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "object_type": { "const": "device" },
+        "object_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "endpointIdentityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "namespace", "object_type", "object_id"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "object_type": { "const": "local_user" },
+        "object_id": { "$ref": "#/$defs/id" }
+      }
+    },
+    "bindingSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "algorithm", "key_id", "value"],
+      "properties": {
+        "format": { "const": "jws-detached-jcs" },
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 8192 }
+      }
+    },
+    "localBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "assertion_id",
+        "issuer_producer_id",
+        "issuer_installation_id",
+        "browser_installation_source_id",
+        "device_ref",
+        "issued_at",
+        "expires_at",
+        "nonce",
+        "signature",
+        "assurance"
+      ],
+      "properties": {
+        "kind": { "const": "browser.local_binding" },
+        "assertion_id": { "type": "string", "format": "uuid" },
+        "issuer_producer_id": { "type": "string", "format": "uuid" },
+        "issuer_installation_id": { "$ref": "#/$defs/id" },
+        "browser_installation_source_id": { "$ref": "#/$defs/id" },
+        "device_ref": { "$ref": "#/$defs/endpointDeviceRef" },
+        "execution_identity_ref": { "$ref": "#/$defs/endpointIdentityRef" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "nonce": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "signature": { "$ref": "#/$defs/bindingSignature" },
+        "assurance": { "const": "signed_local_runtime" }
+      },
+      "description": "Endpoint Edge Runtime assertion relayed by the browser. Admission verifies tenant, active issuer enrollment/certification, signature, audience-bound browser installation, nonce, expiry and exact qualified source references before normalization. No browser profile is assumed."
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "activity_type", "application_id", "status"],
+      "properties": {
+        "kind": { "const": "browser.activity" },
+        "activity_type": { "enum": ["application_visit", "application_use", "session_start", "session_end", "user_action"] },
+        "application_id": { "$ref": "#/$defs/id" },
+        "tab_id": { "type": "string", "maxLength": 128 },
+        "session_id": { "$ref": "#/$defs/id" },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["succeeded", "failed", "cancelled", "unknown"] },
+        "safe_action": { "type": "string", "maxLength": 128 },
+        "labels": { "$ref": "#/$defs/safeLabels" }
+      }
+    },
+    "upload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "upload_id", "application_id", "stage", "file_count"],
+      "properties": {
+        "kind": { "const": "browser.upload" },
+        "upload_id": { "$ref": "#/$defs/id" },
+        "application_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["observed", "scan_requested", "decision_received", "allowed", "blocked", "overridden", "cancelled", "timed_out", "failed"] },
+        "file_count": { "type": "integer", "minimum": 0, "maximum": 10000 },
+        "total_size_bytes": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "file_type_labels": { "$ref": "#/$defs/safeLabels" },
+        "native_request_id": { "$ref": "#/$defs/id" },
+        "native_decision": { "enum": ["allow", "block", "warn", "override", "unknown"] },
+        "effect_observed": { "type": "boolean" },
+        "error_class": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "nativeOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "native_request_id", "outcome"],
+      "properties": {
+        "kind": { "const": "browser.native_outcome" },
+        "native_request_id": { "$ref": "#/$defs/id" },
+        "upload_id": { "$ref": "#/$defs/id" },
+        "outcome": { "enum": ["clean", "matched", "failed", "cancelled", "timed_out", "unknown"] },
+        "decision": { "enum": ["allow", "block", "warn", "override", "unknown"] },
+        "effect": { "enum": ["continued", "prevented", "user_overrode", "not_observed"] },
+        "safe_classification_labels": { "$ref": "#/$defs/safeLabels" },
+        "latency_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "snapshot_id", "stage", "scope_type", "completeness"],
+      "properties": {
+        "kind": { "const": "browser.snapshot" },
+        "snapshot_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["started", "page", "completed", "failed"] },
+        "scope_type": { "enum": ["applications", "devices", "installations", "accounts"] },
+        "scope_source_id": { "$ref": "#/$defs/id" },
+        "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cursor": { "type": "string", "maxLength": 512 },
+        "members": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity_type", "source_id"],
+            "properties": {
+              "entity_type": { "enum": ["installation", "device", "application", "account", "session"] },
+              "source_id": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "expected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "completeness": { "enum": ["full", "partial", "unknown"] },
+        "source_revision": { "type": "string", "maxLength": 256 },
+        "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      },
+      "allOf": [
+        { "if": { "properties": { "stage": { "const": "page" } }, "required": ["stage"] }, "then": { "required": ["page_sequence", "members"] } },
+        { "if": { "properties": { "stage": { "const": "completed" } }, "required": ["stage"] }, "then": { "required": ["page_count", "observed_count", "snapshot_digest"] } },
+        { "if": { "properties": { "stage": { "const": "failed" } }, "required": ["stage"] }, "then": { "required": ["reason_code"] } }
+      ]
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "component", "state", "capabilities"],
+      "properties": {
+        "kind": { "const": "browser.health" },
+        "component": { "enum": ["extension", "background", "content_script", "native_host", "backend_link"] },
+        "state": { "enum": ["healthy", "degraded", "unhealthy", "offline", "unknown"] },
+        "capabilities": { "$ref": "#/$defs/safeLabels" },
+        "last_success_at": { "type": "string", "format": "date-time" },
+        "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "oldest_queue_age_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "capability", "from", "reason_code"],
+      "properties": {
+        "kind": { "const": "browser.gap" },
+        "capability": { "type": "string", "maxLength": 128 },
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": ["string", "null"], "format": "date-time" },
+        "reason_code": { "enum": ["extension_suspended", "native_unavailable", "quota_exceeded", "queue_evicted", "permission_missing", "unsupported_surface", "unknown_loss"] },
+        "estimated_records": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+schema_version: "1.0"
+authority: "Discovery, Inventory, and Evidence Pass"
+approval_state: "Selected freeze baseline pending named DIE-0 ratification; status accepted does not by itself prove human approval."
+decisions:
+  - id: DIE-ADR-001
+    status: accepted
+    decision: "The first customer release ships discovery, canonical inventory, evidence/activity, coverage, provenance, APIs, UI, and migration continuity before findings and policy."
+    consequence: "Later intelligence consumes this pass; it cannot be a dependency of DIE-GA."
+  - id: DIE-ADR-002
+    status: accepted
+    decision: "Browser, Browser Backend, Endpoint, LLM Gateway, and MCP Gateway are all launch evidence profiles; Browser Backend remains a distinct producer."
+    consequence: "MCP is not deferred from the evidence/inventory pass, and browser relay facts retain lineage."
+  - id: DIE-ADR-003
+    status: accepted
+    decision: "Full evidence means all supported, certified, privacy-approved typed facts plus explicit gaps and capture dispositions; it does not mean raw content."
+    consequence: "Prompt, response, file, DOM, tool content, credentials, and prohibited fields are excluded."
+  - id: DIE-ADR-004
+    status: accepted
+    decision: "Only the central resolver assigns canonical identity."
+    consequence: "Endpoint application IDs, MCP deterministic IDs, and Quilr 1 IDs remain source or compatibility aliases."
+  - id: DIE-ADR-005
+    status: accepted
+    decision: "The pass uses a modular platform codebase with role-specific ingest, normalizer, truth, projection, API, migration, and web deployments."
+    consequence: "Logical modules do not become one microservice per domain or materializer."
+  - id: DIE-ADR-006
+    status: accepted
+    decision: "The minimum pass storage set is PostgreSQL, encrypted object storage, and ClickHouse."
+    consequence: "Graph, external search, Redis, workflow, and policy stores require later measured justification."
+  - id: DIE-ADR-007
+    status: accepted
+    decision: "PostgreSQL evidence inbox, leased work partitions, canonical transactional outbox, and projection checkpoints are the baseline durable work mechanism."
+    consequence: "A separate event broker requires an ADR and capacity proof; it cannot become authority."
+  - id: DIE-ADR-008
+    status: accepted
+    decision: "PostgreSQL owns canonical inventory, relationship, activity, coverage, migration, audit, and ordinary product read models."
+    consequence: "ClickHouse owns only rebuildable high-volume activity/evidence search and bounded aggregates."
+  - id: DIE-ADR-009
+    status: accepted
+    decision: "Overview and inventory use PostgreSQL read models; activity search uses ClickHouse; evidence detail uses PostgreSQL/object references."
+    consequence: "The product API cannot dynamically reconstruct truth from several source systems."
+  - id: DIE-ADR-010
+    status: accepted
+    decision: "Important events are explicit source/canonical event families, not risk-scored findings."
+    consequence: "The pass may filter discovery, lifecycle, activity, native decisions/effects, gaps, and corrections without shipping intelligence."
+  - id: DIE-ADR-011
+    status: accepted
+    decision: "Existing source-native policy, DLP, block, warning, confirmation, and effect records are displayed only as observed native evidence."
+    consequence: "The UI cannot claim Quilr 2 policy or remediation capability."
+  - id: DIE-ADR-012
+    status: accepted
+    decision: "Coverage and capture state accompany every completeness, absence, active-use, and freshness statement."
+    consequence: "Unknown or degraded coverage cannot be shown as zero usage or retirement."
+  - id: DIE-ADR-013
+    status: accepted
+    decision: "The pass UI navigation is Overview, Inventory, Activity & Evidence, and Sources & Coverage, with permissioned operational surfaces."
+    consequence: "Insights, Cases, Analytics/Cost, and Policies are not empty navigation."
+  - id: DIE-ADR-014
+    status: deferred_parallel
+    decision: "Quilr 1 remains customer read authority through dark/backfill/shadow phases and remains available during cohort stabilization."
+    consequence: "No big-bang rewrite, frontend mashup, or destructive rollback is allowed."
+  - id: DIE-ADR-015
+    status: deferred_parallel
+    decision: "Quilr 1 imports are immutable legacy evidence and compatibility mappings."
+    consequence: "Legacy composite rows are re-resolved and do not dictate canonical ontology."
+  - id: DIE-ADR-016
+    status: deferred_parallel
+    decision: "Semantic parity compares member identity, lifecycle, relationships, activity, authorization, exports, and coverage under matched watermarks."
+    consequence: "Equal aggregate counts are insufficient."
+  - id: DIE-ADR-017
+    status: accepted
+    decision: "Projection rebuilds use candidate namespaces, catch-up, validation, impact diff, atomic promotion, and rollback retention."
+    consequence: "Active product state is never cleared in place."
+  - id: DIE-ADR-018
+    status: accepted
+    decision: "DIE-GA is a separate release gate before broader G2/G3 intelligence and governance promises."
+    consequence: "The pass can ship trustworthy facts without findings, workflows, policy, or Quilr 1 retirement."
+  - id: DIE-ADR-019
+    status: accepted
+    decision: "quilrbusiness/project-starliner is the intended core backend repository for the pass, subject to an exact-source fit-gap audit before existing modules are reused."
+    consequence: "The program evolves one verified spine, does not create a competing core backend, and classifies existing code as retain, harden, refactor, compatibility-only, replace, delete-later, missing, or unresolved."

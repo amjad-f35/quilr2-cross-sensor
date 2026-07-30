@@ -1,0 +1,95 @@
+Source-analysis intake validation
+Date: 2026-07-30
+Host scope: local, non-production, no customer environment
+
+Commands were executed from:
+/Users/t4ctic4l/Documents/Codex/Consolidate
+
+Browser:
+Browser-Extension-System/Browser-extension-sensor-analysis/outputs/lg008-browser-central-pass/lg008/validate-lg008
+Exit: 1
+Result: LG008_OPEN; 246 errors.
+Breakdown: 239 evidence-link errors, 2 runtime-evidence errors, 5 closure errors.
+Profile input covered only Project-Vanguard (707 files) and project-sentinel
+(226 files). Browser Backend remained unadmitted.
+
+Endpoint:
+ENDPOINT-AGENT-ANALYSIS-COMPLETE/lg008-endpoint/validate-lg008
+Exit: 0
+Result: LG008_OPEN; 16/16 structural validators passed; 0 ERROR;
+566 CHANGE_CONTROL_REQUIRED findings.
+The exit code means structural validation passed, not that LG-008 closed.
+
+LLM Gateway:
+LLM-GATEWAY-ANALYSIS/WORKSPACE/lg008-llm-gateway/validate-lg008
+Exit: 1
+Result: LG008_OPEN; 1,211 errors and 54 CHANGE_CONTROL_REQUIRED findings.
+Breakdown: 1,197 evidence-link errors, 4 runtime-evidence errors and 10 closure
+errors. Independent semantic inspection also found lexical keys and HTTP verbs
+misclassified as telemetry fields.
+
+MCP Gateway:
+MCP-GATEWAY-ANALYSIS-COMPLETE/analysis/lg008-mcpgateway-reconciliation/validate-lg008
+Exit: 1
+Result: validator crashed before producing a verdict.
+Failure: ENOENT for hard-coded pre-relocation path
+/Users/t4ctic4l/Documents/Codex/LLM-gateway-sensor-analysis/
+MCP_gateway_analysis/outputs/mcpgateway-repository-analysis/
+evidence/file-metadata.json
+The packaged source snapshot exists under Consolidate, but the validator is not
+relocation-safe.
+
+Existing project-starliner:
+Command:
+cd /Users/t4ctic4l/Documents/Codex/Consolidate/project-starliner-audit
+./.venv312/bin/python -m pytest -q
+Environment:
+Python 3.12.13
+pytest 9.1.1
+Git revision b747393468045425b3f07a24775dcbc93d380cb5
+Result: exit 0; 403 passed and 10 skipped out of 413 collected tests.
+Warning: StarletteDeprecationWarning from fastapi.testclient/httpx.
+This proves the local Python suite only. It is not LG-006 cross-language proof,
+native sensor certification, or target-architecture conformance.
+
+Rebuilt Browser and Browser Backend package:
+Archive:
+/Users/t4ctic4l/Documents/Codex/Consolidate/Browser-Extension-System/
+Browser-Extension-Analysis-Complete-2026-07-30.zip
+Expected and observed SHA-256:
+4da74590dba71860abb2bcb0b3c8b0afa084168a953c08df650f914adb31ffa3
+
+The archive was extracted into a fresh directory created by:
+mktemp -d /private/tmp/browser-lg008-portable.XXXXXX
+
+Manifest command:
+shasum -a 256 -c MANIFEST.sha256
+Result: exit 0; 3,518 entries checked; no FAILED entry.
+
+Portable central validator:
+./Browser-extension-sensor-analysis/outputs/
+lg008-browser-backend-central-pass/lg008/validate-lg008
+Result: expected exit 1; LG008_OPEN; exactly five closure errors.
+Non-closure result: 15 checks with zero errors.
+Measured:
+- 34,891 unique IDs;
+- 1,226 source files;
+- 776 fields and 776 lineage rows;
+- 1,632 evidence records;
+- 1,282 access states/recipes.
+
+Closure findings:
+- only two of five profiles admitted in this staged package;
+- 12 blocking source-to-target contradictions;
+- seven blocking unresolved evidence items;
+- no immutable revision for the final central authority;
+- 50 required target fields currently unsourced.
+
+Packaging limitation independently observed:
+- work/lg008_browser_backend_validator.py fails when invoked directly because
+  it resolves registries relative to the analysis root instead of the packaged
+  central output;
+- work/audit_repository_analysis.py fails when invoked directly because it
+  retains the old absolute repository root.
+The admitted central validator is relocation-safe. The two work scripts are not
+counted as portable validation evidence.

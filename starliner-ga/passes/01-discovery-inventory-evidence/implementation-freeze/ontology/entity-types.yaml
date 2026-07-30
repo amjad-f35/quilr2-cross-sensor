@@ -1,0 +1,194 @@
+schema_version: "1.1"
+ontology_version: die.ontology.entities.v1
+
+primary:
+  application_product:
+    public_prefix: app
+    collection: applications
+    strong_keys: [authoritative_catalog_object, os_publisher_product_id, stable_source_native_product]
+  application_surface:
+    public_prefix: asf
+    collection: applications
+    strong_keys: [resolved_product_surface_authority_id, browser_origin_with_catalog_authority, source_authority_application_surface_id]
+    key_rules:
+      - source_authority_application_surface_id is producer scoped and never merges surfaces across producers
+  application_deployment:
+    public_prefix: adp
+    collection: applications
+    strong_keys: [authoritative_deployment_id, resolved_product_device_installation_scope]
+  application_account:
+    public_prefix: aac
+    collection: applications
+    strong_keys: [resolved_application_source_authority_account_id]
+    attributes:
+      account_context:
+        values: [personal, organization, authenticated_unknown, flyby, unknown]
+        default: unknown
+  agent_definition:
+    public_prefix: agd
+    collection: agents
+    strong_keys: [authoritative_agent_definition_id, vendor_product_distribution_id, stable_source_native_agent_definition]
+  agent_deployment:
+    public_prefix: agp
+    collection: agents
+    strong_keys:
+      - authoritative_agent_deployment_id
+      - source_authority_agent_definition_device_installation_scope
+    key_rules:
+      - project workspace repository session process and version are attributes or relationships and never distinguish a local agent deployment
+      - observation user and execution identity are independent relationships and are not silently inserted into the deployment key
+      - an exact execution identity may participate only when the source authority explicitly defines the deployment as user-bound
+      - a missing exact device or installation scope prevents cross-producer local composite binding
+  agent_hook:
+    public_prefix: ahk
+    collection: agent_components
+    strong_keys: [resolved_parent_application_or_agent_source_hook_id]
+  agent_skill:
+    public_prefix: ask
+    collection: agent_components
+    strong_keys: [resolved_parent_application_or_agent_source_skill_id]
+  agent_plugin:
+    public_prefix: apl
+    collection: agent_components
+    strong_keys: [resolved_parent_application_or_agent_source_plugin_id]
+  configured_permission_rule:
+    public_prefix: cpr
+    collection: agent_components
+    strong_keys: [resolved_parent_application_or_agent_source_permission_rule_id]
+    key_rules:
+      - this is local application configuration and never an enterprise entitlement relationship
+  repository:
+    public_prefix: rep
+    collection: repositories
+    strong_keys: [authoritative_repository_id, source_authority_repository_token]
+  model_product:
+    public_prefix: mdl
+    collection: models
+    strong_keys: [provider_authority_model_product_id]
+  model_family:
+    public_prefix: mfm
+    collection: models
+    strong_keys: [provider_authority_model_family_id]
+  model_version:
+    public_prefix: mvr
+    collection: models
+    strong_keys: [provider_authority_model_id_version]
+  model_deployment:
+    public_prefix: mdp
+    collection: models
+    strong_keys: [provider_account_deployment_id_region]
+  model_route:
+    public_prefix: mrt
+    collection: models
+    strong_keys: [gateway_authority_route_id]
+  provider_account:
+    public_prefix: pac
+    collection: models
+    strong_keys: [provider_authority_account_id]
+  mcp_server_product:
+    public_prefix: msv
+    collection: mcp_servers
+    strong_keys: [mcp_registry_authority_server_product_id, stable_source_native_server_definition]
+  mcp_server_deployment:
+    public_prefix: msd
+    collection: mcp_servers
+    strong_keys: [mcp_authority_native_deployment_id, resolved_server_configuration_scope_transport_origin]
+  mcp_tool:
+    public_prefix: mtl
+    collection: tools
+    strong_keys: [resolved_server_deployment_native_tool_id_schema_version]
+  mcp_resource_definition:
+    public_prefix: mrs
+    collection: mcp_servers
+    strong_keys: [resolved_server_deployment_native_resource_id]
+  mcp_prompt_definition:
+    public_prefix: mpr
+    collection: mcp_servers
+    strong_keys: [resolved_server_deployment_native_prompt_id]
+
+context:
+  person:
+    public_prefix: per
+    strong_keys: [trusted_issuer_subject]
+  directory_account:
+    public_prefix: acc
+    strong_keys: [source_authority_account_id]
+  service_principal:
+    public_prefix: spi
+    strong_keys: [trusted_issuer_service_subject, provider_authority_service_principal_id]
+  team:
+    public_prefix: tem
+    strong_keys: [authoritative_directory_team_id]
+  business_unit:
+    public_prefix: bunit
+    strong_keys: [authoritative_directory_business_unit_id]
+  device:
+    public_prefix: dev
+    strong_keys: [approved_device_identity_precedence, source_authority_device_id]
+    key_rules:
+      - source_authority_device_id creates a producer-scoped device and never cross-producer merges by hostname email browser profile timing or display metadata
+      - cross-producer browser to endpoint device binding requires an exact signed local-binding assertion or a later authoritative MDM identity
+  browser_installation:
+    public_prefix: bin
+    strong_keys: [tenant_enrollment_browser_installation_id]
+  endpoint_installation:
+    public_prefix: ein
+    strong_keys: [tenant_enrollment_endpoint_installation_id]
+  llm_gateway_deployment:
+    public_prefix: lgd
+    strong_keys: [tenant_enrollment_llm_gateway_deployment_id]
+  mcp_gateway_deployment:
+    public_prefix: mgd
+    strong_keys: [tenant_enrollment_mcp_gateway_deployment_id]
+  browser_backend_deployment:
+    public_prefix: bbd
+    strong_keys: [tenant_enrollment_browser_backend_deployment_id]
+  workload:
+    public_prefix: wld
+    strong_keys: [host_boot_epoch_process_start_identity, orchestration_authority_workload_instance_id]
+  workload_identity:
+    public_prefix: wid
+    strong_keys: [trusted_issuer_workload_subject, gateway_authority_caller_identity_id]
+  provider:
+    public_prefix: prv
+    strong_keys: [provider_authority_id]
+  source_producer:
+    public_prefix: prd
+    strong_keys: [tenant_enrollment_producer_id]
+  source_object:
+    public_prefix: sob
+    strong_keys: [tenant_producer_profile_namespace_type_source_id]
+  session:
+    public_prefix: ses
+    strong_keys: [source_authority_session_id]
+  resource:
+    public_prefix: res
+    strong_keys: [source_authority_resource_id]
+  artifact_or_package:
+    public_prefix: art
+    strong_keys: [publisher_package_digest_or_authority_id]
+
+classification:
+  application_technology_class:
+    values: [generative_ai, other_ai, non_ai, unknown]
+    default: unknown
+  agentic_capability:
+    values: [present, absent, unknown]
+    default: unknown
+  deployment_locality:
+    values: [local, remote, cloud, gateway, unknown]
+    default: unknown
+  identity_assurance:
+    values: [authoritative, exact_shared_id, source_scoped, unresolved]
+    default: unresolved
+
+global_rules:
+  - tenant is always part of identity scope
+  - source IDs are aliases and never canonical IDs
+  - product definition deployment runtime session and activity are separate layers
+  - display names email hostname URL origin process name tool name and model label are weak keys
+  - version project workspace repository process and session do not split a local agent deployment
+  - browser_profile is not a current-pass entity because no stable browser profile identifier was found in the audited Browser producer
+  - flyby without a stable source account ID is session context and must not create a durable application account or directory account
+  - unknown values are explicit and never inferred from absence
+  - a canonical entity class with no reliable source evidence remains absent rather than becoming an empty placeholder

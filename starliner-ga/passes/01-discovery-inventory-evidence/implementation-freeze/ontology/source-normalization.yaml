@@ -1,0 +1,351 @@
+schema_version: "1.0"
+routing_version: die.normalization-routing.v1
+
+output_contract:
+  schema: ../schemas/normalization-bundle.schema.json
+  rule: "One admitted evidence record produces exactly one immutable normalization run and one deterministic, output-keyed bundle. Truth work is published only after PostgreSQL recomputes and matches output_count and bundle_digest."
+  reference_only_source_objects: "A normalizer may create a referenced_only source object for another enrolled producer only from a schema-valid, signature-verified exact producer/profile/namespace/type/source-ID reference. It is lineage scaffolding, never discovered inventory, and may transition only once to observed when native evidence from that producer arrives."
+  cross_sensor_replay_ledger: "Every accepted browser local binding or gateway attribution records issuer, recipient, assertion ID, nonce hash, assertion digest, audience, request binding where applicable, evidence and normalization run in die_normalized.cross_sensor_assertion_use. Issuer plus nonce is unique; replay or profile mismatch fails closed."
+
+profiles:
+  browser:
+    source_objects: [source_producer, browser_installation, device, application_surface, application_account, directory_account, session, resource]
+    mappings:
+      object_observed: [source_object, identifier_claims, attribute_claims, lifecycle_claim, coverage_candidate]
+      object_changed: [source_object, attribute_claims, lifecycle_claim]
+      object_tombstoned: [lifecycle_claim, relationship_end_candidates]
+      relationship_observed: [relationship_candidate]
+      relationship_ended: [relationship_end_candidate]
+      activity: [activity_candidate, observed_relationship_candidates]
+      decision: [activity_candidate_native_control]
+      outcome: [activity_candidate_native_effect]
+      reconciliation: [reconciliation_candidate, coverage_candidate]
+      coverage: [coverage_candidate]
+      gap: [coverage_candidate_gap]
+      health: [producer_health_claim, coverage_candidate]
+    entity_mapping:
+      installation: browser_installation
+      device: device
+      application: application_surface
+      account: application_account
+      session: session
+    predicate_mapping:
+      installed_on: {canonical: installed_on}
+      has_account: {canonical: has_account}
+    identity_rule: "observed_identity_source_id creates at most a source-scoped directory_account. account_name, email and full_name are sensitive claims; none creates or merges a person. Without a stable source identity, actor context stays on the session/activity."
+    account_context:
+      authentication_context:
+        source_values: [guest, credentialed, unknown]
+        canonical_mapping:
+          guest: flyby
+          credentialed: authenticated_unknown
+          unknown: unknown
+      account_usage_type:
+        source_values: [personal, corporate, guest, unknown]
+        canonical_mapping:
+          personal: personal
+          corporate: organization
+          guest: flyby
+          unknown: unknown
+        rule: "Use only when the exact producer/writer and classification authority are recorded. The audited legacy readers do not prove the writer."
+      rule: "A guest/flyby observation without a stable account ID stays session/activity context. Credentialed means only that credentials were observed; it does not mean organization-owned."
+    local_binding:
+      input_kind: browser.local_binding
+      trust_rule: "Verify the detached canonical-JSON signature against the active enrolled Endpoint producer key; require the same tenant, certified issuer artifact, unexpired assertion, unused nonce, matching browser installation audience and qualified Endpoint source references."
+      replay_ledger: die_normalized.cross_sensor_assertion_use
+      output:
+        - [browser_installation, installed_on, endpoint_device, structural]
+      failure: "Quarantine invalid assertions; expired, missing or unavailable assertions leave the browser device and Endpoint device separate and never trigger fuzzy device or person matching."
+    activity_mapping:
+      browser.activity:
+        discriminator: activity_type
+        cases:
+          application_visit: application.observed
+          application_use: application.used
+          session_start: session.started
+          session_end: session.ended
+          user_action: application.used
+      browser.upload:
+        discriminator: stage
+        cases:
+          observed: resource.upload_observed
+          scan_requested: resource.scan_requested
+          decision_received: resource.decision_received
+          allowed: resource.upload_allowed
+          blocked: resource.upload_blocked
+          overridden: resource.upload_overridden
+          cancelled: resource.upload_failed
+          timed_out: resource.upload_failed
+          failed: resource.upload_failed
+      browser.native_outcome:
+        constant: native.effect
+  browser_backend:
+    source_objects: [source_producer, browser_backend_deployment, browser_installation, application_product, application_surface, application_deployment, application_account, directory_account, device, session]
+    mappings:
+      object_observed: [source_object, identifier_claims, attribute_claims]
+      object_changed: [attribute_claims, lifecycle_claim]
+      activity: [relay_stage_activity_candidate]
+      decision: [activity_candidate_native_control]
+      outcome: [relay_stage_activity_candidate]
+      reconciliation: [reconciliation_candidate, coverage_candidate]
+      coverage: [coverage_candidate]
+      gap: [coverage_candidate_gap]
+      health: [producer_health_claim, coverage_candidate]
+    relay_rule: "A backend receipt or handoff is a lineage stage and never a second independent client action."
+    account_context:
+      authentication_context:
+        source_values: [guest, credentialed, unknown]
+        canonical_mapping:
+          guest: flyby
+          credentialed: authenticated_unknown
+          unknown: unknown
+      account_usage_type:
+        source_values: [personal, corporate, guest, unknown]
+        canonical_mapping:
+          personal: personal
+          corporate: organization
+          guest: flyby
+          unknown: unknown
+        rule: "Admit only when the exact legacy/backend writer and classification authority are identified. A missing stable account_source_id keeps guest/flyby on session/activity context."
+    activity_mapping:
+      browser_event:
+        discriminator: operation
+        cases:
+          accepted: source.relay_accepted
+          transformed: source.relay_transformed
+          published: source.relay_published
+      native_decision:
+        constant: native.decision
+      action_outcome:
+        constant: native.effect
+  endpoint:
+    source_objects: [source_producer, endpoint_installation, device, directory_account, workload, application_product, application_deployment, agent_definition, agent_deployment, model_product, mcp_server_product, mcp_server_deployment, repository, agent_hook, agent_skill, configured_permission_rule, agent_plugin, session]
+    mappings:
+      object_observed: [source_object, identifier_claims, attribute_claims, lifecycle_claim, coverage_candidate]
+      object_changed: [attribute_claims, lifecycle_claim]
+      object_tombstoned: [lifecycle_claim, relationship_end_candidates]
+      relationship_observed: [relationship_candidate]
+      relationship_ended: [relationship_end_candidate]
+      activity: [activity_candidate, observed_relationship_candidates]
+      decision: [activity_candidate_native_control]
+      outcome: [activity_candidate_native_effect]
+      reconciliation: [reconciliation_candidate, coverage_candidate]
+      coverage: [coverage_candidate]
+      gap: [coverage_candidate_gap]
+      health: [producer_health_claim, coverage_candidate]
+    migration_rule: "Legacy resolve_app_ids values are aliases and claims only; they cannot select a canonical entity."
+    entity_mapping:
+      endpoint_installation: endpoint_installation
+      device: device
+      local_user: directory_account
+      process: workload
+      application_product: application_product
+      application_installation: application_deployment
+      agent_definition: agent_definition
+      agent_deployment: agent_deployment
+      model_product: model_product
+      mcp_server: mcp_server_product
+      mcp_server_deployment: mcp_server_deployment
+      repository: repository
+      agent_hook: agent_hook
+      agent_skill: agent_skill
+      configured_permission_rule: configured_permission_rule
+      agent_plugin: agent_plugin
+    predicate_mapping:
+      instance_of: {canonical: instance_of}
+      deployed_on: {canonical: deployed_on}
+      executed_as: {canonical: executed_as}
+      installed_on: {canonical: installed_on}
+      configured_with: {canonical: configured_with}
+      configured_to_use: {canonical: configured_to_use}
+      configured_for: {canonical: configured_for}
+    activity_mapping:
+      endpoint.activity:
+        discriminator: activity_type
+        outcome_field: status
+        cases:
+          prompt_turn:
+            default: agent.observed
+            outcomes:
+              succeeded: agent.completed
+              failed: agent.failed
+              blocked: agent.blocked
+              cancelled: agent.cancelled
+              timed_out: agent.failed
+              unknown: agent.observed
+          process_start: workload.started
+          process_stop: workload.stopped
+          application_use: application.used
+          proxy_request:
+            default: network.requested
+            outcomes:
+              succeeded: network.completed
+              failed: network.failed
+              blocked: network.blocked
+              cancelled: network.cancelled
+              timed_out: network.timed_out
+              unknown: network.requested
+          hook_event: source.updated
+          file_operation:
+            default: resource.accessed
+            outcomes:
+              succeeded: resource.accessed
+              failed: resource.access_failed
+              blocked: resource.access_failed
+              cancelled: resource.access_failed
+              timed_out: resource.access_failed
+              unknown: resource.accessed
+      endpoint.native_decision:
+        constant: native.decision
+      endpoint.native_effect:
+        constant: native.effect
+  llm_gateway:
+    source_objects: [source_producer, llm_gateway_deployment, application_deployment, agent_definition, agent_deployment, workload, workload_identity, provider_account, provider, model_route, model_product, model_family, model_version, model_deployment, session]
+    mappings:
+      object_observed: [source_object, identifier_claims, attribute_claims, lifecycle_claim]
+      object_changed: [attribute_claims, lifecycle_claim]
+      object_tombstoned: [lifecycle_claim, relationship_end_candidates]
+      relationship_observed: [relationship_candidate]
+      relationship_ended: [relationship_end_candidate]
+      activity: [model_activity_candidate, configured_or_observed_relationship_candidates]
+      decision: [activity_candidate_native_control]
+      outcome: [model_activity_version_candidate]
+      reconciliation: [reconciliation_candidate, coverage_candidate]
+      coverage: [coverage_candidate]
+      gap: [coverage_candidate_gap]
+      health: [producer_health_claim, coverage_candidate]
+    content_rule: "Raw request/response bodies and credentials are prohibited from the default profile."
+    cross_sensor_attribution:
+      input_field: cross_sensor_attribution
+      trust_rule: "The gateway and normalizer independently verify the active enrolled Endpoint issuer, same tenant, certified artifact, signature, expiry, unused nonce, gateway audience and invocation request-binding digest."
+      replay_ledger: die_normalized.cross_sensor_assertion_use
+      output: "Use the qualified Endpoint producer/profile/namespace agent deployment and optional workload as activity actor/resources at deterministic correlation level 1."
+      failure: "Ignore the claimed cross-sensor identity, retain the gateway-native caller, emit attribution validation telemetry and never fall back to names or timing."
+    entity_mapping:
+      gateway_deployment: llm_gateway_deployment
+      provider: provider
+      provider_account: provider_account
+      model_product: model_product
+      model_family: model_family
+      model_version: model_version
+      model_deployment: model_deployment
+      model_route: model_route
+      client_application: application_deployment
+      workload: workload
+      workload_identity: workload_identity
+      agent_definition: agent_definition
+      agent_deployment: agent_deployment
+    predicate_mapping:
+      instance_of: {canonical: instance_of}
+      version_of: {canonical: version_of}
+      belongs_to: {canonical: belongs_to}
+      routes_to: {canonical: routes_to}
+      called: {canonical: called}
+    activity_mapping:
+      llm.invocation:
+        discriminator: stage
+        cases:
+          accepted: model.request_accepted
+          routed: model.route_selected
+          stream_started: model.stream_started
+          stream_completed: model.completed
+          completed: model.completed
+          cancelled: model.cancelled
+          failed: model.failed
+          timed_out: model.timed_out
+          rejected: model.request_rejected
+          retried: model.retry
+          failed_over: model.failover
+      llm.native_decision:
+        constant: native.decision
+      llm.native_effect:
+        constant: native.effect
+  mcp_gateway:
+    source_objects: [source_producer, mcp_gateway_deployment, application_deployment, agent_definition, agent_deployment, workload, directory_account, service_principal, mcp_server_product, mcp_server_deployment, mcp_tool, mcp_resource_definition, mcp_prompt_definition, resource, session]
+    mappings:
+      object_observed: [source_object, identifier_claims, attribute_claims, lifecycle_claim]
+      object_changed: [attribute_claims, lifecycle_claim]
+      object_tombstoned: [lifecycle_claim, relationship_end_candidates]
+      relationship_observed: [relationship_candidate]
+      relationship_ended: [relationship_end_candidate]
+      activity: [mcp_activity_candidate, configured_or_observed_relationship_candidates]
+      decision: [activity_candidate_native_control]
+      outcome: [mcp_activity_version_candidate]
+      reconciliation: [reconciliation_candidate, coverage_candidate]
+      coverage: [coverage_candidate]
+      gap: [coverage_candidate_gap]
+      health: [producer_health_claim, coverage_candidate]
+    surface_rule: "Direct, OneMCP and native handler surfaces are separately declared and certified; missing instrumentation becomes unsupported or gap coverage."
+    cross_sensor_attribution:
+      input_field: cross_sensor_attribution
+      trust_rule: "The gateway and normalizer independently verify the active enrolled Endpoint issuer, same tenant, certified artifact, signature, expiry, unused nonce, gateway audience and tool/operation request-binding digest."
+      replay_ledger: die_normalized.cross_sensor_assertion_use
+      output: "Use the qualified Endpoint producer/profile/namespace agent deployment and optional workload as activity actor/resources at deterministic correlation level 1."
+      failure: "Ignore the claimed cross-sensor identity, retain gateway-native actor context, emit attribution validation telemetry and never fall back to names or timing."
+    entity_mapping:
+      gateway_deployment: mcp_gateway_deployment
+      server_product: mcp_server_product
+      server_deployment: mcp_server_deployment
+      tool: mcp_tool
+      native_tool: mcp_tool
+      resource: mcp_resource_definition
+      prompt: mcp_prompt_definition
+      agent_definition: agent_definition
+      agent_deployment: agent_deployment
+      workflow_version: agent_definition
+      schedule: resource
+      run: workload
+      client_application: application_deployment
+      directory_account: directory_account
+      service_principal: service_principal
+    predicate_mapping:
+      instance_of: {canonical: instance_of}
+      exposes: {canonical: exposes}
+      invoked: {canonical: invoked}
+    activity_mapping:
+      mcp.tool_call:
+        discriminator: stage
+        cases:
+          requested: tool.requested
+          confirmation_required: tool.confirmation_required
+          confirmation_granted: tool.confirmation_granted
+          confirmation_denied: tool.confirmation_denied
+          started: tool.started
+          completed: tool.completed
+          failed: tool.failed
+          cancelled: tool.cancelled
+          timed_out: tool.timed_out
+          progress: tool.progress
+      mcp.operation:
+        discriminator: activity_type
+        cases:
+          initialize: mcp.initialized
+          tools_list: mcp.tools_listed
+          resources_list: mcp.resources_listed
+          resource_read: resource.read
+          prompts_list: mcp.prompts_listed
+          prompt_requested: resource.prompt_requested
+          session_started: session.started
+          session_ended: session.ended
+          request_cancelled: mcp.request_cancelled
+          progress_reported: mcp.progress_reported
+          capability_changed: mcp.capability_changed
+          connection_changed: mcp.connection_changed
+      mcp.rejection:
+        constant: mcp.request_rejected
+      mcp.native_decision:
+        constant: native.decision
+      mcp.native_effect:
+        constant: native.effect
+
+global:
+  deterministic: true
+  network_access: prohibited
+  canonical_lookup: prohibited
+  canonical_id_output: prohibited
+  unknown_compatible_fields: retain_in_evidence_and_emit_drift
+  unknown_incompatible_meaning: quarantine
+  reconciliation_absence_rule: "Only one successfully completed full snapshot for the exact producer, profile, scope and source revision may close claims for absent members. Started, page, partial, unknown and failed snapshots never imply removal."
+  normalization_bundle_rule: "One evidence record may emit multiple deterministic observation outputs. The normalizer commits one normalization_run, every output_key, claims and candidates, plus one truth work item in one transaction."
+  candidate_dependency_rule: "Truth resolves all primary source objects in the normalization bundle before relationships and activities. Missing or ambiguous external bindings are persisted as pending_dependency or held_ambiguous and re-evaluated from the reverse dependency index."
+  coverage_population_rule: "Every coverage candidate names one exact population_type, source_namespace and source_population_id. Zero matches is pending/unknown; multiple matches is held_ambiguous; neither case is guessed."

@@ -1,0 +1,567 @@
+{
+  "schema": "quilr.local_source_checkout_manifest.v1",
+  "checkout_root": "Org-Recon-2026-07-30",
+  "repositories": 62,
+  "rows_sha256": "46993518bd62e681a2f9f2b3502230dbc62b2f78c2068ed488c3fd3adba88cbd",
+  "rows": [
+    {
+      "repository": "Agentic-Ai-Entity-DB",
+      "checkout_path": "Org-Recon-2026-07-30/Agentic-Ai-Entity-DB",
+      "commit": "4c4cc7f0190f07f8db7ce3e9190d708a7637aaf5",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/Agentic-Ai-Entity-DB.git",
+      "tracked_files": 91,
+      "shallow": true
+    },
+    {
+      "repository": "ConstantsConfigsSync",
+      "checkout_path": "Org-Recon-2026-07-30/ConstantsConfigsSync",
+      "commit": "97250a786a3637d796166a9db4d92a719cee8a43",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ConstantsConfigsSync.git",
+      "tracked_files": 52,
+      "shallow": true
+    },
+    {
+      "repository": "ExtensionConstantsConfigs",
+      "checkout_path": "Org-Recon-2026-07-30/ExtensionConstantsConfigs",
+      "commit": "bd7b51f7ec9b8d6fed2fd7f7aac199847b332370",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ExtensionConstantsConfigs.git",
+      "tracked_files": 7,
+      "shallow": true
+    },
+    {
+      "repository": "Project-Vanguard",
+      "checkout_path": "Org-Recon-2026-07-30/Project-Vanguard",
+      "commit": "8e7a3e0c22c3ec29d0c642b211d59e9abc0071cb",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/Project-Vanguard.git",
+      "tracked_files": 749,
+      "shallow": true
+    },
+    {
+      "repository": "QuilrConfig",
+      "checkout_path": "Org-Recon-2026-07-30/QuilrConfig",
+      "commit": "067fde4257b904d600d5522a88429d594bfaa9f9",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/QuilrConfig.git",
+      "tracked_files": 20,
+      "shallow": true
+    },
+    {
+      "repository": "QuilrEndpoint-msi-builder",
+      "checkout_path": "Org-Recon-2026-07-30/QuilrEndpoint-msi-builder",
+      "commit": "520ab5ebaeac667b52019e5d76b519038182ec73",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/QuilrEndpoint-msi-builder.git",
+      "tracked_files": 145,
+      "shallow": true
+    },
+    {
+      "repository": "QuilrEndpoint-pkg-builder",
+      "checkout_path": "Org-Recon-2026-07-30/QuilrEndpoint-pkg-builder",
+      "commit": "0190153d653b718b9cd4dea2eb35d9bdbfbab7bf",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/QuilrEndpoint-pkg-builder.git",
+      "tracked_files": 26,
+      "shallow": true
+    },
+    {
+      "repository": "agentic_ecosystem_discovery",
+      "checkout_path": "Org-Recon-2026-07-30/agentic_ecosystem_discovery",
+      "commit": "8679ee2c8991873aa34ee00d2a362012ff8fb470",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/agentic_ecosystem_discovery.git",
+      "tracked_files": 1,
+      "shallow": true
+    },
+    {
+      "repository": "ai-internal-sdks",
+      "checkout_path": "Org-Recon-2026-07-30/ai-internal-sdks",
+      "commit": "9270a7dde44f632ec1ada4359cfdfa24f43b75e9",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ai-internal-sdks.git",
+      "tracked_files": 60,
+      "shallow": true
+    },
+    {
+      "repository": "api-caching-lib",
+      "checkout_path": "Org-Recon-2026-07-30/api-caching-lib",
+      "commit": "57a586538ba7f44d6af9b807c28ca2054ae7342a",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/api-caching-lib.git",
+      "tracked_files": 17,
+      "shallow": true
+    },
+    {
+      "repository": "browser-extension-service",
+      "checkout_path": "Org-Recon-2026-07-30/browser-extension-service",
+      "commit": "496b8c216025e5d21871f5959e61dcdd01836106",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/browser-extension-service.git",
+      "tracked_files": 293,
+      "shallow": true
+    },
+    {
+      "repository": "ci-scripts",
+      "checkout_path": "Org-Recon-2026-07-30/ci-scripts",
+      "commit": "72a5d503989713ba0ac7191cf58e40c2938d0e75",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ci-scripts.git",
+      "tracked_files": 50,
+      "shallow": true
+    },
+    {
+      "repository": "data-explorer-service",
+      "checkout_path": "Org-Recon-2026-07-30/data-explorer-service",
+      "commit": "d7f45ee0ca392c22a6f618a983f1262d65ab2440",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/data-explorer-service.git",
+      "tracked_files": 154,
+      "shallow": true
+    },
+    {
+      "repository": "devops-automation",
+      "checkout_path": "Org-Recon-2026-07-30/devops-automation",
+      "commit": "9de4d3f808d1bf3bb63965be6db71dcda203fadb",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/devops-automation.git",
+      "tracked_files": 24,
+      "shallow": true
+    },
+    {
+      "repository": "diagnostic-dashboard",
+      "checkout_path": "Org-Recon-2026-07-30/diagnostic-dashboard",
+      "commit": "6bbe05cd88a5a9e062e4f3da255a19f310457d2e",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/diagnostic-dashboard.git",
+      "tracked_files": 5,
+      "shallow": true
+    },
+    {
+      "repository": "ea-discovery-scripts",
+      "checkout_path": "Org-Recon-2026-07-30/ea-discovery-scripts",
+      "commit": "8d456fb9e76eb0d64980eb45c9276fcdfe640bc2",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ea-discovery-scripts.git",
+      "tracked_files": 5,
+      "shallow": true
+    },
+    {
+      "repository": "endpoint-config-manager",
+      "checkout_path": "Org-Recon-2026-07-30/endpoint-config-manager",
+      "commit": "5a7aa26d5f48478788ef8371b28a3d8070f07a91",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/endpoint-config-manager.git",
+      "tracked_files": 51,
+      "shallow": true
+    },
+    {
+      "repository": "event-diagnostics-service",
+      "checkout_path": "Org-Recon-2026-07-30/event-diagnostics-service",
+      "commit": "8f55fd493d7c1fa79d9f232d0535fc4caa5e8d51",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/event-diagnostics-service.git",
+      "tracked_files": 95,
+      "shallow": true
+    },
+    {
+      "repository": "extension-api-service",
+      "checkout_path": "Org-Recon-2026-07-30/extension-api-service",
+      "commit": "9bd3b388e40b75e8c675ff7ea3944ab63dd58171",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/extension-api-service.git",
+      "tracked_files": 177,
+      "shallow": true
+    },
+    {
+      "repository": "extension-configs",
+      "checkout_path": "Org-Recon-2026-07-30/extension-configs",
+      "commit": "d5318fdd58b1b30275507dd0decb92fd30525363",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/extension-configs.git",
+      "tracked_files": 145,
+      "shallow": true
+    },
+    {
+      "repository": "extension-ingestion-service",
+      "checkout_path": "Org-Recon-2026-07-30/extension-ingestion-service",
+      "commit": "f02b84522da7aea97312772c3fad556f92ec8ba8",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/extension-ingestion-service.git",
+      "tracked_files": 33,
+      "shallow": true
+    },
+    {
+      "repository": "extension-log-service",
+      "checkout_path": "Org-Recon-2026-07-30/extension-log-service",
+      "commit": "5b5b37516d0aacd4b1fec51a849eac73fe952c7f",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/extension-log-service.git",
+      "tracked_files": 59,
+      "shallow": true
+    },
+    {
+      "repository": "ipc-event-bus",
+      "checkout_path": "Org-Recon-2026-07-30/ipc-event-bus",
+      "commit": "0cf45bc50e4121d6a4521c58f1fa52a97c125e19",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/ipc-event-bus.git",
+      "tracked_files": 30,
+      "shallow": true
+    },
+    {
+      "repository": "jwt-decoder-library",
+      "checkout_path": "Org-Recon-2026-07-30/jwt-decoder-library",
+      "commit": "ff6d4495541bf843989a27520ffd1811c3096519",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/jwt-decoder-library.git",
+      "tracked_files": 38,
+      "shallow": true
+    },
+    {
+      "repository": "lib-activity-modules",
+      "checkout_path": "Org-Recon-2026-07-30/lib-activity-modules",
+      "commit": "2947c89bd14aacd9665c28dbb767161934292293",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/lib-activity-modules.git",
+      "tracked_files": 22,
+      "shallow": true
+    },
+    {
+      "repository": "macrodata-refinement",
+      "checkout_path": "Org-Recon-2026-07-30/macrodata-refinement",
+      "commit": "92b0462c583b908f8ce0cadd1bc89d2e702f5a7d",
+      "branch": "dev_main",
+      "origin": "https://github.com/quilrbusiness/macrodata-refinement.git",
+      "tracked_files": 1093,
+      "shallow": true
+    },
+    {
+      "repository": "mcp_intel",
+      "checkout_path": "Org-Recon-2026-07-30/mcp_intel",
+      "commit": null,
+      "branch": null,
+      "origin": null,
+      "tracked_files": 0,
+      "shallow": null,
+      "note": "Repository checkout has no resolvable HEAD (for example, an empty repository)."
+    },
+    {
+      "repository": "mock-server-api",
+      "checkout_path": "Org-Recon-2026-07-30/mock-server-api",
+      "commit": "0a5706d09b3499a9c277d813ab6f05a8fb7533b9",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/mock-server-api.git",
+      "tracked_files": 10,
+      "shallow": true
+    },
+    {
+      "repository": "nginx-ingress-controller",
+      "checkout_path": "Org-Recon-2026-07-30/nginx-ingress-controller",
+      "commit": "412ed6f4fcea07c687f3164ec4f6bef68d7541ff",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/nginx-ingress-controller.git",
+      "tracked_files": 14,
+      "shallow": true
+    },
+    {
+      "repository": "project-half-sentinel",
+      "checkout_path": "Org-Recon-2026-07-30/project-half-sentinel",
+      "commit": "8a02853f4cc954d4e28dde6820ece5905ea554de",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/project-half-sentinel.git",
+      "tracked_files": 5,
+      "shallow": true
+    },
+    {
+      "repository": "project-sentinel",
+      "checkout_path": "Org-Recon-2026-07-30/project-sentinel",
+      "commit": "6f55960ff5c3bf3cf1838985acd4155fc9f16334",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/project-sentinel.git",
+      "tracked_files": 227,
+      "shallow": true
+    },
+    {
+      "repository": "project-starliner",
+      "checkout_path": "Org-Recon-2026-07-30/project-starliner",
+      "commit": "b747393468045425b3f07a24775dcbc93d380cb5",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/project-starliner.git",
+      "tracked_files": 226,
+      "shallow": true
+    },
+    {
+      "repository": "proxy-core",
+      "checkout_path": "Org-Recon-2026-07-30/proxy-core",
+      "commit": "6c81b25bfad516c3491b78c3b166bfd1912275ae",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/proxy-core.git",
+      "tracked_files": 2,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-api-lib",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-api-lib",
+      "commit": "1c1ad9beb5ff0a8b2a22d592df52bffb40774b44",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-api-lib.git",
+      "tracked_files": 18,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-authz-lib",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-authz-lib",
+      "commit": "ce03e70b41736f9bf240e2f53f3fe8a6e555d56f",
+      "branch": "quilr-preprod",
+      "origin": "https://github.com/quilrbusiness/quilr-authz-lib.git",
+      "tracked_files": 17,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-bff",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-bff",
+      "commit": "79e060c73bd971e922d4a9f2307cc993209b9855",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-bff.git",
+      "tracked_files": 47,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-canary",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-canary",
+      "commit": "eaa3d0444480aaecbcab9c21d4d3fb21ed981699",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-canary.git",
+      "tracked_files": 68,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-cloud-infra",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-cloud-infra",
+      "commit": "336f7067cdf6939a88349ec794ea8c8a13518a41",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-cloud-infra.git",
+      "tracked_files": 135,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-configloader-service",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-configloader-service",
+      "commit": "7c33a1974c3b51180877002a193c4d784749dc0c",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-configloader-service.git",
+      "tracked_files": 31,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-custom-mcp-servers",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-custom-mcp-servers",
+      "commit": "332137e99fd31311aa7c1450bffc9cf8c139a622",
+      "branch": "dev_main",
+      "origin": "https://github.com/quilrbusiness/quilr-custom-mcp-servers.git",
+      "tracked_files": 541,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-data-plane",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-data-plane",
+      "commit": "d070466aba3b5a0b697af3c7c431bb239606f65c",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-data-plane.git",
+      "tracked_files": 365,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-discover",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-discover",
+      "commit": "6c864bd0219a8b3c7ee9fafffcded8f7391c9a6c",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-discover.git",
+      "tracked_files": 99,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-entities-service",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-entities-service",
+      "commit": "e5d668185a91d10ef5afdf6cf3710267b2ce14cb",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-entities-service.git",
+      "tracked_files": 134,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-forwarder-library",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-forwarder-library",
+      "commit": "42a6e29f50ff03fb07b941f5b01a86a6444f06bc",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-forwarder-library.git",
+      "tracked_files": 31,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-graph-service",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-graph-service",
+      "commit": "a4a80bb8c43fccc82153f825d987419860cd816a",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-graph-service.git",
+      "tracked_files": 26,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-helm-charts",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-helm-charts",
+      "commit": "a72753199c90b14a8f8b16d599ebc14a11affac3",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-helm-charts.git",
+      "tracked_files": 340,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-ingestion-service",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-ingestion-service",
+      "commit": "ab3c8701a6bdc0cf04d4cfce9493b5e59bce574f",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-ingestion-service.git",
+      "tracked_files": 141,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-kafka-client",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-kafka-client",
+      "commit": "74ecf65ebbad1c971cd2f5116b65bb4a8abb5539",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-kafka-client.git",
+      "tracked_files": 21,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-llm-gateway",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-llm-gateway",
+      "commit": "99f759d75aa8260f97db6904433c941647a755e5",
+      "branch": "add_gateway",
+      "origin": "https://github.com/quilrbusiness/quilr-llm-gateway.git",
+      "tracked_files": 477,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-metrics-lib",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-metrics-lib",
+      "commit": "0655af7418e85ac95b28e622ae4cf3c1a687c1ce",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-metrics-lib.git",
+      "tracked_files": 29,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-migration-service",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-migration-service",
+      "commit": "18d256c4db7babe801cf4ac87ef71beb041404b1",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-migration-service.git",
+      "tracked_files": 168,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-platform-analytics-backend",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-platform-analytics-backend",
+      "commit": "8e78691a23ef376ab7f40655fc34d740b25ca97e",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-platform-analytics-backend.git",
+      "tracked_files": 16,
+      "shallow": true
+    },
+    {
+      "repository": "quilr-web",
+      "checkout_path": "Org-Recon-2026-07-30/quilr-web",
+      "commit": "524edd3371d4cce375252f8373d54b3b9c545009",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilr-web.git",
+      "tracked_files": 2579,
+      "shallow": true
+    },
+    {
+      "repository": "quilrai-endpoint-agent-doc",
+      "checkout_path": "Org-Recon-2026-07-30/quilrai-endpoint-agent-doc",
+      "commit": "d773a6bd3a69cc7048a24748f2f6674e49b09a5b",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/quilrai-endpoint-agent-doc.git",
+      "tracked_files": 15,
+      "shallow": true
+    },
+    {
+      "repository": "sentinel-application-discovery",
+      "checkout_path": "Org-Recon-2026-07-30/sentinel-application-discovery",
+      "commit": "b4415ae64fe61a0b65352558139ef289148891b2",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/sentinel-application-discovery.git",
+      "tracked_files": 24,
+      "shallow": true
+    },
+    {
+      "repository": "sentinel-context-engine",
+      "checkout_path": "Org-Recon-2026-07-30/sentinel-context-engine",
+      "commit": "d701a89cf32fea95334597c7049f6e6b8b9e54df",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/sentinel-context-engine.git",
+      "tracked_files": 59,
+      "shallow": true
+    },
+    {
+      "repository": "sentinel-endpoint-agent",
+      "checkout_path": "Org-Recon-2026-07-30/sentinel-endpoint-agent",
+      "commit": "a022e52bf2fff6a9445ebad96c3afeaf277e259f",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/sentinel-endpoint-agent.git",
+      "tracked_files": 876,
+      "shallow": true
+    },
+    {
+      "repository": "sentinel-macro-lib",
+      "checkout_path": "Org-Recon-2026-07-30/sentinel-macro-lib",
+      "commit": "392a9891ef1c90924957b82d955add3196d756a2",
+      "branch": "master",
+      "origin": "https://github.com/quilrbusiness/sentinel-macro-lib.git",
+      "tracked_files": 5,
+      "shallow": true
+    },
+    {
+      "repository": "sentinel-system-monitor",
+      "checkout_path": "Org-Recon-2026-07-30/sentinel-system-monitor",
+      "commit": "feebe4d31c5f7fe467c971fec5d0d9472a1de1c5",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/sentinel-system-monitor.git",
+      "tracked_files": 35,
+      "shallow": true
+    },
+    {
+      "repository": "simple-proxy",
+      "checkout_path": "Org-Recon-2026-07-30/simple-proxy",
+      "commit": "79314ebca77b7e2ca14d772bfa47f5c5724d9d1e",
+      "branch": "master",
+      "origin": "https://github.com/quilrbusiness/simple-proxy.git",
+      "tracked_files": 46,
+      "shallow": true
+    },
+    {
+      "repository": "vanguard-intelligence",
+      "checkout_path": "Org-Recon-2026-07-30/vanguard-intelligence",
+      "commit": "574ddbc5ffb2448ca6397417c530d23f05b31fa7",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/vanguard-intelligence.git",
+      "tracked_files": 5,
+      "shallow": true
+    },
+    {
+      "repository": "vigil-graph",
+      "checkout_path": "Org-Recon-2026-07-30/vigil-graph",
+      "commit": "c4309459f5aa09571eb16ed84707e5fe190eeb0a",
+      "branch": "main",
+      "origin": "https://github.com/quilrbusiness/vigil-graph.git",
+      "tracked_files": 75,
+      "shallow": true
+    }
+  ]
+}

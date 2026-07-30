@@ -1,0 +1,44 @@
+schema_version: "1.0"
+ontology_version: die.ontology.activity.v1
+
+families:
+  application:
+    subtypes: [application.observed, application.activated, application.used, application.changed, application.retired]
+  agent:
+    subtypes: [agent.observed, agent.started, agent.completed, agent.failed, agent.blocked, agent.cancelled]
+  workload:
+    subtypes: [workload.observed, workload.started, workload.stopped, workload.failed]
+  session:
+    subtypes: [session.started, session.ended, session.failed]
+  model:
+    subtypes: [model.request_accepted, model.request_rejected, model.route_selected, model.upstream_started, model.stream_started, model.completed, model.failed, model.cancelled, model.timed_out, model.retry, model.failover]
+  mcp:
+    subtypes: [mcp.discovery_observed, mcp.discovery_completed, mcp.discovery_failed, mcp.initialized, mcp.tools_listed, mcp.resources_listed, mcp.prompts_listed, mcp.capability_changed, mcp.connection_changed, mcp.request_cancelled, mcp.request_rejected, mcp.progress_reported]
+  tool:
+    subtypes: [tool.requested, tool.confirmation_required, tool.confirmation_granted, tool.confirmation_denied, tool.started, tool.completed, tool.failed, tool.cancelled, tool.timed_out, tool.progress]
+  network:
+    subtypes: [network.requested, network.completed, network.failed, network.blocked, network.cancelled, network.timed_out]
+  resource:
+    subtypes: [resource.accessed, resource.read, resource.wrote, resource.access_failed, resource.upload_observed, resource.scan_requested, resource.decision_received, resource.upload_allowed, resource.upload_blocked, resource.upload_overridden, resource.upload_failed, resource.prompt_requested]
+  source:
+    subtypes: [source.started, source.stopped, source.updated, source.heartbeat, source.relay_accepted, source.relay_transformed, source.relay_published, source.snapshot_started, source.snapshot_completed, source.snapshot_failed, source.gap_detected, source.gap_closed]
+  native_control:
+    subtypes: [native.decision, native.effect, native.dlp_classification, native.warning, native.justification]
+
+outcomes: [succeeded, failed, blocked, cancelled, timed_out, unknown]
+
+correlation_levels:
+  1: propagated causal trace
+  2: exact compatible source request ID
+  3: exact session producer resource correlation
+  4: deterministic parent child link
+  5: bounded temporal resource candidate
+
+automatic_lineage_levels: [1, 2, 3, 4]
+
+rules:
+  - every source activity discriminator and stage has exactly one mapping in source-normalization.yaml
+  - source status may refine a coarse event only through an explicit outcome mapping
+  - native decisions and observed effects are distinct activity versions
+  - backend relay stages are source lineage and never a second independent customer action
+  - level 5 temporal candidates are review hints and never automatic lineage

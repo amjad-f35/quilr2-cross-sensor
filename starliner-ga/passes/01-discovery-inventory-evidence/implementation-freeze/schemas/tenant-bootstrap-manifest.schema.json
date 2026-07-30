@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/control/v1/tenant-bootstrap-manifest.schema.json",
+  "title": "Starliner Tenant Authorization Bootstrap Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "manifest_id",
+    "tenant_id",
+    "root_scope_id",
+    "display_name",
+    "revision",
+    "issued_at",
+    "expires_at",
+    "issuer",
+    "signature"
+  ],
+  "properties": {
+    "manifest_version": { "const": "starliner.tenant-bootstrap.v1" },
+    "manifest_id": { "type": "string", "format": "uuid" },
+    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "root_scope_id": { "type": "string", "format": "uuid" },
+    "display_name": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "revision": { "const": 1 },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "issuer": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "algorithm", "key_id", "value"],
+      "properties": {
+        "format": { "const": "jws-detached-jcs" },
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "value": { "type": "string", "pattern": "^[A-Za-z0-9_-]+\\.\\.[A-Za-z0-9_-]+$", "maxLength": 4096 }
+      }
+    }
+  }
+}

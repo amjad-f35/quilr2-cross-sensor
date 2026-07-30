@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/profiles/endpoint/1.0.0/payload.schema.json",
+  "title": "Endpoint Source Profile 1.0.0",
+  "oneOf": [
+    { "$ref": "#/$defs/entity" },
+    { "$ref": "#/$defs/relationship" },
+    { "$ref": "#/$defs/activity" },
+    { "$ref": "#/$defs/nativeDecision" },
+    { "$ref": "#/$defs/nativeEffect" },
+    { "$ref": "#/$defs/snapshot" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/gap" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "labels": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "type": "string", "maxLength": 96 } },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entity_type", "source_id", "lifecycle"],
+      "properties": {
+        "kind": { "const": "endpoint.entity" },
+        "entity_type": {
+          "enum": [
+            "endpoint_installation",
+            "device",
+            "local_user",
+            "process",
+            "application_product",
+            "application_installation",
+            "agent_definition",
+            "agent_deployment",
+            "model_product",
+            "mcp_server",
+            "mcp_server_deployment",
+            "repository",
+            "agent_hook",
+            "agent_skill",
+            "configured_permission_rule",
+            "agent_plugin"
+          ]
+        },
+        "source_id": { "$ref": "#/$defs/id" },
+        "parent_source_id": { "$ref": "#/$defs/id" },
+        "lifecycle": { "enum": ["observed", "changed", "stopped", "uninstalled", "tombstoned"] },
+        "display_name": { "type": "string", "maxLength": 512 },
+        "vendor": { "type": "string", "maxLength": 256 },
+        "product_id": { "type": "string", "maxLength": 512 },
+        "version": { "type": "string", "maxLength": 256 },
+        "bundle_or_package_id": { "type": "string", "maxLength": 512 },
+        "executable_fingerprint": { "type": "string", "maxLength": 256 },
+        "product_source_id": { "$ref": "#/$defs/id" },
+        "definition_source_id": { "$ref": "#/$defs/id" },
+        "device_source_id": { "$ref": "#/$defs/id" },
+        "execution_identity_source_id": { "$ref": "#/$defs/id" },
+        "observation_user_source_id": { "$ref": "#/$defs/id" },
+        "parent_application_source_id": { "$ref": "#/$defs/id" },
+        "installation_scope_id": { "$ref": "#/$defs/id" },
+        "machine_id": { "$ref": "#/$defs/id" },
+        "hardware_serial_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "hostname": { "type": "string", "maxLength": 253 },
+        "os_platform": { "enum": ["windows", "macos", "linux", "unknown"] },
+        "os_version": { "type": "string", "maxLength": 128 },
+        "device_type": { "enum": ["workstation", "server", "virtual", "unknown"] },
+        "account_name": { "type": "string", "maxLength": 256 },
+        "account_domain": { "type": "string", "maxLength": 253 },
+        "account_email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 320,
+          "description": "Sensitive source claim; never a cross-source merge key by itself."
+        },
+        "full_name": { "type": "string", "maxLength": 512 },
+        "authenticated": { "type": "boolean" },
+        "group_names": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "type": "string", "maxLength": 512 },
+          "description": "Observed local/source group labels only. They never create enterprise membership or entitlement relationships."
+        },
+        "principal_id": { "type": "string", "maxLength": 512 },
+        "application_kind": { "enum": ["web", "desktop", "cli", "ide", "extension", "service", "unknown"] },
+        "technology_class": { "enum": ["generative_ai", "other_ai", "non_ai", "unknown"] },
+        "agentic_capability": { "enum": ["present", "absent", "unknown"] },
+        "agent_kind": { "enum": ["cli", "desktop", "ide", "extension", "workflow", "service", "unknown"] },
+        "deployment_locality": { "enum": ["local", "remote", "cloud", "gateway", "unknown"] },
+        "related_process_name": { "type": "string", "maxLength": 256 },
+        "process_id": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "parent_process_id": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "process_start_time_unix_ns": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,19})$",
+          "description": "Explicit unsigned Unix nanoseconds encoded as decimal text to avoid cross-language integer precision loss."
+        },
+        "process_owner_principal_id": { "type": "string", "maxLength": 512 },
+        "integrity_level": { "enum": ["untrusted", "low", "medium", "high", "system", "unknown"] },
+        "trust_state": { "enum": ["trusted", "untrusted", "unknown"] },
+        "auto_approve": { "enum": ["enabled", "disabled", "unknown"] },
+        "transport": { "enum": ["stdio", "sse", "streamable_http", "websocket", "internal", "unknown"] },
+        "mcp_locality": { "enum": ["local", "remote", "unknown"] },
+        "provider": { "type": "string", "maxLength": 256 },
+        "configuration_scope": { "type": "string", "maxLength": 128 },
+        "configuration_type": { "type": "string", "maxLength": 128 },
+        "event_name": { "type": "string", "maxLength": 256 },
+        "permission_type": { "type": "string", "maxLength": 128 },
+        "source_risk_level": { "type": "string", "maxLength": 128 },
+        "source_risk_score": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "source_description": { "type": "string", "maxLength": 1024 },
+        "source_trust_level": { "type": "string", "maxLength": 128 },
+        "is_active": { "type": "boolean" },
+        "is_system": { "type": "boolean" },
+        "is_dev_tool": { "type": "boolean" },
+        "session_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "local_mcp_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "local_hook_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "command_token": { "type": "string", "maxLength": 512 },
+        "argument_keys": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "type": "string", "maxLength": 128 }
+        },
+        "environment_variable_names": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "type": "string", "maxLength": 256 }
+        },
+        "configuration_scope_token": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Policy-approved stable configuration scope token or tenant-keyed pseudonym; raw project and filesystem paths are forbidden."
+        },
+        "path_token": {
+          "type": "string",
+          "maxLength": 512,
+          "description": "Policy-approved structural path token or tenant-keyed pseudonym. A raw filesystem path is forbidden."
+        },
+        "labels": { "$ref": "#/$defs/labels" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "entity_type": { "const": "application_installation" } }, "required": ["entity_type"] },
+          "then": { "required": ["device_source_id", "installation_scope_id"] }
+        },
+        {
+          "if": { "properties": { "entity_type": { "const": "agent_deployment" } }, "required": ["entity_type"] },
+          "then": {
+            "required": ["definition_source_id", "device_source_id", "installation_scope_id", "deployment_locality"],
+            "properties": { "deployment_locality": { "const": "local" } }
+          }
+        },
+        {
+          "if": { "properties": { "entity_type": { "const": "mcp_server_deployment" } }, "required": ["entity_type"] },
+          "then": { "required": ["parent_source_id", "configuration_scope_token", "mcp_locality", "transport"] }
+        }
+      ]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "subject_type", "subject_id", "predicate", "object_type", "object_id", "semantic", "operation"],
+      "properties": {
+        "kind": { "const": "endpoint.relationship" },
+        "subject_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "subject_id": { "$ref": "#/$defs/id" },
+        "predicate": {
+          "enum": [
+            "instance_of",
+            "deployed_on",
+            "executed_as",
+            "installed_on",
+            "configured_with",
+            "configured_to_use",
+            "configured_for"
+          ]
+        },
+        "object_type": { "$ref": "#/$defs/entity/properties/entity_type" },
+        "object_id": { "$ref": "#/$defs/id" },
+        "semantic": { "enum": ["structural", "configured", "observed"] },
+        "operation": { "enum": ["upsert", "end"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "activity_type", "status"],
+      "properties": {
+        "kind": { "const": "endpoint.activity" },
+        "activity_type": { "enum": ["prompt_turn", "process_start", "process_stop", "application_use", "proxy_request", "hook_event", "file_operation"] },
+        "actor_source_id": { "$ref": "#/$defs/id" },
+        "process_source_id": { "$ref": "#/$defs/id" },
+        "resource_type": { "type": "string", "maxLength": 96 },
+        "resource_source_id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["succeeded", "failed", "blocked", "cancelled", "timed_out", "unknown"] },
+        "protocol": { "type": "string", "maxLength": 64 },
+        "remote_service": { "type": "string", "maxLength": 256 },
+        "safe_metrics": { "type": "object", "additionalProperties": { "type": ["number", "integer"], "minimum": -9007199254740991, "maximum": 9007199254740991 }, "maxProperties": 32 },
+        "labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "nativeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "decision"],
+      "properties": {
+        "kind": { "const": "endpoint.native_decision" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "request_source_id": { "$ref": "#/$defs/id" },
+        "decision": { "enum": ["allow", "block", "warn", "redact", "monitor", "unknown"] },
+        "policy_source_id": { "$ref": "#/$defs/id" },
+        "classification_labels": { "$ref": "#/$defs/labels" },
+        "fail_posture": { "enum": ["open", "closed", "not_applicable", "unknown"] }
+      }
+    },
+    "nativeEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "decision_id", "effect"],
+      "properties": {
+        "kind": { "const": "endpoint.native_effect" },
+        "decision_id": { "$ref": "#/$defs/id" },
+        "request_source_id": { "$ref": "#/$defs/id" },
+        "effect": { "enum": ["forwarded", "prevented", "modified", "user_overrode", "not_observed"] },
+        "error_class": { "type": "string", "maxLength": 128 },
+        "classification_labels": { "$ref": "#/$defs/labels" }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "snapshot_id", "stage", "scope_type", "completeness"],
+      "properties": {
+        "kind": { "const": "endpoint.snapshot" },
+        "snapshot_id": { "$ref": "#/$defs/id" },
+        "stage": { "enum": ["started", "page", "completed", "failed"] },
+        "scope_type": { "enum": ["processes", "applications", "agents", "models", "mcp_servers", "hooks", "skills", "repositories", "permissions", "plugins", "devices", "accounts", "components"] },
+        "scope_source_id": { "$ref": "#/$defs/id" },
+        "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "cursor": { "type": "string", "maxLength": 512 },
+        "members": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["entity_type", "source_id"],
+            "properties": {
+              "entity_type": {
+                "enum": [
+                  "endpoint_installation",
+                  "device",
+                  "local_user",
+                  "process",
+                  "application_product",
+                  "application_installation",
+                  "agent_definition",
+                  "agent_deployment",
+                  "model_product",
+                  "mcp_server",
+                  "mcp_server_deployment",
+                  "repository",
+                  "agent_hook",
+                  "agent_skill",
+                  "configured_permission_rule",
+                  "agent_plugin"
+                ]
+              },
+              "source_id": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "expected_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "completeness": { "enum": ["full", "partial", "unknown"] },
+        "source_revision": { "type": "string", "maxLength": 256 },
+        "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      },
+      "allOf": [
+        { "if": { "properties": { "stage": { "const": "page" } }, "required": ["stage"] }, "then": { "required": ["page_sequence", "members"] } },
+        { "if": { "properties": { "stage": { "const": "completed" } }, "required": ["stage"] }, "then": { "required": ["page_count", "observed_count", "snapshot_digest"] } },
+        { "if": { "properties": { "stage": { "const": "failed" } }, "required": ["stage"] }, "then": { "required": ["reason_code"] } }
+      ]
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "component", "state", "snapshot_watermark"],
+      "properties": {
+        "kind": { "const": "endpoint.health" },
+        "component": { "enum": ["supervisor", "monitor", "proxy", "hook", "template_service", "delivery"] },
+        "state": { "enum": ["healthy", "degraded", "unhealthy", "offline", "unknown"] },
+        "snapshot_watermark": { "type": "string", "maxLength": 256 },
+        "capabilities": { "$ref": "#/$defs/labels" },
+        "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "reason_code": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "component", "capability", "from", "reason_code"],
+      "properties": {
+        "kind": { "const": "endpoint.gap" },
+        "component": { "type": "string", "maxLength": 96 },
+        "capability": { "type": "string", "maxLength": 128 },
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": ["string", "null"], "format": "date-time" },
+        "reason_code": { "enum": ["service_stopped", "hook_unavailable", "proxy_bypass", "queue_overflow", "snapshot_reset", "permission_missing", "unsupported", "unknown_loss"] },
+        "estimated_records": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+      }
+    }
+  }
+}

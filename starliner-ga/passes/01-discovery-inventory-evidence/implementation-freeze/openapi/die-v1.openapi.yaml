@@ -1,0 +1,2629 @@
+openapi: 3.1.0
+info:
+  title: Quilr Discovery, Inventory and Evidence API
+  version: 1.0.0
+  description: Canonical customer API for the frozen DIE pass.
+servers:
+  - url: /die/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Overview
+  - name: Inventory
+  - name: Activity
+  - name: Evidence
+  - name: Coverage
+  - name: Producers
+  - name: Identity
+  - name: Authorization
+  - name: Exports
+  - name: Audit
+
+paths:
+  /overview:
+    get:
+      operationId: getOverview
+      x-quilr-capability: overview.read
+      tags: [Overview]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Authorized canonical overview.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OverviewResponse'}
+        default: {$ref: '#/components/responses/Problem'}
+  /overview/changes:
+    get:
+      operationId: listOverviewChanges
+      x-quilr-capability: overview.read
+      tags: [Overview]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Recent canonical changes.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/ChangeSummary'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/entities:
+    get:
+      operationId: listEntities
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityType'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [last_observed_at_desc, display_name_asc, first_observed_at_desc]
+            default: last_observed_at_desc
+      responses:
+        '200':
+          description: Authorized canonical entities.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/EntitySummary'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/entities/{entity_id}:
+    get:
+      operationId: getEntity
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Canonical entity and permitted provenance.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/EntityDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/entities/{entity_id}/relationships:
+    get:
+      operationId: listEntityRelationships
+      x-quilr-capability: relationship.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - name: direction
+          in: query
+          schema: {type: string, enum: [in, out, both], default: both}
+        - name: predicate
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: semantic
+          in: query
+          schema:
+            type: array
+            items: {type: string, enum: [structural, configured, entitlement, observed, ownership, coverage]}
+        - name: hops
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 2, default: 1}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Bounded authorized relationship page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items, authorization_filtered]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/Relationship'}
+                      authorization_filtered: {type: boolean}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/agent-deployments:
+    get:
+      operationId: listAgentDeployments
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - name: locality
+          in: query
+          schema: {type: array, items: {type: string, enum: [local, remote, cloud, gateway, unknown]}}
+        - name: device_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: observed_user_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: execution_identity_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: agent_definition_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Deployment-scoped agent assets. A local row represents one exact agent definition, device and source-authority installation/configuration scope; observed user and exact execution identity are separate evidence-backed fields.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/AgentDeploymentSummary'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/agent-deployments/{agent_deployment_id}:
+    get:
+      operationId: getAgentDeployment
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/AgentDeploymentId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated agent asset detail with device, observation identity, independently proved execution identity, workload and configured MCP context.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/AgentDeploymentDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/agent-deployments/{agent_deployment_id}/exposure-paths:
+    get:
+      operationId: listAgentExposurePaths
+      x-quilr-capability: relationship.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/AgentDeploymentId'
+        - name: evidence_class
+          in: query
+          schema: {type: array, items: {type: string, enum: [configured, entitlement, observed]}}
+        - name: max_hops
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 4, default: 3}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Allowlisted, bounded, evidence-backed paths. This endpoint never infers entitlement merely because an agent runs with a user account.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items, entitlement_coverage]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/ExposurePath'}
+                      entitlement_coverage: {$ref: '#/components/schemas/CoverageState'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/applications:
+    get:
+      operationId: listApplications
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - name: technology_class
+          in: query
+          schema: {type: array, items: {type: string, enum: [generative_ai, other_ai, non_ai, unknown]}}
+        - name: agentic_capability
+          in: query
+          schema: {type: array, items: {type: string, enum: [present, absent, unknown]}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Product-rooted application rollups; an unresolved surface or deployment remains its own source-scoped rollup.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items: {type: array, items: {$ref: '#/components/schemas/ApplicationSummary'}}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/applications/{entity_id}:
+    get:
+      operationId: getApplication
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated application rollup with surfaces, deployments, account context, configuration, activity and evidence.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ApplicationDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/models:
+    get:
+      operationId: listModels
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Model assets at the strongest provider/source layer actually supported by evidence.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items: {type: array, items: {$ref: '#/components/schemas/ModelSummary'}}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/models/{entity_id}:
+    get:
+      operationId: getModel
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated model asset without promoting Endpoint configuration into provider version/deployment truth.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ModelDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/mcp-servers:
+    get:
+      operationId: listMcpServers
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - name: locality
+          in: query
+          schema: {type: array, items: {type: string, enum: [local, remote, gateway, unknown]}}
+        - name: capability_scope_state
+          in: query
+          description: Filter by the disclosed assurance of the capability view; this never accepts or returns an authorization-context token.
+          schema: {type: array, items: {$ref: '#/components/schemas/McpCapabilityScopeState'}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: MCP deployment inventory. Endpoint and Gateway deployments remain separate without exact binding; capability counts are scoped and never unioned across authorization contexts.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items: {type: array, items: {$ref: '#/components/schemas/McpServerSummary'}}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/mcp-servers/{entity_id}:
+    get:
+      operationId: getMcpServer
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated MCP deployment with capability definitions only where the owning source actually provides them, including safe capability-scope and freshness disclosure without source scope tokens.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/McpServerDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/devices:
+    get:
+      operationId: listDevices
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Sensor-observed device context; this is not complete MDM inventory.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items: {type: array, items: {$ref: '#/components/schemas/DeviceSummary'}}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/devices/{entity_id}:
+    get:
+      operationId: getDevice
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated sensor-observed device with installations, applications, agents and identity context.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/DeviceDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/identities:
+    get:
+      operationId: listIdentities
+      x-quilr-capability: inventory.list
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Lifecycle'
+        - $ref: '#/components/parameters/Environment'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Source-scoped and resolved observed identities; this is not a complete enterprise directory.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items: {type: array, items: {$ref: '#/components/schemas/IdentitySummary'}}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/identities/{entity_id}:
+    get:
+      operationId: getIdentity
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Hydrated observed identity with assurance, conflicts and evidence-backed relationships.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/IdentityDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/entities/{entity_id}/sources:
+    get:
+      operationId: listEntitySources
+      x-quilr-capability: inventory.read
+      tags: [Inventory]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Source observations supporting the entity.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/SourceObservationSummary'}
+        default: {$ref: '#/components/responses/Problem'}
+  /inventory/entities/{entity_id}/identity:
+    get:
+      operationId: explainEntityIdentity
+      x-quilr-capability: identity.read
+      tags: [Identity]
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+        - $ref: '#/components/parameters/Consistency'
+      responses:
+        '200':
+          description: Authorized identity resolution explanation.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/IdentityExplanation'}
+        default: {$ref: '#/components/responses/Problem'}
+  /activity:
+    get:
+      operationId: listActivity
+      x-quilr-capability: activity.read
+      tags: [Activity]
+      parameters:
+        - $ref: '#/components/parameters/FromRequired'
+        - $ref: '#/components/parameters/ToRequired'
+        - $ref: '#/components/parameters/Scope'
+        - name: family
+          in: query
+          schema:
+            type: array
+            items: {type: string, enum: [application, agent, workload, session, model, mcp, tool, network, resource, source, native_control]}
+        - name: subtype
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: actor_entity_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: resource_entity_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: outcome
+          in: query
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/Outcome'}
+        - name: source_profile
+          in: query
+          schema: {type: array, items: {type: string}}
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/ActivityPageSize'
+      responses:
+        '200':
+          description: Authorized canonical activity page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/ActivitySummary'}
+        default: {$ref: '#/components/responses/Problem'}
+  /activity/{activity_id}:
+    get:
+      operationId: getActivity
+      x-quilr-capability: activity.read
+      tags: [Activity]
+      parameters:
+        - $ref: '#/components/parameters/ActivityId'
+      responses:
+        '200':
+          description: Canonical activity detail.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ActivityDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /evidence:
+    get:
+      operationId: listEvidence
+      x-quilr-capability: evidence.metadata.read
+      tags: [Evidence]
+      parameters:
+        - $ref: '#/components/parameters/FromRequired'
+        - $ref: '#/components/parameters/ToRequired'
+        - name: producer_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - name: source_profile
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: record_type
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: capture_state
+          in: query
+          schema: {type: array, items: {$ref: '#/components/schemas/CaptureState'}}
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/ActivityPageSize'
+      responses:
+        '200':
+          description: Safe evidence metadata page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/EvidenceMetadata'}
+        default: {$ref: '#/components/responses/Problem'}
+  /evidence/{evidence_id}:
+    get:
+      operationId: getEvidence
+      x-quilr-capability: evidence.metadata.read
+      tags: [Evidence]
+      parameters:
+        - $ref: '#/components/parameters/EvidenceId'
+      responses:
+        '200':
+          description: Safe evidence metadata.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/EvidenceMetadata'}
+        default: {$ref: '#/components/responses/Problem'}
+  /evidence/{evidence_id}/lineage:
+    get:
+      operationId: getEvidenceLineage
+      x-quilr-capability: evidence.metadata.read
+      tags: [Evidence]
+      parameters:
+        - $ref: '#/components/parameters/EvidenceId'
+      responses:
+        '200':
+          description: Evidence-to-normalized-to-canonical lineage.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/EvidenceLineage'}
+        default: {$ref: '#/components/responses/Problem'}
+  /evidence/{evidence_id}/content-access:
+    post:
+      operationId: createEvidenceContentAccess
+      x-quilr-capability: evidence.object.read
+      tags: [Evidence]
+      parameters:
+        - $ref: '#/components/parameters/EvidenceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ContentAccessRequest'}
+      responses:
+        '201':
+          description: Single-use, short-lived access grant.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ContentAccessGrant'}
+        default: {$ref: '#/components/responses/Problem'}
+  /evidence-content-access/{access_id}:
+    get:
+      operationId: redeemEvidenceContentAccess
+      x-quilr-capability: evidence.object.read
+      tags: [Evidence]
+      parameters:
+        - $ref: '#/components/parameters/AccessId'
+      responses:
+        '200':
+          description: One-time authenticated evidence byte stream. Redemption atomically consumes the access grant before bytes are returned.
+          headers:
+            Cache-Control:
+              schema: {type: string, const: 'no-store, private'}
+            X-Content-Type-Options:
+              schema: {type: string, const: nosniff}
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+        '410':
+          description: Grant expired, revoked or already consumed.
+          content:
+            application/problem+json:
+              schema: {$ref: '#/components/schemas/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /coverage:
+    get:
+      operationId: listCoverage
+      x-quilr-capability: coverage.read
+      tags: [Coverage]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - name: state
+          in: query
+          schema: {type: array, items: {$ref: '#/components/schemas/CoverageState'}}
+        - name: capability
+          in: query
+          schema: {type: array, items: {type: string}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Coverage interval page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/CoverageInterval'}
+        default: {$ref: '#/components/responses/Problem'}
+  /coverage/gaps:
+    get:
+      operationId: listCoverageGaps
+      x-quilr-capability: coverage.read
+      tags: [Coverage]
+      parameters:
+        - $ref: '#/components/parameters/Scope'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Active or historical gaps.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/CoverageGap'}
+        default: {$ref: '#/components/responses/Problem'}
+  /producers:
+    get:
+      operationId: listProducers
+      x-quilr-capability: producer.read
+      tags: [Producers]
+      parameters:
+        - name: source_profile
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: trust_state
+          in: query
+          schema: {type: array, items: {type: string}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Producer fleet page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/Producer'}
+        default: {$ref: '#/components/responses/Problem'}
+  /producers/{producer_id}:
+    get:
+      operationId: getProducer
+      x-quilr-capability: producer.read
+      tags: [Producers]
+      parameters:
+        - $ref: '#/components/parameters/ProducerId'
+      responses:
+        '200':
+          description: Producer, capability and certification state.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ProducerDetail'}
+        default: {$ref: '#/components/responses/Problem'}
+  /identity/conflicts:
+    get:
+      operationId: listIdentityConflicts
+      x-quilr-capability: identity.read
+      tags: [Identity]
+      parameters:
+        - name: state
+          in: query
+          schema: {type: array, items: {type: string, enum: [open, resolved, dismissed, superseded]}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Identity conflict page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/IdentityConflict'}
+        default: {$ref: '#/components/responses/Problem'}
+  /identity/actions:preview:
+    post:
+      operationId: previewIdentityAction
+      x-quilr-capability: identity.review
+      tags: [Identity]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IdentityActionRequest'}
+      responses:
+        '200':
+          description: Validated impact preview.
+          headers:
+            ETag:
+              description: Opaque server-generated identity preview revision token required by commit.
+              schema:
+                type: string
+                pattern: '^"die-identity:[A-Za-z0-9._:-]{1,220}"$'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/IdentityActionPreview'}
+        default: {$ref: '#/components/responses/Problem'}
+  /identity/actions:
+    post:
+      operationId: commitIdentityAction
+      x-quilr-capability: identity.review
+      tags: [Identity]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IdentityActionCommit'}
+      responses:
+        '202':
+          description: Identity correction command durably accepted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/IdentityCommand'}
+        default: {$ref: '#/components/responses/Problem'}
+  /identity/actions/{command_id}:
+    get:
+      operationId: getIdentityAction
+      x-quilr-capability: identity.review
+      tags: [Identity]
+      parameters:
+        - $ref: '#/components/parameters/CommandId'
+      responses:
+        '200':
+          description: Identity correction command and terminal result when available.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/IdentityCommand'}
+        default: {$ref: '#/components/responses/Problem'}
+  /exports:
+    post:
+      operationId: createExport
+      x-quilr-capability: export.create
+      tags: [Exports]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExportRequest'}
+      responses:
+        '202':
+          description: Export job accepted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ExportJob'}
+        default: {$ref: '#/components/responses/Problem'}
+    get:
+      operationId: listExports
+      x-quilr-capability: export.read
+      tags: [Exports]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Authorized export jobs.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/ExportJob'}
+        default: {$ref: '#/components/responses/Problem'}
+  /exports/{export_id}:
+    get:
+      operationId: getExport
+      x-quilr-capability: export.read
+      tags: [Exports]
+      parameters:
+        - $ref: '#/components/parameters/ExportId'
+      responses:
+        '200':
+          description: Export state and authorized download grant.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/ExportJob'}
+        default: {$ref: '#/components/responses/Problem'}
+  /exports/{export_id}/content:
+    get:
+      operationId: downloadExport
+      x-quilr-capability: export.download
+      tags: [Exports]
+      parameters:
+        - $ref: '#/components/parameters/ExportId'
+      responses:
+        '200':
+          description: Authenticated export stream. Authorization revision, job state and expiry are rechecked at redemption; this endpoint never exposes a durable object-store URL.
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+        default: {$ref: '#/components/responses/Problem'}
+  /authorization/scopes:
+    get:
+      operationId: listAuthorizationScopes
+      x-quilr-capability: authz.admin
+      tags: [Authorization]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Authorized business-scope page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/AuthorizationScope'}
+        default: {$ref: '#/components/responses/Problem'}
+  /authorization/role-bindings:
+    get:
+      operationId: listRoleBindings
+      x-quilr-capability: authz.admin
+      tags: [Authorization]
+      parameters:
+        - name: subject_id
+          in: query
+          schema: {type: string}
+        - name: role
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: scope_id
+          in: query
+          schema: {$ref: '#/components/schemas/OpaqueId'}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Authorized role-binding page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/RoleBinding'}
+        default: {$ref: '#/components/responses/Problem'}
+  /authorization/relation-tuples:
+    get:
+      operationId: listRelationTuples
+      x-quilr-capability: authz.admin
+      tags: [Authorization]
+      parameters:
+        - name: subject_id
+          in: query
+          schema: {type: string}
+        - name: relation
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: resource_type
+          in: query
+          schema: {type: string}
+        - name: resource_id
+          in: query
+          schema: {type: string}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Authorized curated relation page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/RelationTuple'}
+        default: {$ref: '#/components/responses/Problem'}
+  /authorization/actions:preview:
+    post:
+      operationId: previewAuthorizationAction
+      x-quilr-capability: authz.admin
+      tags: [Authorization]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AuthorizationActionRequest'}
+      responses:
+        '200':
+          description: Authorization change impact preview.
+          headers:
+            ETag:
+              description: Opaque server-generated authorization preview revision token required by commit.
+              schema:
+                type: string
+                pattern: '^"die-authz:[A-Za-z0-9._:-]{1,220}"$'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/AuthorizationActionPreview'}
+        default: {$ref: '#/components/responses/Problem'}
+  /authorization/actions:
+    post:
+      operationId: commitAuthorizationAction
+      x-quilr-capability: authz.admin
+      tags: [Authorization]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AuthorizationActionCommit'}
+      responses:
+        '200':
+          description: Atomic authorization change result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    required: [data]
+                    properties:
+                      data: {$ref: '#/components/schemas/AuthorizationActionResult'}
+        default: {$ref: '#/components/responses/Problem'}
+  /audit/events:
+    get:
+      operationId: listAuditEvents
+      x-quilr-capability: audit.read
+      tags: [Audit]
+      parameters:
+        - $ref: '#/components/parameters/FromRequired'
+        - $ref: '#/components/parameters/ToRequired'
+        - name: actor_id
+          in: query
+          schema: {type: string}
+        - name: action
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: resource_type
+          in: query
+          schema: {type: array, items: {type: string}}
+        - name: outcome
+          in: query
+          schema: {type: array, items: {type: string, enum: [succeeded, denied, failed]}}
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/ActivityPageSize'
+      responses:
+        '200':
+          description: Authorized audit-event page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    required: [items]
+                    properties:
+                      items:
+                        type: array
+                        items: {$ref: '#/components/schemas/AuditEvent'}
+        default: {$ref: '#/components/responses/Problem'}
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Scope:
+      name: scope_id
+      in: query
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    From:
+      name: from
+      in: query
+      schema: {type: string, format: date-time}
+    To:
+      name: to
+      in: query
+      schema: {type: string, format: date-time}
+    FromRequired:
+      name: from
+      in: query
+      required: true
+      schema: {type: string, format: date-time}
+    ToRequired:
+      name: to
+      in: query
+      required: true
+      schema: {type: string, format: date-time}
+    Cursor:
+      name: cursor
+      in: query
+      schema: {type: string, maxLength: 4096}
+    PageSize:
+      name: page_size
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 200, default: 50}
+    ActivityPageSize:
+      name: page_size
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 500, default: 100}
+    Search:
+      name: q
+      in: query
+      schema: {type: string, minLength: 1, maxLength: 256}
+    EntityType:
+      name: entity_type
+      in: query
+      schema:
+        type: array
+        items: {$ref: '#/components/schemas/EntityType'}
+    Lifecycle:
+      name: lifecycle
+      in: query
+      schema:
+        type: array
+        items: {$ref: '#/components/schemas/EntityLifecycle'}
+    Environment:
+      name: environment
+      in: query
+      schema: {type: array, items: {type: string}}
+    EntityId:
+      name: entity_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    AgentDeploymentId:
+      name: agent_deployment_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    ActivityId:
+      name: activity_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    EvidenceId:
+      name: evidence_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    AccessId:
+      name: access_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    ProducerId:
+      name: producer_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    ExportId:
+      name: export_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    CommandId:
+      name: command_id
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/OpaqueId'}
+    Consistency:
+      name: consistency
+      in: query
+      schema: {type: string, enum: [projection, canonical], default: projection}
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: {type: string, minLength: 16, maxLength: 128}
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 256
+        pattern: '^"die-(?:identity|authz):[A-Za-z0-9._:-]{1,220}"$'
+  responses:
+    Problem:
+      description: Problem response.
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    OpaqueId:
+      type: string
+      pattern: '^[a-z][a-z0-9_]*_[A-Za-z0-9_-]{16,128}$'
+    EntityType:
+      type: string
+      enum:
+        - application_product
+        - application_surface
+        - application_deployment
+        - application_account
+        - agent_definition
+        - agent_deployment
+        - agent_hook
+        - agent_skill
+        - agent_plugin
+        - configured_permission_rule
+        - repository
+        - model_product
+        - model_family
+        - model_version
+        - model_deployment
+        - model_route
+        - provider_account
+        - mcp_server_product
+        - mcp_server_deployment
+        - mcp_tool
+        - mcp_resource_definition
+        - mcp_prompt_definition
+        - person
+        - directory_account
+        - service_principal
+        - team
+        - business_unit
+        - device
+        - browser_installation
+        - endpoint_installation
+        - llm_gateway_deployment
+        - mcp_gateway_deployment
+        - browser_backend_deployment
+        - workload
+        - workload_identity
+        - provider
+        - source_producer
+        - source_object
+        - session
+        - resource
+        - artifact_or_package
+        - unknown
+    EntityLifecycle:
+      type: string
+      enum: [active, inactive, stale, retired, ambiguous, unknown]
+    CoverageState:
+      type: string
+      enum: [covered, degraded, gap, unsupported, unknown]
+    CaptureState:
+      type: string
+      enum: [complete, minimized, redacted, metadata_only, unsupported, unknown]
+    FieldClassification:
+      type: string
+      enum: [public_product, internal, sensitive_metadata, restricted_evidence]
+    Outcome:
+      type: string
+      enum: [succeeded, failed, blocked, cancelled, timed_out, unknown]
+    SafeScalar:
+      oneOf:
+        - {type: string, maxLength: 4096}
+        - {type: integer, minimum: -9007199254740991, maximum: 9007199254740991}
+        - {type: number, minimum: -9007199254740991, maximum: 9007199254740991, not: {multipleOf: 1}}
+        - {type: boolean}
+        - {type: 'null'}
+    SafeScalarArray:
+      type: array
+      maxItems: 128
+      items: {$ref: '#/components/schemas/SafeScalar'}
+    SafeAttributeMap:
+      type: object
+      maxProperties: 128
+      propertyNames: {pattern: '^[A-Za-z0-9_.:-]{1,128}$'}
+      additionalProperties:
+        oneOf:
+          - {$ref: '#/components/schemas/SafeScalar'}
+          - {$ref: '#/components/schemas/SafeScalarArray'}
+    SafeAttributeValue:
+      oneOf:
+        - {$ref: '#/components/schemas/SafeScalar'}
+        - {$ref: '#/components/schemas/SafeScalarArray'}
+        - {$ref: '#/components/schemas/SafeAttributeMap'}
+    ResponseMeta:
+      type: object
+      additionalProperties: false
+      required: [request_id, generated_at, canonical_watermark, projection_watermark, projection_generation, authorization_revision, coverage_state, freshness, partial, warnings]
+      properties:
+        request_id: {type: string}
+        generated_at: {type: string, format: date-time}
+        canonical_watermark: {type: integer, minimum: 0, maximum: 9007199254740991}
+        projection_watermark: {type: integer, minimum: 0, maximum: 9007199254740991}
+        projection_generation: {type: integer, minimum: 1, maximum: 9007199254740991}
+        authorization_revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        freshness: {$ref: '#/components/schemas/Freshness'}
+        partial: {type: boolean}
+        warnings:
+          type: array
+          items: {$ref: '#/components/schemas/Warning'}
+    Freshness:
+      type: object
+      additionalProperties: false
+      required: [canonical_lag_ms, projection_lag_ms]
+      properties:
+        source_lag_ms: {type: integer, minimum: 0, maximum: 9007199254740991}
+        canonical_lag_ms: {type: integer, minimum: 0, maximum: 9007199254740991}
+        projection_lag_ms: {type: integer, minimum: 0, maximum: 9007199254740991}
+    Warning:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        source_profile: {type: string}
+    BaseResponse:
+      type: object
+      required: [meta]
+      properties:
+        meta: {$ref: '#/components/schemas/ResponseMeta'}
+    Page:
+      type: object
+      additionalProperties: false
+      required: [has_more]
+      properties:
+        next_cursor: {type: [string, 'null'], maxLength: 4096}
+        has_more: {type: boolean}
+        exact_total: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
+    PagedResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          required: [page]
+          properties:
+            page: {$ref: '#/components/schemas/Page'}
+    OverviewResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+        - type: object
+          required: [data]
+          properties:
+            data: {$ref: '#/components/schemas/Overview'}
+    Overview:
+      type: object
+      additionalProperties: false
+      required: [entity_counts, lifecycle_counts, activity_counts, coverage, recent_changes]
+      properties:
+        entity_counts:
+          type: object
+          additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}
+        lifecycle_counts:
+          type: object
+          additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}
+        activity_counts:
+          type: object
+          additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}
+        coverage: {$ref: '#/components/schemas/CoverageSummary'}
+        recent_changes:
+          type: array
+          maxItems: 20
+          items: {$ref: '#/components/schemas/ChangeSummary'}
+        ambiguity_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+    ChangeSummary:
+      type: object
+      additionalProperties: false
+      required: [change_id, change_type, occurred_at, summary, entity_ids]
+      properties:
+        change_id: {$ref: '#/components/schemas/OpaqueId'}
+        change_type: {type: string, enum: [discovered, changed, stale, retired, relationship_started, relationship_ended, coverage_changed, identity_ambiguous, unknown]}
+        occurred_at: {type: string, format: date-time}
+        summary: {type: string}
+        entity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+    EntitySummary:
+      type: object
+      additionalProperties: false
+      required: [entity_id, entity_type, canonical_version, display_name, canonical_name, lifecycle, business_scope_id, first_observed_at, last_observed_at, source_count, relationship_count, ambiguity_state, coverage_state]
+      properties:
+        entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        entity_type: {$ref: '#/components/schemas/EntityType'}
+        canonical_version: {type: integer, minimum: 1, maximum: 9007199254740991}
+        display_name: {type: string}
+        canonical_name: {type: string}
+        vendor: {type: [string, 'null']}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        owner: {$ref: '#/components/schemas/EntityRef'}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        environment: {type: [string, 'null']}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        relationship_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        recent_activity_at: {type: [string, 'null'], format: date-time}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        safe_summary: {$ref: '#/components/schemas/SafeAttributeMap'}
+        field_redactions: {type: array, items: {type: string}}
+    EntityRef:
+      type: object
+      additionalProperties: false
+      required: [entity_id, entity_type, display_name]
+      properties:
+        entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        entity_type: {$ref: '#/components/schemas/EntityType'}
+        display_name: {type: string}
+    EntityDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, field_provenance, relationship_summary, recent_activity, source_summary]
+      properties:
+        summary: {$ref: '#/components/schemas/EntitySummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        field_provenance:
+          type: array
+          items: {$ref: '#/components/schemas/FieldProvenance'}
+        relationship_summary:
+          type: array
+          items: {$ref: '#/components/schemas/RelationshipCount'}
+        recent_activity:
+          type: array
+          items: {$ref: '#/components/schemas/ActivitySummary'}
+        source_summary:
+          type: array
+          items: {$ref: '#/components/schemas/SourceObservationSummary'}
+    AgentDeploymentSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - agent_deployment
+        - agent_definition
+        - deployment_locality
+        - lifecycle
+        - first_observed_at
+        - last_observed_at
+        - configured_mcp_server_count
+        - configured_local_mcp_server_count
+        - configured_remote_mcp_server_count
+        - configured_model_count
+        - configured_component_count
+        - repository_count
+        - source_count
+        - ambiguity_state
+        - coverage_state
+        - identity_assurance
+      properties:
+        agent_deployment: {$ref: '#/components/schemas/EntityRef'}
+        agent_definition: {$ref: '#/components/schemas/EntityRef'}
+        version: {type: [string, 'null']}
+        agent_kind: {type: string, enum: [cli, desktop, ide, extension, workflow, service, client, unknown]}
+        deployment_locality: {type: string, enum: [local, remote, cloud, gateway, unknown]}
+        device: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        observed_user: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        execution_identity: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        related_workload: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        configured_mcp_server_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        configured_local_mcp_server_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        configured_remote_mcp_server_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        configured_model_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        configured_component_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        repository_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        identity_assurance: {type: string, enum: [authoritative, exact_shared_id, source_scoped, unresolved]}
+    AgentDeploymentDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - summary
+        - agent_attributes
+        - device_context
+        - observation_identity_context
+        - execution_identity_context
+        - configured_mcp_servers
+        - configured_models
+        - configured_components
+        - repositories
+        - recent_activity
+        - source_summary
+      properties:
+        summary: {$ref: '#/components/schemas/AgentDeploymentSummary'}
+        agent_attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        device_context:
+          oneOf:
+            - $ref: '#/components/schemas/DeviceContext'
+            - type: 'null'
+        observation_identity_context:
+          oneOf:
+            - $ref: '#/components/schemas/ExecutionIdentityContext'
+            - type: 'null'
+        execution_identity_context:
+          oneOf:
+            - $ref: '#/components/schemas/ExecutionIdentityContext'
+            - type: 'null'
+        configured_mcp_servers:
+          type: array
+          maxItems: 200
+          items: {$ref: '#/components/schemas/McpServerConfiguration'}
+        configured_models:
+          type: array
+          maxItems: 200
+          items: {$ref: '#/components/schemas/EntityRef'}
+        configured_components:
+          type: array
+          maxItems: 500
+          items: {$ref: '#/components/schemas/RelatedConfiguration'}
+        repositories:
+          type: array
+          maxItems: 500
+          items: {$ref: '#/components/schemas/RelatedConfiguration'}
+        recent_activity:
+          type: array
+          maxItems: 50
+          items: {$ref: '#/components/schemas/ActivitySummary'}
+        source_summary:
+          type: array
+          maxItems: 200
+          items: {$ref: '#/components/schemas/SourceObservationSummary'}
+    DeviceContext:
+      type: object
+      additionalProperties: false
+      required: [device, coverage_state]
+      properties:
+        device: {$ref: '#/components/schemas/EntityRef'}
+        machine_id: {type: [string, 'null']}
+        hostname: {type: [string, 'null']}
+        os_platform: {type: [string, 'null']}
+        os_version: {type: [string, 'null']}
+        device_type: {type: [string, 'null']}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    ExecutionIdentityContext:
+      type: object
+      additionalProperties: false
+      required: [identity, identity_assurance]
+      properties:
+        identity: {$ref: '#/components/schemas/EntityRef'}
+        person: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        account_name: {type: [string, 'null']}
+        account_domain: {type: [string, 'null']}
+        identity_assurance: {type: string, enum: [authoritative, exact_shared_id, source_scoped, unresolved]}
+    McpServerConfiguration:
+      type: object
+      additionalProperties: false
+      required: [server_deployment, locality, semantic, source_count, coverage_state]
+      properties:
+        server_deployment: {$ref: '#/components/schemas/EntityRef'}
+        server_product: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        locality: {type: string, enum: [local, remote, unknown]}
+        transport: {type: [string, 'null']}
+        tool_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        semantic: {type: string, enum: [configured, observed]}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    RelatedConfiguration:
+      type: object
+      additionalProperties: false
+      required: [entity, semantic, source_count, coverage_state, attributes]
+      properties:
+        entity: {$ref: '#/components/schemas/EntityRef'}
+        semantic: {type: string, enum: [structural, configured, observed]}
+        source_count: {type: integer, minimum: 1, maximum: 9007199254740991}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+    ApplicationSummary:
+      type: object
+      additionalProperties: false
+      required: [primary_entity, aggregation_level, technology_class, agentic_capability, lifecycle, surface_count, deployment_count, account_count, observed_identity_count, first_observed_at, last_observed_at, source_count, ambiguity_state, coverage_state]
+      properties:
+        primary_entity: {$ref: '#/components/schemas/EntityRef'}
+        aggregation_level: {type: string, enum: [product, surface, deployment]}
+        product: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        vendor: {type: [string, 'null']}
+        technology_class: {type: string, enum: [generative_ai, other_ai, non_ai, unknown]}
+        agentic_capability: {type: string, enum: [present, absent, unknown]}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        surface_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        deployment_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        account_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        observed_identity_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        device_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    ApplicationDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, surfaces, deployments, account_contexts, related_agents, configured_models, configured_mcp_servers, recent_activity, source_summary, field_provenance]
+      properties:
+        summary: {$ref: '#/components/schemas/ApplicationSummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        surfaces: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        deployments: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        account_contexts: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/ApplicationAccountContext'}}
+        related_agents: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        configured_models: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        configured_mcp_servers: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/McpServerConfiguration'}}
+        recent_activity: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/ActivitySummary'}}
+        source_summary: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SourceObservationSummary'}}
+        field_provenance: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/FieldProvenance'}}
+    ApplicationAccountContext:
+      type: object
+      additionalProperties: false
+      required: [context, authentication_context, source_count, coverage_state]
+      properties:
+        account: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        context: {type: string, enum: [personal, organization, authenticated_unknown, flyby, unknown]}
+        authentication_context: {type: string, enum: [guest, credentialed, unknown]}
+        observed_identity: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        source_count: {type: integer, minimum: 1, maximum: 9007199254740991}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    ModelSummary:
+      type: object
+      additionalProperties: false
+      required: [model_asset, asset_level, lifecycle, configured_application_count, invocation_count, first_observed_at, last_observed_at, source_count, ambiguity_state, coverage_state]
+      properties:
+        model_asset: {$ref: '#/components/schemas/EntityRef'}
+        asset_level: {type: string, enum: [product, family, version, deployment, route]}
+        provider: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        provider_account: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        model_family: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        model_version: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        configured_application_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        invocation_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    ModelDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, versions, deployments, routes, configured_applications, recent_activity, source_summary, field_provenance]
+      properties:
+        summary: {$ref: '#/components/schemas/ModelSummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        versions: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        deployments: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        routes: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        configured_applications: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        recent_activity: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/ActivitySummary'}}
+        source_summary: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SourceObservationSummary'}}
+        field_provenance: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/FieldProvenance'}}
+    McpServerSummary:
+      type: object
+      additionalProperties: false
+      required: [server_deployment, locality, lifecycle, tool_count, resource_count, prompt_count, capability_scope_state, call_count, first_observed_at, last_observed_at, source_count, ambiguity_state, coverage_state]
+      properties:
+        server_deployment: {$ref: '#/components/schemas/EntityRef'}
+        server_product: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        locality: {type: string, enum: [local, remote, gateway, unknown]}
+        transport: {type: [string, 'null']}
+        parent_application: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        parent_agent: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        tool_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        resource_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        prompt_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        capability_scope_state: {$ref: '#/components/schemas/McpCapabilityScopeState'}
+        call_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    McpCapabilityScopeState:
+      type: string
+      enum: [authorization_scoped, shared_legacy, mixed, unsupported, unknown]
+    McpCapabilityCoverage:
+      type: object
+      additionalProperties: false
+      required: [scope_state, coverage_state, warnings]
+      properties:
+        scope_state: {$ref: '#/components/schemas/McpCapabilityScopeState'}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        protocol_version: {type: [string, 'null'], maxLength: 64}
+        last_observed_at: {type: [string, 'null'], format: date-time}
+        warnings:
+          type: array
+          maxItems: 32
+          uniqueItems: true
+          items: {type: string, enum: [shared_legacy_cache, mixed_authorization_contexts, partial_fetch, stale_observation, fetch_failed, capability_unsupported]}
+    McpServerDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, capability_coverage, tools, resources, prompts, observed_callers, recent_activity, source_summary, field_provenance]
+      properties:
+        summary: {$ref: '#/components/schemas/McpServerSummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        capability_coverage: {$ref: '#/components/schemas/McpCapabilityCoverage'}
+        tools: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        resources: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        prompts: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        observed_callers: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        recent_activity: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/ActivitySummary'}}
+        source_summary: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SourceObservationSummary'}}
+        field_provenance: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/FieldProvenance'}}
+    DeviceSummary:
+      type: object
+      additionalProperties: false
+      required: [device, lifecycle, application_count, agent_count, observed_identity_count, installation_count, first_observed_at, last_observed_at, source_count, ambiguity_state, coverage_state]
+      properties:
+        device: {$ref: '#/components/schemas/EntityRef'}
+        hostname: {type: [string, 'null']}
+        os_platform: {type: [string, 'null']}
+        os_version: {type: [string, 'null']}
+        device_type: {type: [string, 'null']}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        application_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        agent_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        observed_identity_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        installation_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    DeviceDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, installations, applications, agents, observed_identities, recent_activity, source_summary, field_provenance]
+      properties:
+        summary: {$ref: '#/components/schemas/DeviceSummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        installations: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        applications: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        agents: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        observed_identities: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        recent_activity: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/ActivitySummary'}}
+        source_summary: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SourceObservationSummary'}}
+        field_provenance: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/FieldProvenance'}}
+    IdentitySummary:
+      type: object
+      additionalProperties: false
+      required: [identity, identity_kind, identity_assurance, lifecycle, observed_device_count, observed_application_count, execution_count, first_observed_at, last_observed_at, source_count, ambiguity_state, coverage_state]
+      properties:
+        identity: {$ref: '#/components/schemas/EntityRef'}
+        identity_kind: {type: string, enum: [person, directory_account, application_account, service_principal, workload_identity, source_scoped, unknown]}
+        authoritative_person: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        account_name: {type: [string, 'null']}
+        account_domain: {type: [string, 'null']}
+        identity_assurance: {type: string, enum: [authoritative, exact_shared_id, source_scoped, unresolved]}
+        lifecycle: {$ref: '#/components/schemas/EntityLifecycle'}
+        observed_device_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        observed_application_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        execution_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        first_observed_at: {type: string, format: date-time}
+        last_observed_at: {type: string, format: date-time}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ambiguity_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    IdentityDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, attributes, observed_devices, observed_applications, execution_relationships, conflicts, recent_activity, source_summary, field_provenance]
+      properties:
+        summary: {$ref: '#/components/schemas/IdentitySummary'}
+        attributes: {$ref: '#/components/schemas/SafeAttributeMap'}
+        observed_devices: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        observed_applications: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        execution_relationships: {type: array, maxItems: 1000, items: {$ref: '#/components/schemas/RelatedConfiguration'}}
+        conflicts: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/IdentityConflict'}}
+        recent_activity: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/ActivitySummary'}}
+        source_summary: {type: array, maxItems: 200, items: {$ref: '#/components/schemas/SourceObservationSummary'}}
+        field_provenance: {type: array, maxItems: 500, items: {$ref: '#/components/schemas/FieldProvenance'}}
+    ExposurePath:
+      type: object
+      additionalProperties: false
+      required: [path_id, source, target, nodes, edges, evidence_class, valid_from, source_count, coverage_state]
+      properties:
+        path_id: {$ref: '#/components/schemas/OpaqueId'}
+        source: {$ref: '#/components/schemas/EntityRef'}
+        target: {$ref: '#/components/schemas/EntityRef'}
+        nodes:
+          type: array
+          minItems: 2
+          maxItems: 5
+          items: {$ref: '#/components/schemas/EntityRef'}
+        edges:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items: {$ref: '#/components/schemas/Relationship'}
+        evidence_class: {type: string, enum: [configured, entitlement, observed]}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        source_count: {type: integer, minimum: 1, maximum: 9007199254740991}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    FieldProvenance:
+      type: object
+      additionalProperties: false
+      required: [field_path, selected_claim_ids, authority_class]
+      properties:
+        field_path: {type: string}
+        selected_claim_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        authority_class: {type: string}
+        observed_at: {type: [string, 'null'], format: date-time}
+    RelationshipCount:
+      type: object
+      additionalProperties: false
+      required: [predicate, semantic, count]
+      properties:
+        predicate: {type: string}
+        semantic: {type: string, enum: [structural, configured, entitlement, observed, ownership, coverage]}
+        count: {type: integer, minimum: 0, maximum: 9007199254740991}
+    Relationship:
+      type: object
+      additionalProperties: false
+      required: [relationship_id, canonical_version, subject, predicate, object, semantic, lifecycle, valid_from, source_count]
+      properties:
+        relationship_id: {$ref: '#/components/schemas/OpaqueId'}
+        canonical_version: {type: integer, minimum: 1, maximum: 9007199254740991}
+        subject: {$ref: '#/components/schemas/EntityRef'}
+        predicate: {type: string}
+        object: {$ref: '#/components/schemas/EntityRef'}
+        semantic: {type: string, enum: [structural, configured, entitlement, observed, ownership, coverage]}
+        lifecycle: {type: string, enum: [active, ended, stale, ambiguous, unknown]}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+    SourceObservationSummary:
+      type: object
+      additionalProperties: false
+      required: [observation_id, source_profile, source_object_type, observed_at, evidence_id, binding_kind, capture_state]
+      properties:
+        observation_id: {$ref: '#/components/schemas/OpaqueId'}
+        source_profile: {type: string}
+        source_namespace: {type: string}
+        source_object_type: {type: string}
+        source_object_id: {type: string}
+        observed_at: {type: string, format: date-time}
+        evidence_id: {$ref: '#/components/schemas/OpaqueId'}
+        binding_kind: {type: string}
+        capture_state: {$ref: '#/components/schemas/CaptureState'}
+        field_redactions: {type: array, items: {type: string}}
+    ActivitySummary:
+      type: object
+      additionalProperties: false
+      required: [activity_id, canonical_version, occurred_at, family, subtype, business_scope_id, environment, sensitivity, lifecycle, visibility, outcome, resources, source_profile, capture_state, coverage_state]
+      properties:
+        activity_id: {$ref: '#/components/schemas/OpaqueId'}
+        canonical_version: {type: integer, minimum: 1, maximum: 9007199254740991}
+        occurred_at: {type: string, format: date-time}
+        family: {type: string, enum: [application, agent, workload, session, model, mcp, tool, network, resource, source, native_control, unknown]}
+        subtype: {type: string}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        environment: {type: string}
+        sensitivity: {$ref: '#/components/schemas/FieldClassification'}
+        lifecycle: {type: string, enum: [active, tombstoned, deleted]}
+        visibility: {type: string, enum: [visible, suppressed, legal_hold_only]}
+        outcome: {$ref: '#/components/schemas/Outcome'}
+        actor: {oneOf: [{$ref: '#/components/schemas/EntityRef'}, {type: 'null'}]}
+        resources: {type: array, items: {$ref: '#/components/schemas/EntityRef'}}
+        source_profile: {type: string}
+        native_decision: {type: [string, 'null']}
+        observed_effect: {type: [string, 'null']}
+        safe_metrics:
+          type: object
+          maxProperties: 128
+          additionalProperties:
+            type: number
+            minimum: -9007199254740991
+            maximum: 9007199254740991
+        capture_state: {$ref: '#/components/schemas/CaptureState'}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+    ActivityDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, evidence_ids, relationships, lineage]
+      properties:
+        summary: {$ref: '#/components/schemas/ActivitySummary'}
+        evidence_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        relationships: {type: array, items: {$ref: '#/components/schemas/Relationship'}}
+        lineage: {type: array, items: {$ref: '#/components/schemas/ActivityLineageEdge'}}
+        correlation: {type: object, additionalProperties: {type: string}}
+    ActivityLineageEdge:
+      type: object
+      additionalProperties: false
+      required: [from_activity_id, relation, to_activity_id]
+      properties:
+        from_activity_id: {$ref: '#/components/schemas/OpaqueId'}
+        relation: {type: string}
+        to_activity_id: {$ref: '#/components/schemas/OpaqueId'}
+    EvidenceMetadata:
+      type: object
+      additionalProperties: false
+      required: [evidence_id, producer_id, business_scope_id, environment, sensitivity, record_type, source_profile, occurred_at, observed_at, received_at, content_sha256, object_size_bytes, capture_state, record_origin, evidence_quality, trust_state, retention_state, canonical_entity_ids, canonical_activity_ids]
+      properties:
+        evidence_id: {$ref: '#/components/schemas/OpaqueId'}
+        producer_id: {$ref: '#/components/schemas/OpaqueId'}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        environment: {type: string}
+        sensitivity: {$ref: '#/components/schemas/FieldClassification'}
+        record_type: {type: string}
+        source_profile: {type: string}
+        profile_version: {type: string}
+        source_object_type: {type: string}
+        source_namespace: {type: string}
+        source_object_id: {type: string}
+        occurred_at: {type: string, format: date-time}
+        observed_at: {type: string, format: date-time}
+        received_at: {type: string, format: date-time}
+        content_sha256: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        object_size_bytes: {type: integer, minimum: 1, maximum: 9007199254740991}
+        capture_state: {$ref: '#/components/schemas/CaptureState'}
+        record_origin: {type: string}
+        evidence_quality: {type: string}
+        trust_state: {type: string}
+        retention_state:
+          type: string
+          enum: [active, held, tombstoned, metadata_only, deletion_pending, object_deleted, deleted]
+        correlation: {type: object, additionalProperties: {type: string}}
+        canonical_entity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        canonical_activity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        field_redactions: {type: array, items: {type: string}}
+    EvidenceLineage:
+      type: object
+      additionalProperties: false
+      required: [evidence, observations, claims, entities, relationships, activities, versions]
+      properties:
+        evidence: {$ref: '#/components/schemas/EvidenceMetadata'}
+        observations: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        claims: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        entities: {type: array, items: {$ref: '#/components/schemas/EntityRef'}}
+        relationships: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        activities: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        versions:
+          type: object
+          additionalProperties: {type: string}
+    ContentAccessRequest:
+      type: object
+      additionalProperties: false
+      required: [purpose]
+      properties:
+        purpose: {type: string, minLength: 8, maxLength: 512}
+        ticket_reference: {type: string, maxLength: 256}
+    ContentAccessGrant:
+      type: object
+      additionalProperties: false
+      required: [access_id, expires_at, delivery_mode, access_url, single_use]
+      properties:
+        access_id: {$ref: '#/components/schemas/OpaqueId'}
+        expires_at: {type: string, format: date-time}
+        delivery_mode: {type: string, const: api_stream}
+        access_url: {type: string, format: uri-reference}
+        single_use: {const: true}
+    CoverageSummary:
+      type: object
+      additionalProperties: false
+      required: [state_counts, expected_population, observed_population, open_gap_count]
+      properties:
+        state_counts: {type: object, additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}}
+        expected_population: {type: integer, minimum: 0, maximum: 9007199254740991}
+        observed_population: {type: integer, minimum: 0, maximum: 9007199254740991}
+        open_gap_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+    CoverageInterval:
+      type: object
+      additionalProperties: false
+      required: [coverage_id, producer_id, business_scope_id, capability, population_type, population_id, state, valid_from, revision]
+      properties:
+        coverage_id: {$ref: '#/components/schemas/OpaqueId'}
+        producer_id: {$ref: '#/components/schemas/OpaqueId'}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        capability: {type: string}
+        population_type: {type: string, enum: [producer, browser_installation, device, account, workload, gateway_route, mcp_surface]}
+        population_id: {$ref: '#/components/schemas/OpaqueId'}
+        state: {$ref: '#/components/schemas/CoverageState'}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        reason_code: {type: [string, 'null']}
+        revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+    CoverageGap:
+      type: object
+      additionalProperties: false
+      required: [interval, gap_kind]
+      properties:
+        interval: {$ref: '#/components/schemas/CoverageInterval'}
+        gap_kind: {type: string}
+        first_missing_sequence: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
+        last_missing_sequence: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
+    Producer:
+      type: object
+      additionalProperties: false
+      required: [producer_id, installation_id, source_profile, business_scope_id, environment, display_name, trust_state, health_state, coverage_state, artifact_digest, open_gap_count]
+      properties:
+        producer_id: {$ref: '#/components/schemas/OpaqueId'}
+        installation_id: {type: string}
+        source_profile: {type: string}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        environment: {type: string}
+        display_name: {type: string}
+        trust_state: {type: string}
+        health_state: {type: string}
+        coverage_state: {$ref: '#/components/schemas/CoverageState'}
+        last_seen_at: {type: [string, 'null'], format: date-time}
+        queue_depth: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
+        oldest_queue_age_ms: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
+        open_gap_count: {type: integer, minimum: 0, maximum: 9007199254740991}
+        artifact_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        certification_id: {oneOf: [{$ref: '#/components/schemas/OpaqueId'}, {type: 'null'}]}
+    ProducerDetail:
+      type: object
+      additionalProperties: false
+      required: [summary, capabilities, certification]
+      properties:
+        summary: {$ref: '#/components/schemas/Producer'}
+        capabilities:
+          type: array
+          items: {$ref: '#/components/schemas/ProducerCapability'}
+        certification: {oneOf: [{$ref: '#/components/schemas/Certification'}, {type: 'null'}]}
+    ProducerCapability:
+      type: object
+      additionalProperties: false
+      required: [capability, mode, profile_version, certified, effective_from]
+      properties:
+        capability: {type: string}
+        mode: {type: string, enum: [observe, metadata_only, native_enforce, unsupported]}
+        profile_version: {type: string}
+        certified: {type: boolean}
+        effective_from: {type: string, format: date-time}
+        effective_to: {type: [string, 'null'], format: date-time}
+    Certification:
+      type: object
+      additionalProperties: false
+      required: [certification_id, artifact_digest, contract_digest, test_pack_digest, result, certified_at]
+      properties:
+        certification_id: {$ref: '#/components/schemas/OpaqueId'}
+        artifact_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        contract_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        test_pack_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        result: {type: string, enum: [passed, failed, blocked, expired, revoked]}
+        certified_at: {type: string, format: date-time}
+        expires_at: {type: [string, 'null'], format: date-time}
+    IdentityExplanation:
+      type: object
+      additionalProperties: false
+      required: [entity, bindings, selected_fields, resolver_version, materializer_version, ambiguity_state]
+      properties:
+        entity: {$ref: '#/components/schemas/EntitySummary'}
+        bindings: {type: array, items: {$ref: '#/components/schemas/IdentityBinding'}}
+        selected_fields: {type: array, items: {$ref: '#/components/schemas/FieldProvenance'}}
+        rejected_candidate_entity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        resolver_version: {type: string}
+        materializer_version: {type: string}
+        ambiguity_state: {type: string}
+    IdentityBinding:
+      type: object
+      additionalProperties: false
+      required: [binding_id, source_object_id, canonical_entity_id, binding_kind, confidence, revision, valid_from]
+      properties:
+        binding_id: {$ref: '#/components/schemas/OpaqueId'}
+        source_object_id: {$ref: '#/components/schemas/OpaqueId'}
+        canonical_entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        binding_kind: {type: string}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+    IdentityConflict:
+      type: object
+      additionalProperties: false
+      required: [conflict_id, source_object_id, conflict_type, state, detected_at, candidate_entity_ids]
+      properties:
+        conflict_id: {$ref: '#/components/schemas/OpaqueId'}
+        source_object_id: {$ref: '#/components/schemas/OpaqueId'}
+        conflict_type: {type: string}
+        state: {type: string, enum: [open, resolved, dismissed, superseded]}
+        detected_at: {type: string, format: date-time}
+        candidate_entity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+        impact_summary: {$ref: '#/components/schemas/SafeAttributeMap'}
+    IdentityActionRequest:
+      oneOf:
+        - {$ref: '#/components/schemas/IdentityBindRequest'}
+        - {$ref: '#/components/schemas/IdentityUnbindRequest'}
+        - {$ref: '#/components/schemas/IdentityMergeRequest'}
+        - {$ref: '#/components/schemas/IdentitySplitRequest'}
+        - {$ref: '#/components/schemas/IdentityFieldCorrectionRequest'}
+      discriminator:
+        propertyName: action
+    IdentityBindRequest:
+      type: object
+      additionalProperties: false
+      required: [action, source_object_id, entity_id, reason]
+      properties:
+        action: {const: bind}
+        source_object_id: {$ref: '#/components/schemas/OpaqueId'}
+        entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    IdentityUnbindRequest:
+      type: object
+      additionalProperties: false
+      required: [action, source_object_id, reason]
+      properties:
+        action: {const: unbind}
+        source_object_id: {$ref: '#/components/schemas/OpaqueId'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    IdentityMergeRequest:
+      type: object
+      additionalProperties: false
+      required: [action, survivor_entity_id, merged_entity_ids, reason]
+      properties:
+        action: {const: merge}
+        survivor_entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        merged_entity_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          uniqueItems: true
+          items: {$ref: '#/components/schemas/OpaqueId'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    IdentitySplitRequest:
+      type: object
+      additionalProperties: false
+      required: [action, source_entity_id, partitions, reason]
+      properties:
+        action: {const: split}
+        source_entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        partitions:
+          type: array
+          minItems: 2
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            required: [source_object_ids]
+            properties:
+              source_object_ids:
+                type: array
+                minItems: 1
+                maxItems: 1000
+                uniqueItems: true
+                items: {$ref: '#/components/schemas/OpaqueId'}
+              restore_entity_id:
+                oneOf:
+                  - {$ref: '#/components/schemas/OpaqueId'}
+                  - {type: 'null'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    IdentityFieldCorrectionRequest:
+      type: object
+      additionalProperties: false
+      required: [action, entity_id, field_path, corrected_value, reason]
+      properties:
+        action: {const: correct_field}
+        entity_id: {$ref: '#/components/schemas/OpaqueId'}
+        field_path: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_.]{0,255}$'}
+        corrected_value: {$ref: '#/components/schemas/SafeAttributeValue'}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    IdentityActionPreview:
+      type: object
+      additionalProperties: false
+      required: [preview_id, preview_digest, expires_at, canonical_watermark, authorization_revision, affected, invariant_results]
+      properties:
+        preview_id: {$ref: '#/components/schemas/OpaqueId'}
+        preview_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        expires_at: {type: string, format: date-time}
+        canonical_watermark: {type: integer, minimum: 0, maximum: 9007199254740991}
+        authorization_revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+        affected: {type: object, additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}}
+        invariant_results:
+          type: array
+          items:
+            type: object
+            required: [code, passed]
+            properties:
+              code: {type: string}
+              passed: {type: boolean}
+              message: {type: string}
+    IdentityActionCommit:
+      type: object
+      additionalProperties: false
+      required: [preview_id, preview_digest]
+      properties:
+        preview_id: {$ref: '#/components/schemas/OpaqueId'}
+        preview_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+    IdentityActionResult:
+      type: object
+      additionalProperties: false
+      required: [decision_id, canonical_watermark, affected_entity_ids]
+      properties:
+        decision_id: {$ref: '#/components/schemas/OpaqueId'}
+        canonical_watermark: {type: integer, minimum: 1, maximum: 9007199254740991}
+        affected_entity_ids: {type: array, items: {$ref: '#/components/schemas/OpaqueId'}}
+    IdentityCommand:
+      type: object
+      additionalProperties: false
+      required: [command_id, action, status, requested_at]
+      properties:
+        command_id: {$ref: '#/components/schemas/OpaqueId'}
+        action: {type: string, enum: [bind, unbind, merge, split, correct_field]}
+        status: {type: string, enum: [queued, applying, succeeded, rejected, failed]}
+        requested_at: {type: string, format: date-time}
+        completed_at: {type: [string, 'null'], format: date-time}
+        reason_code: {type: [string, 'null']}
+        result: {oneOf: [{$ref: '#/components/schemas/IdentityActionResult'}, {type: 'null'}]}
+    ExportRequest:
+      type: object
+      additionalProperties: false
+      required: [resource_type, filters, field_set, format]
+      properties:
+        resource_type: {type: string, enum: [inventory, relationships, activity, evidence, coverage, producers, audit]}
+        filters: {$ref: '#/components/schemas/ExportFilters'}
+        field_set:
+          type: array
+          minItems: 1
+          maxItems: 256
+          uniqueItems: true
+          items: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_.]{0,127}$'}
+        format: {type: string, enum: [csv, jsonl, parquet]}
+    ExportFilters:
+      type: object
+      additionalProperties: false
+      maxProperties: 20
+      properties:
+        scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        from: {type: string, format: date-time}
+        to: {type: string, format: date-time}
+        entity_type: {type: array, maxItems: 32, uniqueItems: true, items: {$ref: '#/components/schemas/EntityType'}}
+        lifecycle: {type: array, maxItems: 16, uniqueItems: true, items: {$ref: '#/components/schemas/EntityLifecycle'}}
+        family: {type: array, maxItems: 32, uniqueItems: true, items: {type: string, maxLength: 128}}
+        subtype: {type: array, maxItems: 128, uniqueItems: true, items: {type: string, maxLength: 128}}
+        outcome: {type: array, maxItems: 16, uniqueItems: true, items: {$ref: '#/components/schemas/Outcome'}}
+        source_profile: {type: array, maxItems: 8, uniqueItems: true, items: {type: string, enum: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway]}}
+        producer_id: {$ref: '#/components/schemas/OpaqueId'}
+        coverage_state: {type: array, maxItems: 8, uniqueItems: true, items: {$ref: '#/components/schemas/CoverageState'}}
+        query: {type: string, minLength: 1, maxLength: 256}
+    ExportJob:
+      type: object
+      additionalProperties: false
+      required: [export_id, resource_type, format, status, snapshot, created_at, field_set]
+      properties:
+        export_id: {$ref: '#/components/schemas/OpaqueId'}
+        resource_type: {type: string, enum: [inventory, relationships, activity, evidence, coverage, producers, audit]}
+        format: {type: string, enum: [csv, jsonl, parquet]}
+        status: {type: string, enum: [queued, running, completed, failed, expired, cancelled]}
+        snapshot: {$ref: '#/components/schemas/ExportSnapshot'}
+        field_set:
+          type: array
+          minItems: 1
+          maxItems: 256
+          uniqueItems: true
+          items: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_.]{0,127}$'}
+        created_at: {type: string, format: date-time}
+        completed_at: {type: [string, 'null'], format: date-time}
+        expires_at: {type: [string, 'null'], format: date-time}
+        file_sha256: {type: [string, 'null'], pattern: '^sha256:[0-9a-f]{64}$'}
+        download_path:
+          type: [string, 'null']
+          pattern: '^/exports/[^/]+/content$'
+    ExportSnapshot:
+      type: object
+      additionalProperties: false
+      required: [projection_generation, canonical_watermark, activity_watermark]
+      properties:
+        projection_generation: {type: integer, minimum: 1, maximum: 9007199254740991}
+        canonical_watermark: {type: integer, minimum: 0, maximum: 9007199254740991}
+        activity_watermark: {type: string, minLength: 1, maxLength: 256}
+    AuthorizationScope:
+      type: object
+      additionalProperties: false
+      required: [scope_id, scope_type, display_name, lifecycle, revision]
+      properties:
+        scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        scope_type: {type: string, enum: [tenant, organization, department, team, environment]}
+        parent_scope_id: {oneOf: [{$ref: '#/components/schemas/OpaqueId'}, {type: 'null'}]}
+        display_name: {type: string}
+        lifecycle: {type: string, enum: [active, inactive]}
+        revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+    RoleBinding:
+      type: object
+      additionalProperties: false
+      required: [binding_id, subject_type, subject_id, role, scope_id, valid_from, revision]
+      properties:
+        binding_id: {$ref: '#/components/schemas/OpaqueId'}
+        subject_type: {type: string, enum: [user, group, service, support_session]}
+        subject_id: {type: string}
+        role: {type: string}
+        scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        conditions: {$ref: '#/components/schemas/AuthorizationConditions'}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        closed_revision: {type: [integer, 'null'], minimum: 2, maximum: 9007199254740991}
+        revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+    RelationTuple:
+      type: object
+      additionalProperties: false
+      required: [tuple_id, subject_type, subject_id, relation, resource_type, resource_id, source, valid_from, revision]
+      properties:
+        tuple_id: {$ref: '#/components/schemas/OpaqueId'}
+        subject_type: {type: string}
+        subject_id: {type: string}
+        relation: {type: string}
+        resource_type: {type: string}
+        resource_id: {type: string}
+        source: {type: string, enum: [admin, identity_provider, authoritative_connector, system]}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        closed_revision: {type: [integer, 'null'], minimum: 2, maximum: 9007199254740991}
+        revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+    AuthorizationActionRequest:
+      oneOf:
+        - {$ref: '#/components/schemas/AuthorizationCreateScopeRequest'}
+        - {$ref: '#/components/schemas/AuthorizationUpdateScopeRequest'}
+        - {$ref: '#/components/schemas/AuthorizationGrantRoleRequest'}
+        - {$ref: '#/components/schemas/AuthorizationRevokeRoleRequest'}
+        - {$ref: '#/components/schemas/AuthorizationAddRelationRequest'}
+        - {$ref: '#/components/schemas/AuthorizationRemoveRelationRequest'}
+      discriminator:
+        propertyName: action
+    AuthorizationConditions:
+      type: object
+      additionalProperties: false
+      properties:
+        allowed_environments:
+          type: array
+          maxItems: 32
+          uniqueItems: true
+          items: {type: string, minLength: 1, maxLength: 128}
+        maximum_field_classification: {$ref: '#/components/schemas/FieldClassification'}
+        require_step_up: {type: boolean}
+        expires_at: {type: [string, 'null'], format: date-time}
+    AuthorizationCreateScopeRequest:
+      type: object
+      additionalProperties: false
+      required: [action, scope_type, display_name, reason]
+      properties:
+        action: {const: create_scope}
+        scope_type: {type: string, enum: [organization, department, team, environment]}
+        parent_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        display_name: {type: string, minLength: 1, maxLength: 256}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationUpdateScopeRequest:
+      type: object
+      additionalProperties: false
+      required: [action, scope_id, changes, reason]
+      properties:
+        action: {const: update_scope}
+        scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        changes:
+          type: object
+          additionalProperties: false
+          minProperties: 1
+          properties:
+            parent_scope_id:
+              oneOf:
+                - {$ref: '#/components/schemas/OpaqueId'}
+                - {type: 'null'}
+            display_name: {type: string, minLength: 1, maxLength: 256}
+            lifecycle: {type: string, enum: [active, inactive]}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationGrantRoleRequest:
+      type: object
+      additionalProperties: false
+      required: [action, subject_type, subject_id, role, scope_id, reason]
+      properties:
+        action: {const: grant_role}
+        subject_type: {type: string, enum: [user, group, service, support_session]}
+        subject_id: {type: string, minLength: 1, maxLength: 512}
+        role: {type: string, minLength: 1, maxLength: 128}
+        scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        conditions: {$ref: '#/components/schemas/AuthorizationConditions'}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationRevokeRoleRequest:
+      type: object
+      additionalProperties: false
+      required: [action, binding_id, reason]
+      properties:
+        action: {const: revoke_role}
+        binding_id: {$ref: '#/components/schemas/OpaqueId'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationAddRelationRequest:
+      type: object
+      additionalProperties: false
+      required: [action, subject_type, subject_id, relation, resource_type, resource_id, reason]
+      properties:
+        action: {const: add_relation}
+        subject_type: {type: string, enum: [user, group, service, support_session]}
+        subject_id: {type: string, minLength: 1, maxLength: 512}
+        relation: {type: string, enum: [member, viewer, operator, reviewer, auditor, owner, delegate, requested_by, approved_support]}
+        resource_type: {type: string, minLength: 1, maxLength: 128}
+        resource_id: {type: string, minLength: 1, maxLength: 512}
+        valid_from: {type: string, format: date-time}
+        valid_to: {type: [string, 'null'], format: date-time}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationRemoveRelationRequest:
+      type: object
+      additionalProperties: false
+      required: [action, tuple_id, reason]
+      properties:
+        action: {const: remove_relation}
+        tuple_id: {$ref: '#/components/schemas/OpaqueId'}
+        reason: {type: string, minLength: 8, maxLength: 2048}
+        ticket_reference: {type: string, maxLength: 256}
+    AuthorizationActionPreview:
+      type: object
+      additionalProperties: false
+      required: [preview_id, preview_digest, expires_at, authorization_revision, affected, invariant_results]
+      properties:
+        preview_id: {$ref: '#/components/schemas/OpaqueId'}
+        preview_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        expires_at: {type: string, format: date-time}
+        authorization_revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+        affected: {type: object, additionalProperties: {type: integer, minimum: 0, maximum: 9007199254740991}}
+        invariant_results:
+          type: array
+          items:
+            type: object
+            required: [code, passed]
+            properties:
+              code: {type: string}
+              passed: {type: boolean}
+              message: {type: string}
+    AuthorizationActionCommit:
+      type: object
+      additionalProperties: false
+      required: [preview_id, preview_digest]
+      properties:
+        preview_id: {$ref: '#/components/schemas/OpaqueId'}
+        preview_digest: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+    AuthorizationActionResult:
+      type: object
+      additionalProperties: false
+      required: [audit_id, authorization_revision]
+      properties:
+        audit_id: {$ref: '#/components/schemas/OpaqueId'}
+        authorization_revision: {type: integer, minimum: 1, maximum: 9007199254740991}
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required: [audit_id, audit_shard, audit_sequence, occurred_at, actor_type, actor_id, action, resource_type, business_scope_id, outcome, reason_code, request_id, event_hash]
+      properties:
+        audit_id: {$ref: '#/components/schemas/OpaqueId'}
+        audit_shard: {type: integer, minimum: 0, maximum: 9007199254740991}
+        audit_sequence: {type: integer, minimum: 1, maximum: 9007199254740991}
+        occurred_at: {type: string, format: date-time}
+        actor_type: {type: string}
+        actor_id: {type: string}
+        action: {type: string}
+        resource_type: {type: string}
+        resource_id: {type: [string, 'null']}
+        business_scope_id: {$ref: '#/components/schemas/OpaqueId'}
+        outcome: {type: string, enum: [succeeded, denied, failed]}
+        reason_code: {type: string}
+        request_id: {type: string}
+        authorization_revision: {type: [integer, 'null'], minimum: 1, maximum: 9007199254740991}
+        event_hash: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        safe_details: {$ref: '#/components/schemas/SafeAttributeMap'}
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, request_id, retryable]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string}
+        status: {type: integer, minimum: 400, maximum: 599}
+        code: {type: string}
+        detail: {type: string}
+        request_id: {type: string}
+        retryable: {type: boolean}
+        retry_after_seconds: {type: integer, minimum: 0, maximum: 9007199254740991}
+        violations:
+          type: array
+          items:
+            type: object
+            required: [field, code]
+            properties:
+              field: {type: string}
+              code: {type: string}
+              message: {type: string}

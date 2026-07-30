@@ -1,0 +1,154 @@
+schema_version: "1.0"
+policy_version: die.api-field-policy.v1
+
+# A response serializer must resolve every emitted component field through this
+# policy. Unknown component schemas and unknown fields are prohibited. A schema
+# default is a conservative floor; exact overrides may only raise sensitivity.
+unknown_schema: prohibited
+unknown_field: prohibited
+
+classification_order:
+  - public_product
+  - internal
+  - sensitive_metadata
+  - restricted_evidence
+  - prohibited
+
+schema_defaults:
+  public_product:
+    - Overview
+    - ChangeSummary
+    - EntityRef
+    - RelationshipCount
+    - CoverageSummary
+    - Problem
+  internal:
+    - ResponseMeta
+    - Freshness
+    - Warning
+    - BaseResponse
+    - Page
+    - EntitySummary
+    - EntityDetail
+    - AgentDeploymentSummary
+    - AgentDeploymentDetail
+    - DeviceContext
+    - McpServerConfiguration
+    - RelatedConfiguration
+    - ApplicationSummary
+    - ApplicationDetail
+    - ModelSummary
+    - ModelDetail
+    - McpServerSummary
+    - McpServerDetail
+    - McpCapabilityCoverage
+    - DeviceSummary
+    - DeviceDetail
+    - ExposurePath
+    - FieldProvenance
+    - Relationship
+    - ActivitySummary
+    - ActivityDetail
+    - ActivityLineageEdge
+    - CoverageInterval
+    - CoverageGap
+    - ProducerCapability
+    - Certification
+    - ExportJob
+    - ExportSnapshot
+  sensitive_metadata:
+    - ExecutionIdentityContext
+    - ApplicationAccountContext
+    - IdentitySummary
+    - IdentityDetail
+    - SourceObservationSummary
+    - EvidenceMetadata
+    - EvidenceLineage
+    - Producer
+    - ProducerDetail
+    - IdentityExplanation
+    - IdentityBinding
+    - IdentityConflict
+    - IdentityBindRequest
+    - IdentityUnbindRequest
+    - IdentityMergeRequest
+    - IdentitySplitRequest
+    - IdentityFieldCorrectionRequest
+    - IdentityActionPreview
+    - IdentityActionCommit
+    - IdentityActionResult
+    - IdentityCommand
+    - ExportRequest
+    - ExportFilters
+    - AuthorizationScope
+    - RoleBinding
+    - RelationTuple
+    - AuthorizationConditions
+    - AuthorizationCreateScopeRequest
+    - AuthorizationUpdateScopeRequest
+    - AuthorizationGrantRoleRequest
+    - AuthorizationRevokeRoleRequest
+    - AuthorizationAddRelationRequest
+    - AuthorizationRemoveRelationRequest
+    - AuthorizationActionPreview
+    - AuthorizationActionCommit
+    - AuthorizationActionResult
+    - AuditEvent
+  restricted_evidence:
+    - ContentAccessRequest
+    - ContentAccessGrant
+
+field_overrides:
+  sensitive_metadata:
+    - EntitySummary.business_scope_id
+    - DeviceContext.machine_id
+    - ExecutionIdentityContext.account_name
+    - ExecutionIdentityContext.account_domain
+    - ApplicationAccountContext.authentication_context
+    - ActivitySummary.native_decision
+    - ActivitySummary.observed_effect
+    - ActivityDetail.correlation
+    - EvidenceMetadata.source_namespace
+    - EvidenceMetadata.source_object_id
+    - EvidenceMetadata.correlation
+    - Producer.installation_id
+    - Producer.artifact_digest
+    - Certification.artifact_digest
+    - Certification.contract_digest
+    - Certification.test_pack_digest
+    - FieldProvenance.selected_claim_ids
+  restricted_evidence:
+    - ContentAccessGrant.access_url
+    - IdentityFieldCorrectionRequest.corrected_value
+
+dynamic_fields:
+  Overview.entity_counts: canonical_entity_type_allowlist
+  Overview.lifecycle_counts: canonical_lifecycle_allowlist
+  Overview.activity_counts: canonical_activity_type_allowlist
+  EntitySummary.safe_summary: field_authority_by_canonical_path
+  EntityDetail.attributes: field_authority_by_canonical_path
+  AgentDeploymentDetail.agent_attributes: field_authority_by_canonical_path
+  RelatedConfiguration.attributes: field_authority_by_canonical_path
+  ApplicationDetail.attributes: field_authority_by_canonical_path
+  ModelDetail.attributes: field_authority_by_canonical_path
+  McpServerDetail.attributes: field_authority_by_canonical_path
+  DeviceDetail.attributes: field_authority_by_canonical_path
+  IdentityDetail.attributes: field_authority_by_canonical_path
+  ActivitySummary.safe_metrics: activity_metric_allowlist
+  ActivityDetail.correlation: correlation_key_allowlist
+  EvidenceMetadata.correlation: correlation_key_allowlist
+  EvidenceLineage.versions: authorized_lineage_version_allowlist
+  CoverageSummary.state_counts: coverage_state_allowlist
+  IdentityConflict.impact_summary: identity_impact_allowlist
+  IdentityActionPreview.affected: identity_action_impact_allowlist
+  AuthorizationActionPreview.affected: authorization_action_impact_allowlist
+  AuditEvent.safe_details: audit_detail_allowlist
+
+serializer_invariants:
+  - authorization_filter_is_required_before_repository_query
+  - row_filter_is_applied_before_count_sort_pagination_and_aggregation
+  - dynamic_map_keys_are_classified_before_serialization
+  - prohibited_fields_are_omitted_and_never_replaced_with_raw_values
+  - redaction_reason_never_contains_the_withheld_value
+  - referenced_entities_are_authorized_independently
+  - exports_reuse_the_same_field_policy_and_authorization_snapshot

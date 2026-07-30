@@ -1,0 +1,410 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/internal/v1/normalized-observation.schema.json",
+  "title": "Normalized Observation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "normalization_run_id",
+    "output_key",
+    "observation_id",
+    "tenant_id",
+    "producer_id",
+    "evidence_id",
+    "normalizer",
+    "source_object",
+    "observed_at",
+    "normalized_at",
+    "output_digest",
+    "claims",
+    "relationship_candidates",
+    "activity_candidates",
+    "coverage_candidates",
+    "reconciliation_candidates"
+  ],
+  "properties": {
+    "normalization_run_id": { "type": "string", "format": "uuid" },
+    "output_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Deterministic key unique within one normalization run; stable across replay of the same normalizer artifact."
+    },
+    "observation_id": { "type": "string", "format": "uuid" },
+    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "producer_id": { "type": "string", "format": "uuid" },
+    "evidence_id": { "type": "string", "format": "uuid" },
+    "normalizer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "profile_version", "name", "version", "artifact_digest"],
+      "properties": {
+        "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+        "profile_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$",
+          "maxLength": 128
+        },
+        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "artifact_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "source_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "namespace", "id"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "lifecycle": { "enum": ["active", "stale", "tombstoned", "unknown"] }
+      }
+    },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "normalized_at": { "type": "string", "format": "date-time" },
+    "output_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "claims": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "claim_key", "kind", "path", "value", "value_type", "authority_class", "confidence", "valid_from", "sensitivity"],
+        "properties": {
+          "claim_id": { "type": "string", "format": "uuid" },
+          "claim_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Deterministic discriminator for repeated values at the same path, normally a stable value digest or source-native member key."
+          },
+          "kind": { "enum": ["identifier", "attribute", "lifecycle", "ownership", "classification"] },
+          "path": { "type": "string", "minLength": 1, "maxLength": 512 },
+          "value": { "$ref": "#/$defs/claimValue" },
+          "normalized_value": { "$ref": "#/$defs/claimValue" },
+          "value_type": { "enum": ["string", "integer", "number", "boolean", "timestamp", "identifier", "object", "array", "null"] },
+          "normalized_value_type": { "enum": ["string", "integer", "number", "boolean", "timestamp", "identifier", "object", "array", "null"] },
+          "authority_class": {
+            "enum": ["source_native", "authoritative_connector", "declared_config", "observed_runtime", "derived"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "valid_from": { "type": "string", "format": "date-time" },
+          "valid_to": { "type": ["string", "null"], "format": "date-time" },
+          "sensitivity": { "enum": ["public_product", "internal", "sensitive_metadata", "restricted_evidence"] }
+        },
+        "allOf": [
+          {
+            "if": { "required": ["normalized_value"] },
+            "then": { "required": ["normalized_value_type"] }
+          },
+          {
+            "if": { "required": ["normalized_value_type"] },
+            "then": { "required": ["normalized_value"] }
+          },
+          {
+            "if": { "properties": { "value_type": { "enum": ["string", "identifier"] } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "type": "string", "maxLength": 4096 } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "timestamp" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "type": "string", "format": "date-time", "maxLength": 64 } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "integer" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "number" } }, "required": ["value_type"] },
+            "then": {
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "not": { "multipleOf": 1 }
+                }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "boolean" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "type": "boolean" } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "object" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "$ref": "#/$defs/claimObject" } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "array" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "$ref": "#/$defs/scalarArray" } } }
+          },
+          {
+            "if": { "properties": { "value_type": { "const": "null" } }, "required": ["value_type"] },
+            "then": { "properties": { "value": { "type": "null" } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "enum": ["string", "identifier"] } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "type": "string", "maxLength": 4096 } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "timestamp" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "type": "string", "format": "date-time", "maxLength": 64 } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "integer" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "number" } }, "required": ["normalized_value_type"] },
+            "then": {
+              "properties": {
+                "normalized_value": {
+                  "type": "number",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991,
+                  "not": { "multipleOf": 1 }
+                }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "boolean" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "type": "boolean" } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "object" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "$ref": "#/$defs/claimObject" } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "array" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "$ref": "#/$defs/scalarArray" } } }
+          },
+          {
+            "if": { "properties": { "normalized_value_type": { "const": "null" } }, "required": ["normalized_value_type"] },
+            "then": { "properties": { "normalized_value": { "type": "null" } } }
+          }
+        ]
+      }
+    },
+    "relationship_candidates": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "subject", "predicate", "object", "semantic", "confidence", "valid_from", "state"],
+        "properties": {
+          "candidate_id": { "type": "string", "format": "uuid" },
+          "subject": { "$ref": "#/$defs/sourceRef" },
+          "predicate": { "type": "string" },
+          "object": { "$ref": "#/$defs/sourceRef" },
+          "semantic": { "enum": ["structural", "configured", "entitlement", "observed", "ownership", "coverage"] },
+          "scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "key"],
+            "properties": {
+              "kind": { "enum": ["authorization_context", "source_configuration", "source_observation"] },
+              "key": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "description": "Digest of the normalized, privacy-approved scope tuple. Raw source tokens and credentials are forbidden."
+              }
+            }
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "valid_from": { "type": "string", "format": "date-time" },
+          "valid_to": { "type": ["string", "null"], "format": "date-time" },
+          "state": { "enum": ["active", "ended", "retracted"] }
+        }
+      }
+    },
+    "activity_candidates": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "source_activity_id", "family", "subtype", "occurred_at", "outcome"],
+        "properties": {
+          "candidate_id": { "type": "string", "format": "uuid" },
+          "source_activity_id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+          "family": { "enum": ["application", "agent", "workload", "session", "model", "mcp", "tool", "network", "resource", "source", "native_control"] },
+          "subtype": { "type": "string", "minLength": 3, "maxLength": 128, "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$" },
+          "occurred_at": { "type": "string", "format": "date-time" },
+          "actor": { "$ref": "#/$defs/sourceRef" },
+          "resources": {
+            "type": "array",
+            "maxItems": 32,
+            "items": { "$ref": "#/$defs/sourceRef" }
+          },
+          "outcome": { "enum": ["succeeded", "failed", "blocked", "cancelled", "timed_out", "unknown"] },
+          "native_decision": { "type": "string", "maxLength": 128 },
+          "observed_effect": { "type": "string", "maxLength": 128 },
+          "correlation": {
+            "type": "object",
+            "maxProperties": 32,
+            "propertyNames": { "maxLength": 128 },
+            "additionalProperties": { "type": "string", "maxLength": 512 }
+          },
+          "safe_metrics": {
+            "type": "object",
+            "maxProperties": 32,
+            "propertyNames": { "maxLength": 128 },
+            "additionalProperties": { "type": ["number", "integer"], "minimum": -9007199254740991, "maximum": 9007199254740991 }
+          }
+        }
+      }
+    },
+    "coverage_candidates": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "population", "capability", "state", "valid_from"],
+        "properties": {
+          "candidate_id": { "type": "string", "format": "uuid" },
+          "population": { "$ref": "#/$defs/populationRef" },
+          "capability": { "type": "string" },
+          "state": { "enum": ["covered", "degraded", "gap", "unsupported", "unknown"] },
+          "valid_from": { "type": "string", "format": "date-time" },
+          "valid_to": { "type": ["string", "null"], "format": "date-time" },
+          "reason_code": { "type": "string" }
+        }
+      }
+    },
+    "reconciliation_candidates": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "run_id", "snapshot_id", "stage", "scope_type", "completeness"],
+        "properties": {
+          "candidate_id": { "type": "string", "format": "uuid" },
+          "run_id": { "type": "string", "format": "uuid" },
+          "snapshot_id": { "type": "string", "minLength": 1, "maxLength": 1024 },
+          "stage": { "enum": ["started", "page", "completed", "failed"] },
+          "scope_type": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "scope_source_id": { "type": ["string", "null"], "maxLength": 1024 },
+          "page_sequence": { "type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991 },
+          "page_digest": {
+            "oneOf": [
+              { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+              { "type": "null" }
+            ]
+          },
+          "page_count": { "type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991 },
+          "members": {
+            "type": "array",
+            "maxItems": 512,
+            "items": { "$ref": "#/$defs/sourceRef" }
+          },
+          "expected_count": { "type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991 },
+          "observed_count": { "type": ["integer", "null"], "minimum": 0, "maximum": 9007199254740991 },
+          "completeness": { "enum": ["full", "partial", "unknown"] },
+          "source_revision": { "type": ["string", "null"], "maxLength": 256 },
+          "snapshot_digest": {
+            "oneOf": [
+              { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+              { "type": "null" }
+            ]
+          },
+          "reason_code": { "type": ["string", "null"], "maxLength": 128 }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "stage": { "const": "page" } }, "required": ["stage"] },
+            "then": {
+              "required": ["page_sequence", "page_digest", "members"],
+              "properties": {
+                "page_sequence": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "page_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "stage": { "const": "completed" } }, "required": ["stage"] },
+            "then": {
+              "required": ["page_count", "observed_count", "snapshot_digest"],
+              "properties": {
+                "page_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "observed_count": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                "snapshot_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "stage": { "const": "failed" } }, "required": ["stage"] },
+            "then": {
+              "required": ["reason_code"],
+              "properties": {
+                "reason_code": { "type": "string", "minLength": 1, "maxLength": 128 }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "populationRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["population_type", "source_namespace", "source_population_id"],
+      "properties": {
+        "population_type": {
+          "enum": ["producer", "browser_installation", "device", "account", "workload", "gateway_route", "mcp_surface"]
+        },
+        "source_namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "source_population_id": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "profile", "type", "namespace", "id"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+        "type": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "id": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "scalar": {
+      "anyOf": [
+        { "type": "string", "maxLength": 4096 },
+        { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+        { "type": "number", "minimum": -9007199254740991, "maximum": 9007199254740991, "not": { "multipleOf": 1 } },
+        { "type": "boolean" },
+        { "type": "null" }
+      ]
+    },
+    "scalarArray": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/scalar" }
+    },
+    "claimObject": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": { "maxLength": 128 },
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/$defs/scalar" },
+          { "$ref": "#/$defs/scalarArray" }
+        ]
+      }
+    },
+    "claimValue": {
+      "oneOf": [
+        { "$ref": "#/$defs/scalar" },
+        { "$ref": "#/$defs/scalarArray" },
+        { "$ref": "#/$defs/claimObject" }
+      ]
+    }
+  }
+}

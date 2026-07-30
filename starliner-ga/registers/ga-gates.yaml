@@ -1,0 +1,45 @@
+schema_version: "1.0"
+gates:
+  - id: G0
+    name: Architecture Freeze
+    customer_claim: null
+    required_records: [constitution, adrs, protocol, source_profiles, threat_model, actor_security, requirements, needs_input, raci, engineering_control_system, feature_evidence_trace, evidence_disposition]
+    waiver_prohibited: [canonical_identity_boundary, durability_boundary, tenant_boundary]
+  - id: G1
+    name: Production Foundation
+    customer_claim: null
+    required_capabilities: [edge_runtime, workload_identity, ingest, evidence, normalization, resolution, canonical_ledgers, outbox, integration_role_isolation, cell_operations, api_authorization]
+    required_proof: [durability, replay, compatibility, tenant_isolation, backup_restore, provenance, capacity]
+  - id: DIE-GA
+    name: Discovery Inventory and Evidence GA
+    customer_claim: "Continuous source-backed discovery and canonical inventory across Browser Endpoint LLM Gateway and MCP Gateway with important activity evidence provenance coverage gaps and reversible Quilr 1 cohort transition."
+    required_profiles: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway, quilr1_legacy]
+    required_product: [overview, application_inventory, agent_inventory, model_inventory, mcp_server_inventory, tool_inventory, activity, evidence, coverage, producers, export, audit]
+    required_proof: [durability, source_event_coverage, resolution_quality, activity_lineage, projection_rebuild, tenant_isolation, privacy, accessibility, capacity, backup_restore, exact_artifacts, quilr1_member_parity, cohort_fallback, pilot]
+  - id: G2
+    name: Unified AI Estate GA
+    customer_claim: "Unified active AI application and model estate across launch sensors with ownership, governance, coverage, and actionable discovery."
+    required_profiles: [browser, browser_backend, endpoint, llm_gateway, enterprise_connector]
+    required_product: [die_ga_foundation, overview, application_inventory, entity_page, coverage, unmanaged_app_insight, ownership_workflow, export, audit]
+    required_proof: [resolution_quality, finding_quality, browser_relay_lineage, pilot, accessibility, slo, dr, quilr1_coexistence]
+  - id: G3
+    name: Agentic Estate GA
+    customer_claim: "Agent, model, MCP server, and tool estate with workload identity, execution relationships, and supported unapproved/exposure findings."
+    required_profiles: [mcp_gateway]
+    required_product: [agent_inventory, mcp_tool_inventory, execution_graph, agent_model_finding, case_workflow]
+    required_proof: [identity_collision, correlation_quality, content_privacy, bypass_coverage]
+  - id: G4
+    name: Analytics and Cost GA
+    customer_claim: "Coverage-aware adoption, governance, risk, activity, and cost analytics."
+    required_product: [metric_catalog, analytics, cost, attribution, restatement, exports]
+    required_proof: [metric_math, price_lineage, late_data, performance, privacy]
+  - id: G5
+    name: Governed Control GA
+    customer_claim: "Simulated and approved policy enforcement through certified sensors with verified effects."
+    required_product: [policy, simulation, approvals, exceptions, commands, effects, control_analytics]
+    required_proof: [control_safety, blast_radius, staged_rollout, kill_switch, offline_behavior, incident_exercise]
+  - id: G6
+    name: Quilr 1 Retirement
+    customer_claim: null
+    required_capabilities: [backfill, parity, consumer_migration, cutover, rollback_closure, data_disposition, decommission]
+    required_proof: [tenant_signoff, retention, no_legacy_authority, infrastructure_removal]

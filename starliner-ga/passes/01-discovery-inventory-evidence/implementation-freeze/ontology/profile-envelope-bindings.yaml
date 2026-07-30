@@ -1,0 +1,191 @@
+schema_version: "1.0"
+binding_version: die.profile-envelope-bindings.v1
+rule: "Admission rejects a payload kind, selector and envelope record_type combination not listed here."
+
+profiles:
+  browser:
+    browser.installation:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        stopped: object.changed
+        tombstoned: object.tombstoned
+    browser.device:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        tombstoned: object.tombstoned
+    browser.application:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        tombstoned: object.tombstoned
+    browser.account_context:
+      record_type: object.observed
+    browser.relationship:
+      selector: operation
+      values:
+        upsert: relationship.observed
+        end: relationship.ended
+    browser.local_binding:
+      record_type: relationship.observed
+    browser.activity:
+      record_type: activity.observed
+    browser.upload:
+      selector: stage
+      values:
+        observed: activity.observed
+        scan_requested: activity.observed
+        decision_received: decision.observed
+        allowed: outcome.observed
+        blocked: outcome.observed
+        overridden: outcome.observed
+        cancelled: outcome.observed
+        timed_out: outcome.observed
+        failed: outcome.observed
+    browser.native_outcome:
+      record_type: outcome.observed
+    browser.snapshot:
+      record_type: reconciliation.observed
+    browser.health:
+      record_type: health.observed
+    browser.gap:
+      record_type: gap.observed
+  browser_backend:
+    application_catalog:
+      selector: operation
+      values:
+        observed: object.observed
+        changed: object.changed
+        tombstoned: object.tombstoned
+    application_configuration:
+      selector: operation
+      values:
+        observed: object.observed
+        changed: object.changed
+        tombstoned: object.tombstoned
+    browser_event:
+      record_type: activity.observed
+    native_decision:
+      record_type: decision.observed
+    action_outcome:
+      record_type: outcome.observed
+    installation:
+      selector: operation
+      values:
+        observed: object.observed
+        changed: object.changed
+        tombstoned: object.tombstoned
+    heartbeat:
+      record_type: health.observed
+    publication_gap:
+      record_type: gap.observed
+    reconciliation_snapshot:
+      record_type: reconciliation.observed
+  endpoint:
+    endpoint.entity:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        stopped: object.changed
+        uninstalled: object.tombstoned
+        tombstoned: object.tombstoned
+    endpoint.relationship:
+      selector: operation
+      values:
+        upsert: relationship.observed
+        end: relationship.ended
+    endpoint.activity:
+      record_type: activity.observed
+    endpoint.native_decision:
+      record_type: decision.observed
+    endpoint.native_effect:
+      record_type: outcome.observed
+    endpoint.snapshot:
+      record_type: reconciliation.observed
+    endpoint.health:
+      record_type: health.observed
+    endpoint.gap:
+      record_type: gap.observed
+  llm_gateway:
+    llm.entity:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        disabled: object.changed
+        tombstoned: object.tombstoned
+    llm.relationship:
+      selector: operation
+      values:
+        upsert: relationship.observed
+        end: relationship.ended
+    llm.invocation:
+      selector: stage
+      values:
+        accepted: activity.observed
+        routed: activity.observed
+        stream_started: activity.observed
+        stream_completed: outcome.observed
+        completed: outcome.observed
+        cancelled: outcome.observed
+        failed: outcome.observed
+        timed_out: outcome.observed
+        rejected: outcome.observed
+        retried: activity.observed
+        failed_over: activity.observed
+    llm.native_decision:
+      record_type: decision.observed
+    llm.native_effect:
+      record_type: outcome.observed
+    llm.snapshot:
+      record_type: reconciliation.observed
+    llm.health:
+      record_type: health.observed
+    llm.gap:
+      record_type: gap.observed
+  mcp_gateway:
+    mcp.entity:
+      selector: lifecycle
+      values:
+        observed: object.observed
+        changed: object.changed
+        disabled: object.changed
+        removed: object.tombstoned
+        tombstoned: object.tombstoned
+    mcp.relationship:
+      selector: operation
+      values:
+        upsert: relationship.observed
+        end: relationship.ended
+    mcp.tool_call:
+      selector: stage
+      values:
+        requested: activity.observed
+        confirmation_required: decision.observed
+        confirmation_granted: decision.observed
+        confirmation_denied: outcome.observed
+        started: activity.observed
+        completed: outcome.observed
+        failed: outcome.observed
+        cancelled: outcome.observed
+        timed_out: outcome.observed
+        progress: activity.observed
+    mcp.operation:
+      record_type: activity.observed
+    mcp.rejection:
+      record_type: outcome.observed
+    mcp.native_decision:
+      record_type: decision.observed
+    mcp.native_effect:
+      record_type: outcome.observed
+    mcp.snapshot:
+      record_type: reconciliation.observed
+    mcp.health:
+      record_type: health.observed
+    mcp.gap:
+      record_type: gap.observed

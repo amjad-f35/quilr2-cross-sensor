@@ -1,0 +1,334 @@
+schema_version: "1.1"
+ontology_version: die.ontology.predicates.v1
+
+predicates:
+  contains:
+    semantic: structural
+    pairs:
+      - [application_product, agent_definition]
+      - [mcp_server_deployment, mcp_tool]
+      - [mcp_server_deployment, mcp_resource_definition]
+      - [mcp_server_deployment, mcp_prompt_definition]
+  part_of:
+    semantic: structural
+    pairs:
+      - [agent_definition, application_product]
+      - [mcp_tool, mcp_server_deployment]
+      - [mcp_resource_definition, mcp_server_deployment]
+      - [mcp_prompt_definition, mcp_server_deployment]
+  instance_of:
+    semantic: structural
+    pairs:
+      - [application_surface, application_product]
+      - [application_deployment, application_product]
+      - [agent_deployment, agent_definition]
+      - [workload, agent_deployment]
+      - [model_version, model_family]
+      - [model_version, model_product]
+      - [model_deployment, model_version]
+      - [model_deployment, model_product]
+      - [mcp_server_deployment, mcp_server_product]
+  belongs_to:
+    semantic: structural
+    pairs:
+      - [provider_account, provider]
+      - [model_deployment, provider_account]
+      - [application_account, application_deployment]
+  version_of:
+    semantic: structural
+    pairs:
+      - [model_version, model_family]
+      - [model_version, model_product]
+      - [agent_definition, agent_definition]
+      - [application_product, application_product]
+  deployed_on:
+    semantic: structural
+    pairs:
+      - [application_deployment, device]
+      - [application_deployment, workload]
+      - [agent_deployment, device]
+      - [agent_deployment, workload]
+      - [model_deployment, workload]
+      - [mcp_server_deployment, device]
+      - [mcp_server_deployment, workload]
+      - [workload, device]
+  installed_on:
+    semantic: structural
+    pairs:
+      - [application_deployment, device]
+      - [browser_installation, device]
+      - [endpoint_installation, device]
+      - [artifact_or_package, device]
+  exposes:
+    semantic: structural
+    pairs:
+      - [mcp_server_deployment, mcp_tool]
+      - [mcp_server_deployment, mcp_resource_definition]
+      - [mcp_server_deployment, mcp_prompt_definition]
+  has_account:
+    semantic: structural
+    pairs:
+      - [device, directory_account]
+      - [application_surface, application_account]
+      - [application_deployment, application_account]
+  configured_to_use:
+    semantic: configured
+    pairs:
+      - [application_deployment, model_product]
+      - [application_deployment, model_deployment]
+      - [agent_deployment, model_product]
+      - [agent_deployment, model_deployment]
+      - [agent_deployment, mcp_server_deployment]
+      - [application_deployment, mcp_server_deployment]
+  configured_with:
+    semantic: configured
+    pairs:
+      - [application_deployment, agent_definition]
+      - [application_deployment, agent_hook]
+      - [application_deployment, agent_skill]
+      - [application_deployment, agent_plugin]
+      - [application_deployment, configured_permission_rule]
+      - [agent_deployment, agent_hook]
+      - [agent_deployment, agent_skill]
+      - [agent_deployment, agent_plugin]
+      - [agent_deployment, configured_permission_rule]
+  configured_for:
+    semantic: configured
+    pairs:
+      - [application_deployment, repository]
+      - [agent_deployment, repository]
+  can_invoke:
+    semantic: configured
+    pairs:
+      - [agent_deployment, mcp_tool]
+      - [application_deployment, mcp_tool]
+  routes_to:
+    semantic: configured
+    pairs:
+      - [model_route, model_deployment]
+      - [model_route, mcp_server_deployment]
+      - [application_deployment, model_route]
+      - [agent_deployment, model_route]
+  runs_as:
+    semantic: configured
+    pairs:
+      - [agent_deployment, directory_account]
+      - [agent_deployment, service_principal]
+      - [agent_deployment, workload_identity]
+      - [application_deployment, directory_account]
+      - [application_deployment, service_principal]
+      - [application_deployment, workload_identity]
+      - [mcp_server_deployment, directory_account]
+      - [mcp_server_deployment, service_principal]
+      - [mcp_server_deployment, workload_identity]
+      - [workload, directory_account]
+      - [workload, service_principal]
+      - [workload, workload_identity]
+  executed_as:
+    semantic: observed
+    pairs:
+      - [agent_deployment, directory_account]
+      - [agent_deployment, service_principal]
+      - [agent_deployment, workload_identity]
+      - [application_deployment, directory_account]
+      - [application_deployment, service_principal]
+      - [application_deployment, workload_identity]
+      - [mcp_server_deployment, directory_account]
+      - [mcp_server_deployment, service_principal]
+      - [mcp_server_deployment, workload_identity]
+      - [workload, directory_account]
+      - [workload, service_principal]
+      - [workload, workload_identity]
+  assigned_to:
+    semantic: configured
+    pairs:
+      - [agent_deployment, person]
+      - [application_deployment, person]
+      - [device, person]
+  used_by:
+    semantic: configured
+    pairs:
+      - [application_account, directory_account]
+      - [application_account, person]
+  member_of:
+    semantic: entitlement
+    pairs:
+      - [person, team]
+      - [directory_account, team]
+      - [service_principal, team]
+      - [team, business_unit]
+      - [team, team]
+  has_role_on:
+    semantic: entitlement
+    pairs:
+      - [person, resource]
+      - [directory_account, resource]
+      - [service_principal, resource]
+      - [team, resource]
+      - [person, application_deployment]
+      - [directory_account, application_deployment]
+      - [service_principal, application_deployment]
+      - [team, application_deployment]
+  has_permission_to:
+    semantic: entitlement
+    pairs:
+      - [person, resource]
+      - [directory_account, resource]
+      - [service_principal, resource]
+      - [team, resource]
+      - [person, device]
+      - [directory_account, device]
+      - [service_principal, device]
+      - [team, device]
+      - [person, mcp_server_deployment]
+      - [directory_account, mcp_server_deployment]
+      - [service_principal, mcp_server_deployment]
+      - [team, mcp_server_deployment]
+  can_authenticate_to:
+    semantic: entitlement
+    pairs:
+      - [directory_account, device]
+      - [directory_account, resource]
+      - [service_principal, resource]
+      - [workload_identity, resource]
+      - [workload_identity, application_deployment]
+      - [workload_identity, mcp_server_deployment]
+  has_credential_on:
+    semantic: entitlement
+    pairs:
+      - [directory_account, device]
+      - [directory_account, resource]
+      - [service_principal, device]
+      - [service_principal, resource]
+      - [workload_identity, device]
+      - [workload_identity, resource]
+  used:
+    semantic: observed
+    pairs:
+      - [person, application_surface]
+      - [person, application_deployment]
+      - [person, agent_deployment]
+      - [directory_account, application_surface]
+      - [directory_account, application_deployment]
+      - [directory_account, agent_deployment]
+      - [workload, model_product]
+  invoked:
+    semantic: observed
+    pairs:
+      - [person, agent_deployment]
+      - [directory_account, agent_deployment]
+      - [agent_deployment, mcp_tool]
+      - [application_deployment, mcp_tool]
+      - [workload, mcp_tool]
+  called:
+    semantic: observed
+    pairs:
+      - [agent_deployment, model_deployment]
+      - [application_deployment, model_deployment]
+      - [workload, model_deployment]
+  accessed:
+    semantic: observed
+    pairs:
+      - [agent_deployment, resource]
+      - [application_deployment, resource]
+      - [person, resource]
+      - [directory_account, resource]
+      - [workload, resource]
+      - [agent_deployment, repository]
+      - [application_deployment, repository]
+      - [workload, repository]
+  read_from:
+    semantic: observed
+    pairs:
+      - [agent_deployment, resource]
+      - [application_deployment, resource]
+      - [workload, resource]
+      - [agent_deployment, repository]
+      - [application_deployment, repository]
+      - [workload, repository]
+  wrote_to:
+    semantic: observed
+    pairs:
+      - [agent_deployment, resource]
+      - [application_deployment, resource]
+      - [workload, resource]
+      - [agent_deployment, repository]
+      - [application_deployment, repository]
+      - [workload, repository]
+  owned_by:
+    semantic: ownership
+    pairs:
+      - [application_product, person]
+      - [application_deployment, person]
+      - [agent_definition, person]
+      - [agent_deployment, person]
+      - [model_deployment, person]
+      - [mcp_server_deployment, person]
+      - [application_product, team]
+      - [application_deployment, team]
+      - [agent_definition, team]
+      - [agent_deployment, team]
+      - [model_deployment, team]
+      - [mcp_server_deployment, team]
+  administered_by:
+    semantic: ownership
+    pairs:
+      - [application_deployment, person]
+      - [agent_deployment, person]
+      - [model_deployment, person]
+      - [mcp_server_deployment, person]
+      - [device, person]
+      - [application_deployment, team]
+      - [agent_deployment, team]
+      - [model_deployment, team]
+      - [mcp_server_deployment, team]
+      - [device, team]
+  observed_by:
+    semantic: coverage
+    pairs:
+      - [application_product, source_producer]
+      - [application_surface, source_producer]
+      - [application_deployment, source_producer]
+      - [agent_definition, source_producer]
+      - [agent_deployment, source_producer]
+      - [model_product, source_producer]
+      - [model_version, source_producer]
+      - [model_deployment, source_producer]
+      - [mcp_server_product, source_producer]
+      - [mcp_server_deployment, source_producer]
+      - [mcp_tool, source_producer]
+      - [device, source_producer]
+      - [workload, source_producer]
+      - [agent_hook, source_producer]
+      - [agent_skill, source_producer]
+      - [agent_plugin, source_producer]
+      - [configured_permission_rule, source_producer]
+      - [repository, source_producer]
+  covered_by:
+    semantic: coverage
+    pairs:
+      - [application_product, source_producer]
+      - [application_surface, source_producer]
+      - [application_deployment, source_producer]
+      - [agent_definition, source_producer]
+      - [agent_deployment, source_producer]
+      - [model_product, source_producer]
+      - [model_deployment, source_producer]
+      - [mcp_server_product, source_producer]
+      - [mcp_server_deployment, source_producer]
+      - [mcp_tool, source_producer]
+      - [device, source_producer]
+      - [workload, source_producer]
+      - [agent_hook, source_producer]
+      - [agent_skill, source_producer]
+      - [agent_plugin, source_producer]
+      - [configured_permission_rule, source_producer]
+      - [repository, source_producer]
+
+rules:
+  - direction is canonical and an inverse label is presentation only
+  - a predicate outside its registered pair is quarantined or held pending
+  - configured entitlement and observed semantics never substitute for one another
+  - entitlement relationships are customer-estate facts and never grant access to the Quilr product
+  - an exposure path is returned only from persisted supported edges and never from user-level execution alone
+  - no inventory predicate grants product authorization

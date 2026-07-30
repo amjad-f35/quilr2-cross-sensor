@@ -1,0 +1,563 @@
+schema_version: "1.0"
+register_version: "1.0"
+scope: discovery_inventory_activity_evidence
+freeze_state: source_corrected_live_gates_open
+change_control: implementation_ADR_required
+
+decisions:
+  - id: DIE-ARCH-001
+    area: architecture
+    decision: modular monolith in source and authority with role-separated distributed processes
+    status: frozen
+  - id: DIE-ARCH-002
+    area: architecture
+    decision: one signed central Go artifact with ingest normalizer truth projector api and maintenance roles
+    status: frozen
+  - id: DIE-ARCH-003
+    area: architecture
+    decision: no synchronous internal service chain; committed state provides every stage handoff
+    status: frozen
+  - id: DIE-ARCH-004
+    area: repository
+    decision: project-starliner owns contracts edge SDK and all central pass modules; quilr-platform-nuxt owns UI
+    status: frozen
+  - id: DIE-PROTO-001
+    area: protocol
+    decision: small strict common envelope plus typed versioned source profiles
+    status: frozen
+  - id: DIE-PROTO-002
+    area: protocol
+    decision: producer preserves strongest source-native identity and never assigns canonical identity
+    status: frozen
+  - id: DIE-PROTO-003
+    area: protocol
+    decision: producer epoch sequence record ID and content digest define delivery identity and conflict
+    status: frozen
+  - id: DIE-PROTO-004
+    area: protocol
+    decision: receipts are per record and accepted only after durable object metadata and work handoff
+    status: frozen
+  - id: DIE-PROTO-005
+    area: protocol
+    decision: trace context is used only for actual causality; correlation IDs serve independent observations
+    status: frozen
+  - id: DIE-PROTO-006
+    area: privacy
+    decision: prohibited facts are rejected before serialization and WAL admission; only a separate profile-valid content-free coverage record may report the omission
+    status: frozen
+  - id: DIE-PROTO-007
+    area: protocol
+    decision: v1 admission accepts only the five typed certified profiles; legacy inputs require a separately approved migration translator and cannot enter through an untyped profile
+    status: frozen
+  - id: DIE-PROTO-008
+    area: protocol
+    decision: browser-to-endpoint placement and endpoint-to-gateway activity attribution use short-lived tenant audience request-or-nonce-bound signed assertions verified at the receiver and central normalizer
+    status: frozen
+  - id: DIE-EDGE-001
+    area: edge
+    decision: every owned sensor uses durable local WAL outbox retry sequencing privacy and health
+    status: frozen
+  - id: DIE-EDGE-002
+    area: edge
+    decision: edge state supports delta offline enforcement and retransmission but is not enterprise inventory
+    status: frozen
+  - id: DIE-EDGE-003
+    area: edge
+    decision: browser uses embedded background durability endpoint one supervised local runtime LLM one sidecar per pod and MCP embedded single replica until scale certification
+    status: frozen
+  - id: DIE-EDGE-004
+    area: enrollment
+    decision: producer apply revoke and certify use a signed revisioned manifest through the maintenance artifact and a short-lived dedicated control database role
+    status: frozen
+  - id: DIE-DATA-001
+    area: storage
+    decision: PostgreSQL is authority for evidence metadata pipeline normalization identity canonical authz audit and ordinary reads
+    status: frozen
+  - id: DIE-DATA-002
+    area: storage
+    decision: S3-compatible object storage is authority for immutable admitted evidence bytes and export objects
+    status: frozen
+  - id: DIE-DATA-003
+    area: storage
+    decision: ClickHouse is rebuildable activity and evidence search projection only
+    status: frozen
+  - id: DIE-DATA-004
+    area: storage
+    decision: Redis Neo4j Kafka and search engine are not required and cannot become truth
+    status: frozen
+  - id: DIE-DATA-005
+    area: storage
+    decision: canonical ledgers are versioned with valid time and system time; current pointers are mutable
+    status: frozen
+  - id: DIE-DATA-006
+    area: storage
+    decision: content addressing deduplicates immutable object bytes but never collapses distinct evidence identities
+    status: frozen
+  - id: DIE-DATA-007
+    area: storage
+    decision: authoritative many-to-many provenance uses immutable tenant-scoped foreign-keyed link ledgers; UUID arrays are permitted only as bounded derived representations
+    status: frozen
+  - id: DIE-WORK-001
+    area: processing
+    decision: execution is at least once with exactly-once durable effects through scoped idempotency
+    status: frozen
+  - id: DIE-WORK-002
+    area: processing
+    decision: PostgreSQL leased work uses SKIP LOCKED lease token fencing bounded retries and quarantine
+    status: frozen
+  - id: DIE-WORK-003
+    area: processing
+    decision: each stage commits its output and next handoff atomically
+    status: frozen
+  - id: DIE-WORK-004
+    area: processing
+    decision: normalizers are deterministic profile-specific network-free and canonical-lookup-free
+    status: frozen
+  - id: DIE-WORK-005
+    area: processing
+    decision: canonical transactions make no external calls and lock aggregates in deterministic order
+    status: frozen
+  - id: DIE-WORK-006
+    area: lease_recovery
+    decision: attempts are bounded; maintenance alone requeues an expired lease with attempts remaining and atomically writes a fenced lease-recovery execution plus quarantine for an expired final attempt
+    status: frozen
+  - id: DIE-WORK-007
+    area: replay_identity
+    decision: work identity includes the immutable sha256 target implementation artifact digest; identical subject input and artifact is idempotent while replay after a repair or algorithm upgrade creates a new work row with a newly certified digest
+    status: frozen
+  - id: DIE-ID-001
+    area: identity
+    decision: producer source object canonical and presentation identities are distinct layers
+    status: frozen
+  - id: DIE-ID-002
+    area: identity
+    decision: automatic binding requires exact strong key authoritative mapping or surviving reviewed binding
+    status: frozen
+  - id: DIE-ID-003
+    area: identity
+    decision: fuzzy name domain URL process timing and co-occurrence can rank review candidates but never auto-merge
+    status: frozen
+  - id: DIE-ID-004
+    area: identity
+    decision: negative constraints outrank weak positive evidence
+    status: frozen
+  - id: DIE-ID-005
+    area: identity
+    decision: field authority and entity membership are separate decisions
+    status: frozen
+  - id: DIE-ID-006
+    area: identity
+    decision: merge split unbind and corrections append decisions preserve aliases and rematerialize
+    status: frozen
+  - id: DIE-ID-007
+    area: identity
+    decision: guest maps to flyby and credentialed maps to authenticated_unknown; personal or corporate maps only from a traceable stronger writer and unstable flyby stays session-scoped
+    status: frozen
+  - id: DIE-ID-008
+    area: identity
+    decision: identity corrections use durable preview-bound asynchronous commands applied only by the canonical truth writer
+    status: frozen
+  - id: DIE-ID-009
+    area: identity
+    decision: normalized source object identity is scoped by tenant producer profile namespace type and source ID
+    status: frozen
+  - id: DIE-ID-010
+    area: identity
+    decision: every normalized relationship and activity endpoint is producer profile namespace type and source-ID qualified; observing subject object actor and resource producers are stored independently
+    status: frozen
+  - id: DIE-ONTO-001
+    area: ontology
+    decision: primary inventory separates application product surface deployment and account; agent definition and deployment; model product family version deployment route and provider account; MCP server product deployment tool resource and prompt
+    status: frozen
+  - id: DIE-ONTO-002
+    area: ontology
+    decision: inventory authorization and causal lineage are separate graphs
+    status: frozen
+  - id: DIE-ONTO-003
+    area: ontology
+    decision: predicates require registered endpoint type pairs and explicit structural configured entitlement observed ownership or coverage semantics
+    status: frozen
+  - id: DIE-ONTO-004
+    area: ontology
+    decision: product or definition deployment or configuration runtime session and activity are distinct layers and may not be collapsed into untyped attributes
+    status: frozen
+  - id: DIE-ONTO-005
+    area: identity
+    decision: one local agent deployment is an authoritative deployment ID or resolved definition plus exact device plus source-authority installation/configuration scope; observed user and execution identity are separate evidence and exact execution identity enters a key only for an explicitly user-bound source; version project workspace repository process session and run never split it
+    status: frozen
+  - id: DIE-ONTO-006
+    area: relationships
+    decision: configured entitlement and observed estate edges are independently sourced and never substitute for or imply one another; estate entitlement never grants Quilr product authorization
+    status: frozen
+  - id: DIE-ONTO-007
+    area: ontology
+    decision: application technology class and agentic capability are separate authority-backed classifications with explicit unknown values
+    status: frozen
+  - id: DIE-ACT-001
+    area: activity
+    decision: canonical activity is evidence-backed customer-readable activity and not a finding
+    status: frozen
+  - id: DIE-ACT-002
+    area: activity
+    decision: cross-source correlation is automatic only for deterministic levels one through four
+    status: frozen
+  - id: DIE-ACT-003
+    area: activity
+    decision: uncertain correlation keeps events separate and preserves all source observations
+    status: frozen
+  - id: DIE-ACT-004
+    area: activity
+    decision: source activity identity is scoped by profile producer namespace and native ID through explicit canonical activity bindings
+    status: frozen
+  - id: DIE-ACT-005
+    area: activity
+    decision: every admitted source activity discriminator and stage has an exhaustive machine-validated mapping to one registered canonical subtype
+    status: frozen
+  - id: DIE-ACT-006
+    area: activity
+    decision: native decisions and observed effects are separate correlated source records and canonical activity fields; intent never proves effect
+    status: frozen
+  - id: DIE-COV-001
+    area: coverage
+    decision: absence is meaningful only for an expected population and covered interval
+    status: frozen
+  - id: DIE-COV-002
+    area: coverage
+    decision: coverage states are covered degraded gap unsupported and unknown
+    status: frozen
+  - id: DIE-COV-003
+    area: coverage
+    decision: every coverage interval references an approved producer scope environment capability expected-population binding; observed counts never define their own denominator
+    status: frozen
+  - id: DIE-REC-001
+    area: reconciliation
+    decision: all inventory sources use bounded start page complete failure snapshot streams in addition to deltas
+    status: frozen
+  - id: DIE-REC-002
+    area: reconciliation
+    decision: only a verified complete full snapshot for one exact source scope may close absent source support
+    status: frozen
+  - id: DIE-PROJ-001
+    area: projection
+    decision: central materializers write canonical truth while projectors write disposable query projections
+    status: frozen
+  - id: DIE-PROJ-002
+    area: projection
+    decision: truth transaction writes a canonical transactional outbox
+    status: frozen
+  - id: DIE-PROJ-003
+    area: projection
+    decision: rebuild uses a new generation snapshot tail verification atomic activation and rollback window
+    status: frozen
+  - id: DIE-PROJ-004
+    area: projection
+    decision: every projection generation partition has a durable destination acknowledged checkpoint and generation watermark is their verified lower bound
+    status: frozen
+  - id: DIE-AUTH-001
+    area: authorization
+    decision: deny-by-default in-process Go kernel combines RBAC ReBAC ABAC field masks and RLS defense
+    status: frozen
+  - id: DIE-AUTH-002
+    area: authorization
+    decision: observed inventory relationships never grant product authorization
+    status: frozen
+  - id: DIE-AUTH-003
+    area: authorization
+    decision: authorization filter is applied before query planning counting pagination graph expansion and caching
+    status: frozen
+  - id: DIE-AUTH-004
+    area: authorization
+    decision: raw evidence content requires explicit grant purpose short-lived single-use access and audit
+    status: frozen
+  - id: DIE-AUTH-005
+    area: authorization
+    decision: authz administration uses an isolated admin API surface and dedicated writer role with one revisioned audited transaction
+    status: frozen
+  - id: DIE-AUTH-006
+    area: audit
+    decision: audit appends lock ordered tenant shard heads and periodic KMS signed checkpoints make the immutable chains tamper evident
+    status: frozen
+  - id: DIE-AUTH-007
+    area: authorization
+    decision: every customer-queryable producer entity activity evidence coverage and audit row has a deterministic non-null business-scope authorization dimension; unclassified data falls back to tenant root
+    status: frozen
+  - id: DIE-AUTH-008
+    area: authorization
+    decision: raw evidence bytes are redeemed only through an authenticated one-time API grant consumed before streaming; v1 exposes no direct object-store signed URL
+    status: frozen
+  - id: DIE-AUTH-009
+    area: authorization
+    decision: scope role and curated relation mutations use discriminated bounded request schemas and typed role conditions; arbitrary authorization target JSON is prohibited
+    status: frozen
+  - id: DIE-AUTH-010
+    area: authorization
+    decision: a signed one-time maintenance transaction creates the tenant root scope self-closure initial authorization revision and audit chain; the public admin API cannot replace reparent or delete the root
+    status: frozen
+  - id: DIE-API-001
+    area: api
+    decision: starliner-api is the only customer data API and uses OpenAPI v1 generated clients
+    status: frozen
+  - id: DIE-API-002
+    area: api
+    decision: cursor pagination binds tenant authorization revision projection generation filters sort and stable ID
+    status: frozen
+  - id: DIE-API-003
+    area: api
+    decision: every read discloses canonical and projection watermarks freshness coverage partial state and warnings
+    status: frozen
+  - id: DIE-API-004
+    area: api
+    decision: graph access is direct or at most two hops and arbitrary traversal is not public
+    status: frozen
+  - id: DIE-API-005
+    area: api
+    decision: accepted identity commands return 202 and expose durable status and terminal result resources
+    status: frozen
+  - id: DIE-API-006
+    area: api
+    decision: identity and authz mutations use persisted tenant principal scope revision bound previews and durable request digest idempotency
+    status: frozen
+  - id: DIE-API-007
+    area: api
+    decision: public mutation correction and export inputs are discriminated bounded contracts; arbitrary JSON filters values and targets are not accepted
+    status: frozen
+  - id: DIE-API-008
+    area: api
+    decision: agent inventory uses deployment-scoped list and hydrated detail DTOs plus a fixed allowlisted authorization-filtered exposure endpoint capped at four hops
+    status: frozen
+  - id: DIE-UI-001
+    area: ui
+    decision: existing Nuxt 4 shadcn-vue shell is retained and bound through a generated DIE client repository seam
+    status: frozen
+  - id: DIE-UI-002
+    area: ui
+    decision: platformShell becomes one route authority and production fixtures are prohibited
+    status: frozen
+  - id: DIE-UI-003
+    area: ui
+    decision: production screens show inventory activity evidence coverage identity and freshness; deferred domains are hidden
+    status: frozen
+  - id: DIE-UI-004
+    area: ui
+    decision: unknown gap and unsupported coverage cannot render as an empty authoritative result
+    status: frozen
+  - id: DIE-OPS-001
+    area: reliability
+    decision: accepted evidence durability tenant isolation deterministic replay and stable semantics precede optimization
+    status: frozen
+  - id: DIE-OPS-002
+    area: reliability
+    decision: overload preserves heartbeat and gap control lane and backpressures data to edge WAL
+    status: frozen
+  - id: DIE-OPS-003
+    area: reliability
+    decision: OpenTelemetry metrics logs and traces exclude prohibited content and use bounded metric labels
+    status: frozen
+  - id: DIE-TEST-001
+    area: quality
+    decision: all five profiles require digest-bound certification packs and positive/negative golden corpora
+    status: frozen
+  - id: DIE-TEST-002
+    area: quality
+    decision: GA requires real dependency end-to-end chaos restore security performance accessibility and supply-chain gates
+    status: frozen
+  - id: DIE-TEST-004
+    area: negative_conformance
+    decision: a negative live test passes only for its expected invariant error or SQLSTATE; rejection by an unrelated constraint permission or missing row is a test failure
+    status: frozen
+  - id: DIE-SCOPE-001
+    area: scope
+    decision: findings intelligence policy engine enforcement orchestration cost value and deployment portfolio are outside this pass
+    status: frozen
+  - id: DIE-SCOPE-002
+    area: scope
+    decision: pass implementation cannot depend on resolving migration or final deployment portfolio
+    status: frozen
+  - id: DIE-SCOPE-003
+    area: scope
+    decision: four owned sensors support their certified observed and configured estate but do not claim complete enterprise identity entitlement cloud SaaS repository or resource reachability without authoritative connector profiles
+    status: frozen
+  - id: DIE-SCOPE-004
+    area: sensor_completeness
+    decision: discovery inventory catalog activity observability and evidence include every source-proven native feature trigger event field relationship health signal and artifact from the five sensor profiles only after it has a stable source ID explicit disposition end-to-end lineage privacy classification access recipe and positive and negative conformance evidence; any newly proven item automatically reopens the affected contracts and cannot be silently dropped or advertised before closure
+    status: frozen
+  - id: DIE-NORM-006
+    area: normalization
+    decision: one evidence record commits one immutable normalization run containing one or more deterministic output-keyed observations and one truth work item
+    status: frozen
+  - id: DIE-NORM-007
+    area: normalization
+    decision: repeated values at one claim path use deterministic claim keys and claim supersession is an append-only link rather than an update to an immutable claim
+    status: frozen
+  - id: DIE-TRUTH-007
+    area: materialization
+    decision: truth resolves all primary source objects in a normalization bundle before dependent candidates and persists pending or ambiguous dependencies for reverse-indexed reevaluation
+    status: frozen
+  - id: DIE-TRUTH-008
+    area: provenance
+    decision: every canonical entity field relationship version activity version and coverage interval has immutable claim or candidate and evidence provenance links
+    status: frozen
+  - id: DIE-COV-004
+    area: coverage
+    decision: every coverage candidate addresses one exact expected population by population type source namespace and source population ID and no zero or multiple match is guessed
+    status: frozen
+  - id: DIE-INGEST-009
+    area: ingest
+    decision: batch idempotency persists request digest and every ordered per-record result so a lost response can be reproduced exactly and per-record conflicts cannot fail siblings
+    status: frozen
+  - id: DIE-IDENTITY-011
+    area: identity
+    decision: browser names emails and display personas are sensitive claims and never create a person; only stable source identity creates a source-scoped directory account
+    status: frozen
+  - id: DIE-IDENTITY-012
+    area: identity
+    decision: merge split and correction preserve entity aliases decision participants and correction claims with cycle prevention and bitemporal history
+    status: frozen
+  - id: DIE-REL-007
+    area: relationships
+    decision: a source relationship is admitted only by an exact profile subject predicate object and semantic rule that maps to a valid canonical ontology pair and exactly one audited adapter-derivable relationship-support rule
+    status: frozen
+  - id: DIE-SEC-011
+    area: tenant_isolation
+    decision: each tenant has one cell assignment and each workload login has an independent active tenant-cell-principal binding to its one declared group role; current tenant context resolves only for that session binding and cell state before RLS evaluates
+    status: frozen
+  - id: DIE-SEC-012
+    area: tenant_isolation
+    decision: every activity partition has direct-query RLS policy and grants; partition creation fails closed unless policy grant and direct-child isolation tests pass atomically
+    status: frozen
+  - id: DIE-PROJ-007
+    area: projection
+    decision: ClickHouse receives tenant-keyed search tokens rather than raw source object or correlation identifiers and APIs query deterministic current views rather than raw replacing tables
+    status: frozen
+  - id: DIE-API-009
+    area: export
+    decision: export bytes are redeemed through an authenticated API path that rechecks authorization revision job state and expiry and no durable object-store URL is exposed
+    status: frozen
+  - id: DIE-PROTOCOL-009
+    area: protocol
+    decision: cross-language integer fields are bounded to the JavaScript safe integer range and producer epochs rotate before sequence exhaustion
+    status: frozen
+  - id: DIE-PROTOCOL-010
+    area: integrity
+    decision: JSON hashing and signatures use RFC 8785 JCS over I-JSON-compatible input with cross-language vectors and configuration generations are monotonically rollback protected
+    status: frozen
+  - id: DIE-PIPELINE-006
+    area: state_machines
+    decision: work items previews idempotency records evidence grants identity commands exports and projection generations are database-enforced state machines with immutable request context monotonic checkpoints terminal-state protection lease fencing and role-minimal transition columns
+    status: frozen
+  - id: DIE-AUDIT-005
+    area: audit_integrity
+    decision: an audit shard head initializes at zero and advances exactly one sequence only after a matching immutable event links the prior hash; head identity never changes and signed external checkpoints detect privileged chain tampering
+    status: frozen
+  - id: DIE-STORAGE-008
+    area: bitemporal_integrity
+    decision: canonical entity and relationship system-time histories never overlap and system-current source or activity bindings may contain multiple disjoint valid-time intervals but never overlapping intervals
+    status: frozen
+  - id: DIE-NORM-008
+    area: normalization
+    decision: truth work is published only after PostgreSQL recomputes the artifact-bound normalization output count and sorted length-prefixed bundle digest
+    status: frozen
+  - id: DIE-CROSS-001
+    area: cross_sensor_identity
+    decision: exact signed foreign-source references may create non-inventory referenced-only shells and accepted assertions are issuer-nonce unique in an immutable replay ledger
+    status: frozen
+  - id: DIE-CONTROL-001
+    area: producer_control
+    decision: producer identity trust certification capability cell assignment and expected populations use database-enforced revisioned or close-only transitions
+    status: frozen
+  - id: DIE-AUTH-011
+    area: authorization_history
+    decision: grants closes scope changes and closure snapshots are serialized against and stamped by the locked tenant authorization revision
+    status: frozen
+  - id: DIE-AUTH-012
+    area: field_authorization
+    decision: every API response schema has a fail-closed field classification default and every dynamic map uses a registered key classification handler
+    status: frozen
+  - id: DIE-OUTBOX-001
+    area: publication
+    decision: each canonical producer or evidence-disposition aggregate version has exactly one typed immutable pointer and projectors reread that exact authoritative version
+    status: frozen
+  - id: DIE-STORAGE-009
+    area: clickhouse
+    decision: ClickHouse retains immutable version history and selects current rows by version-watermark plus digest without ReplacingMergeTree as a correctness mechanism
+    status: frozen
+  - id: DIE-RETENTION-001
+    area: evidence_lifecycle
+    decision: legal hold and deletion use an append-only active-held-tombstoned-deletion_pending-object_deleted-deleted protocol and every revision is projected
+    status: frozen
+  - id: DIE-PIPELINE-007
+    area: fencing
+    decision: a stage execution is immutable and can be inserted only while holding the exact matching live work ID and lease token
+    status: frozen
+  - id: DIE-API-010
+    area: api_integrity
+    decision: every customer POST is idempotent and export byte redemption requires a distinct download capability plus current revision reauthorization
+    status: frozen
+  - id: DIE-TEST-003
+    area: readiness
+    decision: static validation does not authorize broad implementation until the pinned PostgreSQL and ClickHouse live conformance gates pass
+    status: frozen
+  - id: DIE-CONTROL-002
+    area: expected_population_history
+    decision: expected-population payload versions are append-only but their valid and system intervals may be closed exactly once so the head can advance without overlapping current system truth
+    status: frozen
+  - id: DIE-STORAGE-010
+    area: canonical_revision_integrity
+    decision: canonical entity relationship and activity heads start at version one and every inserted version must be the exact type lifecycle and revision selected by its committed head; activity has at most one system-current version
+    status: frozen
+  - id: DIE-STORAGE-011
+    area: coverage_revision_integrity
+    decision: coverage aggregate inserts are transactionally serialized by tenant and coverage ID start at revision one preserve aggregate identity and require the immediately prior system revision to be closed
+    status: frozen
+  - id: DIE-PIPELINE-008
+    area: execution_commit_fencing
+    decision: a leased work item and its immutable stage execution must reach matching terminal states in the same PostgreSQL transaction; neither side may commit alone
+    status: frozen
+  - id: DIE-OUTBOX-002
+    area: publication_contract
+    decision: the central pointer outbox publishes only entity relationship activity coverage and evidence-disposition authorities with aggregate-compatible change types and bounded scalar hint payloads; producer refreshes are work triggered
+    status: frozen
+  - id: DIE-PROJ-008
+    area: projection_activation
+    decision: the bounded product uses one synchronized projection generation across PostgreSQL and ClickHouse whose immutable required-partition manifest is fully destination-acknowledged at the generation watermark before verification activation or standby rollback eligibility
+    status: frozen
+  - id: DIE-API-011
+    area: export_consistency
+    decision: export creation locks the exact active die_product_v1 generation and persists a composite foreign-keyed snapshot whose applied watermark is not behind the requested canonical watermark
+    status: frozen
+  - id: DIE-STORAGE-012
+    area: clickhouse_aggregate_state_typing
+    decision: every ClickHouse materialized-view aggregate-state expression is explicitly converted where necessary to the exact value type declared by its AggregateFunction destination column
+    status: frozen
+  - id: DIE-AUTHZ-013
+    area: tenant_cell_mobility
+    decision: tenant cell principal bindings preserve revoked enrollment epochs without foreign-key pinning the assignment to an old cell; a cell move requires old-cell revocation and the same login may then be enrolled under a new binding ID
+    status: frozen
+  - id: DIE-AUTHZ-014
+    area: worker_stage_isolation
+    decision: shared work and execution tables enforce separate enqueue handle and expired-recovery stage permissions from session workload-role membership; tenant isolation alone never authorizes a worker for another stage
+    status: frozen
+  - id: DIE-AUTHZ-015
+    area: workload_role_enrollment
+    decision: tenant cell principal enrollment counts effective transitive membership across all DIE runtime roles and accepts exactly the one declared role; direct-membership counting is insufficient
+    status: frozen
+  - id: DIE-CONTROL-003
+    area: producer_heartbeat_monotonicity
+    decision: once a producer last-seen time exists it can only advance or remain equal and cannot be cleared to null
+    status: frozen
+  - id: DIE-EVIDENCE-009
+    area: physical_erasure_completion
+    decision: deletion-pending evidence receives one placement-snapshot-bound immutable target manifest; object-deleted requires all object receipts and terminal deleted requires receipts for every sealed object ClickHouse cache and export target
+    status: frozen
+  - id: DIE-PROTOCOL-014
+    area: unambiguous_json_contracts
+    decision: every normative JSON Schema and YAML contract rejects duplicate mapping keys at validation time and defines each keyword exactly once
+    status: frozen
+  - id: DIE-STORAGE-013
+    area: evidence_byte_size
+    decision: evidence object byte size is stored as a positive JavaScript-safe PostgreSQL bigint matching the public API bound
+    status: frozen
+  - id: DIE-STORAGE-014
+    area: count_widths
+    decision: source-declared snapshot and product aggregate counts use JavaScript-safe bounded bigint while intentionally small protocol counters and ordinals use integer only with exact physical caps
+    status: frozen

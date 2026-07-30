@@ -1,0 +1,179 @@
+{
+  "authority_version": "lg008-five-profile-source-authority/1.0.0",
+  "generated_at": "2026-07-30",
+  "source_cutoff": {
+    "browser": {
+      "Project-Vanguard": "8e7a3e0c22c3ec29d0c642b211d59e9abc0071cb",
+      "project-sentinel": "6f55960ff5c3bf3cf1838985acd4155fc9f16334"
+    },
+    "browser-backend": {
+      "browser-extension-service": "496b8c216025e5d21871f5959e61dcdd01836106"
+    },
+    "endpoint": {
+      "sentinel-endpoint-agent": "a022e52bf2fff6a9445ebad96c3afeaf277e259f"
+    },
+    "llm-gateway": {
+      "macrodata-refinement": "92b0462c583b908f8ce0cadd1bc89d2e702f5a7d"
+    },
+    "mcp-gateway": {
+      "quilr-llm-gateway": "99f759d75aa8260f97db6904433c941647a755e5"
+    }
+  },
+  "source_profiles": [
+    {
+      "profile_id": "urn:quilr:lg008:profile:d4c3e8a11256ab82a4fc72560eb4a2b0e87bad820c290dd9b03616de240aa6db",
+      "profile": "browser",
+      "admission_state": "ACCEPTED_STATIC_SOURCE_AUTHORITY",
+      "repositories": "Project-Vanguard;project-sentinel",
+      "selected_revisions": "Project-Vanguard@8e7a3e0c22c3ec29d0c642b211d59e9abc0071cb;project-sentinel@6f55960ff5c3bf3cf1838985acd4155fc9f16334",
+      "native_records": 52,
+      "native_fields": 611,
+      "serialized_or_emitted_fields": 77,
+      "prohibited_or_restricted_fields": 54,
+      "target_fields": 136,
+      "optional_unsourced_target_fields": 28,
+      "current_delta_files": 102,
+      "current_delta_files_requiring_addendum": 19,
+      "proof_boundary": "Static source and executable artifact authority; native runtime golden certification remains LG-005."
+    },
+    {
+      "profile_id": "urn:quilr:lg008:profile:b605b14fa65cbd41f2f0ae3646e230ecc0771c1d2bb50c66ca13ef9fe9c47c11",
+      "profile": "browser-backend",
+      "admission_state": "ACCEPTED_STATIC_SOURCE_AUTHORITY",
+      "repositories": "browser-extension-service",
+      "selected_revisions": "browser-extension-service@496b8c216025e5d21871f5959e61dcdd01836106",
+      "native_records": 12,
+      "native_fields": 196,
+      "serialized_or_emitted_fields": 24,
+      "prohibited_or_restricted_fields": 6,
+      "target_fields": 396,
+      "optional_unsourced_target_fields": 105,
+      "current_delta_files": 6,
+      "current_delta_files_requiring_addendum": 0,
+      "proof_boundary": "Static source and executable artifact authority; native runtime golden certification remains LG-005."
+    },
+    {
+      "profile_id": "urn:quilr:lg008:profile:b6bf7bc8d96f3ea9d132c83b3da8e7760e420138485657372db4d6a981d3fd9e",
+      "profile": "endpoint",
+      "admission_state": "ACCEPTED_STATIC_SOURCE_AUTHORITY",
+      "repositories": "sentinel-endpoint-agent",
+      "selected_revisions": "sentinel-endpoint-agent@a022e52bf2fff6a9445ebad96c3afeaf277e259f",
+      "native_records": 66,
+      "native_fields": 639,
+      "serialized_or_emitted_fields": 435,
+      "prohibited_or_restricted_fields": 151,
+      "target_fields": 129,
+      "optional_unsourced_target_fields": 37,
+      "current_delta_files": 0,
+      "current_delta_files_requiring_addendum": 0,
+      "proof_boundary": "Static source and executable artifact authority; native runtime golden certification remains LG-005."
+    },
+    {
+      "profile_id": "urn:quilr:lg008:profile:1a89c40bda2bd7c4b5d5bde086c3fe81dd567c6834092a92253ee82994968b25",
+      "profile": "llm-gateway",
+      "admission_state": "ACCEPTED_STATIC_SOURCE_AUTHORITY",
+      "repositories": "macrodata-refinement",
+      "selected_revisions": "macrodata-refinement@92b0462c583b908f8ce0cadd1bc89d2e702f5a7d",
+      "native_records": 9,
+      "native_fields": 144,
+      "serialized_or_emitted_fields": 144,
+      "prohibited_or_restricted_fields": 3,
+      "target_fields": 128,
+      "optional_unsourced_target_fields": 26,
+      "current_delta_files": 0,
+      "current_delta_files_requiring_addendum": 0,
+      "proof_boundary": "Static source and executable artifact authority; native runtime golden certification remains LG-005."
+    },
+    {
+      "profile_id": "urn:quilr:lg008:profile:6d7f0086e206c256030ba175936cba576d4fb3b043e82068bd0b11f7b9584335",
+      "profile": "mcp-gateway",
+      "admission_state": "ACCEPTED_STATIC_SOURCE_AUTHORITY",
+      "repositories": "quilr-llm-gateway",
+      "selected_revisions": "quilr-llm-gateway@99f759d75aa8260f97db6904433c941647a755e5",
+      "native_records": 9,
+      "native_fields": 247,
+      "serialized_or_emitted_fields": 247,
+      "prohibited_or_restricted_fields": 26,
+      "target_fields": 142,
+      "optional_unsourced_target_fields": 27,
+      "current_delta_files": 32,
+      "current_delta_files_requiring_addendum": 8,
+      "proof_boundary": "Static source and executable artifact authority; native runtime golden certification remains LG-005."
+    }
+  ],
+  "inputs": [
+    {
+      "path": "Browser-Extension-System/Browser-extension-sensor-analysis/outputs/browser-extension-sensor-intelligence/matrices/sensor-intelligence/browser-extension/native-fields.csv",
+      "sha256": "4543f3d7de070606349fe42cd3479ed0f113159a3f8be7e9af4aa0c03e076df8"
+    },
+    {
+      "path": "Browser-Extension-System/Browser-extension-sensor-analysis/outputs/browser-backend-sensor-intelligence/matrices/sensor-intelligence/browser-backend/native-fields.csv",
+      "sha256": "b588a0278bb73649e23820fbb53b46b021834230603d032a2ce099d99f57fcd9"
+    },
+    {
+      "path": "ENDPOINT-AGENT-ANALYSIS-COMPLETE/matrices/sensor-intelligence/endpoint-sensor/native-fields.csv",
+      "sha256": "32465659ceed05ed6e916b40ba17ef7091631fa617445b1d89a99e173ed0aa8f"
+    },
+    {
+      "path": "ENDPOINT-AGENT-ANALYSIS-COMPLETE/matrices/sensor-intelligence/endpoint-sensor/native-record-types.csv",
+      "sha256": "ba0ae4ecfb0e6b699d5ded8da587b93fa4378bf8669f545e018310a88b75c50c"
+    },
+    {
+      "path": "ENDPOINT-AGENT-ANALYSIS-COMPLETE/matrices/sensor-intelligence/endpoint-sensor/product-disposition.csv",
+      "sha256": "9a623d5119489d2b42ee4741907a519c995f984520ec573ca72c19c3414267d2"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/macrodata-refinement/WORKERS/db_batch_writer/src/rows.rs",
+      "sha256": "41dc419a7ced0b20b1ac912e4afa8483a8f7766f6391a2db293fd236e64436c8"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/macrodata-refinement/WORKERS/db_batch_writer/src/llmgateway_logs_v3.rs",
+      "sha256": "2410f66e53d9b6a5d49ca38837d5800b5b5f2be0f79a03f1659c050a4e5be366"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/quilr-llm-gateway/mcpgateway/clickhouse_sync_utils/syncer.py",
+      "sha256": "57fdc2a03be589b3fa1ed7b0ba9708c0dd4224a5def5a7e2540b50224c1e813a"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/quilr-llm-gateway/mcpgateway/models/backend.py",
+      "sha256": "79378db5f9fe6c9acae181eca68fe66dea4af39d40d5e32e4673861379c6fed9"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/quilr-llm-gateway/mcpgateway/models/log_models.py",
+      "sha256": "300374e3d542fc46ed4a6a45edcf4d2925db7a3f97cf86485fc1c97af3d34211"
+    },
+    {
+      "path": "Org-Recon-2026-07-30/quilr-llm-gateway/mcpgateway/db/upstream_protocol_cache_repository.py",
+      "sha256": "19f9786f22ef07ab6236fb48eb2f70bfbce34fdeb83658b6dd3f456a2e579a2a"
+    }
+  ],
+  "generated_files": {
+    "native-field-disposition.csv": "c0bbba1b760fcbed62b688dd4bbf290c18244810d0d9d2d07c4336024ad7150c",
+    "record-catalog.csv": "eb5751887966f28a8ae09b2f443cb82bb5b16a3f96f80693f3412ecc079aa16a",
+    "access-recipes.csv": "03484af266051ab1dffa3fe46d29648f871532526b5441f16f79508615fe7695",
+    "current-source-delta-files.csv": "700af45e5be9f007823729a41678bfc4d978c53b7c44147e79dac2b9107184d1",
+    "target-field-traceability.csv": "a0d1d0f349111a6b28b103ed4d49a2bc09eb3a42b1cb57f05c571a309c95f2d9",
+    "profile-admission.csv": "1251a887efb5081b072c110ef6e7b74fba28a58e9aab520be3c0a3bae5c5e162"
+  },
+  "counts": {
+    "profiles": 5,
+    "records": 148,
+    "native_fields": 1837,
+    "access_recipes": 422,
+    "target_fields": 931,
+    "current_delta_files": 140,
+    "required_derivation_gaps": 0,
+    "rejected_profiles": 0
+  },
+  "supersedes": [
+    "Browser package two-profile global reconciliation closure state",
+    "Endpoint generated assertion that every native field is observable_and_collected",
+    "LLM Gateway 26,292-row lexical-key field catalog",
+    "MCP Gateway historical 1b2f2b399c4a access/field reconciliation"
+  ],
+  "assurance_boundary": {
+    "proven": "Static source, schema, serializer, persistence, delta, disposition, and target traceability.",
+    "not_claimed": "Native runtime capture certification, rollout reachability, or customer production behavior.",
+    "remaining_gate": "LG-005 native golden certification and LG-006 cross-language wire/signature vectors."
+  }
+}

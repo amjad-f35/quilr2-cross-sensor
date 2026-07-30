@@ -1,0 +1,204 @@
+schema_version: "1.0"
+model_version: die.authz.v1
+default_effect: deny
+
+principal_types:
+  - user
+  - group
+  - service
+  - support_session
+
+scope_types:
+  - tenant
+  - organization
+  - department
+  - team
+  - environment
+
+field_classifications:
+  - public_product
+  - internal
+  - sensitive_metadata
+  - restricted_evidence
+  - prohibited
+
+capabilities:
+  - overview.read
+  - inventory.list
+  - inventory.read
+  - relationship.read
+  - activity.read
+  - evidence.metadata.read
+  - evidence.object.read
+  - coverage.read
+  - producer.read
+  - identity.read
+  - identity.review
+  - export.create
+  - export.read
+  - export.download
+  - audit.read
+  - authz.admin
+
+roles:
+  tenant_admin:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - overview.read
+      - inventory.list
+      - inventory.read
+      - relationship.read
+      - activity.read
+      - evidence.metadata.read
+      - coverage.read
+      - producer.read
+      - identity.read
+      - identity.review
+      - export.create
+      - export.read
+      - export.download
+      - audit.read
+      - authz.admin
+  inventory_viewer:
+    maximum_field_classification: internal
+    capabilities:
+      - overview.read
+      - inventory.list
+      - inventory.read
+      - relationship.read
+  activity_viewer:
+    maximum_field_classification: internal
+    capabilities:
+      - overview.read
+      - inventory.read
+      - activity.read
+  evidence_viewer:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - evidence.metadata.read
+      - coverage.read
+      - producer.read
+  source_operator:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - evidence.metadata.read
+      - coverage.read
+      - producer.read
+  identity_reviewer:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - inventory.read
+      - relationship.read
+      - evidence.metadata.read
+      - identity.read
+      - identity.review
+  export_operator:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - overview.read
+      - inventory.list
+      - inventory.read
+      - relationship.read
+      - activity.read
+      - evidence.metadata.read
+      - coverage.read
+      - export.create
+      - export.read
+      - export.download
+  auditor:
+    maximum_field_classification: sensitive_metadata
+    capabilities:
+      - overview.read
+      - inventory.list
+      - inventory.read
+      - relationship.read
+      - activity.read
+      - evidence.metadata.read
+      - coverage.read
+      - producer.read
+      - audit.read
+  support_session:
+    maximum_field_classification: prohibited
+    capabilities: []
+    dynamic_capabilities_only: true
+
+relations:
+  - member
+  - viewer
+  - operator
+  - reviewer
+  - auditor
+  - owner
+  - delegate
+  - requested_by
+  - approved_support
+
+trusted_relation_sources:
+  - admin
+  - identity_provider
+  - authoritative_connector
+  - system
+
+deny_rules:
+  - id: tenant_mismatch
+    when: resource.tenant_id != principal.tenant_id
+  - id: capability_missing
+    when: requested_capability not_in principal.effective_capabilities
+  - id: scope_not_authorized
+    when: resource.scope_id not_in principal.allowed_scope_closure
+  - id: raw_evidence_grant_missing
+    when: requested_capability == evidence.object.read and principal.explicit_raw_evidence_grant != true
+  - id: field_classification_exceeded
+    when: field.classification > principal.maximum_field_classification
+  - id: support_session_invalid
+    when: principal.type == support_session and principal.support_approval_valid != true
+  - id: correction_assurance_missing
+    when: requested_capability == identity.review and principal.step_up_valid != true
+  - id: unknown_sensitive_state
+    when: resource.sensitivity >= sensitive_metadata and resource.authorization_state == unknown
+
+decision:
+  required_output:
+    - effect
+    - decision_id
+    - principal_id
+    - tenant_id
+    - authorization_revision
+    - capability
+    - allowed_scope_ids
+    - allowed_resource_ids
+    - allowed_environments
+    - maximum_field_classification
+    - field_mask
+    - time_bound
+    - reason_codes
+  cache_key:
+    - tenant_id
+    - principal_id
+    - authorization_revision
+    - capability
+    - resource_type
+    - resource_id
+    - request_attribute_digest
+  fail_mode: closed
+
+non_authoritative_relations:
+  source: inventory_relationship_graph
+  must_never_grant:
+    - contains
+    - part_of
+    - installed_on
+    - exposes
+    - configured_to_use
+    - can_invoke
+    - routes_to
+    - assigned_to
+    - owned_by
+    - administered_by
+    - member_of
+    - used
+    - invoked
+    - called
+    - accessed
+    - read_from
+    - wrote_to

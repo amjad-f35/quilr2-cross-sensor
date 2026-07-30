@@ -1,0 +1,33 @@
+schema_version: "1.0"
+rule: "A capability is advertised only when certified for the exact source, adapter/runtime artifact, version, configuration, permissions, privacy profile, and deployment topology."
+profiles:
+  - id: browser
+    producer_boundaries: [extension_background, native_host]
+    required_families: [producer_lifecycle, capability, web_surface_discovery, browser_session, interaction, data_operation, native_decision, native_effect, health, gap, correction]
+    direct_authority: [covered_web_surface, covered_browser_action, browser_native_effect]
+    limitations: [uncovered_browser, bypass, prohibited_content, business_owner, provider_execution]
+  - id: browser_backend
+    producer_boundaries: [browser_backend_service]
+    required_families: [producer_lifecycle, enrollment_receipt, configuration_delivery, client_receipt, validation, native_handoff, heartbeat, dependency_health, gap]
+    direct_authority: [backend_receipt, backend_validation, directly_observed_handoff_stage]
+    limitations: [unreceived_client_action, exact_client_effect, downstream_commit_without_observation]
+  - id: endpoint
+    producer_boundaries: [device_runtime, process_monitor, proxy, hooks, file_dlp, agent_updater]
+    required_families: [producer_lifecycle, device_snapshot, process, artifact_package, application, local_model_runtime, local_mcp, network, data_operation, native_decision, native_effect, update, health, gap, correction]
+    direct_authority: [covered_device_process, artifact, package, destination, local_runtime, endpoint_native_effect]
+    limitations: [uncovered_device, provider_execution, business_owner, unsupported_process_or_content]
+  - id: llm_gateway
+    producer_boundaries: [gateway_process, starliner_sidecar]
+    required_families: [producer_lifecycle, configuration_snapshot, route, provider_account, model_candidate, caller, request, stream, usage, native_decision, native_effect, health, gap, correction]
+    direct_authority: [routed_request, route_provider_model, authenticated_caller_context, provider_outcome, usage_measures]
+    limitations: [bypass_traffic, provider_inventory_not_reconciled, raw_content, enterprise_owner]
+  - id: mcp_gateway
+    producer_boundaries: [gateway_process, embedded_or_sidecar_runtime]
+    required_families: [producer_lifecycle, registry_snapshot, server, tool, resource, prompt, capability_negotiation, connection, session, invocation, progress_cancel, native_decision, native_effect, health, gap, correction]
+    direct_authority: [gateway_registry, routed_mcp_operation, negotiated_capability, gateway_native_effect]
+    limitations: [direct_local_bypass, unsupported_surface, raw_arguments_results, enterprise_owner]
+  - id: quilr1_legacy
+    producer_boundaries: [migration_worker]
+    required_families: [extraction, legacy_entity, legacy_relationship, legacy_event, tombstone, watermark, checksum, limitation, correction]
+    direct_authority: [legacy_customer_visible_record_at_extraction]
+    limitations: [canonical_identity, undocumented_semantics, live_sensor_truth, post_watermark_change]
