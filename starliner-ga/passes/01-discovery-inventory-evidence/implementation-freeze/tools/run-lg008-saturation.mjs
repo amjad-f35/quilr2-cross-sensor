@@ -24,7 +24,11 @@ function run(name, env = {}) {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'inherit'],
-    env: { ...process.env, ...env },
+    env: {
+      ...process.env,
+      LG008_VALIDATION_MODE: 'source',
+      ...env,
+    },
   }).trim()
 }
 

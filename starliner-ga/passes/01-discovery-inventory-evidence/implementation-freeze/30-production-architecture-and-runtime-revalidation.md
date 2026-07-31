@@ -259,7 +259,9 @@ document set never substitutes for execution on the selected engine.
 These are not missing architecture decisions. They are implementation and
 environment evidence that must be produced by the code being built and the
 selected deployment providers. No developer input is required to close the
-static design.
+static design. Their exact harness topologies, test cases, artifacts and exit
+criteria are frozen in
+[the production-readiness gate authority](production-readiness/README.md).
 
 ## Implementation authorization and stop line
 

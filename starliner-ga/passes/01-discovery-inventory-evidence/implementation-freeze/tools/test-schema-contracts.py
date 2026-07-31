@@ -227,6 +227,72 @@ def run() -> None:
     accept("edge-configuration.schema.json", configuration, "minimal configuration")
     positive_count += 1
 
+    gate_evidence = {
+        "schema_version": "die-gate-evidence/1.0.0",
+        "evidence_id": UUID_3,
+        "gate_id": "LG-001",
+        "test_id": "LG001-T001",
+        "result": "PASS",
+        "started_at": NOW,
+        "finished_at": LATER,
+        "candidate": {
+            "repository_commit": "a" * 40,
+            "repository_tree": "b" * 40,
+            "contract_digest": DIGEST,
+            "artifact_digests": {"postgres": DIGEST},
+        },
+        "environment": {
+            "environment_id": "ci-postgresql-17",
+            "kind": "release_qualification",
+            "os": "linux",
+            "architecture": "amd64",
+            "component_versions": {"postgresql": "17.10"},
+            "configuration_digest": DIGEST,
+            "fixture_digest": DIGEST,
+        },
+        "commands": [{"argv": ["run-lg001"], "exit_code": 0}],
+        "assertions": [
+            {
+                "assertion_id": "LG001.BASELINE",
+                "result": "PASS",
+                "message": "baseline applied",
+            }
+        ],
+        "artifacts": [
+            {
+                "kind": "report",
+                "relative_path": "reports/lg001.json",
+                "sha256": "a" * 64,
+                "contains_customer_data": False,
+            }
+        ],
+        "limitations": [],
+    }
+    accept(
+        "gate-evidence-package.schema.json",
+        gate_evidence,
+        "release-bound gate evidence",
+    )
+    positive_count += 1
+
+    absolute_gate_artifact = copy.deepcopy(gate_evidence)
+    absolute_gate_artifact["artifacts"][0]["relative_path"] = "/tmp/lg001.json"
+    reject(
+        "gate-evidence-package.schema.json",
+        absolute_gate_artifact,
+        "absolute gate artifact path",
+    )
+    negative_count += 1
+
+    unsafe_gate_commit = copy.deepcopy(gate_evidence)
+    unsafe_gate_commit["candidate"]["repository_commit"] = "main"
+    reject(
+        "gate-evidence-package.schema.json",
+        unsafe_gate_commit,
+        "mutable gate candidate",
+    )
+    negative_count += 1
+
     legacy_configuration_signature = copy.deepcopy(configuration)
     legacy_configuration_signature["signature"] = {
         "protected": "e30",

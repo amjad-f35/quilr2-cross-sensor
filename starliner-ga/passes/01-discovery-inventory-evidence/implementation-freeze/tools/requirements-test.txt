@@ -1,3 +1,1 @@
-jsonschema[format]>=4.23,<5
-pglast==8.3
-openapi-spec-validator==0.7.2
+-r requirements-test.lock

@@ -3,7 +3,7 @@
   "executed_at": "2026-07-30",
   "pass_one": {
     "build": "{\"profiles\":5,\"records\":148,\"native_fields\":1837,\"access_recipes\":422,\"target_fields\":931,\"current_delta_files\":140,\"required_derivation_gaps\":0,\"rejected_profiles\":0}",
-    "validation": "LG-008 five-profile authority passed: 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
+    "validation": "LG-008 five-profile authority passed (source): 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
     "generated_digests": {
       "authority-manifest.json": "59764c568563712cf86913aa1e56114ebdd623fca3c772c94ee3daa3b05a815c",
       "profile-admission.csv": "1251a887efb5081b072c110ef6e7b74fba28a58e9aab520be3c0a3bae5c5e162",
@@ -16,7 +16,7 @@
   },
   "pass_two": {
     "build": "{\"profiles\":5,\"records\":148,\"native_fields\":1837,\"access_recipes\":422,\"target_fields\":931,\"current_delta_files\":140,\"required_derivation_gaps\":0,\"rejected_profiles\":0}",
-    "validation": "LG-008 five-profile authority passed: 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
+    "validation": "LG-008 five-profile authority passed (source): 5 profiles; 148 records; 1837 native fields; 422 access recipes; 931 target traces; 140 classified current delta files.",
     "generated_digests": {
       "authority-manifest.json": "59764c568563712cf86913aa1e56114ebdd623fca3c772c94ee3daa3b05a815c",
       "profile-admission.csv": "1251a887efb5081b072c110ef6e7b74fba28a58e9aab520be3c0a3bae5c5e162",

@@ -150,3 +150,8 @@ Production engineering is authorized to begin from this handoff. Start with
 the expanded live conformance and generated contract foundations, then follow
 the dependency order above. Do not start by rebuilding a query-builder or
 wiring the Nuxt fixtures to ad hoc endpoints.
+
+The gate implementations must follow the exact topologies, catalog IDs,
+evidence schema and exits in
+[production-readiness](production-readiness/README.md). “Close LG-001” or
+“close LG-005” is not an open-ended engineering instruction.

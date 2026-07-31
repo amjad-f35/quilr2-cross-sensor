@@ -89,6 +89,8 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [LG-008 five-profile static authority](28-lg008-five-profile-static-authority.md) | Completed Browser/Backend/Endpoint/LLM/MCP semantic reconciliation and exact assurance boundary |
 | [LG-008 saturation and readiness](29-lg008-saturation-and-readiness.md) | Two-pass zero-drift closure and remaining independent live gates |
 | [Production architecture and runtime revalidation](30-production-architecture-and-runtime-revalidation.md) | Final sensor-to-UI structural verdict, target-engine runtime evidence, bounded implementation authorization and exact remaining acceptance gates |
+| [External readiness-audit reconciliation](31-external-readiness-audit-reconciliation.md) | Claim-by-claim disposition of the audit performed against historical commit 2614e7b |
+| [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |
 | [Module disposition](registers/module-disposition.csv) | Existing and target module classification |
@@ -129,6 +131,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Source revision selection](registers/source-revision-selection.csv) | Historical dossier, current source, successful build and release qualifications kept separate |
 | [Production source reachability](registers/production-source-reachability.csv) | Verified producer-to-relay/consumer/store/API edges and explicit unproven edges |
 | [Implementation validation](tools/validate-freeze.mjs) | Structural and cross-reference checks |
+| [Clean-room validation](tools/run-clean-room-validation.mjs) | One-command intrinsic or source-backed validation with retained evidence |
 | [Schema contract tests](tools/test-schema-contracts.py) | Draft 2020-12 meta-validation and positive/negative fixtures for every source profile and core wire contract |
 | [PostgreSQL DDL parse test](tools/test-postgres-ddl.py) | PostgreSQL grammar parse for the core and role/grant migrations; real database execution remains mandatory |
 | [OpenAPI contract test](tools/test-openapi-contracts.py) | Independent OpenAPI 3.1 validation, including local schema references |
@@ -175,12 +178,21 @@ The four owned sensors can support only the connected observed/configured subset
 ## Validation
 
 ```bash
-node starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs
-node starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/run-lg008-saturation.mjs
-python -m pip install -r starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/requirements-test.txt
-python starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/test-schema-contracts.py
-python starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/test-postgres-ddl.py
-python starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/test-openapi-contracts.py
+python -m pip install \
+  -r starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/requirements-test.lock
+node \
+  starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/run-clean-room-validation.mjs \
+  --intrinsic
+```
+
+Source-authority regeneration is separate because it requires the authorized
+revision-pinned source/evidence workspace:
+
+```bash
+CONSOLIDATE_ROOT=/authorized/evidence-root \
+node \
+  starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/run-clean-room-validation.mjs \
+  --source
 ```
 
 Then, on a host with Docker:
@@ -196,4 +208,6 @@ provider behavior or native adapters have already been implemented. Engineering
 may implement the full pass behind these contracts. Production acceptance and
 customer claims remain gated by the expanded `LG-*` evidence in
 [live conformance](22-live-storage-conformance.md) and the
-[defect ledger](registers/defect-closure-ledger.csv).
+[defect ledger](registers/defect-closure-ledger.csv). Exact topologies,
+assertions and evidence exits for those gates are frozen in the
+[production-readiness authority](production-readiness/README.md).

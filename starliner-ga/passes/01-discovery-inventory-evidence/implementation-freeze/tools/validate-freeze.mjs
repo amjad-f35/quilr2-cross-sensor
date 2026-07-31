@@ -32,15 +32,13 @@ function walk(path) {
 }
 
 function parseYaml(path) {
-  const ruby = [
-    '-r', 'yaml',
-    '-r', 'json',
-    '-e',
-    'puts JSON.generate(YAML.safe_load(File.read(ARGV[0]), [], [], true))',
-    path,
-  ]
+  const python = process.env.DIE_VALIDATOR_PYTHON || 'python3'
   try {
-    return JSON.parse(execFileSync('ruby', ruby, { encoding: 'utf8' }))
+    return JSON.parse(execFileSync(
+      python,
+      [join(root, 'tools/yaml-to-json.py'), path],
+      { encoding: 'utf8' },
+    ))
   }
   catch (error) {
     fail(`YAML parse failed for ${relative(root, path)}: ${String(error.message).split('\n')[0]}`)
@@ -136,6 +134,20 @@ const required = [
   '28-lg008-five-profile-static-authority.md',
   '29-lg008-saturation-and-readiness.md',
   '30-production-architecture-and-runtime-revalidation.md',
+  '31-external-readiness-audit-reconciliation.md',
+  'production-readiness/README.md',
+  'production-readiness/00-assurance-model.md',
+  'production-readiness/01-lg001-postgresql.md',
+  'production-readiness/02-lg002-clickhouse.md',
+  'production-readiness/03-lg003-object-storage.md',
+  'production-readiness/04-lg004-api-nuxt.md',
+  'production-readiness/05-lg005-native-adapters.md',
+  'production-readiness/06-lg006-cross-language-crypto.md',
+  'production-readiness/07-lg007-erasure-completeness.md',
+  'production-readiness/08-environments-ci-and-release-evidence.md',
+  'production-readiness/09-implementation-work-packages.md',
+  'production-readiness/registers/readiness-levels.csv',
+  'production-readiness/registers/gate-test-catalog.csv',
   'authz/model.yaml',
   'authz/api-field-policy.yaml',
   'ontology/entity-types.yaml',
@@ -189,6 +201,7 @@ const required = [
   'schemas/canonical-change-pointer.schema.json',
   'schemas/producer-enrollment-manifest.schema.json',
   'schemas/tenant-bootstrap-manifest.schema.json',
+  'schemas/gate-evidence-package.schema.json',
   'schemas/profile-browser-v1.schema.json',
   'schemas/profile-browser-backend-v1.schema.json',
   'schemas/profile-endpoint-v1.schema.json',
@@ -200,10 +213,14 @@ const required = [
   'ui/screen-api-matrix.csv',
   'ui/nuxt-seam-verification.yaml',
   'tools/requirements-test.txt',
+  'tools/requirements-test.lock',
   'tools/test-schema-contracts.py',
   'tools/test-postgres-ddl.py',
   'tools/test-openapi-contracts.py',
+  'tools/test-validator-mutations.mjs',
+  'tools/yaml-to-json.py',
   'tools/run-live-storage-conformance.sh',
+  'tools/run-clean-room-validation.mjs',
   'tools/snapshot-quilrbusiness-org.mjs',
   'tools/classify-quilrbusiness-repositories.mjs',
   'tools/snapshot-local-source-checkouts.mjs',
@@ -222,7 +239,14 @@ try {
   const result = execFileSync(
     'node',
     [join(root, 'tools/validate-lg008-authority.mjs')],
-    { cwd: root, encoding: 'utf8' },
+    {
+      cwd: root,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LG008_VALIDATION_MODE: 'intrinsic',
+      },
+    },
   ).trim()
   notes.push(result)
 }
@@ -700,6 +724,56 @@ for (const row of uiFieldRows) {
     fail(`UI field lineage ${row.field_id} has unknown support_state ${row.support_state}`)
   if (!operationIds.has(row.api_operation))
     fail(`UI field lineage ${row.field_id} references missing OpenAPI operation ${row.api_operation}`)
+}
+
+const readinessRows = csvObjects('production-readiness/registers/readiness-levels.csv')
+const readinessIds = new Set()
+for (const row of readinessRows) {
+  if (!/^RL-[0-9]{3}$/.test(row.level_id) || readinessIds.has(row.level_id))
+    fail(`missing, invalid, or duplicate readiness level ${row.level_id}`)
+  readinessIds.add(row.level_id)
+  if (!['PASS', 'NOT_REACHED'].includes(row.current_state))
+    fail(`readiness level ${row.level_id} has invalid state ${row.current_state}`)
+  for (const field of [
+    'name', 'entry_rule', 'exit_rule', 'permitted_work', 'prohibited_claim',
+  ]) {
+    if (!row[field])
+      fail(`readiness level ${row.level_id} lacks ${field}`)
+  }
+}
+if (readinessRows.length !== 6)
+  fail(`readiness ladder must contain exactly 6 levels, found ${readinessRows.length}`)
+
+const gateTestRows = csvObjects('production-readiness/registers/gate-test-catalog.csv')
+const gateTestIds = new Set()
+const gateTestCounts = new Map()
+const gateTestStates = new Set(['PLANNED', 'PASS_LOCAL_SMOKE', 'PASS', 'FAIL', 'BLOCKED'])
+for (const row of gateTestRows) {
+  const match = row.test_id?.match(/^LG00([1-7])-T[0-9]{3}$/)
+  if (!match || gateTestIds.has(row.test_id))
+    fail(`missing, invalid, or duplicate production gate test ${row.test_id}`)
+  gateTestIds.add(row.test_id)
+  const expectedGate = `LG-00${match?.[1]}`
+  if (row.gate !== expectedGate)
+    fail(`gate test ${row.test_id} names ${row.gate}; expected ${expectedGate}`)
+  if (!['YES', 'NO'].includes(row.required))
+    fail(`gate test ${row.test_id} has invalid required state ${row.required}`)
+  if (!gateTestStates.has(row.current_state))
+    fail(`gate test ${row.test_id} has invalid current state ${row.current_state}`)
+  if (row.current_state === 'PASS_LOCAL_SMOKE' && !['LG-001', 'LG-002'].includes(row.gate))
+    fail(`only exact target-engine gates may use PASS_LOCAL_SMOKE: ${row.test_id}`)
+  for (const field of [
+    'domain', 'scenario', 'invariant', 'required_evidence',
+  ]) {
+    if (!row[field])
+      fail(`gate test ${row.test_id} lacks ${field}`)
+  }
+  gateTestCounts.set(row.gate, (gateTestCounts.get(row.gate) ?? 0) + 1)
+}
+for (let index = 1; index <= 7; index += 1) {
+  const gate = `LG-00${index}`
+  if ((gateTestCounts.get(gate) ?? 0) < 10)
+    fail(`${gate} has fewer than 10 executable production tests`)
 }
 
 const defectRows = csvObjects('registers/defect-closure-ledger.csv')
@@ -1827,6 +1901,31 @@ if (/GRANT SELECT, INSERT, UPDATE ON die_pipeline\.stage_execution TO die_mainte
 const liveRunnerPath = join(root, 'tools/run-live-storage-conformance.sh')
 if ((statSync(liveRunnerPath).mode & 0o111) === 0)
   fail('live storage conformance runner is not executable')
+const repositoryRoot = resolve(root, '../../../..')
+for (const path of [
+  '.tool-versions',
+  '.github/workflows/die-freeze-validation.yml',
+]) {
+  if (!existsSync(join(repositoryRoot, path)))
+    fail(`clean-room reproducibility artifact is missing: ${path}`)
+}
+const toolVersions = readFileSync(join(repositoryRoot, '.tool-versions'), 'utf8')
+if (!toolVersions.includes('nodejs 24.18.0') || !toolVersions.includes('python 3.12.13'))
+  fail('clean-room Node/Python versions are not frozen')
+const validationWorkflow = readFileSync(
+  join(repositoryRoot, '.github/workflows/die-freeze-validation.yml'),
+  'utf8',
+)
+for (const fragment of [
+  'actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09',
+  'actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444',
+  'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1',
+  'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02',
+  'run-clean-room-validation.mjs',
+]) {
+  if (!validationWorkflow.includes(fragment))
+    fail(`clean-room workflow lacks immutable fragment ${fragment}`)
+}
 const liveRunner = requireFile('tools/run-live-storage-conformance.sh')
 for (const fragment of [
   'postgres:17.10-alpine3.24',
@@ -1890,6 +1989,7 @@ notes.push(`${profileEntityRows.length} profile-entity dispositions`)
 notes.push(`${fieldRows.length} field dispositions`)
 notes.push(`${relationshipRows.length} relationship support rules`)
 notes.push(`${uiFieldRows.length} UI field lineage rules`)
+notes.push(`${gateTestRows.length} production gate tests`)
 notes.push(`${defectRows.length} defect/live-gate ledger rows`)
 notes.push(`${organizationRepositories.length} organization repositories classified`)
 notes.push(`${selectedEvidence.rows.length} selected source/build evidence rows`)

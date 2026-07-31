@@ -11,11 +11,15 @@ const output = join(root, 'lg008')
 const consolidateRoot = process.env.CONSOLIDATE_ROOT
   ? resolve(process.env.CONSOLIDATE_ROOT)
   : resolve(toolDir, '../../../../../../..')
+const validationMode = process.env.LG008_VALIDATION_MODE || 'intrinsic'
 const errors = []
 
 function fail(message) {
   errors.push(message)
 }
+
+if (!['intrinsic', 'source'].includes(validationMode))
+  fail(`LG008_VALIDATION_MODE must be intrinsic or source, found ${validationMode}`)
 
 function requireFile(path) {
   if (!existsSync(path) || !statSync(path).isFile()) {
@@ -371,10 +375,16 @@ if (process.env.LG008_SKIP_SATURATION !== '1') {
   }
 }
 for (const input of manifest.inputs ?? []) {
-  const path = join(consolidateRoot, input.path)
-  const content = requireFile(path)
-  if (content && sha256(content) !== input.sha256)
-    fail(`source input digest drift: ${input.path}`)
+  if (!input.path || input.path.startsWith('/') || input.path.includes('..'))
+    fail(`source input path is not portable and relative: ${input.path}`)
+  if (!/^[0-9a-f]{64}$/.test(input.sha256 ?? ''))
+    fail(`source input lacks a SHA-256 digest: ${input.path}`)
+  if (validationMode === 'source') {
+    const path = join(consolidateRoot, input.path)
+    const content = requireFile(path)
+    if (content && sha256(content) !== input.sha256)
+      fail(`source input digest drift: ${input.path}`)
+  }
 }
 const expectedCounts = {
   profiles: admissions.length,
@@ -401,7 +411,7 @@ if (errors.length) {
 }
 
 console.log(
-  `LG-008 five-profile authority passed: ${admissions.length} profiles; `
+  `LG-008 five-profile authority passed (${validationMode}): ${admissions.length} profiles; `
   + `${records.length} records; ${fields.length} native fields; `
   + `${recipes.length} access recipes; ${traces.length} target traces; `
   + `${deltas.length} classified current delta files.`,

@@ -213,13 +213,15 @@ The final static suite passed and was then repeated without source changes:
 
 | Check | Result |
 |---|---|
-| implementation freeze | PASS — 141 decisions, 45 OpenAPI operations, 5 profiles, 47 profile-kind, 44 profile-entity, 75 product-field, 54 relationship and 42 UI-lineage rules; 103 ledger rows; 116 package files; embedded five-profile authority validation |
+| implementation freeze | PASS — 141 decisions, 45 OpenAPI operations, 5 profiles, 47 profile-kind, 44 profile-entity, 75 product-field, 54 relationship, 42 UI-lineage and 80 production-gate rules; 109 ledger rows; 135 package files; embedded five-profile intrinsic authority validation |
 | LG-008 saturation | PASS — two complete deterministic regenerations; 5 admissions, 148 records, 1,837 native fields, 422 access recipes, 931 target traces and 140 classified delta files; zero drift |
-| Draft 2020-12 schemas | PASS — 13 meta-schemas, 63 accepted and 38 rejected fixtures |
+| Draft 2020-12 schemas | PASS — 14 meta-schemas, 64 accepted and 40 rejected fixtures |
 | OpenAPI/YAML | PASS — duplicate-key rejection across 14 normative YAML documents and validation of both OpenAPI 3.1 specifications |
 | PostgreSQL grammar/dependency checks | PASS — 660 core, 115 role/grant and 144 live-conformance statements; 919 total |
 | exact target-engine local execution | PASS — PostgreSQL 17.10 complete current baseline/roles/conformance transaction; ClickHouse 26.3.17.56 LTS DDL/materialized-view/tie/deletion smoke |
-| outer DIE pass | PASS — 90 normative requirements, 9 migration requirements, 16 pass decisions, 3 migration decisions, 25 inputs, 24 risks, 54 Markdown documents, 27 CSV and 17 YAML registers |
+| outer DIE pass | PASS — 90 normative requirements, 9 migration requirements, 16 pass decisions, 3 migration decisions, 25 inputs, 24 risks, 66 Markdown documents, 29 CSV and 17 YAML registers |
+| whole Starliner corpus | PASS — incomplete migration work is truthfully non-normative; no broken links remain |
+| validator mutations | PASS — seven injected authority, SQL, API, gate, evidence and link defects were rejected |
 | live runner shell syntax | PASS |
 
 The OpenAPI environment emitted an `urllib3` LibreSSL compatibility warning;

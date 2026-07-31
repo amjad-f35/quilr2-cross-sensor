@@ -1,0 +1,7 @@
+level_id,name,current_state,entry_rule,exit_rule,permitted_work,prohibited_claim
+"RL-001","BASELINE_ADMITTED","PASS","clean immutable commit and selected-source manifest","intrinsic clean-room validation starts from exact tree","static validation and gate harness work","reproducibility or runtime correctness"
+"RL-002","STATIC_FREEZE_ACCEPTED","PASS","baseline admitted","all intrinsic schema API SQL authority and link checks pass","all bounded implementation behind frozen contracts","implemented or customer-ready behavior"
+"RL-003","IMPLEMENTATION_AUTHORIZED","PASS","static freeze plus exact target-engine local smoke","all production modules may be implemented in dependency order","production implementation and non-customer integration work","pilot GA or uncertified sensor/provider claims"
+"RL-004","INTERNAL_INTEGRATION_READY","NOT_REACHED","implemented ingest-to-UI candidate and representative cell","end-to-end functional failure security and restore integration pass","internal demos and pre-pilot qualification","customer production pilot"
+"RL-005","CONTROLLED_PILOT_READY","NOT_REACHED","internal integration plus applicable live security operational and migration gates","selected tenant cohort and rollback rehearsal accepted","approved limited pilot under declared constraints","general availability"
+"RL-006","GA_READY","NOT_REACHED","all applicable LG security operational migration and release gates pass","signed immutable release evidence accepted","production GA deployment","defect-free or behavior outside tested boundary"

@@ -71,4 +71,6 @@ A legacy store is a source of migration evidence, not automatically a Quilr 2 au
 
 The registers intentionally include resources that will not be present in the first customer UI. Migration completeness is broader than UI scope because configuration, audit, authorization, export, support, installation, and rollback state can break existing workflows even when not directly displayed.
 
-Static completeness does not mean production readiness. Production readiness requires the [live validation package](10-live-validation-and-team-signoff.md).
+Static completeness does not mean production readiness. A future
+`10-live-validation-and-team-signoff.md` is required before this incomplete
+parallel package can make a migration-readiness claim.
