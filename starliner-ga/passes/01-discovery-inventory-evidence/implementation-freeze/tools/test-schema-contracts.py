@@ -455,6 +455,48 @@ def run() -> None:
     accept("producer-enrollment-manifest.schema.json", manifest, "apply manifest")
     positive_count += 1
 
+    connector_profile = "connector.copilot_studio"
+
+    connector_batch = copy.deepcopy(batch)
+    connector_batch["records"][0]["envelope"]["profile"] = connector_profile
+    connector_batch["records"][0]["envelope"]["record_origin"] = "managed_connector"
+    accept(
+        "delivery-batch.schema.json",
+        connector_batch,
+        "registered-profile-shaped managed connector delivery",
+    )
+    positive_count += 1
+
+    connector_normalized = copy.deepcopy(normalized)
+    connector_normalized["output_key"] = "agent:copilot-studio:agent-1"
+    connector_normalized["normalizer"]["profile"] = connector_profile
+    connector_normalized["normalizer"]["name"] = connector_profile
+    connector_normalized["source_object"]["namespace"] = connector_profile
+    accept(
+        "normalized-observation.schema.json",
+        connector_normalized,
+        "registered-profile-shaped connector normalization",
+    )
+    positive_count += 1
+
+    connector_bundle = copy.deepcopy(normalization_bundle)
+    connector_bundle["source_profile"] = connector_profile
+    validate_normalization_bundle(connector_bundle)
+    positive_count += 1
+
+    connector_manifest = copy.deepcopy(manifest)
+    connector_manifest["source_profile"] = connector_profile
+    connector_manifest["display_name"] = "Copilot Studio Connector"
+    connector_manifest["expected_populations"][0][
+        "population_type"
+    ] = "integration_instance"
+    accept(
+        "producer-enrollment-manifest.schema.json",
+        connector_manifest,
+        "registered-profile-shaped connector enrollment",
+    )
+    positive_count += 1
+
     tenant_bootstrap = {
         "manifest_version": "starliner.tenant-bootstrap.v1",
         "manifest_id": UUID_1,
@@ -566,6 +608,15 @@ def run() -> None:
     missing_scope = copy.deepcopy(manifest)
     del missing_scope["business_scope_id"]
     reject("producer-enrollment-manifest.schema.json", missing_scope, "apply manifest without business scope")
+    negative_count += 1
+
+    invalid_profile_name = copy.deepcopy(manifest)
+    invalid_profile_name["source_profile"] = "Unregistered Profile"
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        invalid_profile_name,
+        "invalid source-profile identifier shape",
+    )
     negative_count += 1
 
     invalid_bootstrap_revision = copy.deepcopy(tenant_bootstrap)

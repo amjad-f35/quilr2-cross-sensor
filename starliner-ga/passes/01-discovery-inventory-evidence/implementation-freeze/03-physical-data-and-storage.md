@@ -14,7 +14,7 @@ Redis, Neo4j, Kafka and a search engine are not required. Adding one requires me
 
 | Schema | Role | Writer |
 |---|---|---|
-| `die_control` | producer, installation, cell/workload-principal, scope/environment, capability, expected-population and certification registry | signed enrollment use case under `die_control_admin` |
+| `die_control` | release-managed source profile/version authority plus tenant producer, installation, cell/workload-principal, scope/environment, capability, expected-population and certification registries | immutable release migration for source profiles; signed enrollment use case under `die_control_admin` for tenant producer state |
 | `die_evidence` | immutable evidence identity/admission metadata, exact ordered batch receipts, disposition history, safe rejection and quarantine | ingest plus dedicated retention writer |
 | `die_pipeline` | durable stage work, leases, executions, mutation previews/idempotency, checkpoints and projection generations | stage/API coordinators |
 | `die_normalized` | multi-output normalization runs, source objects, observations, cross-sensor assertion-use ledger, claims, relationship/activity/coverage candidates, dependency/evaluation state, and immutable reconciliation snapshot streams | normalizer; truth appends evaluation/dependency state |

@@ -168,7 +168,9 @@
           ]
         },
         "profile": {
-          "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "description": "Versioned profile identifier admitted only when the central release-managed source-profile registry accepts the exact profile/version and contract digest."
         },
         "profile_version": {
           "type": "string",
@@ -182,7 +184,7 @@
         "artifact": { "$ref": "#/$defs/artifact" },
         "certification_id": { "$ref": "#/$defs/uuid" },
         "record_origin": {
-          "enum": ["live_sensor", "selftest", "synthetic", "fixture", "legacy_backfill", "manual_import"]
+          "enum": ["live_sensor", "managed_connector", "external_telemetry", "control_result", "response_sync", "selftest", "synthetic", "fixture", "legacy_backfill", "manual_import"]
         },
         "evidence_quality": {
           "enum": ["audit_grade", "operational", "best_effort", "debug_only", "fixture"]

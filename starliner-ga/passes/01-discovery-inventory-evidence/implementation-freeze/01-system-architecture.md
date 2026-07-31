@@ -111,7 +111,7 @@ Arrows between central roles represent durable PostgreSQL handoffs, not synchron
 
 | Role | Responsibility | Reads | Writes | Scaling key |
 |---|---|---|---|---|
-| `starliner-ingest` | producer authentication, admission, integrity, privacy validation, immutable evidence and receipts | producer/certification registry | evidence metadata, object body, ingest receipt, normalize work | requests/second and bytes/second |
+| `starliner-ingest` | producer authentication, admission, integrity, privacy validation, immutable evidence and receipts | release-managed source-profile/version plus producer/certification registries | evidence metadata, object body, ingest receipt, normalize work | requests/second and bytes/second |
 | `starliner-normalizer` | deterministic profile-specific interpretation | evidence and source-profile registry | normalized observations, source objects, claims, relationship/activity candidates, truth work | admitted records and CPU |
 | `starliner-truth` | identity resolution and canonical materialization | normalized ledgers, identity policy, current canonical state | bindings, identity decisions, entities, relationships, activity, coverage, audit, central outbox | tenant/aggregate partitions |
 | `starliner-projector` | rebuildable product and analytical projections | canonical outbox and ledgers | PostgreSQL read models, ClickHouse projection, checkpoints | outbox partitions and destination latency |

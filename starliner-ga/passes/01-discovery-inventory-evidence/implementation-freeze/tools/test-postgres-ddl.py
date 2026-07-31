@@ -118,7 +118,14 @@ def main() -> None:
                     + "\n- ".join(ordering_errors)
                 )
 
-            tables = set(create_positions)
+            # Release-managed profile registries are global control metadata.
+            # They contain no tenant data and are writable only by the
+            # migration owner, so tenant RLS is neither applicable nor useful.
+            global_tables = {
+                "die_control.source_profile",
+                "die_control.source_profile_version",
+            }
+            tables = set(create_positions) - global_tables
             rls_enabled = set(
                 match.group(1).lower()
                 for match in re.finditer(

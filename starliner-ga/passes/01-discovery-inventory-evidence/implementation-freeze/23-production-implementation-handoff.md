@@ -48,12 +48,12 @@ permission or entitlement.
 A modular monolith may host these modules initially, but their ownership and
 transactions remain explicit:
 
-- control: tenant bootstrap, producer enrollment, certification, capability and
-  expected populations;
+- control: release-managed source-profile/version registry, tenant bootstrap,
+  producer enrollment, certification, capability and expected populations;
 - ingest: credential resolution, envelope/profile admission, object put,
   sequence/idempotency receipt and normalize work;
-- normalization: five profile implementations, replay ledger, bundle digest and
-  candidates;
+- normalization: registry-dispatched typed profile implementations (the five
+  launch profiles in this pass), replay ledger, bundle digest and candidates;
 - truth: resolution, conflicts, relationships, activity, coverage,
   reconciliation and pointer outbox;
 - projection: one synchronized product generation, immutable required

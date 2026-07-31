@@ -91,6 +91,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Production architecture and runtime revalidation](30-production-architecture-and-runtime-revalidation.md) | Final sensor-to-UI structural verdict, target-engine runtime evidence, bounded implementation authorization and exact remaining acceptance gates |
 | [External readiness-audit reconciliation](31-external-readiness-audit-reconciliation.md) | Claim-by-claim disposition of the audit performed against historical commit 2614e7b |
 | [Pre-code system-design closure](32-pre-code-system-design-closure.md) | Definitive component, communication, concurrency, pattern, API, limitation, technical-debt and implementation-choice closure matrix |
+| [Enterprise connector platform direction](33-enterprise-connector-platform-direction.md) | Future managed-connector roles, agent/security/observability ecosystems, shared canonical plane and current-build compatibility invariants |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |

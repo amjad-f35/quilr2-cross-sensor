@@ -2373,7 +2373,14 @@ components:
         family: {type: array, maxItems: 32, uniqueItems: true, items: {type: string, maxLength: 128}}
         subtype: {type: array, maxItems: 128, uniqueItems: true, items: {type: string, maxLength: 128}}
         outcome: {type: array, maxItems: 16, uniqueItems: true, items: {$ref: '#/components/schemas/Outcome'}}
-        source_profile: {type: array, maxItems: 8, uniqueItems: true, items: {type: string, enum: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway]}}
+        source_profile:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            pattern: '^[a-z][a-z0-9_.-]{0,127}$'
+            description: Registered source-profile identifier.
         producer_id: {$ref: '#/components/schemas/OpaqueId'}
         coverage_state: {type: array, maxItems: 8, uniqueItems: true, items: {$ref: '#/components/schemas/CoverageState'}}
         query: {type: string, minLength: 1, maxLength: 256}

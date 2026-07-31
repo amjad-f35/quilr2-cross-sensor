@@ -1281,15 +1281,11 @@ const profileFileMap = {
 if (profileBindings) {
   const deliveryEnvelope = JSON.parse(requireFile('schemas/delivery-batch.schema.json')).$defs.envelope
   const validRecordTypes = new Set(deliveryEnvelope.properties.record_type.enum)
-  const admittedProfiles = new Set(deliveryEnvelope.properties.profile.enum)
-  for (const profile of Object.keys(profileFileMap)) {
-    if (!admittedProfiles.has(profile))
-      fail(`delivery envelope omits typed source profile ${profile}`)
-  }
-  for (const profile of admittedProfiles) {
-    if (!profileFileMap[profile])
-      fail(`delivery envelope admits source profile without a typed schema: ${profile}`)
-  }
+  const profileIdentifier = deliveryEnvelope.properties.profile
+  if (profileIdentifier.pattern !== '^[a-z][a-z0-9_.-]{0,127}$')
+    fail('delivery envelope source profile is not registry-extensible with the frozen identifier grammar')
+  if (!profileIdentifier.description?.includes('release-managed source-profile registry'))
+    fail('delivery envelope does not bind dynamic profile identifiers to registry admission')
   for (const [profile, file] of Object.entries(profileFileMap)) {
     const schema = JSON.parse(requireFile(file))
     const kinds = new Set()
@@ -1539,6 +1535,10 @@ const requiredPgFragments = [
   'CREATE TABLE IF NOT EXISTS die_control.enrollment_manifest',
   'CREATE TABLE IF NOT EXISTS die_control.expected_population',
   'CREATE TABLE IF NOT EXISTS die_control.expected_population_version',
+  'CREATE TABLE IF NOT EXISTS die_control.source_profile',
+  'CREATE TABLE IF NOT EXISTS die_control.source_profile_version',
+  'REFERENCES die_control.source_profile(profile_id)',
+  'REFERENCES die_control.source_profile_version(profile_id, profile_version)',
   'CREATE TABLE IF NOT EXISTS die_pipeline.projection_checkpoint',
   'CREATE TABLE IF NOT EXISTS die_pipeline.projection_required_partition',
   "projection_name text NOT NULL CHECK (projection_name = 'die_product_v1')",
@@ -1576,7 +1576,7 @@ const requiredPgFragments = [
   'CREATE TABLE IF NOT EXISTS die_normalized.cross_sensor_assertion_use',
   'UNIQUE (tenant_id, issuer_producer_id, nonce_hash)',
   'CREATE OR REPLACE FUNCTION die_normalized.enforce_cross_sensor_assertion_use()',
-  'source_profile text NOT NULL CHECK (source_profile IN (\'browser\',\'browser_backend\',\'endpoint\',\'llm_gateway\',\'mcp_gateway\'))',
+  'source_profile text NOT NULL',
   'FOREIGN KEY (tenant_id, evidence_id, producer_id, source_profile, profile_version)',
   'CREATE TABLE IF NOT EXISTS die_normalized.claim_supersession',
   'CREATE TABLE IF NOT EXISTS die_normalized.candidate_evaluation',
@@ -1879,7 +1879,7 @@ if (!grants.includes('GRANT EXECUTE ON FUNCTION die_authz.current_tenant_id()'))
   fail('runtime roles cannot execute the RLS tenant-context function')
 if (!grants.includes('GRANT SELECT ON die_authz.business_scope TO die_control_admin'))
   fail('producer enrollment role cannot validate the target business scope')
-if (!/GRANT SELECT ON die_control\.producer, die_control\.producer_capability,\s+die_control\.certification, die_control\.tenant_cell_assignment,\s+die_control\.tenant_cell_principal TO die_normalizer/.test(grants))
+if (!/GRANT SELECT ON die_control\.source_profile, die_control\.source_profile_version,\s+die_control\.producer, die_control\.producer_capability,\s+die_control\.certification, die_control\.tenant_cell_assignment,\s+die_control\.tenant_cell_principal TO die_normalizer/.test(grants))
   fail('normalizer cannot validate enrolled cross-sensor assertion issuers')
 if (!grants.includes('die_normalized.cross_sensor_assertion_use'))
   fail('normalizer cannot persist cross-sensor assertion replay state')

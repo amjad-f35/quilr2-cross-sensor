@@ -37,7 +37,9 @@
       "format": "uuid"
     },
     "source_profile": {
-      "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "description": "Exact registered source profile used to admit and normalize the evidence."
     },
     "profile_version": {
       "type": "string",

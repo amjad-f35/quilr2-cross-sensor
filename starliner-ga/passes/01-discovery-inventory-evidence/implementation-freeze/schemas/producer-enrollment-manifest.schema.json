@@ -27,7 +27,11 @@
     "expires_at": { "type": "string", "format": "date-time" },
     "issuer": { "type": "string", "minLength": 1, "maxLength": 512 },
     "installation_id": { "type": "string", "minLength": 1, "maxLength": 512 },
-    "source_profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+    "source_profile": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+      "description": "Exact release-managed source-profile registry identifier. Schema acceptance alone never enrolls an unregistered profile."
+    },
     "business_scope_id": { "type": "string", "format": "uuid" },
     "environment": { "type": "string", "minLength": 1, "maxLength": 128 },
     "display_name": { "type": "string", "minLength": 1, "maxLength": 512 },
@@ -72,7 +76,7 @@
           "population_id": { "type": "string", "format": "uuid" },
           "capability": { "type": "string", "minLength": 1, "maxLength": 128 },
           "population_type": {
-            "enum": ["producer", "browser_installation", "device", "account", "workload", "gateway_route", "mcp_surface"]
+            "enum": ["producer", "browser_installation", "device", "account", "workload", "gateway_route", "mcp_surface", "integration_instance", "external_account", "agent", "agent_runtime", "cloud_resource", "saas_object", "repository", "dataset", "pipeline", "job", "source_object"]
           },
           "source_namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
           "source_population_id": { "type": "string", "minLength": 1, "maxLength": 1024 },

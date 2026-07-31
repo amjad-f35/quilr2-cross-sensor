@@ -62,7 +62,11 @@
         "additionalProperties": false,
         "required": ["profile", "profile_version", "schema_ref", "schema_sha256", "capabilities"],
         "properties": {
-          "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+          "profile": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "description": "Exact centrally registered source profile; unregistered profile/version pairs fail closed."
+          },
           "profile_version": { "type": "string", "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$" },
           "schema_ref": { "type": "string", "maxLength": 256 },
           "schema_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },

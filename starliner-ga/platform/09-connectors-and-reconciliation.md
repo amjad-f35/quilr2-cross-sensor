@@ -16,8 +16,13 @@ This document specifies discovery/reconciliation behavior. The authoritative sep
 - CMDB and asset inventory;
 - cloud provider and Kubernetes inventory;
 - SaaS admin APIs;
+- agent platforms and AI application builders;
+- CI/CD, build runners and ephemeral workload identity;
+- external LLM/agent observability and trace systems;
+- SIEM, SOAR, CASB/SSE and AI-SPM security systems;
 - AI provider organization, usage, and billing APIs;
 - ticketing and workflow systems;
+- CRM and business application platforms;
 - data catalogs/DLP classifications;
 - Quilr 1 import and coexistence.
 
@@ -69,6 +74,11 @@ Connectors never directly mutate product rows. They create source evidence and n
 - MDM: expected device population and management state;
 - CMDB: business owner and service relationships;
 - provider API: model deployments and billed usage;
+- agent platform: agent definitions, deployments, tools, models, owners and lifecycle;
+- CI/CD: pipeline/job/runner identity, ephemeral agent runtime and produced artifact relationships;
+- external observability: trace/run/session/tool/model activity with declared sampling and retention;
+- AI-SPM/CASB: source-native assets, posture, findings and policy/control state with explicit external authority;
+- SIEM: imported security events or exported Quilr records under separate telemetry/export roles;
 - ticketing: external workflow references and status.
 
 ## Deletion and disconnect

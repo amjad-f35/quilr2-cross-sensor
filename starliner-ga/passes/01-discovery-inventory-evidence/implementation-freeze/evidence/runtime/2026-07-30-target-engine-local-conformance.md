@@ -28,6 +28,17 @@ This proves that the corrected baseline and current smoke assertions execute on
 the selected PostgreSQL patch. It does not supply an immutable container digest
 or the complete multi-session contention/crash/failover matrix.
 
+The suite was rerun after the connector-extensibility correction. It also
+proved that:
+
+- the five launch source-profile/version rows load with exact schema digests;
+- a release-registered `connector.copilot_studio` profile can enroll a pending
+  producer through the same producer registry;
+- an unregistered connector profile fails closed;
+- runtime roles cannot mutate the global release-managed profile registry; and
+- producer capabilities and trusted producer transitions require registered,
+  admissible profile versions.
+
 ## ClickHouse
 
 - engine: official ClickHouse `26.3.17.56` LTS macOS ARM64 binary;

@@ -40,7 +40,8 @@ REVOKE ALL ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_outbox,
   die_authz, die_audit
   TO die_ingest;
-GRANT SELECT ON die_control.producer, die_control.producer_capability,
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_ingest;
 GRANT SELECT, INSERT ON die_evidence.producer_sequence,
@@ -58,7 +59,8 @@ GRANT INSERT ON die_audit.audit_event TO die_ingest;
 
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_normalized, die_authz
   TO die_normalizer;
-GRANT SELECT ON die_control.producer, die_control.producer_capability,
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_normalizer;
 GRANT SELECT ON die_evidence.evidence_record TO die_normalizer;
@@ -82,7 +84,8 @@ GRANT USAGE, SELECT ON SEQUENCE die_pipeline.work_item_work_id_seq TO die_normal
 
 GRANT USAGE ON SCHEMA die_control, die_pipeline, die_normalized, die_identity,
   die_canonical, die_outbox, die_audit, die_authz TO die_truth;
-GRANT SELECT ON die_control.expected_population,
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.expected_population,
   die_control.expected_population_version,
   die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_truth;
@@ -109,7 +112,8 @@ GRANT USAGE, SELECT ON SEQUENCE die_pipeline.work_item_work_id_seq,
 GRANT USAGE ON SCHEMA die_pipeline, die_canonical, die_outbox, die_read,
   die_control, die_evidence, die_authz TO die_projector;
 GRANT SELECT ON ALL TABLES IN SCHEMA die_canonical, die_outbox TO die_projector;
-GRANT SELECT ON die_control.producer, die_control.producer_capability,
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.expected_population,
   die_control.expected_population_version,
   die_control.tenant_cell_assignment,
@@ -134,7 +138,8 @@ GRANT USAGE, SELECT ON SEQUENCE die_pipeline.work_item_work_id_seq
 
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_normalized, die_identity,
   die_canonical, die_read, die_authz, die_audit, die_pipeline TO die_api;
-GRANT SELECT ON die_control.producer, die_control.producer_capability,
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.expected_population,
   die_control.expected_population_version, die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_api;
@@ -165,6 +170,8 @@ GRANT USAGE, SELECT ON SEQUENCE die_pipeline.work_item_work_id_seq TO die_api;
 -- Used only by the maintenance artifact's authenticated enrollment/certification
 -- command. A long-lived API or ingest workload never receives this group role.
 GRANT USAGE ON SCHEMA die_control, die_pipeline, die_audit, die_authz
+  TO die_control_admin;
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version
   TO die_control_admin;
 GRANT SELECT, INSERT, UPDATE ON die_control.producer,
   die_control.producer_capability, die_control.expected_population,

@@ -15,6 +15,7 @@ An integration is classified by the authority and behavior it provides, not by v
 | Telemetry importer | imports historical or external activity/measurements | external log/stream → platform | time-bounded activity, measurement, source status | live enforcement or complete inventory |
 | Control/PEP connector | applies a typed authorized action at a native control point | platform → target; effect → platform | policy/config deployment, suspend/block/quarantine, native result | verified effect until postcondition passes |
 | Response connector | coordinates human or downstream workflow | platform ↔ workflow system | tickets, notifications, approvals, external status references | canonical finding/workflow authority |
+| Export connector | publishes authorized Quilr evidence, activity, findings or posture to a downstream security/data system | platform → external sink; receipt → platform | filtered versioned exports, delivery status, downstream object references | downstream acknowledgement as canonical truth or proof of downstream action |
 
 Quilr 1 compatibility is a discovery/telemetry migration source. It is not a runtime sensor or canonical authority.
 
@@ -100,6 +101,24 @@ A response connector may create/update tickets, send notifications, request appr
 
 Deleting or closing an external ticket does not delete or resolve a canonical finding unless the governed workflow transition passes.
 
+## Export connector contract
+
+An export connector publishes only an authorized, versioned product contract.
+It declares:
+
+- source projection generation and watermark;
+- tenant, scope, field set and field-classification policy;
+- destination instance, stream/index/table and schema version;
+- batching, retry, ordering, idempotency and dead-letter behavior;
+- destination acknowledgement and independently observed delivery status;
+- redaction/tokenization applied before egress;
+- retention, replay and customer disconnect semantics.
+
+SIEM, security data lake, SOAR, CASB and external AI-SPM export packages use
+this role. A delivery acknowledgement is an export receipt; it does not make
+the destination an authority for Quilr canonical entities, findings or policy
+effects.
+
 ## Connections administration
 
 The customer-facing admin surface shows:
@@ -117,4 +136,9 @@ Connections is an administration/operator capability, not a replacement for cano
 
 ## Candidate families
 
-IdP, HRIS, MDM, CMDB, cloud, Kubernetes, SaaS admin, AI-provider organization/billing, data catalog, CI/CD, ticketing, Slack/email, and provider-specific agent platforms are prospective families. None is launch scope until `NI-012` and the role-specific source profile, security, scale, certification, and support gates are approved.
+IdP, HRIS, MDM, CMDB, cloud, Kubernetes, SaaS admin, AI-provider
+organization/billing, data catalog, CI/CD, ticketing/CRM, Slack/email,
+SIEM/SOAR, CASB/SSE, AI-SPM, external observability and provider-specific agent
+platforms are prospective families. None is launch scope until `NI-012` and
+the role-specific source profile, security, scale, certification, and support
+gates are approved.

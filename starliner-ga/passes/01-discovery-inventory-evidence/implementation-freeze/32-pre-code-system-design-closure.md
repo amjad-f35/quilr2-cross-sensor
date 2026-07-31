@@ -57,6 +57,7 @@ whether the implementation has been written or accepted.
 | Build/release | One release train, generated-and-committed contracts, architecture import tests, pinned toolchains, clean-room validation, signed artifacts and evidence-bound release gates | `12-repository-and-delivery-map.md`; `production-readiness/` |
 | Test strategy | Positive, negative, property, contract, integration, security, concurrency, chaos, load, restore, native certification, cross-language and live UI suites have named obligations | `11-testing-conformance-and-release-gates.md`; gate catalog |
 | Technical debt | Existing Python protocol/delivery/ingest is explicitly retain/refactor/compatibility work; missing Go central modules, fixture UI, selected MCP failures and repository lint debt are dispositioned rather than silently inherited | `00-current-implementation-disposition.md`; `12-repository-and-delivery-map.md`; defect ledger |
+| Future connector compatibility | The five launch profiles are release-managed registry entries, not a permanent protocol enum; future discovery/telemetry/control/response/export connectors enter the same evidence, identity, graph, authz and materialization plane | `18-future-authoritative-connectors.md`; `33-enterprise-connector-platform-direction.md` |
 | Change control | Authority, identity, profile meaning, predicate, transaction, technology, synchronous hop, API semantics or weakened gate changes require ADR plus regenerated contracts/tests | `13-closure-and-non-blockers.md` |
 
 ## Design patterns intentionally selected

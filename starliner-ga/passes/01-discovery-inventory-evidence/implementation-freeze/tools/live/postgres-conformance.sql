@@ -13,6 +13,10 @@ BEGIN
     JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
     WHERE namespace.nspname LIKE 'die\_%' ESCAPE '\'
       AND relation.relkind IN ('r', 'p')
+      AND NOT (
+        namespace.nspname = 'die_control'
+        AND relation.relname IN ('source_profile', 'source_profile_version')
+      )
       AND (
         NOT relation.relrowsecurity
         OR NOT relation.relforcerowsecurity
@@ -36,6 +40,26 @@ BEGIN
       AND (role.rolsuper OR role.rolbypassrls OR role.rolcanlogin);
   IF violation IS NOT NULL THEN
     RAISE EXCEPTION 'DIE group role is privileged or login-enabled: %', violation;
+  END IF;
+
+  SELECT string_agg(runtime_role.role_name, ', ' ORDER BY runtime_role.role_name)
+    INTO violation
+    FROM unnest(ARRAY[
+      'die_ingest','die_normalizer','die_truth','die_projector',
+      'die_api','die_maintenance','die_control_admin','die_authz_admin'
+    ]) AS runtime_role(role_name)
+    WHERE has_table_privilege(
+      runtime_role.role_name,
+      'die_control.source_profile',
+      'INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES'
+    )
+       OR has_table_privilege(
+      runtime_role.role_name,
+      'die_control.source_profile_version',
+      'INSERT,UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES'
+    );
+  IF violation IS NOT NULL THEN
+    RAISE EXCEPTION 'runtime role can mutate release-managed source-profile registry: %', violation;
   END IF;
 
   SELECT string_agg(format('%I.%I', namespace.nspname, relation.relname), ', ' ORDER BY namespace.nspname, relation.relname)
@@ -98,6 +122,90 @@ INSERT INTO die_control.producer (
     'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
     NULL, 'spiffe://die-live-b/endpoint-b', 'test', '2026-07-30T00:00:00Z', 1
   );
+
+-- The core is not hard-coded to the five launch profiles. A release-managed
+-- connector profile/version can enroll, while an unregistered profile fails
+-- at the database boundary even though the wire identifier shape is valid.
+INSERT INTO die_control.source_profile (
+  profile_id, source_family, integration_roles, deployment_forms, lifecycle,
+  registered_at
+) VALUES (
+  'connector.copilot_studio', 'enterprise_connector',
+  ARRAY['discovery_connector','telemetry_importer','control_connector'],
+  ARRAY['managed_connector_worker'], 'active', '2026-07-30T00:00:00Z'
+);
+
+INSERT INTO die_control.source_profile_version (
+  profile_id, profile_version, schema_ref, schema_digest, admission_state,
+  accepted_at
+) VALUES (
+  'connector.copilot_studio', '1.0.0',
+  'urn:quilr:test:connector.copilot-studio:1.0.0',
+  'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+  'accepted', '2026-07-30T00:00:00Z'
+);
+
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_control.producer (
+      tenant_id, producer_id, installation_id, source_profile,
+      business_scope_id, display_name, trust_state, artifact_digest,
+      active_certification_id, credential_subject, environment,
+      first_enrolled_at, revision
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9',
+      'copilot-studio-a', 'connector.copilot_studio',
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'Copilot Studio A', 'pending',
+      'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+      NULL, 'spiffe://die-live-a/connector/copilot-studio-a', 'test',
+      '2026-07-30T00:00:00Z', 1
+    );
+    IF NOT EXISTS (
+      SELECT 1
+      FROM die_control.producer
+      WHERE tenant_id = 'die-live-a'
+        AND producer_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9'
+    ) THEN
+      RAISE EXCEPTION 'registered connector profile enrollment did not persist';
+    END IF;
+    RAISE EXCEPTION 'registered connector profile accepted';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM <> 'registered connector profile accepted'
+        OR SQLSTATE <> 'P0001' THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_control.producer (
+      tenant_id, producer_id, installation_id, source_profile,
+      business_scope_id, display_name, trust_state, artifact_digest,
+      active_certification_id, credential_subject, environment,
+      first_enrolled_at, revision
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9',
+      'unregistered-a', 'connector.unregistered',
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'Unregistered', 'pending',
+      'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+      NULL, 'spiffe://die-live-a/connector/unregistered-a', 'test',
+      '2026-07-30T00:00:00Z', 1
+    );
+    RAISE EXCEPTION 'unregistered source profile was accepted';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM = 'unregistered source profile was accepted'
+        OR position('new producer requires an active registered source profile' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
 
 CREATE ROLE die_live_api LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_api_b LOGIN NOBYPASSRLS;

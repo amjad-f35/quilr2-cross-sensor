@@ -36,6 +36,73 @@ AS $$
   SELECT NULLIF(current_setting('app.tenant_id', true), '')
 $$;
 
+-- Source profiles are release-managed protocol plugins. The five launch
+-- profiles are seeded here, but no table or wire contract assumes they are the
+-- permanent universe. A connector becomes admissible only after its exact
+-- profile/version/schema digest is registered and certified.
+CREATE TABLE IF NOT EXISTS die_control.source_profile (
+  profile_id text NOT NULL
+    CHECK (profile_id ~ '^[a-z][a-z0-9_.-]{0,127}$'),
+  source_family text NOT NULL CHECK (source_family IN (
+    'browser','endpoint','llm_gateway','mcp_gateway',
+    'enterprise_connector','legacy'
+  )),
+  integration_roles text[] NOT NULL,
+  deployment_forms text[] NOT NULL,
+  lifecycle text NOT NULL CHECK (lifecycle IN ('active','deprecated','revoked')),
+  registered_at timestamptz NOT NULL,
+  retired_at timestamptz,
+  PRIMARY KEY (profile_id),
+  CHECK (cardinality(integration_roles) BETWEEN 1 AND 8),
+  CHECK (integration_roles <@ ARRAY[
+    'runtime_sensor','discovery_connector','telemetry_importer',
+    'control_connector','response_connector','export_connector'
+  ]::text[]),
+  CHECK (cardinality(deployment_forms) BETWEEN 1 AND 8),
+  CHECK (deployment_forms <@ ARRAY[
+    'embedded','sidecar','daemon','managed_connector_worker'
+  ]::text[]),
+  CHECK ((lifecycle = 'revoked') = (retired_at IS NOT NULL)),
+  CHECK (retired_at IS NULL OR retired_at >= registered_at)
+);
+
+CREATE TABLE IF NOT EXISTS die_control.source_profile_version (
+  profile_id text NOT NULL,
+  profile_version text NOT NULL
+    CHECK (profile_version ~ '^[1-9][0-9]*[.][0-9]+[.][0-9]+(?:[-+][0-9A-Za-z.-]+)?$'),
+  schema_ref text NOT NULL,
+  schema_digest text NOT NULL CHECK (schema_digest ~ '^sha256:[0-9a-f]{64}$'),
+  admission_state text NOT NULL CHECK (admission_state IN ('accepted','deprecated','revoked')),
+  accepted_at timestamptz NOT NULL,
+  retired_at timestamptz,
+  PRIMARY KEY (profile_id, profile_version),
+  FOREIGN KEY (profile_id) REFERENCES die_control.source_profile(profile_id),
+  CHECK ((admission_state = 'revoked') = (retired_at IS NOT NULL)),
+  CHECK (retired_at IS NULL OR retired_at >= accepted_at)
+);
+
+INSERT INTO die_control.source_profile (
+  profile_id, source_family, integration_roles, deployment_forms, lifecycle,
+  registered_at
+) VALUES
+  ('browser', 'browser', ARRAY['runtime_sensor'], ARRAY['embedded','daemon'], 'active', '2026-07-30T00:00:00Z'),
+  ('browser_backend', 'browser', ARRAY['runtime_sensor'], ARRAY['embedded','sidecar'], 'active', '2026-07-30T00:00:00Z'),
+  ('endpoint', 'endpoint', ARRAY['runtime_sensor'], ARRAY['daemon','sidecar'], 'active', '2026-07-30T00:00:00Z'),
+  ('llm_gateway', 'llm_gateway', ARRAY['runtime_sensor'], ARRAY['embedded','sidecar'], 'active', '2026-07-30T00:00:00Z'),
+  ('mcp_gateway', 'mcp_gateway', ARRAY['runtime_sensor'], ARRAY['embedded','sidecar'], 'active', '2026-07-30T00:00:00Z')
+ON CONFLICT (profile_id) DO NOTHING;
+
+INSERT INTO die_control.source_profile_version (
+  profile_id, profile_version, schema_ref, schema_digest, admission_state,
+  accepted_at
+) VALUES
+  ('browser', '1.0.0', 'schemas/profile-browser-v1.schema.json', 'sha256:6cd7d92e293f11f482fe5409132b494f1014c0ec1b3b94d16667b3285a28e7be', 'accepted', '2026-07-30T00:00:00Z'),
+  ('browser_backend', '1.0.0', 'schemas/profile-browser-backend-v1.schema.json', 'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442', 'accepted', '2026-07-30T00:00:00Z'),
+  ('endpoint', '1.0.0', 'schemas/profile-endpoint-v1.schema.json', 'sha256:fb686ed047e38ca311cb6fcc724b63b4bf8857f648a438b310dc0403734372d6', 'accepted', '2026-07-30T00:00:00Z'),
+  ('llm_gateway', '1.0.0', 'schemas/profile-llm-gateway-v1.schema.json', 'sha256:35008e7bc7bf9586d16b4c1cb7343d5e363b3100c93fa1181f115d63d3356476', 'accepted', '2026-07-30T00:00:00Z'),
+  ('mcp_gateway', '1.0.0', 'schemas/profile-mcp-gateway-v1.schema.json', 'sha256:65fc5c9338dd66a239f11e3d529738d8f9b0aec5d7a5e2f6b31ff4c9540b09ad', 'accepted', '2026-07-30T00:00:00Z')
+ON CONFLICT (profile_id, profile_version) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS die_control.producer (
   tenant_id text NOT NULL,
   producer_id uuid NOT NULL,
@@ -56,6 +123,9 @@ CREATE TABLE IF NOT EXISTS die_control.producer (
   PRIMARY KEY (tenant_id, producer_id),
   UNIQUE (tenant_id, installation_id, source_profile),
   UNIQUE (tenant_id, producer_id, installation_id, source_profile),
+  CONSTRAINT producer_source_profile_fk
+  FOREIGN KEY (source_profile)
+    REFERENCES die_control.source_profile(profile_id),
   CHECK (jsonb_typeof(metadata) = 'object'),
   CHECK (pg_column_size(metadata) <= 65536),
   CHECK (last_seen_at IS NULL OR last_seen_at >= first_enrolled_at),
@@ -159,7 +229,12 @@ CREATE TABLE IF NOT EXISTS die_control.expected_population (
   population_id uuid NOT NULL,
   producer_id uuid NOT NULL,
   capability text NOT NULL,
-  population_type text NOT NULL CHECK (population_type IN ('producer','browser_installation','device','account','workload','gateway_route','mcp_surface')),
+  population_type text NOT NULL CHECK (population_type IN (
+    'producer','browser_installation','device','account','workload',
+    'gateway_route','mcp_surface','integration_instance','external_account',
+    'agent','agent_runtime','cloud_resource','saas_object','repository',
+    'dataset','pipeline','job','source_object'
+  )),
   source_namespace text NOT NULL,
   source_population_id text NOT NULL,
   current_revision bigint NOT NULL CHECK (current_revision BETWEEN 1 AND 9007199254740991),
@@ -306,7 +381,11 @@ CREATE TABLE IF NOT EXISTS die_evidence.evidence_record (
   content_sha256 text NOT NULL CHECK (content_sha256 ~ '^sha256:[0-9a-f]{64}$'),
   privacy_policy_version text NOT NULL,
   capture_state text NOT NULL CHECK (capture_state IN ('complete','minimized','redacted','metadata_only','unsupported')),
-  record_origin text NOT NULL CHECK (record_origin IN ('live_sensor','selftest','synthetic','fixture','legacy_backfill','manual_import')),
+  record_origin text NOT NULL CHECK (record_origin IN (
+    'live_sensor','managed_connector','external_telemetry','control_result',
+    'response_sync','selftest','synthetic','fixture','legacy_backfill',
+    'manual_import'
+  )),
   evidence_quality text NOT NULL CHECK (evidence_quality IN ('audit_grade','operational','best_effort','debug_only','fixture')),
   certification_id uuid NOT NULL,
   business_scope_id uuid NOT NULL,
@@ -324,6 +403,9 @@ CREATE TABLE IF NOT EXISTS die_evidence.evidence_record (
     REFERENCES die_evidence.producer_sequence(tenant_id, producer_id, producer_epoch, sequence_no, record_id, evidence_id, content_sha256),
   FOREIGN KEY (tenant_id, producer_id, installation_id, source_profile)
     REFERENCES die_control.producer(tenant_id, producer_id, installation_id, source_profile),
+  CONSTRAINT evidence_record_source_profile_version_fk
+  FOREIGN KEY (source_profile, profile_version)
+    REFERENCES die_control.source_profile_version(profile_id, profile_version),
   FOREIGN KEY (tenant_id, producer_id, certification_id)
     REFERENCES die_control.certification(tenant_id, producer_id, certification_id),
   CHECK (jsonb_typeof(correlation) = 'object'),
@@ -828,7 +910,7 @@ CREATE TABLE IF NOT EXISTS die_normalized.normalization_run (
   normalization_run_id uuid NOT NULL,
   evidence_id uuid NOT NULL,
   producer_id uuid NOT NULL,
-  source_profile text NOT NULL CHECK (source_profile IN ('browser','browser_backend','endpoint','llm_gateway','mcp_gateway')),
+  source_profile text NOT NULL,
   profile_version text NOT NULL,
   normalizer_name text NOT NULL,
   normalizer_version text NOT NULL,
@@ -2612,6 +2694,14 @@ BEGIN
     IF NEW.revision <> 1 THEN
       RAISE EXCEPTION 'producer revision must start at one';
     END IF;
+    IF NOT EXISTS (
+      SELECT 1
+      FROM die_control.source_profile profile
+      WHERE profile.profile_id = NEW.source_profile
+        AND profile.lifecycle = 'active'
+    ) THEN
+      RAISE EXCEPTION 'new producer requires an active registered source profile';
+    END IF;
   ELSE
     IF (OLD.last_seen_at IS NOT NULL AND NEW.last_seen_at IS NULL)
       OR (NEW.last_seen_at IS NOT NULL
@@ -2647,6 +2737,14 @@ BEGIN
   IF NEW.trust_state IN ('trusted','degraded') AND NOT EXISTS (
     SELECT 1
     FROM die_control.certification certification
+    JOIN die_control.source_profile profile
+      ON profile.profile_id = NEW.source_profile
+     AND profile.lifecycle IN ('active','deprecated')
+    JOIN die_control.source_profile_version profile_version
+      ON profile_version.profile_id = profile.profile_id
+     AND profile_version.profile_version =
+       certification.profile_versions ->> NEW.source_profile
+     AND profile_version.admission_state IN ('accepted','deprecated')
     WHERE certification.tenant_id = NEW.tenant_id
       AND certification.producer_id = NEW.producer_id
       AND certification.certification_id = NEW.active_certification_id
@@ -2670,6 +2768,21 @@ BEGIN
     RAISE EXCEPTION 'producer capability history cannot be deleted';
   END IF;
   IF TG_OP = 'INSERT' THEN
+    IF NOT EXISTS (
+      SELECT 1
+      FROM die_control.producer producer
+      JOIN die_control.source_profile profile
+        ON profile.profile_id = producer.source_profile
+       AND profile.lifecycle IN ('active','deprecated')
+      JOIN die_control.source_profile_version profile_version
+        ON profile_version.profile_id = producer.source_profile
+       AND profile_version.profile_version = NEW.profile_version
+       AND profile_version.admission_state IN ('accepted','deprecated')
+      WHERE producer.tenant_id = NEW.tenant_id
+        AND producer.producer_id = NEW.producer_id
+    ) THEN
+      RAISE EXCEPTION 'producer capability requires a registered admissible profile version';
+    END IF;
     IF NEW.certified AND NOT EXISTS (
       SELECT 1
       FROM die_control.producer producer

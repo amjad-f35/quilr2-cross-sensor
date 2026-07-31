@@ -569,3 +569,19 @@ decisions:
     area: evidence_object_identity
     decision: every evidence identity owns exactly one tenant-unique evidence-scoped object key containing its evidence ID and content digest; two evidence identities never share physical bytes
     status: frozen
+  - id: DIE-CONNECTOR-001
+    area: profile_extensibility
+    decision: the five launch profiles are release-managed source-profile registry entries rather than a permanent wire or database enum; any future connector requires an exact registered profile version schema digest normalizer authority privacy lifecycle coverage and certification contract
+    status: frozen
+  - id: DIE-CONNECTOR-002
+    area: integration_role_isolation
+    decision: discovery telemetry-import control response and export roles have separate manifest sections credentials scopes queues health kill switches and certification even when one vendor package implements several roles
+    status: frozen
+  - id: DIE-CONNECTOR-003
+    area: shared_canonical_plane
+    decision: all sensor and connector objects enter as immutable evidence and source-scoped observations then use the same central resolver canonical ledgers relationship semantics authorization materializers APIs and UI; no integration owns a parallel graph or inventory truth
+    status: frozen
+  - id: DIE-CONNECTOR-004
+    area: external_security_authority
+    decision: third-party findings severity risk policy posture and attack-path values remain versioned source-native claims until separately accepted Quilr intelligence policy and precedence authorities consume them
+    status: frozen

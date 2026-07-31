@@ -39,7 +39,11 @@
       "additionalProperties": false,
       "required": ["profile", "profile_version", "name", "version", "artifact_digest"],
       "properties": {
-        "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+        "profile": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "description": "Exact registered source profile whose accepted normalizer produced this observation."
+        },
         "profile_version": {
           "type": "string",
           "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$",
@@ -356,7 +360,7 @@
       "required": ["population_type", "source_namespace", "source_population_id"],
       "properties": {
         "population_type": {
-          "enum": ["producer", "browser_installation", "device", "account", "workload", "gateway_route", "mcp_surface"]
+          "enum": ["producer", "browser_installation", "device", "account", "workload", "gateway_route", "mcp_surface", "integration_instance", "external_account", "agent", "agent_runtime", "cloud_resource", "saas_object", "repository", "dataset", "pipeline", "job", "source_object"]
         },
         "source_namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
         "source_population_id": { "type": "string", "minLength": 1, "maxLength": 1024 }
@@ -368,7 +372,11 @@
       "required": ["producer_id", "profile", "type", "namespace", "id"],
       "properties": {
         "producer_id": { "type": "string", "format": "uuid" },
-        "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+        "profile": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+          "description": "Registered source profile qualifying this source-object reference."
+        },
         "type": { "type": "string", "minLength": 1, "maxLength": 96 },
         "namespace": { "type": "string", "minLength": 1, "maxLength": 256 },
         "id": { "type": "string", "minLength": 1, "maxLength": 1024 }
