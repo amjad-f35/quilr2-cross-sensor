@@ -495,7 +495,7 @@ decisions:
     status: frozen
   - id: DIE-TEST-003
     area: readiness
-    decision: static validation does not authorize broad implementation until the pinned PostgreSQL and ClickHouse live conformance gates pass
+    decision: static validation plus zero-drift source authority and exact target-engine baseline smoke authorize full bounded-pass implementation; expanded PostgreSQL and ClickHouse gates remain mandatory acceptance workstreams and a contrary result reopens only the affected physical contract
     status: frozen
   - id: DIE-CONTROL-002
     area: expected_population_history

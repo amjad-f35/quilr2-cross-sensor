@@ -197,6 +197,6 @@ Architecture validation passing is necessary but not sufficient. A production co
 
 ## Review verdict
 
-The corrected architecture is coherent for this bounded pass and no known semantic decision is delegated to a coding agent. The package is a **freeze candidate**, not proof of working software. Structural validators must pass now. The first implementation pull request must add the real PostgreSQL and ClickHouse CI harness before domain coding expands, because static inspection cannot prove migration, RLS, exclusion-constraint or ClickHouse behavior.
+The corrected architecture is coherent for this bounded pass and no known semantic decision is delegated to a coding agent. The package is an implementation authority, not proof of working software. Structural validators must pass on every candidate. The implementation program must build the expanded PostgreSQL and ClickHouse CI harnesses as first-class workstreams and must not accept the affected storage modules before those gates pass. Domain and storage implementation may proceed in the frozen dependency order; the gates evaluate that implementation rather than postpone it.
 
 If an implementation discovers that a native sensor cannot produce a field marked `adapter_derivable`, the correct action is to change that support state and product coverage—not to synthesize the field. If a required invariant cannot be implemented as frozen, engineering stops and raises an ADR; it does not improvise around the invariant.

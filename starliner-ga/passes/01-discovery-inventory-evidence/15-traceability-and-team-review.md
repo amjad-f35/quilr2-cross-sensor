@@ -2,6 +2,14 @@
 
 Status: **normative control and review checklist**
 
+Readiness note: the “before broad implementation” checklist below was the
+entry condition for producing the implementation freeze. It is satisfied by
+the accepted
+[implementation authority](implementation-freeze/README.md), selected-source
+audit and exact target-engine baseline smoke. Full bounded-pass implementation
+is now authorized; the checklist remains normative for traceability and change
+control.
+
 ## Feature trace
 
 Every customer-visible feature must trace:
@@ -103,7 +111,7 @@ Missing links block the claim.
 
 ## Freeze package
 
-Before broad implementation:
+Freeze-entry checklist:
 
 - approved pass documents;
 - accepted decisions register;
@@ -117,7 +125,8 @@ Before broad implementation:
 - live Quilr 1 inventory plan;
 - named owners and delivery capacity.
 
-Teams may implement contract scaffolding and audited sensor remediations while the remaining freeze package closes. They may not invent divergent wire or canonical semantics.
+Teams may implement the complete bounded pass in the frozen dependency order.
+They may not invent divergent wire or canonical semantics.
 
 ## Weekly evidence review
 

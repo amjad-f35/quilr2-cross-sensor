@@ -190,8 +190,11 @@ The exact evidence needed for every live gate is in
   erasure environment.
 - `LG-008` is statically closed; native execution remains `LG-005`.
 
-Gate-closing engineering can proceed now. Broad implementation remains bound
-by the stop conditions in [the production handoff](23-production-implementation-handoff.md).
+Full bounded-pass production implementation is authorized. The remaining
+`LG-*` items are mandatory implementation/certification workstreams and release
+exit criteria in
+[the production handoff](23-production-implementation-handoff.md), not
+pre-code architecture blockers.
 
 ## Validation rerun retained
 

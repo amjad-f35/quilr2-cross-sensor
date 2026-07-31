@@ -90,6 +90,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [LG-008 saturation and readiness](29-lg008-saturation-and-readiness.md) | Two-pass zero-drift closure and remaining independent live gates |
 | [Production architecture and runtime revalidation](30-production-architecture-and-runtime-revalidation.md) | Final sensor-to-UI structural verdict, target-engine runtime evidence, bounded implementation authorization and exact remaining acceptance gates |
 | [External readiness-audit reconciliation](31-external-readiness-audit-reconciliation.md) | Claim-by-claim disposition of the audit performed against historical commit 2614e7b |
+| [Pre-code system-design closure](32-pre-code-system-design-closure.md) | Definitive component, communication, concurrency, pattern, API, limitation, technical-debt and implementation-choice closure matrix |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |

@@ -5,10 +5,12 @@
 For the bounded Discovery, Inventory, Activity/Observability and Evidence pass,
 the architectural boundaries and semantic contracts are now sufficiently
 specific that a coding agent does not need to invent the spine. The independent
-falsification pass nevertheless proved that the previous “no blocker” statement
-was too strong: real PostgreSQL and ClickHouse execution, object-store retention
-races, native sensor certification, cross-language
-cryptographic vectors and the live Nuxt seam remain explicit evidence gates.
+falsification pass proved that an earlier freeze candidate still contained
+structural defects. Those discovered defects were corrected, and exact-version
+PostgreSQL and ClickHouse baseline smoke now passes. Expanded database,
+object-store, native-sensor, cross-language and live-Nuxt checks remain
+implementation workstreams and production-acceptance gates; they do not defer
+or delegate a pre-code architectural decision.
 
 The earlier package was too coarse: it used single `application`, `agent` and
 `mcp_server` types despite the parent pass requiring
@@ -83,12 +85,14 @@ It also does not mean four sensors can prove a complete Microsoft-style enterpri
 | Failure semantics? | at-least-once work, idempotent durable effects, explicit gaps/backpressure |
 | Quality? | digest-bound certification and full GA gates |
 
-## Inputs and live evidence required before production implementation/GA
+## Environment bindings and evidence required during implementation and before GA
 
-These must not be guessed in source code. `LG-001` and `LG-002` block broad
-domain implementation beyond the conformance harness. `LG-003` through
-`LG-007` block their respective retention/erasure, sensor-runtime, crypto and UI
-claims and all remain GA blockers. `LG-008` static source closure is complete.
+These must not be guessed in source code. They are environment bindings,
+implementation inputs and release evidence—not missing system-design choices.
+All bounded-pass modules may be implemented in the dependency order frozen in
+the production-readiness package. `LG-001` through `LG-007` block acceptance of
+their respective runtime, retention/erasure, sensor, crypto and UI claims.
+`LG-008` static source closure is complete.
 
 | Binding | Needed for | Owner output |
 |---|---|---|
@@ -110,9 +114,10 @@ An absent runtime binding results in disabled/unadvertised capability or deploym
 
 ## Evidence required before claiming GA
 
-Implementation begins with the live conformance harness and frozen module
-boundaries. Broad domain construction proceeds after PostgreSQL and ClickHouse
-gates pass. GA is not declared until:
+Implementation includes the live conformance harnesses and product modules in
+the frozen dependency order. Those workstreams may proceed together; no gate
+can be closed until the implementation it evaluates exists. GA is not declared
+until:
 
 - every schema/OpenAPI/ontology/authz artifact validates;
 - all target modules exist and architecture tests pass;
@@ -183,7 +188,7 @@ Batch size, worker count, index selection and private code organization may chan
 ## Final status
 
 ```text
-architecture: internally validated freeze candidate; team acceptance required
+architecture: accepted bounded-pass implementation authority
 protocol and profiles: internally validated and evidence-gated
 storage and authority: source-corrected; PostgreSQL/ClickHouse live gates blocked
 distributed processing: frozen
@@ -196,6 +201,6 @@ typed API boundary: internally validated
 existing Nuxt seam: reusable shell; live repository/client binding blocked
 reliability and verification: frozen
 current implementation: partial foundation
-full pass implementation: begin with conformance; broad build blocked by LG-001/LG-002
+full pass implementation: authorized in the frozen dependency order
 production GA: requires implementation plus environment certification evidence
 ```

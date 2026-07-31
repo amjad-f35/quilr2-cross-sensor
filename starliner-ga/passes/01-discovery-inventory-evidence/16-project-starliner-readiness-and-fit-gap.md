@@ -1,8 +1,15 @@
 # `project-starliner` Readiness and Fit-Gap Gate
 
-Status: **normative repository-readiness gate; current implementation coverage is only partially verified**
+Status: **historical repository fit-gap gate; superseded as implementation-readiness authority**
 
 Evidence cutoff: **2026-07-28**
+
+Current authority: the exact-source audit, retain/refactor/replace/missing
+disposition and target repository map required by this gate are now complete in
+the
+[implementation freeze](implementation-freeze/README.md). The historical
+blocking language below records why the audit was required; it no longer
+prohibits the authorized full bounded-pass build.
 
 ## Executive verdict
 
@@ -14,7 +21,11 @@ The build decision is therefore:
 
 > **Evolve `project-starliner`, but first audit an exact source revision and classify every existing module as retain, refactor, replace, delete, or missing.**
 
-Implementation may begin on source-independent contract corrections, audited sensor remediations, Quilr 1 production inventory, and repository analysis. Broad central-platform construction must not proceed from assumptions about code that has not been inspected.
+At this evidence cutoff, implementation was limited to source-independent
+contract corrections, audited sensor remediations, Quilr 1 production
+inventory and repository analysis. That condition has since been closed by the
+exact-source audit and frozen target map; central-platform implementation now
+proceeds from those artifacts rather than from assumptions.
 
 ## What the DIE Pass includes
 
@@ -241,7 +252,11 @@ The result must map module and symbol evidence to every applicable `DIE-REQ-*`, 
 
 ### Readiness statement
 
-The architecture and product slice are sufficiently specified to begin controlled engineering. The implementation baseline is **not yet sufficiently verified for autonomous full build**.
+Historical cutoff verdict: the implementation baseline was not yet
+sufficiently verified for an autonomous full build. Current verdict: the
+required exact-source fit-gap audit has completed and the
+[production implementation handoff](implementation-freeze/23-production-implementation-handoff.md)
+authorizes the autonomous bounded-pass build.
 
 The remaining blocker is not more abstract architecture brainstorming. It is an exact-source fit-gap audit plus the named production inputs in the pass register. Once the audit identifies what is real and reusable, teams implement the missing/refactored work inside the frozen boundaries without reopening the central architecture.
 

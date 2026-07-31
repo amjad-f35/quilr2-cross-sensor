@@ -43,7 +43,9 @@ This does **not** remove the independent runtime gates:
 - `LG-006` cross-language cryptographic vectors; and
 - `LG-007` physical evidence-copy enumeration and erasure.
 
-Consequently, gate-closing production engineering can proceed autonomously.
-Broad domain implementation still begins only after `LG-001` and `LG-002`
-pass, because those tests may force physical-contract corrections. GA remains
-blocked by the relevant live gates.
+Consequently, full bounded-pass production implementation can proceed
+autonomously in the frozen dependency order. `LG-001` and `LG-002` are
+mandatory database implementation/conformance workstreams, and a contrary
+result reopens only the affected physical contract. They do not postpone
+writing the domain modules they evaluate. GA remains blocked by the applicable
+live gates.

@@ -237,7 +237,7 @@ freeze and outer DIE pass link checks themselves passed.
 
 | Gate | Severity | What remains | Development effect |
 |---|---:|---|---|
-| `FP-014` | P1 | replace the fixture-only Nuxt repository, colon-delimited IDs and invented risk/finding/policy/spend fields through the frozen `DieRepository` seam | blocks production UI implementation; verified by `LG-004` |
+| `FP-014` | P1 | replace the fixture-only Nuxt repository, colon-delimited IDs and invented risk/finding/policy/spend fields through the frozen `DieRepository` seam | required UI implementation work; blocks production UI acceptance and is verified by `LG-004` |
 | `LG-001` | P0 | extend the passing PostgreSQL 17.10 smoke into digest-pinned, multi-session contention, crash/failover and full negative conformance | blocks production acceptance of authoritative PostgreSQL behavior; does not block contract-conformant implementation |
 | `LG-002` | P0 | extend the passing ClickHouse 26.3.17.56 LTS DDL/current-view smoke into server-mode mutation, lifecycle, load, query-plan and crash/recovery conformance | blocks production acceptance of projections and physical lifecycle; does not block contract-conformant implementation |
 | `LG-003` | P0 | provider-specific object versioning, lock, legal-hold, delete and restore races | blocks evidence-retention/erasure GA |
@@ -303,7 +303,7 @@ The implementation authorization is:
 static suite passes
 AND five-profile authority regenerates with zero drift
 AND exact target-engine DDL/current smoke passes
-AND implementation follows the handoff stop conditions
+AND implementation follows the frozen handoff dependency order
 ```
 
 Production acceptance requires expanded PostgreSQL and ClickHouse conformance.
