@@ -148,9 +148,9 @@ project-starliner/
 
 This is a target layout and naming authority. Moving a private file within a listed module is allowed; merging authority modules or adding service-to-service calls is not.
 
-## Single Go artifact, explicit roles
+## One codebase, explicit role artifacts
 
-`cmd/starliner` produces one container/binary. `--role` must be exactly one of:
+`cmd/starliner` is the shared composition root. `--role` must be exactly one of:
 
 ```text
 ingest
@@ -161,9 +161,18 @@ api
 maintenance
 ```
 
-Role composition is explicit in `internal/runtime/role`; no dependency-injection scanning or runtime reflection chooses domain writers. Each role receives only the database/object privileges it needs.
+Role composition is explicit in `internal/runtime/role`; no dependency-injection
+scanning or runtime reflection chooses domain writers. Each role receives only
+the database/object privileges it needs.
 
-Shared binary does not mean shared process. Production runs independent replicas per role from the same signed digest.
+One repository and semantic release authority do not require one lockstep image.
+The release pipeline produces an immutable role artifact for each role, with
+its own image digest, SBOM, provenance, tests, canary and rollback. A signed
+platform-release manifest pins the compatible role artifact set, contracts,
+database schemas, profile registry and generated client. Production replicas
+within one role run the selected role digest. Different roles may run different
+digests only inside the manifest's declared N/N-1 protocol, work-contract and
+database-schema compatibility window.
 
 The `api` role has explicit `read` and `admin` surfaces. Read replicas use only `die_api`. Admin replicas additionally use a separate `die_authz_admin` connection pool for the authorization mutation transaction and expose only the bounded admin route set. The product gateway routes authorization preview/commit to that surface; no ordinary read handler can acquire its pool.
 

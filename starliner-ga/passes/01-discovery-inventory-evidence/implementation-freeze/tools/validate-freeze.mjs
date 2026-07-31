@@ -137,6 +137,27 @@ const required = [
   '31-external-readiness-audit-reconciliation.md',
   '32-pre-code-system-design-closure.md',
   '33-enterprise-connector-platform-direction.md',
+  '34-agentic-engineering-execution-system.md',
+  'engineering-execution/README.md',
+  'engineering-execution/templates/AGENTS.md',
+  'engineering-execution/templates/WORK_STATE.md',
+  'engineering-execution/templates/TOPOLOGY.md',
+  'engineering-execution/templates/CHANGE_LEDGER.csv.template',
+  'engineering-execution/templates/REMOTE_VALIDATION_LEDGER.csv.template',
+  'engineering-execution/templates/BRANCH_PR_REGISTER.csv.template',
+  'engineering-execution/templates/WORK_ITEMS.csv.template',
+  'engineering-execution/cursor/rules/00-die-authority.mdc',
+  'engineering-execution/cursor/rules/10-die-development-loop.mdc',
+  'engineering-execution/cursor/skills/test-driven-development/SKILL.md',
+  'engineering-execution/cursor/skills/remote-sha-validation/SKILL.md',
+  'engineering-execution/SOURCE_CONTEXT_AND_REPOSITORY_MAP.md',
+  'engineering-execution/BRANCH_AND_PR_BASELINE.md',
+  'engineering-execution/registers/branch-pr-baseline.csv',
+  'engineering-execution/BRANCH_HYGIENE_AND_CHANGE_CONTROL.md',
+  'engineering-execution/TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md',
+  'engineering-execution/CODING_AGENT_START_PROMPT.md',
+  'engineering-execution/jira/die-work-program-import.csv',
+  'engineering-execution/tools/validate-execution-kit.mjs',
   'production-readiness/README.md',
   'production-readiness/00-assurance-model.md',
   'production-readiness/01-lg001-postgresql.md',
@@ -1068,6 +1089,17 @@ for (const fragment of [
 }
 if (performanceArchitecture.includes('Scaling adds replicas of the same release digest with a role flag.'))
   fail('performance architecture retains superseded lockstep role-artifact topology')
+const repositoryDeliveryMap = requireFile('12-repository-and-delivery-map.md')
+for (const fragment of [
+  '## One codebase, explicit role artifacts',
+  'platform-release manifest',
+  'Different roles may run different',
+]) {
+  if (!repositoryDeliveryMap.includes(fragment))
+    fail(`repository/delivery map omits frozen role-artifact fragment: ${fragment}`)
+}
+if (repositoryDeliveryMap.includes('Production runs independent replicas per role from the same signed digest.'))
+  fail('repository/delivery map retains superseded lockstep role-artifact topology')
 const workerArchitecture = requireFile('04-workers-transactions-and-replay.md')
 for (const fragment of [
   'lane:<control|inventory|activity|bulk>:',
@@ -1094,6 +1126,16 @@ for (const fragment of [
 ]) {
   if (!connectorArchitecture.includes(fragment))
     fail(`connector architecture omits frozen extension-contract fragment: ${fragment}`)
+}
+const engineeringExecution = requireFile('34-agentic-engineering-execution-system.md')
+for (const fragment of [
+  'Chat history, an agent memory',
+  'exact authority revision',
+  'last remotely verified commit',
+  'one-branch-per-work-item hygiene',
+]) {
+  if (!engineeringExecution.includes(fragment))
+    fail(`agentic engineering system omits durable-execution fragment: ${fragment}`)
 }
 
 const predicates = yaml.get(join(root, 'ontology/predicates.yaml'))

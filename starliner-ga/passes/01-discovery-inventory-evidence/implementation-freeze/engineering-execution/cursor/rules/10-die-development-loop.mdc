@@ -1,0 +1,18 @@
+---
+description: Apply the verified development, commit and remote-handoff loop
+globs:
+alwaysApply: true
+---
+
+- One branch represents one stable work item or vertical increment.
+- Use the test-driven-development skill for production changes.
+- Establish a failing test or executable reproduction before behavior changes.
+- Run focused tests, then affected contract/integration/security/architecture
+  suites.
+- Never edit generated output directly or weaken a test to pass.
+- Commit coherent verified units on the same branch; do not create a branch per
+  commit.
+- The developer agent is the sole branch writer.
+- The remote agent validates an exact pushed SHA and never edits code.
+- Record commit, PR, commands and exact-SHA evidence in the engineering ledgers.
+- Open an ADR instead of improvising a frozen semantic change.

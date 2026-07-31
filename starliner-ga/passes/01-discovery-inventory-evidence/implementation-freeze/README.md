@@ -92,6 +92,8 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [External readiness-audit reconciliation](31-external-readiness-audit-reconciliation.md) | Claim-by-claim disposition of the audit performed against historical commit 2614e7b |
 | [Pre-code system-design closure](32-pre-code-system-design-closure.md) | Definitive component, communication, concurrency, pattern, API, limitation, technical-debt and implementation-choice closure matrix |
 | [Enterprise connector platform direction](33-enterprise-connector-platform-direction.md) | Future managed-connector roles, agent/security/observability ecosystems, shared canonical plane and current-build compatibility invariants |
+| [Agentic engineering execution system](34-agentic-engineering-execution-system.md) | Durable agent state, Cursor rules/skills, branch/PR hygiene, exact-SHA local/remote workflow, Jira import and coding-agent prompt |
+| [Engineering execution kit](engineering-execution/README.md) | Ready-to-install repository instructions, state/topology/ledger templates, repository map and live branch-disposition baseline |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |

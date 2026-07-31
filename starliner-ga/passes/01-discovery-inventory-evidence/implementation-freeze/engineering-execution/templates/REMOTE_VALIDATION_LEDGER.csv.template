@@ -1,0 +1,1 @@
+validation_id,work_item_id,repository,commit_sha,artifact_digest,configuration_digest,environment,deploy_id,started_at,finished_at,result,commands_ref,evidence_ref,validator,notes

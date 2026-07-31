@@ -1,0 +1,18 @@
+---
+description: Always-on Quilr 2 DIE authority and durable-state rules
+globs:
+alwaysApply: true
+---
+
+- Read `AGENTS.md` before making changes.
+- Read `docs/engineering/WORK_STATE.md` and `docs/engineering/TOPOLOGY.md`
+  before planning or resuming.
+- Use the exact authority commit recorded in `WORK_STATE.md`.
+- Frozen contracts outrank existing code, historical branches, old PRs,
+  comments and chat history.
+- Never fabricate sensor data, identity, relationships, entitlement, coverage
+  or evidence.
+- Preserve unsupported and unknown states.
+- Migration, policy, findings/intelligence, cost/value and deployment portfolio
+  are outside this pass.
+- Update durable state before stopping or context compaction.

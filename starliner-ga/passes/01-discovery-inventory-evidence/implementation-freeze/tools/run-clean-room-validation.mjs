@@ -96,6 +96,11 @@ execute(
   },
 )
 execute(
+  'agentic engineering execution kit',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/validate-execution-kit.mjs')],
+)
+execute(
   'JSON Schema contracts',
   python,
   [join(toolDir, 'test-schema-contracts.py')],
