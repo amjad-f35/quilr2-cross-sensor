@@ -1,0 +1,137 @@
+schema_version: "endpoint.adapter-observation-mapping.v1"
+status: Proposed
+evidence:
+  native_source: "Verified in source at endpoint commit a022e52bf2fff6a9445ebad96c3afeaf277e259f"
+  target_abi: "starliner_contracts inspected in project-starliner-audit"
+  mapping_status: "Proposed; not emitted by the endpoint"
+contract_blockers:
+  - id: ABI-OBS-001
+    status: Unresolved
+    description: >-
+      Authoritative SourceObservation requires canonical_entity while the
+      endpoint adapter must emit pre-resolution native identity.
+  - id: ABI-ENTITY-001
+    status: Unresolved
+    description: >-
+      EntityKind lacks distinct endpoint-native Hook Skill Plugin Permission
+      local Model and configured MCP server categories.
+identifier_policy:
+  final_canonical_identity: "central platform only"
+  endpoint_entity_uuid: "native identifier candidate"
+  backend_canonical_id: "source claim; not final Quilr identity"
+  empty_or_missing: "omit candidate and preserve absence in native attributes"
+mappings:
+  - mapping_id: OBS-001
+    native_record: R-003
+    native_type: entity::Entity
+    variants:
+      - R-004
+      - R-005
+      - R-006
+      - R-007
+      - R-008
+      - R-009
+      - R-010
+      - R-011
+      - R-012
+    target_logical_contract: SourceObservation
+    target_abi_status: blocked_pending_pre_resolution_contract
+    source_object_type_field: kind
+    source_native_id_field: id
+    observed_name_field: name
+    first_observed_at_field: discovered_at
+    last_observed_at_field: last_seen_at
+    operation: upsert
+    collection_method: scan
+    native_identifiers:
+      - id
+      - kind.Application.canonical_id
+      - kind.Application.bundle_id
+      - kind.Application.process_name
+      - kind.Application.exe_path
+    native_attributes: "all R-003 through R-012 fields after privacy filtering"
+    relationship_inputs:
+      - app_name
+      - project_path
+      - repo path
+      - MCP transport and command
+    availability: Available through adapter mapping only
+  - mapping_id: OBS-002
+    native_record: R-001
+    native_type: platform::process_info::ProcessInfo
+    target_logical_contract: SourceObservation
+    target_abi_status: blocked_pending_pre_resolution_contract
+    source_native_id_rule: "component_instance + pid + start_time_secs"
+    entity_kind_hint: endpoint_process
+    observed_name_field: name
+    native_identifiers:
+      - pid
+      - ppid
+      - exe_path
+      - user
+    protected_evidence_fields:
+      - cmd_line
+    collection_method: poll
+    availability: Requires minor sensor instrumentation
+  - mapping_id: OBS-003
+    native_record: R-014
+    native_type: monitor DeviceContext
+    target_logical_contract: SourceObservation
+    target_abi_status: blocked_pending_pre_resolution_contract
+    entity_kind_hint: endpoint_device
+    source_native_id_field: device_id
+    native_attributes: all_bounded_nonsecret_fields
+    availability: Available through adapter mapping only
+  - mapping_id: OBS-004
+    native_record: R-063
+    native_type: Persona
+    target_logical_contract: SourceObservation
+    target_abi_status: blocked_pending_pre_resolution_contract
+    entity_kind_hint: human_user
+    source_native_id_fields:
+      - user_id
+      - email
+    discarded_fields:
+      - access_token
+      - refresh_token
+    note: "Persona is current identity state; it is not event-time proof for every action."
+    availability: Available through adapter mapping only
+  - mapping_id: OBS-005
+    native_record: R-064
+    native_type: EmailCandidate
+    target_logical_contract: IdentifierCandidate
+    target_abi_status: no_current_same_named_body
+    identifier_field: email
+    attributes: "candidate provenance and validation state when present"
+    availability: Available through adapter mapping only
+  - mapping_id: OBS-006
+    native_record: R-017
+    native_type: snapshot::Snapshot
+    target_logical_contract: RawEvidence
+    target_abi_status: no_current_same_named_body
+    role: bootstrap_and_backfill_only
+    operation: upsert
+    origin: snapshot
+    fields:
+      - version
+      - snapshot_at
+      - delta_cursor
+      - entities
+    limitation: "Snapshot is current state and cannot reconstruct all intermediate events."
+    availability: Available through adapter mapping only
+  - mapping_id: OBS-007
+    native_record: R-019
+    native_type: sync::types::DiscoveredEntity
+    target_logical_contract: SourceObservation
+    target_abi_status: compatibility_projection_only
+    deduplication_rule: "link to R-003 native record; do not materialize as a second observation"
+    known_loss:
+      - "name truncated to 512 UTF-8 bytes"
+      - "kind body flattened to entity_context"
+      - "child deferred when declared parent canonical ID is missing"
+    availability: Available through adapter mapping only
+field_mapping_ledger:
+  path: matrices/sensor-intelligence/endpoint-sensor/platform-contract-mapping.csv
+  native_fields: 639
+  mapped_fields: 639
+

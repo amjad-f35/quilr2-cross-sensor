@@ -1,0 +1,103 @@
+{
+  "status": "Proposed",
+  "mappings": [
+    {
+      "native_event": "gateway.request.observed",
+      "canonical_event": "gateway.request.observed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway handler"
+    },
+    {
+      "native_event": "gateway.request.blocked",
+      "canonical_event": "gateway.request.blocked",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway handler"
+    },
+    {
+      "native_event": "gateway.request.redacted",
+      "canonical_event": "gateway.request.redacted",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway handler"
+    },
+    {
+      "native_event": "gateway.upstream.requested",
+      "canonical_event": "gateway.upstream.requested",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "provider handler"
+    },
+    {
+      "native_event": "gateway.response.received",
+      "canonical_event": "gateway.response.received",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "provider handler"
+    },
+    {
+      "native_event": "gateway.response.blocked",
+      "canonical_event": "gateway.response.blocked",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway handler"
+    },
+    {
+      "native_event": "gateway.response.redacted",
+      "canonical_event": "gateway.response.redacted",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway handler"
+    },
+    {
+      "native_event": "gateway.request.failed",
+      "canonical_event": "gateway.request.failed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "handler/logger"
+    },
+    {
+      "native_event": "gateway.guardrail.detected",
+      "canonical_event": "gateway.guardrail.detected",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "DLP worker/gateway"
+    },
+    {
+      "native_event": "gateway.hallucination.detected",
+      "canonical_event": "gateway.hallucination.detected",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "hallucination worker"
+    },
+    {
+      "native_event": "gateway.config.changed",
+      "canonical_event": "gateway.config.changed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "config audit"
+    },
+    {
+      "native_event": "gateway.config.change_request.reviewed",
+      "canonical_event": "gateway.config.change_request.reviewed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "admin handler"
+    },
+    {
+      "native_event": "gateway.health.probed",
+      "canonical_event": "gateway.health.probed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "gateway health worker"
+    },
+    {
+      "native_event": "gateway.redteam.case.completed",
+      "canonical_event": "gateway.redteam.case.completed",
+      "mapping_status": "Proposed from verified native trigger",
+      "required_change": "Adapter mapping; standalone stage events may require instrumentation",
+      "evidence": "redteam worker"
+    }
+  ]
+}

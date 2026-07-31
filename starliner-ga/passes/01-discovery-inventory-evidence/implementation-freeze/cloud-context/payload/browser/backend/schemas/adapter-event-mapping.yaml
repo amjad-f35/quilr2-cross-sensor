@@ -1,0 +1,24 @@
+schema_version: 1
+profile: browser-backend
+status: Proposed
+rules:
+- Mapping ID: EM-046
+  Event ID: EV-046
+  Native event: EventLogKafkaRecord publication
+  Target contract: No platform mapping
+  Mapping rule: Retain only as source evidence or internal runtime signal
+  Timestamp rule: Preserve source occurred_at when present; add adapter observed_at and envelope emitted_at
+  Identity requirements: tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable
+  Sensitive-data rule: Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop
+  Availability: Not observable by this sensor
+  Evidence: Verified in source; Proposed
+- Mapping ID: EM-047
+  Event ID: EV-047
+  Native event: HeartbeatBatch publication
+  Target contract: SensorHealthEvent plus Device/Browser SourceObservation
+  Mapping rule: Heartbeat is freshness evidence; do not convert absence directly to deletion
+  Timestamp rule: Preserve source occurred_at when present; add adapter observed_at and envelope emitted_at
+  Identity requirements: tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable
+  Sensitive-data rule: Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop
+  Availability: Available through adapter mapping only
+  Evidence: Verified in source; Proposed

@@ -14,7 +14,7 @@ Before changing code:
 4. Read the referenced work package and exact frozen contracts.
 5. Inspect the latest local and remote validation ledger entries for the
    intended commit.
-6. Inspect `git status`, the branch diff and its open PR.
+6. Inspect `git status`, the branch diff and the exact pushed remote SHA.
 7. Continue the recorded next action; do not restart the design from chat
    memory.
 
@@ -66,9 +66,11 @@ One branch represents one coherent work item or vertical increment. It may
 contain many verified commits. A new branch is not created for every commit,
 test cycle or remote deployment.
 
-Open one draft PR early. Keep it rebased or merged from its protected base
-according to repository policy. Delete the branch after merge. At most one
-agent writes a branch at a time.
+Push the work-item branch after each coherent verified commit so the remote
+agent can test its exact SHA. Do not open a pull request unless the user
+explicitly requests one. Keep the branch current with its designated base and
+delete it only after its accepted commits are integrated. At most one agent
+writes a branch at a time.
 
 ## Local and remote agents
 
@@ -82,6 +84,7 @@ The complete protocol is
 ## Index
 
 - [Source, context and repository map](SOURCE_CONTEXT_AND_REPOSITORY_MAP.md)
+- [Portable cloud-agent source context](../cloud-context/README.md)
 - [Branch and PR baseline](BRANCH_AND_PR_BASELINE.md)
 - [Machine-readable branch/PR baseline](registers/branch-pr-baseline.csv)
 - [Branch hygiene and change control](BRANCH_HYGIENE_AND_CHANGE_CONTROL.md)

@@ -1,0 +1,640 @@
+field_id,record_id,field_path,type,required_default,origin,meaning_consumers,transformation,persistence,sensitivity,trust_boundary,missing_invalid_behavior,evidence_status
+NF-0001,R-001,pid,u32,required,OS enumerator,process instance ID for diff and action,none,memory,Potentially sensitive metadata,OS to monitor,PID recyclable,Verified in source
+NF-0002,R-001,name,String,required,ProcessInfo::normalize_name,normalized process name for correlation,exe basename then cmd basename then raw; Windows strips terminal exe and lowercases,memory,Potentially sensitive metadata,OS to monitor,empty possible if source empty,Verified in source
+NF-0003,R-001,raw_process_name,String,required,OS enumerator,original OS name copied to Application,none,memory and Application snapshot,Potentially sensitive metadata,OS to monitor,source error handled by enumerator,Verified in source
+NF-0004,R-001,exe_path,Option<String>,optional None,OS enumerator,executable identity and correlation,none,memory and Application,Potentially sensitive metadata,OS to monitor,access failure becomes None,Verified in source
+NF-0005,R-001,ppid,Option<u32>,optional None,OS enumerator,parent correlation hint,none,memory,Potentially sensitive metadata,OS to monitor,unavailable becomes None,Verified in source
+NF-0006,R-001,start_time_secs,u64,required,OS enumerator,process start time for table,none,memory,Public operational,OS to monitor,unit source-specific but named seconds,Verified in source
+NF-0007,R-001,user,Option<String>,optional None,OS enumerator,OS account attribution,none,memory,Human identity,OS to monitor,unavailable becomes None,Verified in source
+NF-0008,R-001,cmd_line,Vec<String>,required default producer-specific,OS enumerator,correlation and Application detail,copied,memory and snapshot,Credential/secret,OS to monitor,access failure can yield empty,Verified in source
+NF-0009,R-003,id,Uuid,required,entity ID helper,store and source identity,UUIDv5 for current entity constructors,memory snapshot HTTP,Public operational,local to backend,collision limitations by kind,Verified in source
+NF-0010,R-003,name,String,required,correlator or converter,display and matching name,upsert refresh; sync may truncate,memory snapshot HTTP,Potentially sensitive metadata,local to backend,warn above 512 bytes,Verified in source
+NF-0011,R-003,kind,EntityKind,required,producer-specific,typed entity payload,serde tagged type/data,memory snapshot HTTP,Potentially sensitive metadata,local to backend,upsert preserves prior payload,Verified in source
+NF-0012,R-003,governance,GovernanceFields,default allowed,default and backend,policy state for Enforcer and UI,mapped to SyncGovernance,memory snapshot HTTP,Security evidence,backend to endpoint and back,unknown strings handled by mapping code,Verified in source
+NF-0013,R-003,discovered_at,DateTime<Utc>,required,entity creation,first observed time,RFC3339 on wire,memory snapshot HTTP,Public operational,local to backend,preserved on rediscovery,Verified in source
+NF-0014,R-003,last_seen_at,DateTime<Utc>,required,observation upsert,latest observed time,RFC3339 on wire,memory snapshot HTTP,Public operational,local to backend,updated by upsert or touch,Verified in source
+NF-0015,R-003,synced_to_backend,bool,required default false,local sync state,pending selector,mutated after successful mapping,memory snapshot,Public operational,local only,false causes resend,Verified in source
+NF-0016,R-003,backend_sync_at,Option<DateTime<Utc>>,optional None,ingest success,local accepted time,RFC3339 if mapped,memory snapshot,Public operational,backend response to local,remains None before success,Verified in source
+NF-0017,R-004,canonical_id,Option<String>,optional None,app-add or ingest response,central Application ID,first assignment preserved,memory snapshot HTTP,Public operational,backend to endpoint and back,absence omitted on wire,Verified in source
+NF-0018,R-004,bundle_id,Option<String>,optional None,platform or script discovery,bundle identity and hook lookup,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,unavailable None,Verified in source
+NF-0019,R-004,version,Option<String>,optional None,discovery,application version,none,memory snapshot HTTP,Public operational,local to backend,no common validation,Verified in source
+NF-0020,R-004,vendor,Option<String>,optional None,discovery,vendor label,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0021,R-004,install_path,Option<String>,optional None,discovery and correlation,installed location and UUID input,used in UUID key,memory snapshot HTTP,Potentially sensitive metadata,local to backend,None uses process:name UUID key,Verified in source
+NF-0022,R-004,process_name,Option<String>,optional None,normalized ProcessInfo,process matching name,Windows canonicalization,memory snapshot HTTP,Potentially sensitive metadata,local to backend,None for non-process discovery,Verified in source
+NF-0023,R-004,raw_process_name,Option<String>,optional None,ProcessInfo,original process name,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,None when unavailable,Verified in source
+NF-0024,R-004,exe_path,Option<String>,optional None,ProcessInfo,executable path,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,access failure None,Verified in source
+NF-0025,R-004,cmd_line,Vec<String>,required default empty,ProcessInfo,command arguments,copied,memory snapshot HTTP,Credential/secret,local to backend,may be empty,Verified in source
+NF-0026,R-004,parent_process_name,Option<String>,optional None,process table,parent name hint,PID converted to name where possible,memory snapshot HTTP,Potentially sensitive metadata,local to backend,no stable parent ID,Verified in source
+NF-0027,R-004,is_system,bool,required,process map and discovery,system-process classification,none,memory snapshot HTTP,Security evidence,local to backend,default producer-specific,Verified in source
+NF-0028,R-004,privilege,Option<String>,optional None,platform observation,privilege label,change resets synced flag,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0029,R-004,source,String,required,producer,discovery source label,none,memory snapshot HTTP,Public operational,local to backend,not authenticated provenance,Verified in source
+NF-0030,R-004,installation_type,String,required,producer,installation classification,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0031,R-004,is_active,bool,required,constructor,current-active label,none,memory snapshot HTTP,Security evidence,local to backend,not set false on process exit,Verified in source
+NF-0032,R-004,is_dev_tool,bool,required,discovery or map,development-tool classification,none,memory snapshot HTTP,Security evidence,local to backend,source-dependent,Verified in source
+NF-0033,R-004,known_executables,Vec<String>,required default empty,map or discovery,hook lookup and aliases,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,may be empty,Verified in source
+NF-0034,R-004,pids,Vec<u32>,required default empty,process correlation,running process IDs,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,PIDs recyclable and stale risk,Verified in source
+NF-0035,R-005,name,String,required,Lua converter,MCP server name and ID input,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0036,R-005,app_name,String,required,Lua converter,owning application label,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0037,R-005,transport,String,required,Lua converter,configured MCP transport,none,memory snapshot HTTP,Security evidence,local to backend,not in current ID key,Verified in source
+NF-0038,R-005,command,Option<String>,optional None,Lua converter,MCP launch command,none,memory snapshot HTTP,Credential/secret,local to backend,may contain secrets,Verified in source
+NF-0039,R-005,args,Vec<String>,required default empty,Lua converter,MCP launch arguments,none,memory snapshot HTTP,Credential/secret,local to backend,may contain secrets,Verified in source
+NF-0040,R-005,env_vars,Vec<String>,required default empty,Lua converter,MCP environment material,none,memory snapshot HTTP,Credential/secret,local to backend,value versus name semantics unresolved,Verified in source
+NF-0041,R-005,url,Option<String>,optional None,Lua converter,MCP endpoint URL,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,internal host may be exposed,Verified in source
+NF-0042,R-005,scope,String,required,Lua converter,configuration scope,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0043,R-005,risk_level,String,required,Lua converter,script risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0044,R-005,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0045,R-006,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0046,R-006,event,String,required,Lua converter,hook event name,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0047,R-006,hook_type,String,required,Lua converter,hook type,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0048,R-006,command,Option<String>,optional None,Lua converter,hook command,none,memory snapshot HTTP,Credential/secret,local to backend,may expose path or argument,Verified in source
+NF-0049,R-006,matcher,Option<String>,optional None,Lua converter,hook matcher,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0050,R-006,risk_level,String,required,Lua converter,risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0051,R-006,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0052,R-006,binary_name,Option<String>,optional None,Lua converter,binary name,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0053,R-006,binary_path,Option<String>,optional None,Lua converter,binary path,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,local path,Verified in source
+NF-0054,R-007,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0055,R-007,name,String,required,Lua converter,skill label and ID input,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,kind omitted from ID key,Verified in source
+NF-0056,R-007,path,String,required,Lua converter,skill file or directory path,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,local path,Verified in source
+NF-0057,R-007,scope,String,required,Lua converter,scope label,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0058,R-007,risk_level,String,required,Lua converter,risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0059,R-007,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0060,R-008,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0061,R-008,name,String,required,Lua converter,agent label and ID input,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,kind omitted from ID key,Verified in source
+NF-0062,R-008,path,String,required,Lua converter,agent definition path,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,local path,Verified in source
+NF-0063,R-008,agent_type,String,required,Lua converter,agent type label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0064,R-008,scope,String,required,Lua converter,scope label,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0065,R-008,risk_level,String,required,Lua converter,risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0066,R-008,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0067,R-009,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0068,R-009,name,String,required,Lua converter,model label and ID input,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,kind omitted from ID key,Verified in source
+NF-0069,R-009,provider,String,required,Lua converter,model provider label,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0070,R-009,scope,String,required,Lua converter,scope label,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0071,R-009,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0072,R-010,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0073,R-010,repo_path,String,required,Lua converter,local repository path,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,local path,Verified in source
+NF-0074,R-010,trust_level,Option<String>,optional None,Lua converter,source trust label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0075,R-010,session_count,u32,required,Lua converter,script-derived session count,none,memory snapshot HTTP,Security evidence,local to backend,no range beyond u32,Verified in source
+NF-0076,R-010,local_mcp_count,u32,required,Lua converter,script-derived local MCP count,none,memory snapshot HTTP,Security evidence,local to backend,no range beyond u32,Verified in source
+NF-0077,R-010,local_hook_count,u32,required,Lua converter,script-derived local hook count,none,memory snapshot HTTP,Security evidence,local to backend,no range beyond u32,Verified in source
+NF-0078,R-010,risk_score,u32,required,Lua converter,script-derived risk score,none,memory snapshot HTTP,Security evidence,local to backend,no enforced range visible,Verified in source
+NF-0079,R-011,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0080,R-011,command,String,required,Lua converter,permission command,none,memory snapshot HTTP,Credential/secret,local to backend,may contain sensitive arguments,Verified in source
+NF-0081,R-011,permission_type,String,required,Lua converter,permission class,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0082,R-011,scope,String,required,Lua converter,scope,none,memory snapshot HTTP,Security evidence,local to backend,free string,Verified in source
+NF-0083,R-011,risk_level,String,required,Lua converter,risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0084,R-012,app_name,String,required,Lua converter,owning application,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0085,R-012,name,String,required,Lua converter,plugin label and ID input,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,kind omitted from ID key,Verified in source
+NF-0086,R-012,plugin_type,String,required,Lua converter,plugin type,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0087,R-012,version,Option<String>,optional None,Lua converter,plugin version,none,memory snapshot HTTP,Public operational,local to backend,free string,Verified in source
+NF-0088,R-012,risk_level,String,required,Lua converter,risk label,none,memory snapshot HTTP,Security evidence,local to backend,vocabulary not enforced,Verified in source
+NF-0089,R-012,description,Option<String>,optional None,Lua converter,description,none,memory snapshot HTTP,Potentially sensitive metadata,local to backend,free string,Verified in source
+NF-0090,R-013,approval_status,ApprovalStatus,default NeedsReview,default or backend,approval state,mapped to String,memory snapshot HTTP,Security evidence,backend to endpoint and back,unknown mapping behavior source-specific,Verified in source
+NF-0091,R-013,criticality,Criticality,default NotCritical,default or backend,criticality,mapped to String,memory snapshot HTTP,Security evidence,backend to endpoint and back,unknown mapping behavior source-specific,Verified in source
+NF-0092,R-013,execution_policy,ExecutionPolicy,default Allowed,default or backend,process control policy,mapped to String,memory snapshot HTTP,Security evidence,backend to endpoint and OS,unknown mapping behavior source-specific,Verified in source
+NF-0093,R-013,owner,Option<String>,optional None,backend,entity owner,copied to wire,memory snapshot HTTP,Human identity,backend to endpoint and back,free string,Verified in source
+NF-0094,R-013,category,Option<String>,optional None,backend,entity category,copied to wire,memory snapshot HTTP,Security evidence,backend to endpoint and back,free string,Verified in source
+NF-0095,R-013,domain,Option<String>,optional None,backend,entity domain,copied to wire,memory snapshot HTTP,Potentially sensitive metadata,backend to endpoint and back,free string,Verified in source
+NF-0096,R-013,is_new_entity,bool,default true,default or backend,newness label,copied,memory snapshot HTTP,Security evidence,backend to endpoint and back,boolean,Verified in source
+NF-0097,R-013,last_synced_time,Option<DateTime<Utc>>,optional None,backend mapping,governance sync time,RFC3339 String,memory snapshot HTTP,Public operational,backend to endpoint and back,parse failure path source-specific,Verified in source
+NF-0098,R-014,device_id,String,required,device ID generator,host identity,copied to SyncDeviceContext,memory HTTP,Device identifier,host to backend,generator fallback can vary,Verified in source
+NF-0099,R-014,hostname,String,required,local OS,host name,copied,memory HTTP,Device identifier,host to backend,collection failure uses implementation fallback,Verified in source
+NF-0100,R-014,os_type,String,required,local OS,OS family,copied,memory HTTP,Device identifier,host to backend,free string,Verified in source
+NF-0101,R-014,os_version,String,required,local OS,OS version,copied,memory HTTP,Device identifier,host to backend,free string,Verified in source
+NF-0102,R-015,username,String,required,initial OS context,user name,copied to wire,memory HTTP,Human identity,host to backend,may be fallback/empty,Verified in source
+NF-0103,R-015,user_id,Option<String>,optional None,Persona,backend user ID,not in SyncUserContext,memory,Human identity,backend to endpoint,None before Persona detail,Verified in source
+NF-0104,R-015,email,Option<String>,optional None,Persona,user email,copied to wire and activity,memory HTTP,Human identity,backend/local to endpoint and backend,None possible,Verified in source
+NF-0105,R-015,fullname,Option<String>,optional None,Persona,user full name,not in current sync contexts,memory,Human identity,backend to endpoint,None possible,Verified in source
+NF-0106,R-015,is_authenticated,bool,required,Persona,auth state,not in current sync contexts,memory,Security evidence,local only,false on absent auth,Verified in source
+NF-0107,R-015,groups,Vec<String>,required default empty,Persona,group membership,copied to wire,memory HTTP,Human identity,backend to endpoint and back,empty when absent,Verified in source
+NF-0108,R-015,access_token,Option<String>,optional None,Persona IPC,bearer credential,used by HTTP and excluded from wire,memory,Credential/secret,local IPC and backend,must not export,Verified in source
+NF-0109,R-016,tenant_id,String,required,Persona,tenant boundary,copied to wire,memory HTTP,Public operational,backend to endpoint and back,missing Persona prevents monitor startup,Verified in source
+NF-0110,R-016,subscriber_id,String,default fallback possible,Persona or default-subscriber,subscriber context,copied to wire,memory HTTP,Public operational,backend to endpoint and back,fallback is not authoritative,Verified in source
+NF-0111,R-017,version,u32,writer sets 1,snapshot writer,snapshot schema version,none,local JSON,Public operational,local file,loader does not reject unknown,Verified in source
+NF-0112,R-017,snapshot_at,DateTime<Utc>,required,snapshot writer,snapshot creation time,Serde timestamp,local JSON,Public operational,local file,parse error rejects snapshot,Verified in source
+NF-0113,R-017,delta_cursor,u64,required,EntityStore,current governance cursor,none,local JSON,Public operational,local file,corrupt parse rejects snapshot,Verified in source
+NF-0114,R-017,entities,Vec<Entity>,required,snapshot writer,current state,Serde JSON,local JSON,Potentially sensitive metadata,local file,corrupt member rejects snapshot,Verified in source
+NF-0115,R-019,id,String,required,native Entity UUID,current source ID,Uuid to String,gzip HTTP,Public operational,endpoint to backend,always populated,Verified in source
+NF-0116,R-019,canonical_id,Option<String>,optional omitted,Application canonical ID,current central ID,copied and skip None,gzip HTTP,Public operational,endpoint to backend,absent omitted,Verified in source
+NF-0117,R-019,entity_type,String,required,EntityKind,label for current API,kind_label string,gzip HTTP,Public operational,endpoint to backend,finite current variants,Verified in source
+NF-0118,R-019,name,String,required,Entity.name,display name,may truncate in converter,gzip HTTP,Potentially sensitive metadata,endpoint to backend,overlong warned,Verified in source
+NF-0119,R-019,discovered_at,String,required,Entity.discovered_at,first observation time,RFC3339,gzip HTTP,Public operational,endpoint to backend,source DateTime valid,Verified in source
+NF-0120,R-019,last_seen_at,String,required,Entity.last_seen_at,last observation time,RFC3339,gzip HTTP,Public operational,endpoint to backend,source DateTime valid,Verified in source
+NF-0121,R-019,tenant_context,SyncTenantContext,required,ContextManager,tenant subscriber projection,copied,gzip HTTP,Public operational,endpoint to backend,Persona hard dependency,Verified in source
+NF-0122,R-019,entity_context,serde_json::Value,required,kind converter,current kind-specific payload,lossy flattening,gzip HTTP,Potentially sensitive metadata,endpoint to backend,serialization failure skips/fails batch path,Verified in source
+NF-0123,R-019,properties,"Option<HashMap<String,String>>",optional omitted,converter,extra current properties,copied,gzip HTTP,Potentially sensitive metadata,endpoint to backend,None omitted,Verified in source
+NF-0124,R-019,governance,SyncGovernance,required,native governance,current policy state,enum to String,gzip HTTP,Security evidence,endpoint to backend,always supplied,Verified in source
+NF-0125,R-019,device_context,SyncDeviceContext,required,ContextManager,current device context,copied,gzip HTTP,Device identifier,endpoint to backend,always supplied after context init,Verified in source
+NF-0126,R-019,user_context,SyncUserContext,required,ContextManager,current user projection,token excluded,gzip HTTP,Human identity,endpoint to backend,optional fields may be null,Verified in source
+NF-0127,R-020,tenant_id,String,required,TenantContext,tenant ID,copied,gzip HTTP,Public operational,endpoint to backend,Persona required,Verified in source
+NF-0128,R-020,subscriber_id,String,required,TenantContext,subscriber ID,copied,gzip HTTP,Public operational,endpoint to backend,may be default-subscriber fallback,Verified in source
+NF-0129,R-021,approval_status,String,required,ApprovalStatus,current API value,enum display mapping,gzip HTTP,Security evidence,endpoint to backend,finite native enum,Verified in source
+NF-0130,R-021,criticality,String,required,Criticality,current API value,enum mapping,gzip HTTP,Security evidence,endpoint to backend,finite native enum,Verified in source
+NF-0131,R-021,execution_policy,String,required,ExecutionPolicy,current API value,enum mapping,gzip HTTP,Security evidence,endpoint to backend,finite native enum,Verified in source
+NF-0132,R-021,owner,Option<String>,optional,None or backend,owner,copied,gzip HTTP,Human identity,endpoint to backend,null if None,Verified in source
+NF-0133,R-021,category,Option<String>,optional,None or backend,category,copied,gzip HTTP,Security evidence,endpoint to backend,null if None,Verified in source
+NF-0134,R-021,domain,Option<String>,optional,None or backend,domain,copied,gzip HTTP,Potentially sensitive metadata,endpoint to backend,null if None,Verified in source
+NF-0135,R-021,is_new_entity,bool,required,native governance,newness,copied,gzip HTTP,Security evidence,endpoint to backend,always supplied,Verified in source
+NF-0136,R-021,last_synced_time,Option<String>,optional,native DateTime,governance time,RFC3339,gzip HTTP,Public operational,endpoint to backend,null if None,Verified in source
+NF-0137,R-022,device_id,String,required,DeviceContext,device ID,copied,gzip or JSON HTTP,Device identifier,endpoint to backend,always supplied,Verified in source
+NF-0138,R-022,hostname,String,required,DeviceContext,host name,copied,gzip or JSON HTTP,Device identifier,endpoint to backend,always supplied,Verified in source
+NF-0139,R-022,os_type,String,required,DeviceContext,OS type,copied,gzip or JSON HTTP,Device identifier,endpoint to backend,always supplied,Verified in source
+NF-0140,R-022,os_version,String,required,DeviceContext,OS version,copied,gzip or JSON HTTP,Device identifier,endpoint to backend,always supplied,Verified in source
+NF-0141,R-023,username,String,required,monitor UserContext,user name,copied,gzip or JSON HTTP,Human identity,endpoint to backend,may be fallback,Verified in source
+NF-0142,R-023,email,Option<String>,optional,monitor UserContext,email,copied,gzip or JSON HTTP,Human identity,endpoint to backend,null if None,Verified in source
+NF-0143,R-023,department,Option<String>,optional,builders,department,current activity builder sets None,gzip or JSON HTTP,Human identity,endpoint to backend,null currently,Verified in source
+NF-0144,R-023,role,Option<String>,optional,builders,role,current activity builder sets None,gzip or JSON HTTP,Human identity,endpoint to backend,null currently,Verified in source
+NF-0145,R-023,groups,Vec<String>,required default empty,monitor UserContext,groups,copied,gzip or JSON HTTP,Human identity,endpoint to backend,empty when absent,Verified in source
+NF-0146,R-024,prompt_text,Option<String>,optional,HookRequest.prompt,user prompt,turn aggregation,activity HTTP,User content,IDE to endpoint to backend,None if no prompt and record normally not built,Verified in source
+NF-0147,R-024,authenticated_user,Option<String>,optional,Persona email,user identity,copied,activity HTTP,Human identity,endpoint to backend,None if absent,Verified in source
+NF-0148,R-024,tools,Vec<String>,required default empty,HookRequest.tool_name,distinct tools per turn,dedup cap 500,activity HTTP,Potentially sensitive metadata,IDE to backend,excess distinct tools omitted,Verified in source
+NF-0149,R-024,files,Vec<String>,required default empty,HookRequest.file_path,selected file paths,dedup cap 500 and six tool allowlist,activity HTTP,User content,IDE to backend,other tools and excess omitted,Verified in source
+NF-0150,R-024,skills,Vec<String>,current empty,builder,skills used,current builder vec empty,activity HTTP,Potentially sensitive metadata,endpoint to backend,not populated,Verified in source
+NF-0151,R-024,mcp_server,Vec<String>,current empty,builder,MCP servers used,current builder vec empty,activity HTTP,Potentially sensitive metadata,endpoint to backend,not populated,Verified in source
+NF-0152,R-024,project,Option<String>,optional,HookRequest.cwd,project label,basename UTF-8 only,activity HTTP,Potentially sensitive metadata,IDE to backend,None for absent/non-UTF8/no basename,Verified in source
+NF-0153,R-024,model,Option<String>,current None,builder,model used,current builder None,activity HTTP,Potentially sensitive metadata,endpoint to backend,not populated,Verified in source
+NF-0154,R-024,app_name,Option<String>,optional,HookRequest.ide_type,IDE/application label,claude to claude-code,activity HTTP,Public operational,IDE to backend,None if absent state,Verified in source
+NF-0155,R-024,app_version,Option<String>,current None,builder,IDE version,current builder None,activity HTTP,Public operational,endpoint to backend,not populated,Verified in source
+NF-0156,R-024,decision,String,required,HookResponse.decision,decision label,Allow to allow Deny to deny others warn,activity HTTP,Security evidence,endpoint to backend,current allow,Verified in source
+NF-0157,R-024,time,String,required,build_entry,current activity time,new Utc RFC3339 not source timestamp,activity HTTP,Public operational,endpoint to backend,always supplied,Verified in source
+NF-0158,R-024,device_information,SyncDeviceContext,required,ContextManager,device context,copied,activity HTTP,Device identifier,endpoint to backend,always supplied,Verified in source
+NF-0159,R-024,user_context,SyncUserContext,required,ContextManager,user context,department role set None,activity HTTP,Human identity,endpoint to backend,always supplied,Verified in source
+NF-0160,R-025,session_id,String,required,IDE hook event,session key,copied,local IPC and memory,Potentially sensitive metadata,IDE to monitor,no global uniqueness validation,Verified in source
+NF-0161,R-025,ide_type,String,required,thin client,source IDE label,copied then normalized for activity,local IPC,Public operational,IDE to monitor,free string,Verified in source
+NF-0162,R-025,event_name,String,required,IDE hook event,event discriminator,exact string match branches,local IPC,Public operational,IDE to monitor,unknown ignored by evaluator,Verified in source
+NF-0163,R-025,tool_name,Option<String>,optional,IDE hook event,tool label,selected and capped,local IPC and activity,Potentially sensitive metadata,IDE to monitor and backend,None or ignored for unmatched event,Verified in source
+NF-0164,R-025,tool_input,Option<serde_json::Value>,optional,IDE hook event,tool parameters,copied to IPC then ignored evaluator,local IPC,User content,IDE to monitor,arbitrary JSON and not emitted in activity,Verified in source
+NF-0165,R-025,command,Option<String>,optional,IDE hook event,command text,copied to IPC then ignored evaluator,local IPC,Credential/secret,IDE to monitor,not emitted in activity,Verified in source
+NF-0166,R-025,file_path,Option<String>,optional,IDE hook event,file path,captured only for selected tools,local IPC and activity,User content,IDE to monitor and backend,ignored for other tools,Verified in source
+NF-0167,R-025,prompt,Option<String>,optional,IDE hook event,prompt text,stored and later activity,local IPC memory HTTP,User content,IDE to monitor and backend,absent prompt not flushed,Verified in source
+NF-0168,R-025,cwd,Option<String>,optional,IDE hook event,working directory,basename to project,local IPC memory HTTP,Potentially sensitive metadata,IDE to monitor and backend,full path not sent in ActivityEntry project,Verified in source
+NF-0169,R-025,timestamp,u64,required,thin client or source,event time,copied to IPC then ignored,local IPC,Public operational,IDE to monitor,unit not validated and activity uses new time,Verified in source
+NF-0170,R-026,decision,Decision,required,evaluator,inline outcome,serde variant string,local IPC,Security evidence,monitor to IDE,current always Allow,Verified in source
+NF-0171,R-026,message,Option<String>,optional,evaluator,user-facing explanation,copied,local IPC,Security evidence,monitor to IDE,current None,Verified in source
+NF-0172,R-026,detections,Vec<DetectionInfo>,required default empty,evaluator,hook detections,copied,local IPC,Security evidence,monitor to IDE,current empty,Verified in source
+NF-0173,R-026,detections[].detection_type,String,required if element,evaluator,detection type,copied,local IPC,Security evidence,monitor to IDE,no active element,Verified in source
+NF-0174,R-026,detections[].severity,String,required if element,evaluator,severity,copied,local IPC,Security evidence,monitor to IDE,no active element,Verified in source
+NF-0175,R-026,detections[].description,String,required if element,evaluator,description,copied,local IPC,Security evidence,monitor to IDE,no active element,Verified in source
+NF-0176,R-027,mappings,Vec<IngestMapping>,required,current API,accepted mappings,iterated,HTTP response,Public operational,backend to endpoint,parse failure rejects response,Verified in source
+NF-0177,R-027,mappings[].agent_id,String,required,current API,source entity ID,parse to UUID,memory update,Public operational,backend to endpoint,invalid UUID cannot map,Verified in source
+NF-0178,R-027,mappings[].canonical_id,String,required,current API,central ID,set if absent,memory snapshot,Public operational,backend to endpoint,empty validation not evident in type,Verified in source
+NF-0179,R-027,mappings[].settings,Option<IngestSettings>,optional,current API,governance settings,mapped,memory snapshot,Security evidence,backend to endpoint,None leaves existing/default,Verified in source
+NF-0180,R-028,approval_status,Option<String>,optional,current API,approval override,map to enum,memory,Security evidence,backend to endpoint,unknown mapping behavior in caller,Verified in source
+NF-0181,R-028,execution_policy,Option<String>,optional,current API,execution override,map to enum,memory and OS effect,Security evidence,backend to endpoint,unknown mapping behavior in caller,Verified in source
+NF-0182,R-028,criticality,Option<String>,optional,current API,criticality,map to enum,memory,Security evidence,backend to endpoint,unknown mapping behavior in caller,Verified in source
+NF-0183,R-028,category,Option<String>,optional,current API,category,copied,memory,Security evidence,backend to endpoint,None leaves existing/default,Verified in source
+NF-0184,R-028,aliases,Option<Vec<String>>,optional,current API,aliases,limited local use,memory,Potentially sensitive metadata,backend to endpoint,None no aliases,Verified in source
+NF-0185,R-029,status,Option<String>,optional default None,current API,envelope status,copied parse,HTTP response,Public operational,backend to endpoint,None accepted by serde,Verified in source
+NF-0186,R-029,response,Option<Vec<AppResolution>>,optional default None,current API,app resolution list,iterated,HTTP response,Public operational,backend to endpoint,None no mappings,Verified in source
+NF-0187,R-029,response[].app_name,String,required,current API,request correlation name,JSON appName,HTTP response,Public operational,backend to endpoint,minimum expected field,Verified in source
+NF-0188,R-029,response[].app_id,Option<String>,optional,current API,canonical app ID,JSON appId to canonical_id,memory snapshot,Public operational,backend to endpoint,None unresolved,Verified in source
+NF-0189,R-029,response[].name,Option<String>,optional,current API,canonical display name,copied or ignored per resolver,HTTP response,Public operational,backend to endpoint,None allowed,Verified in source
+NF-0190,R-029,response[].approval_status,Option<String>,optional,current API,approval,copied or mapped,HTTP response,Security evidence,backend to endpoint,None allowed,Verified in source
+NF-0191,R-029,response[].criticality,Option<String>,optional,current API,criticality,copied or mapped,HTTP response,Security evidence,backend to endpoint,None allowed,Verified in source
+NF-0192,R-029,response[].app_category,Option<String>,optional,current API,category,copied or mapped,HTTP response,Security evidence,backend to endpoint,None allowed,Verified in source
+NF-0193,R-029,response[].is_blocked,Option<String>,optional,current API,blocked value,JSON isBlocked String,HTTP response,Security evidence,backend to endpoint,string not bool,Verified in source
+NF-0194,R-029,response[].is_browser,Option<bool>,optional,current API,browser classification,JSON isBrowser,HTTP response,Security evidence,backend to endpoint,None allowed,Verified in source
+NF-0195,R-029,response[].source,Option<String>,optional,current API,canonical source,copied,HTTP response,Public operational,backend to endpoint,None allowed,Verified in source
+NF-0196,R-029,response[].is_new,Option<bool>,optional,current API,newness,JSON isNew,HTTP response,Security evidence,backend to endpoint,None allowed,Verified in source
+NF-0197,R-030,cursor,u64,required,current API,delta cursor,set in EntityStore,memory snapshot,Public operational,backend to endpoint,parse error rejects,Verified in source
+NF-0198,R-030,settings,Vec<DeltaSetting>,required,current API,governance changes,iterated,memory,Security evidence,backend to endpoint,empty valid,Verified in source
+NF-0199,R-030,error,Option<String>,optional,current API,error text,caller handling,HTTP response,Security evidence,backend to endpoint,None no reported error,Verified in source
+NF-0200,R-030,settings[].entity_id,String,required,current API,central entity lookup key,lookup or pending buffer,memory snapshot,Public operational,backend to endpoint,missing parse failure,Verified in source
+NF-0201,R-030,settings[].category,Option<String>,optional,current API,category,map governance,memory,Security evidence,backend to endpoint,None no change or default per mapper,Verified in source
+NF-0202,R-030,settings[].approval_status,Option<String>,optional,current API,approval,map governance,memory,Security evidence,backend to endpoint,unknown semantics caller-specific,Verified in source
+NF-0203,R-030,settings[].criticality,Option<String>,optional,current API,criticality,map governance,memory,Security evidence,backend to endpoint,unknown semantics caller-specific,Verified in source
+NF-0204,R-030,settings[].execution_policy,Option<String>,optional,current API,execution policy,map governance,memory OS effect,Security evidence,backend to endpoint,unknown semantics caller-specific,Verified in source
+NF-0205,R-030,settings[].aliases,Option<Vec<String>>,optional,current API,aliases,limited use,memory,Potentially sensitive metadata,backend to endpoint,None allowed,Verified in source
+NF-0206,R-030,settings[].updated_at,Option<String>,optional,current API,backend update time,copied or parsed per caller,HTTP response,Public operational,backend to endpoint,format not enforced by type,Verified in source
+NF-0207,R-030,settings[].os_type,Option<String>,optional,current API,platform qualifier,filter or context per caller,HTTP response,Public operational,backend to endpoint,free string,Verified in source
+NF-0208,R-031,platform,ProcessMapPlatforms,required,current API,OS map wrapper,split into platform maps,memory,Public operational,backend to endpoint,parse failure rejects,Verified in source
+NF-0209,R-031,platform.windows,HashMap<String;ProcessMapEntry>,default empty,current API,Windows process map,copied,memory,Security evidence,backend to endpoint,missing defaults empty,Verified in source
+NF-0210,R-031,platform.mac,HashMap<String;ProcessMapEntry>,default empty,current API,macOS process map,copied,memory,Security evidence,backend to endpoint,missing defaults empty,Verified in source
+NF-0211,R-031,exclusion_rules,Vec<ExclusionRule>,default empty,current API,process exclusions,copied,memory,Security evidence,backend to endpoint,missing empty,Verified in source
+NF-0212,R-031,entry.app_name,String,required,current API,application mapping,copied,memory,Public operational,backend to endpoint,free string,Verified in source
+NF-0213,R-031,entry.cmd_line_patterns,Vec<CmdLinePattern>,default empty,current API,command-specific mapping,copied,memory,Security evidence,backend to endpoint,missing empty,Verified in source
+NF-0214,R-031,entry.is_system,bool,default false,current API,system classification,copied,memory,Security evidence,backend to endpoint,missing false,Verified in source
+NF-0215,R-031,cmd_line_pattern.pattern,String,required,current API,match pattern,evaluated by correlator,memory,Potentially sensitive metadata,backend to endpoint,invalid pattern behavior caller-specific,Verified in source
+NF-0216,R-031,cmd_line_pattern.app_name,String,required,current API,alternate app label,copied,memory,Public operational,backend to endpoint,free string,Verified in source
+NF-0217,R-031,exclusion.field,String,required,current API,field label,matcher receives process name,memory,Security evidence,backend to endpoint,other field semantics not enforced,Verified in source
+NF-0218,R-031,exclusion.condition,String,required,current API,condition discriminator,recognized five strings,memory,Security evidence,backend to endpoint,unknown returns false,Verified in source
+NF-0219,R-031,exclusion.value,Option<String>,optional,current API,condition value,used by selected conditions,memory,Security evidence,backend to endpoint,missing makes selected conditions false,Verified in source
+NF-0220,R-063,id,String,required,auth API,backend user ID,copied to Persona and monitor,memory vault broker,Human identity,backend to endpoint,parse requires field,Verified in source
+NF-0221,R-063,email,String,required,auth API,user email,from emailaddress,memory vault broker,Human identity,backend to endpoint and services,validated by manager paths,Verified in source
+NF-0222,R-063,profile.fullname,String,required,auth API,full name,copied,memory vault broker,Human identity,backend to endpoint,required by auth response,Verified in source
+NF-0223,R-063,profile.emailaddress,String,required,auth API,profile email,copied,memory vault broker,Human identity,backend to endpoint,duplicates Persona.email,Verified in source
+NF-0224,R-063,profile.roles,Vec<String>,required,auth API,role UUIDs,copied,memory vault broker,Human identity,backend to endpoint,empty valid,Verified in source
+NF-0225,R-063,profile.permissions,Vec<String>,required,auth API,permissions,copied,memory vault broker,Human identity,backend to endpoint,empty valid,Verified in source
+NF-0226,R-063,subscriber,String,required,auth API,subscriber UUID,copied,memory vault broker,Public operational,backend to endpoint,required,Verified in source
+NF-0227,R-063,tenant,String,required,auth API,tenant UUID,copied,memory vault broker,Public operational,backend to endpoint,required,Verified in source
+NF-0228,R-063,last_validated,SystemTime,required local,manager,last validation time,set SystemTime now,memory vault,Public operational,local,clock semantics,Verified in source
+NF-0229,R-063,token_expires_at,Option<SystemTime>,optional None,manager,token expiry,locally calculated,memory vault,Credential/secret,local,None until calculated,Verified in source
+NF-0230,R-063,user_context,Option<PersonaUserContext>,optional None,fetch-user-details,org and kill switch context,copied,memory vault broker,Human identity,backend to endpoint,None initially,Verified in source
+NF-0231,R-063,device_id,String,default empty serde; generated in auth,device ID generator,device identity,SHA-256-like hex generation,memory vault broker,Device identifier,host and backend,fallback source can vary,Verified in source
+NF-0232,R-063,access_token,String,required internal,auth API,bearer token,stored in PersonaWithToken,memory cache IPC,Credential/secret,backend to endpoint local IPC,never adapter-export,Verified in source
+NF-0233,R-063,refresh_token,Option<String>,optional,auth API,refresh credential,stored internal,memory vault,Credential/secret,backend to endpoint,never adapter-export,Verified in source
+NF-0234,R-064,email,String,required,local or IPC discovery,email candidate,dedup key exact string,helper frame memory,Human identity,host or extension to Persona,validator may reject,Verified in source
+NF-0235,R-064,source,EmailSource,required,discovery source,primary source,replaced by newer candidate,helper frame memory,Security evidence,host to Persona,finite enum feature-gated,Verified in source
+NF-0236,R-064,all_sources,Vec<EmailSource>,required,discovery dedup,provenance candidates,merged distinct,helper frame memory,Security evidence,host to Persona,empty possible by construction but normal source adds one,Verified in source
+NF-0237,R-064,discovered_at,SystemTime,required,discovery,first discovery time,copied,helper frame memory,Public operational,host to Persona,clock semantics,Verified in source
+NF-0238,R-064,last_access_time,SystemTime,required,source metadata,last access ranking,newer candidate replaces primary,helper frame memory,Public operational,host to Persona,source reliability varies,Verified in source
+NF-0239,R-065,tenant_endpoint_agent_enabled,Option<bool>,default effective true,fetch-user-details,tenant kill switch,unwrap_or true,memory broker,Security evidence,backend to endpoint,missing enables,Verified in source
+NF-0240,R-065,groups,Vec<String>,default empty,fetch-user-details,groups,copied,memory broker,Human identity,backend to endpoint,missing empty,Verified in source
+NF-0241,R-065,is_admin,bool,default false,fetch-user-details,admin flag,copied,memory broker,Human identity,backend to endpoint,missing false,Verified in source
+NF-0242,R-065,department,Vec<String>,default empty,fetch-user-details,departments,copied,memory broker,Human identity,backend to endpoint,missing empty,Verified in source
+NF-0243,R-065,user,Option<UserInfo>,optional None,fetch-user-details,detailed user context,copied,memory broker,Human identity,backend to endpoint,None allowed,Verified in source
+NF-0244,R-065,user.display_name,Option<String>,optional None,fetch-user-details,display name,copied,memory,Human identity,backend to endpoint,None allowed,Verified in source
+NF-0245,R-065,user.job_title,Option<String>,optional None,fetch-user-details,job title,copied,memory,Human identity,backend to endpoint,None allowed,Verified in source
+NF-0246,R-065,user.location,Option<String>,optional None,fetch-user-details,location,copied,memory,Human identity,backend to endpoint,None allowed,Verified in source
+NF-0247,R-065,user.id,String,default empty,fetch-user-details,user ID,copied,memory,Human identity,backend to endpoint,missing empty,Verified in source
+NF-0248,R-065,user.account_enabled,Option<String>,default Some ACTIVE,fetch-user-details,account status,copied,memory,Security evidence,backend to endpoint,missing ACTIVE,Verified in source
+NF-0249,R-065,device.id,Option<String>,optional,fetch-user-details,backend device ID,string or number normalized,memory,Device identifier,backend to endpoint,null becomes None,Verified in source
+NF-0250,R-065,device.endpoint_agent_enabled,bool,default true,fetch-user-details,device kill switch,accepts extensionEnabled alias,memory broker,Security evidence,backend to endpoint,missing enables,Verified in source
+NF-0251,R-032,path,PathBuf,required,HookInstaller,target hook file,copied,memory,File-system path,monitor to integrity manager,install failure returns error,Verified in source
+NF-0252,R-032,sha256,[u8;32],required,HookInstaller,expected installed content digest,SHA-256 of content bytes,memory,Integrity metadata,monitor internal,install failure returns no record,Verified in source
+NF-0253,R-033,path,PathBuf,required,HookManager,file under integrity monitoring,copied,memory,File-system path,monitor internal,parent may not exist and watcher is skipped,Verified in source
+NF-0254,R-033,expected_hooks,serde_json::Value,required,hook template,semantic hooks value,cloned,memory,Configuration,monitor internal,invalid file is restored,Verified in source
+NF-0255,R-033,expected_extra_keys,"Map<String,Value>",default empty,hook definition,required top-level keys,cloned,memory,Configuration,monitor internal,missing keys cause restore,Verified in source
+NF-0256,R-033,expected_binary_path,String,required,installed thin-client path,command target validation,copied,memory,File-system path,monitor internal,mismatch causes restore,Verified in source
+NF-0257,R-034,id,String,required,RequestContext::new,request correlation ID,epoch-millis plus random hex,request memory,Correlation identifier,proxy internal,clock fallback not used here,Verified in source
+NF-0258,R-034,intercepted_at,String,required,now_iso8601,capture time,epoch milliseconds encoded as decimal string,request map and logs,Operational timestamp,proxy internal,SystemTime before epoch becomes zero,Verified in source
+NF-0259,R-034,map.endpoint.host,String,default empty,SNI URI or Host header,target host,priority select,request map,Network metadata,network to proxy,missing sources produce empty,Verified in source
+NF-0260,R-034,map.endpoint.path,String,required,URI,target path,copied,request map,Potentially sensitive metadata,network to proxy,URI path always available,Verified in source
+NF-0261,R-034,map.endpoint.query_params,JSON object,default empty,URI query,decoded query values,URL decode and repeated values to arrays,request map,Potential sensitive content,network to proxy,decode failure retains raw token,Verified in source
+NF-0262,R-034,map.request_state.method,String,required,HTTP request,method,copied,request map,Public operational,network to proxy,valid Hyper Method,Verified in source
+NF-0263,R-034,map.request_state.client_protocol,String,required,Hyper Version,client protocol,Debug formatting,request map,Public operational,network to proxy,always supplied,Verified in source
+NF-0264,R-034,map.request_state.is_https,bool,conditional,ClientConnMeta,TLS status,copied,request map,Public operational,accept loop to request,omitted without metadata,Verified in source
+NF-0265,R-034,map.request_state.alpn,String,conditional,ClientConnMeta,negotiated protocol,copied,request map,Public operational,TLS to proxy,omitted when unknown,Verified in source
+NF-0266,R-034,map.request_state.headers,JSON object,required,HeaderMap,request headers,lossy UTF-8 or Debug string,request map,Credential and content,network to proxy,duplicate headers collapse by name,Verified in source
+NF-0267,R-034,map.request_state.body_size,u64,conditional,body capture,request byte size,usize cast,request map,Operational metadata,proxy internal,absent until body captured,Verified in source
+NF-0268,R-034,map.request_state.body_truncated,bool,conditional,body capture,preview truncation,copied,request map,Operational metadata,proxy internal,absent until body captured,Verified in source
+NF-0269,R-034,map.source_peer,String,conditional,accepted socket,client socket address,to_string,request map,Network identifier,OS network to proxy,omitted without peer,Verified in source
+NF-0270,R-034,map.source_app.pid,u32,conditional,process attribution,source PID,copied,request map,Process identifier,redirector to proxy,absent without attribution,Verified in source
+NF-0271,R-034,map.source_app.name,String,conditional,process attribution,source process display name,copied,request map,Potentially sensitive metadata,redirector to proxy,absent when unknown,Verified in source
+NF-0272,R-034,map.app_details,JSON object,default empty,backend app-details lookup,application metadata,replaced wholesale,request map,Configuration metadata,backend to proxy,empty on lookup miss,Verified in source
+NF-0273,R-034,map.user_details.user_id,String,placeholder pending,Persona IPC,user attribution,copied,request map,Human identity,agent broker to proxy,_pending_ipc_ when unavailable,Verified in source
+NF-0274,R-034,map.user_details.email,String,placeholder pending,Persona IPC,user email,copied,request map,Personal data,agent broker to proxy,_pending_ipc_ when unavailable,Verified in source
+NF-0275,R-034,map.user_details.tenant,String,placeholder pending,Persona IPC,tenant ID,copied,request map,Tenant identifier,agent broker to proxy,_pending_ipc_ when unavailable,Verified in source
+NF-0276,R-034,map.user_details.fullname,String,conditional,Persona IPC,display name,copied,request map,Personal data,agent broker to proxy,omitted when absent,Verified in source
+NF-0277,R-034,map.user_details.device_id,String,conditional,Persona IPC,device attribution,copied,request map,Device identifier,agent broker to proxy,omitted when empty,Verified in source
+NF-0278,R-034,map.user_details.groups,Vec<String>,conditional,Persona IPC,group memberships,copied to JSON array,request map,Authorization metadata,agent broker to proxy,omitted when empty,Verified in source
+NF-0279,R-034,map.dlp_request.extracted_len,u64,conditional,extractor,extracted text length,usize cast,request map,Operational metadata,proxy internal,absent when no extraction,Verified in source
+NF-0280,R-034,map.dlp_request.extraction_time_ms,u64,conditional,extractor,extraction duration,u128 truncating cast,request map,Operational metric,proxy internal,absent when no extraction,Verified in source
+NF-0281,R-034,map.dlp_request.extractions,JSON object,conditional,extractor,named extracted values,copied,request map,Sensitive content,request body to proxy,absent on no extraction,Verified in source
+NF-0282,R-034,map.dlp_request.sensitive,bool,conditional,DLP engine,detection result,copied,request map,Security evidence,analyzer to proxy,absent without evaluation,Verified in source
+NF-0283,R-034,map.dlp_request.entities,Vec<String>,conditional,DLP engine,detected entities,HashSet to vector,request map,Highly sensitive content,analyzer to proxy,absent without evaluation,Verified in source
+NF-0284,R-034,map.dlp_request.verdict,String,conditional,DLP action,decision label,copied,request map,Security evidence,policy to proxy,free string from caller,Verified in source
+NF-0285,R-034,map.dlp_request.time_ms,u64,conditional,DLP action,evaluation duration,u128 truncating cast,request map,Operational metric,proxy internal,absent without evaluation,Verified in source
+NF-0286,R-034,map.response_state.status_code,u64,conditional,upstream response,HTTP status,u16 cast,request map,Public operational,upstream to proxy,absent before response,Verified in source
+NF-0287,R-034,map.response_state.upstream_protocol,String,conditional,Hyper response,upstream protocol,Debug formatting,request map,Public operational,upstream to proxy,absent before response,Verified in source
+NF-0288,R-034,map.response_state.headers,JSON object,conditional,upstream response,response headers,lossy UTF-8 or Debug string,request map,Credential and content,upstream to proxy,duplicate headers collapse,Verified in source
+NF-0289,R-034,map.response_state.body_size,u64,conditional,response capture,response byte size,usize cast,request map,Operational metadata,proxy internal,absent before capture,Verified in source
+NF-0290,R-034,map.response_state.response_time_ms,u64,conditional,request timer,response elapsed,u128 truncating cast,request map,Operational metric,proxy internal,absent before response,Verified in source
+NF-0291,R-034,start_instant,Instant,required,RequestContext::new,elapsed timing,not serialized,request memory,Operational internal,proxy internal,monotonic only,Verified in source
+NF-0292,R-034,dlp_work,Option<DlpWork>,default None,request DLP setup,transient action inputs,not serialized,request memory,Sensitive content,proxy internal,None when not evaluated,Verified in source
+NF-0293,R-034,dlp_work.direction,DlpDirection,conditional,request/response path,analysis direction,copied,request memory,Public operational,proxy internal,absent without DLP work,Verified in source
+NF-0294,R-034,dlp_work.action,DlpAction,conditional,policy action,requested enforcement action,copied,request memory,Security evidence,policy to proxy,absent without DLP work,Verified in source
+NF-0295,R-034,dlp_work.analyze_bytes,Bytes,conditional,extractor,content analyzed,copied reference-counted bytes,request memory,Highly sensitive content,network to analyzer,absent without DLP work,Verified in source
+NF-0296,R-034,dlp_work.host,String,conditional,request endpoint,target host,copied,request memory,Network metadata,proxy internal,absent without DLP work,Verified in source
+NF-0297,R-034,dlp_work.path,String,conditional,request endpoint,target path,copied,request memory,Potentially sensitive metadata,proxy internal,absent without DLP work,Verified in source
+NF-0298,R-034,dlp_work.unique_key,Option<String>,optional,extraction field,popup dedup key,copied,request memory,Sensitive content fingerprint,proxy internal,None disables value dedup,Verified in source
+NF-0299,R-034,is_file_upload,bool,default false,successful file extraction,upload classification,mutable flag,request memory,Operational metadata,proxy internal,false until detected,Verified in source
+NF-0300,R-034,uploaded_file.name,String,conditional,multipart metadata,filename,copied,request memory,File metadata,request to proxy,absent without upload metadata,Verified in source
+NF-0301,R-034,uploaded_file.size,usize,conditional,analyzed bytes,file size,copied,request memory,Operational metadata,proxy internal,absent without upload metadata,Verified in source
+NF-0302,R-034,uploaded_file.content_type,String,conditional,multipart headers,MIME type,copied,request memory,File metadata,request to proxy,absent without upload metadata,Verified in source
+NF-0303,R-034,dlp_alert_sent,Cell<bool>,default false,alert builder,duplicate alert guard,mutable process-local flag,request memory,Operational internal,proxy internal,false means eligible,Verified in source
+NF-0304,R-035,RequestId.0,String,required,proxy request setup,stable per-request extension,copied,request extension,Correlation identifier,proxy internal,construction required,Verified in source
+NF-0305,R-035,SniHost.0,String,required,TLS handshake,authoritative HTTPS host,copied,request extension,Network metadata,TLS to proxy,record absent if unavailable,Verified in source
+NF-0306,R-035,ClientConnMeta.is_https,bool,required,accept path,TLS/plain distinction,copied,request extension,Public operational,accept loop to proxy,constructors set explicitly,Verified in source
+NF-0307,R-035,ClientConnMeta.alpn,Option<String>,optional,TLS handshake,negotiated protocol,copied,request extension,Public operational,TLS to proxy,None when unknown,Verified in source
+NF-0308,R-036,pid,u32,required,redirector/process lookup,source process ID,copied,TTL map,Process identifier,OS extension to proxy,PID recyclable,Verified in source
+NF-0309,R-036,name,Option<String>,optional,process lookup,source process name,copied,TTL map,Potentially sensitive metadata,OS to proxy,None allowed,Verified in source
+NF-0310,R-036,process_path,Option<PathBuf>,optional,macOS Network Extension,executable path,copied,TTL map,File-system path,system extension to proxy,None on other paths,Verified in source
+NF-0311,R-036,audit_token,Option<Vec<u8>>,optional,macOS kernel audit token,process verification material,copied,TTL map,Security identifier,system extension to proxy,None on other paths,Verified in source
+NF-0312,R-036,orig_dst_ip,u32,required,redirector,original destination IPv4,copied,TTL map,Network identifier,redirector to proxy,IPv4-only representation,Verified in source
+NF-0313,R-036,orig_dst_port,u16,required,redirector,original destination port,copied,TTL map,Network metadata,redirector to proxy,valid u16,Verified in source
+NF-0314,R-036,inserted_at,Instant,required,registry insert,TTL age,monotonic instant,TTL map,Operational internal,proxy internal,not portable or serializable,Verified in source
+NF-0315,R-037,preview,Vec<u8>,default empty,body capture,body prefix,capped to max_log_bytes,request memory,Sensitive content,network to proxy,empty on error or timeout,Verified in source
+NF-0316,R-037,buffered_body,Option<Bytes>,optional,body capture,full body for small/forced buffer,clone of collected bytes,request memory,Highly sensitive content,network to proxy,None for disk-streamed body,Verified in source
+NF-0317,R-037,temp_file,Option<PathBuf>,optional,streaming capture,temporary body path,written to disk,temporary file,Highly sensitive content,network to local disk,None for in-memory body,Verified in source
+NF-0318,R-037,total_known,Option<usize>,optional,body capture,total byte length,counted,request memory,Operational metadata,proxy internal,None when unknown,Verified in source
+NF-0319,R-037,truncated,bool,required,body capture,preview truncation,computed by configured max,request memory,Operational metadata,proxy internal,false in empty fallback,Verified in source
+NF-0320,R-038,application,String,required,DLP config,application label,copied,process config,Configuration metadata,backend/file to proxy,deserialization fails if absent,Verified in source
+NF-0321,R-038,request_path,String,required,DLP config,path matching expression,compiled case-insensitive regex,process config,Configuration security,backend/file to proxy,invalid regex rejects pattern,Verified in source
+NF-0322,R-038,fields,Vec<DlpField>,required,DLP config,extraction field list,copied,process config,Configuration security,backend/file to proxy,missing rejects config,Verified in source
+NF-0323,R-038,excluded_apps.win,Vec<String>,default empty,DLP config,Windows process exclusions,case-insensitive matching,process config,Configuration security,backend/file to proxy,empty excludes none,Verified in source
+NF-0324,R-038,excluded_apps.mac,Vec<String>,default empty,DLP config,macOS process exclusions,case-insensitive matching,process config,Configuration security,backend/file to proxy,empty excludes none,Verified in source
+NF-0325,R-038,field.name,String,required,DLP config,extracted field name,copied,process config,Configuration security,backend/file to proxy,missing rejects config,Verified in source
+NF-0326,R-038,field.datatype,FieldDataType,default String,DLP config,metadata datatype,normalized from string,process config,Configuration security,backend/file to proxy,unknown becomes Any,Verified in source
+NF-0327,R-038,field.form_element,Option<String>,optional,DLP config,multipart/form selector,copied,process config,Configuration security,backend/file to proxy,None allowed,Verified in source
+NF-0328,R-038,field.source,FieldSource,default Body,DLP config,body/query/header source,normalized from string,process config,Configuration security,backend/file to proxy,unknown becomes Body,Verified in source
+NF-0329,R-038,field.extraction_stages,Vec<ExtractStage>,required,DLP config,ordered extraction pipeline,renamed to stages internally,process config,Configuration security,backend/file to proxy,missing rejects field,Verified in source
+NF-0330,R-038,field.unique,bool,default false,DLP config,popup dedup selector,copied,process config,Configuration security,backend/file to proxy,false disables dedup use,Verified in source
+NF-0331,R-038,stage.transforms,Vec<TransformOp>,default empty,DLP config,ordered decoding transforms,normalized enum strings,process config,Configuration security,backend/file to proxy,unknown transform warns then becomes JsonParse,Verified in source
+NF-0332,R-038,stage.selectors,Vec<SelectorOp>,required,DLP config,ordered selectors,JSONPath or compiled regex group,process config,Configuration security,backend/file to proxy,invalid regex rejects config,Verified in source
+NF-0333,R-039,entity,String,required,DLP analyzer,matched substring,copied,request/IPC/alert,Highly sensitive content,analyzer to UI/backend,empty is representable,Verified in source
+NF-0334,R-039,category,Option<String>,optional,DLP analyzer,high-level class,copied,request/IPC/alert,Security evidence,analyzer to UI/backend,None allowed,Verified in source
+NF-0335,R-039,sub_category,Option<String>,optional,DLP analyzer,specific subtype,copied,request/IPC/alert,Security evidence,analyzer to UI/backend,None allowed,Verified in source
+NF-0336,R-039,category_id,Option<String>,optional,DLP upstream,upstream risk category ID,copied,request/IPC/alert,Security evidence,backend detector to proxy,None allowed,Verified in source
+NF-0337,R-039,category_code_name,Option<String>,optional,DLP upstream,display/code name,copied,request/IPC/alert,Security evidence,backend detector to proxy,None allowed,Verified in source
+NF-0338,R-039,reason,Option<String>,optional,DLP upstream,explanation,copied,request/IPC/alert,Potential sensitive metadata,backend detector to proxy,None allowed,Verified in source
+NF-0339,R-039,detection_method,Option<String>,optional,DLP upstream,method label,copied,request/IPC/alert,Security evidence,backend detector to proxy,None allowed,Verified in source
+NF-0340,R-039,detection_type,DetectionType,default SensitiveContent,DLP analyzer,sensitive versus adversarial,Serde enum,request/IPC/alert,Security evidence,analyzer to UI/backend,missing defaults sensitive,Verified in source
+NF-0341,R-039,snippet,Option<String>,optional,DLP analyzer,context around match,copied,request/IPC/alert,Highly sensitive content,analyzer to UI/backend,None allowed,Verified in source
+NF-0342,R-040,sensitive,bool,required,DlpEngine,any-sensitive result,derived from detections,request memory,Security evidence,analyzer to action,false for none,Verified in source
+NF-0343,R-040,detections,HashSet<Detection>,default empty,DlpEngine,unique detection set,deduplicated by full hash,request memory,Highly sensitive content,analyzer to action,empty means nonsensitive by constructor,Verified in source
+NF-0344,R-041,verdict,RequestDLPVerdict,required,DLP action,sensitive/nonsensitive outcome,copied,request memory,Security evidence,action to handler,only two variants,Verified in source
+NF-0345,R-041,message,String,required,DLP action,human explanation,copied,request memory,Potential sensitive metadata,action to handler,empty representable,Verified in source
+NF-0346,R-041,detections,HashSet<Detection>,default empty,DLP action,evidence set,copied,request memory,Highly sensitive content,action to handler,empty allowed,Verified in source
+NF-0347,R-042,type,String,required,templating client,message discriminator,serialized rename from msg_type,broker frame,Public operational,proxy to local UI,invalid type may be ignored,Verified in source
+NF-0348,R-042,request_id,String,required,RequestContext,UI correlation ID,copied,broker frame,Correlation identifier,proxy to local UI,required by waiter,Verified in source
+NF-0349,R-042,original_text,String,required,DLP work,content shown to user,truncated to IPC budget,broker frame,Highly sensitive content,proxy to local UI,can be truncated with suffix,Verified in source
+NF-0350,R-042,detections,Vec<Detection>,default empty,DLP engine,highlight data,HashSet to vector and budget reductions,broker frame,Highly sensitive content,proxy to local UI,may be capped/trimmed,Verified in source
+NF-0351,R-042,default_justification,String,required,policy/template,timeout fallback,copied,broker frame,Potential personal data,proxy to local UI,empty allowed,Verified in source
+NF-0352,R-042,timeout_secs,u64,required,policy/template,response deadline,copied,broker frame,Operational config,proxy to local UI,zero yields immediate timeout behavior,Verified in source
+NF-0353,R-042,justification_options,Vec<String>,default empty,policy template,preset choices,copied,broker frame,Configuration,proxy to local UI,empty permits free/default path,Verified in source
+NF-0354,R-042,template_name,String,required,action path,rendering template,copied,broker frame,Configuration,proxy to local UI,unknown handling depends receiver,Verified in source
+NF-0355,R-042,blocking,bool,required,action path,response expectation,copied,broker frame,Operational config,proxy to local UI,false is fire-and-forget,Verified in source
+NF-0356,R-043,type,String,required,templating service,response discriminator,serialized rename from msg_type,broker frame,Public operational,local UI to proxy,invalid type ignored by actor,Verified in source
+NF-0357,R-043,request_id,String,required,templating service,correlates pending request,copied,broker frame,Correlation identifier,local UI to proxy,unknown ID does not complete waiter,Verified in source
+NF-0358,R-043,justification,Option<String>,optional,user/UI,user-supplied reason,copied,broker frame,Personal and sensitive data,local UI to proxy,None triggers fallback/error handling,Verified in source
+NF-0359,R-043,error,Option<String>,optional,templating service,response failure,copied,broker frame,Operational error,local UI to proxy,None on success,Verified in source
+NF-0360,R-044,user.username,String,required,Persona,user display name,copied,alert JSON,Personal data,endpoint to backend,minimal fallback empty,Verified in source
+NF-0361,R-044,user.accountname,String,required,Persona,user email,copied,alert JSON,Personal data,endpoint to backend,minimal fallback empty,Verified in source
+NF-0362,R-044,user.machinename,String,required,device context,machine/device identifier,copied,alert JSON,Device identifier,endpoint to backend,caller supplies,Verified in source
+NF-0363,R-044,user.client_ip,String,required,request peer,client IP,copied,alert JSON,Network identifier,endpoint to backend,caller supplies,Verified in source
+NF-0364,R-044,user.id,Option<String>,optional,Persona,user UUID,copied,alert JSON,Human identifier,endpoint to backend,minimal fallback None,Verified in source
+NF-0365,R-044,user.subscriber,Option<String>,optional,Persona,subscriber UUID,copied,alert JSON,Tenant identifier,endpoint to backend,minimal fallback None,Verified in source
+NF-0366,R-044,user.tenant,Option<String>,optional,Persona,tenant UUID,copied,alert JSON,Tenant identifier,endpoint to backend,minimal fallback None,Verified in source
+NF-0367,R-044,user.roles,Vec<String>,omitted empty,Persona,role names,copied,alert JSON,Authorization metadata,endpoint to backend,minimal fallback empty,Verified in source
+NF-0368,R-044,user.permissions,Vec<String>,omitted empty,Persona,permission names,copied,alert JSON,Authorization metadata,endpoint to backend,minimal fallback empty,Verified in source
+NF-0369,R-044,extension.name,String,required,AgentSection,agent product name,static default,alert JSON,Public operational,endpoint to backend,default Quilr Endpoint Agent,Verified in source
+NF-0370,R-044,extension.version,String,required,Cargo package,agent version,compile-time with fallback,alert JSON,Public operational,endpoint to backend,fallback 0.1.0,Verified in source
+NF-0371,R-044,extension.os,String,required,std::env,operating system,copied,alert JSON,Public operational,endpoint to backend,compile target value,Verified in source
+NF-0372,R-044,extension.arch,String,required,std::env,CPU architecture,copied,alert JSON,Public operational,endpoint to backend,compile target value,Verified in source
+NF-0373,R-044,extension.device_id,String,omitted empty,Persona/device,hardware-derived ID,copied,alert JSON,Device identifier,endpoint to backend,empty omitted,Verified in source
+NF-0374,R-044,application.process_name,String,required,process attribution,source process name,copied,alert JSON,Potentially sensitive metadata,endpoint to backend,empty representable,Verified in source
+NF-0375,R-044,application.authenticationtype,String,required,builder,auth type label,usually static dash,alert JSON,Public operational,endpoint to backend,no validation,Verified in source
+NF-0376,R-044,application.domain,String,omitted empty,Origin header,source domain,copied,alert JSON,Network metadata,endpoint to backend,empty omitted,Verified in source
+NF-0377,R-044,client_details.name,String,required,app details,intercepted app name,copied,alert JSON,Potentially sensitive metadata,endpoint to backend,caller supplies,Verified in source
+NF-0378,R-044,client_details.url,String,required,host and path,target URL,constructed with https scheme,alert JSON,Potentially sensitive metadata,endpoint to backend,query excluded in helper,Verified in source
+NF-0379,R-044,client_details.domain,String,omitted empty,request host,target domain,copied,alert JSON,Network metadata,endpoint to backend,empty omitted,Verified in source
+NF-0380,R-044,client_details.authenticationtype,String,required,builder,auth label,static dash,alert JSON,Public operational,endpoint to backend,no validation,Verified in source
+NF-0381,R-044,check.id,String,required,CheckId,DLP check ID,static CID_101,alert JSON,Public operational,endpoint to backend,constructor supplies,Verified in source
+NF-0382,R-044,check.name,String,required,CheckId,DLP check name,static mapping,alert JSON,Public operational,endpoint to backend,constructor supplies,Verified in source
+NF-0383,R-044,check.log_type,String,required,CheckId,DLP log category,static mapping/fallback prompt_request,alert JSON,Public operational,endpoint to backend,constructor supplies,Verified in source
+NF-0384,R-044,check.properties.context_id,String,required,RequestContext,correlation ID,copied,alert JSON,Correlation identifier,endpoint to backend,caller supplies,Verified in source
+NF-0385,R-044,check.properties.credentials.email,String,optional,request/Persona,AI app session email,copied,alert JSON,Personal data,endpoint to backend,credentials object omitted when None,Verified in source
+NF-0386,R-044,check.properties.alert_type,String,required,builder,alert kind,default finding,alert JSON,Public operational,endpoint to backend,no enum validation,Verified in source
+NF-0387,R-044,check.properties.original_prompt,String,required,extracted content,pre-action text,copied then may be truncated for IPC,alert JSON,Highly sensitive content,endpoint to backend,default empty,Verified in source
+NF-0388,R-044,check.properties.final_prompt,String,required,action result,post-action text,copied then may be truncated,alert JSON,Highly sensitive content,endpoint to backend,default empty,Verified in source
+NF-0389,R-044,check.properties.user_justification,String,required,user/UI,justification text,copied,alert JSON,Personal data,endpoint to backend,default empty,Verified in source
+NF-0390,R-044,check.properties.control,String,required,policy,control slug,copied,alert JSON,Security evidence,endpoint to backend,default empty,Verified in source
+NF-0391,R-044,check.properties.action_name,Option<String>,optional,policy/action,human action name,copied,alert JSON,Security evidence,endpoint to backend,None omitted,Verified in source
+NF-0392,R-044,check.properties.mode,String,required,verdict mapping,action mode,normalized string,alert JSON,Security evidence,endpoint to backend,default empty,Verified in source
+NF-0393,R-044,check.properties.summary,String,required,action builder,human summary,copied,alert JSON,Potential sensitive metadata,endpoint to backend,default empty,Verified in source
+NF-0394,R-044,check.properties.outcome,String,required,action result,resolution outcome,copied,alert JSON,Security evidence,endpoint to backend,default empty,Verified in source
+NF-0395,R-044,check.properties.size,u64,required,final prompt,content size,producer defines bytes/chars,alert JSON,Operational metadata,endpoint to backend,default zero,Verified in source
+NF-0396,R-044,check.properties.is_initial_sensitive,bool,required,DLP result,initial sensitivity,copied,alert JSON,Security evidence,endpoint to backend,default false,Verified in source
+NF-0397,R-044,check.properties.is_final_sensitive,bool,required,DLP result,post-action sensitivity,copied,alert JSON,Security evidence,endpoint to backend,default false,Verified in source
+NF-0398,R-044,check.properties.business_justification,Option<String>,optional,user/policy,business reason,copied,alert JSON,Personal data,endpoint to backend,None omitted,Verified in source
+NF-0399,R-044,check.properties.resolution_channel,String,required,builder,resolution surface,default proxy,alert JSON,Public operational,endpoint to backend,free string,Verified in source
+NF-0400,R-044,check.properties.alert_status,String,required,builder,alert lifecycle status,default closed,alert JSON,Security evidence,endpoint to backend,free string,Verified in source
+NF-0401,R-044,check.properties.action_taken,Option<String>,optional,enforcement path,attempted action label,copied,alert JSON,Security evidence,endpoint to backend,None omitted and does not prove effect,Verified in source
+NF-0402,R-044,check.properties.prompt_changed,bool,required,content comparison,modification flag,derived,alert JSON,Security evidence,endpoint to backend,default false,Verified in source
+NF-0403,R-044,check.properties.detections_original,Vec<Detection>,default empty,DLP analyzer,original detections,converted/consolidated,alert JSON,Highly sensitive content,endpoint to backend,empty allowed,Verified in source
+NF-0404,R-044,check.properties.detections_final,Vec<Detection>,default empty,DLP analyzer,final detections,converted/consolidated,alert JSON,Highly sensitive content,endpoint to backend,empty allowed,Verified in source
+NF-0405,R-044,check.properties.payload_truncated,bool,default false,IPC budget reducer,data-loss indicator,set when reduced,alert JSON,Operational evidence,endpoint to backend,false omitted,Verified in source
+NF-0406,R-044,detection.name,String,omitted empty,DLP converter,display class,copied,alert JSON,Security evidence,endpoint to backend,empty omitted,Verified in source
+NF-0407,R-044,detection.code_name,String,omitted empty,DLP converter,code name,copied,alert JSON,Security evidence,endpoint to backend,empty omitted,Verified in source
+NF-0408,R-044,detection.attributes,Vec<DetectionAttribute>,default empty,DLP converter,matched values and categories,constructed per entity,alert JSON,Highly sensitive content,endpoint to backend,empty allowed,Verified in source
+NF-0409,R-044,detection.entities,Vec<String>,default empty,DLP converter,raw matched entities,copied,alert JSON,Highly sensitive content,endpoint to backend,empty allowed,Verified in source
+NF-0410,R-044,detection.id,String,omitted empty,DLP upstream,category ID,copied,alert JSON,Security evidence,endpoint to backend,empty omitted,Verified in source
+NF-0411,R-044,detection.detection_type,String,omitted empty,DLP upstream,detection method/type,copied,alert JSON,Security evidence,endpoint to backend,default contextual in constructor,Verified in source
+NF-0412,R-044,detection.class,String,required,DLP converter,class label,copied,alert JSON,Security evidence,endpoint to backend,empty representable,Verified in source
+NF-0413,R-044,detection.classification,bool,required,DLP converter,classification flag,copied,alert JSON,Security evidence,endpoint to backend,constructor false,Verified in source
+NF-0414,R-044,detection.reason,String,omitted empty,DLP upstream,explanation,copied,alert JSON,Potential sensitive metadata,endpoint to backend,empty omitted,Verified in source
+NF-0415,R-044,detection.attributes[].attribute_name,String,required,DLP entity,matched value,copied,alert JSON,Highly sensitive content,endpoint to backend,empty representable,Verified in source
+NF-0416,R-044,detection.attributes[].category,String,required,DLP subtype,attribute category,copied,alert JSON,Security evidence,endpoint to backend,default empty,Verified in source
+NF-0417,R-044,detection.attributes[].snippet,Option<String>,optional,DLP analyzer,context snippet,copied,alert JSON,Highly sensitive content,endpoint to backend,None omitted,Verified in source
+NF-0418,R-045,user,UserSection,required,same as R-044,user/device context,reused exact fields,alert JSON,Personal and device data,endpoint to backend,builder returns None if missing,Verified in source
+NF-0419,R-045,extension,AgentSection,required,same as R-044,agent context,reused exact fields,alert JSON,Public operational,endpoint to backend,builder returns None if missing,Verified in source
+NF-0420,R-045,client_details,ClientDetailsSection,required,same as R-044,target application,reused exact fields,alert JSON,Network metadata,endpoint to backend,builder returns None if missing,Verified in source
+NF-0421,R-045,application,SourceProcess,required,same as R-044,source process,reused exact fields,alert JSON,Process metadata,endpoint to backend,builder returns None if missing,Verified in source
+NF-0422,R-045,check.id,String,required,CheckId,upload check ID,static CID_22,alert JSON,Public operational,endpoint to backend,constructor supplies,Verified in source
+NF-0423,R-045,check.name,String,required,CheckId,upload check name,static upload,alert JSON,Public operational,endpoint to backend,constructor supplies,Verified in source
+NF-0424,R-045,check.properties.context_id,String,required,RequestContext,correlation ID,copied,alert JSON,Correlation identifier,endpoint to backend,caller supplies,Verified in source
+NF-0425,R-045,check.properties.credentials.email,String,optional,Persona,user email,copied,alert JSON,Personal data,endpoint to backend,credentials object omitted,Verified in source
+NF-0426,R-045,check.properties.file,Vec<UploadFileInfo>,default empty,upload extractor,uploaded file array,constructed,alert JSON,File and content metadata,endpoint to backend,empty allowed,Verified in source
+NF-0427,R-045,check.properties.control,String,omitted empty,policy,control slug,copied,alert JSON,Security evidence,endpoint to backend,empty omitted,Verified in source
+NF-0428,R-045,check.properties.resolution_channel,Option<String>,optional,action path,resolution surface,copied,alert JSON,Public operational,endpoint to backend,None omitted,Verified in source
+NF-0429,R-045,check.properties.mode,String,required,UploadMode,policy mode,mapped from action,alert JSON,Security evidence,endpoint to backend,default empty,Verified in source
+NF-0430,R-045,check.properties.action_name,Option<String>,optional,policy,human action name,copied,alert JSON,Security evidence,endpoint to backend,None omitted,Verified in source
+NF-0431,R-045,check.properties.summary,Option<UploadSummary>,optional,action/UI,pending or blocked message,constructed,alert JSON,Potential sensitive metadata,endpoint to backend,mutually exclusive by convention only,Verified in source
+NF-0432,R-045,check.properties.outcome,Option<String>,optional,action result,completion outcome,copied,alert JSON,Security evidence,endpoint to backend,mutually exclusive by convention only,Verified in source
+NF-0433,R-045,check.properties.user_justification,Option<String>,optional,user/UI,justification,copied,alert JSON,Personal data,endpoint to backend,None omitted,Verified in source
+NF-0434,R-045,check.properties.suppressed_controls,Vec<String>,omitted empty,policy,other policies suppressed,copied,alert JSON,Security evidence,endpoint to backend,empty omitted,Verified in source
+NF-0435,R-045,file[].lastModified,Option<u64>,optional placeholder,file metadata,modification epoch milliseconds,copied,alert JSON,File metadata,endpoint to backend,current constructor None,Verified in source
+NF-0436,R-045,file[].name,String,required,multipart header,filename,copied,alert JSON,File metadata,endpoint to backend,unknown helper uses unknown,Verified in source
+NF-0437,R-045,file[].size,usize,required,analyzed bytes,file size,copied,alert JSON,Operational metadata,endpoint to backend,caller supplies,Verified in source
+NF-0438,R-045,file[].type,String,required,content type,MIME type,serialized rename from file_type,alert JSON,File metadata,endpoint to backend,caller supplies,Verified in source
+NF-0439,R-045,file[].detection,Vec<UploadDetection>,default empty,DLP analyzer,file detections,converted/consolidated,alert JSON,Highly sensitive content,endpoint to backend,empty means none in payload,Verified in source
+NF-0440,R-045,file[].path,Option<String>,optional placeholder,disk search,file path,copied,alert JSON,File-system path,endpoint to backend,current constructor None,Verified in source
+NF-0441,R-045,file[].label,String,omitted empty,file label,sensitivity label,copied,alert JSON,Security metadata,endpoint to backend,current constructor empty,Verified in source
+NF-0442,R-045,file[].metadata.file_extension,Option<String>,optional,filename,extension,lowercased suffix with length guard,alert JSON,File metadata,endpoint to backend,None for unsuitable names,Verified in source
+NF-0443,R-045,file[].metadata.mime_type,Option<String>,optional,content type,MIME metadata,copied,alert JSON,File metadata,endpoint to backend,constructor Some,Verified in source
+NF-0444,R-045,file[].metadata.path_extension,Option<String>,optional,filename/path,path extension,initially same as file extension,alert JSON,File metadata,endpoint to backend,None allowed,Verified in source
+NF-0445,R-045,file[].metadata.file_path,Option<String>,optional placeholder,disk search,full file path,set with with_path,alert JSON,File-system path,endpoint to backend,current constructor None,Verified in source
+NF-0446,R-045,file[].metadata.file_kind,Option<String>,optional placeholder,magic bytes,file kind,set with helper,alert JSON,File metadata,endpoint to backend,current constructor None,Verified in source
+NF-0447,R-045,file[].extracted_files,Vec<UploadFileInfo>,omitted empty,archive extraction,nested files,recursive record,alert JSON,File and content metadata,endpoint to backend,current common constructor empty,Verified in source
+NF-0448,R-045,file[].detection[].name,String,required,DLP converter,category name,copied,alert JSON,Security evidence,endpoint to backend,caller supplies,Verified in source
+NF-0449,R-045,file[].detection[].code_name,String,required,DLP converter,category code name,copied,alert JSON,Security evidence,endpoint to backend,caller supplies,Verified in source
+NF-0450,R-045,file[].detection[].attributes,Vec<UploadDetectionAttribute>,default empty,DLP converter,matched values and snippets,constructed,alert JSON,Highly sensitive content,endpoint to backend,empty allowed,Verified in source
+NF-0451,R-045,file[].detection[].id,String,required,DLP converter,category ID,constructed data_risk_category slug,alert JSON,Security evidence,endpoint to backend,caller supplies,Verified in source
+NF-0452,R-045,file[].detection[].detection_type,Option<String>,optional,DLP converter,pattern/context type,copied,alert JSON,Security evidence,endpoint to backend,None omitted,Verified in source
+NF-0453,R-045,file[].detection[].type,Option<String>,optional,DLP converter,redact/classify action type,serialized rename,alert JSON,Security evidence,endpoint to backend,None omitted,Verified in source
+NF-0454,R-045,file[].detection[].class,String,required,DLP converter,class label,copied,alert JSON,Security evidence,endpoint to backend,caller supplies,Verified in source
+NF-0455,R-045,file[].detection[].classification,bool,required,DLP converter,sensitivity classification,copied,alert JSON,Security evidence,endpoint to backend,caller supplies,Verified in source
+NF-0456,R-045,file[].detection[].reason,Option<String>,optional,DLP converter,human reason,copied,alert JSON,Potential sensitive metadata,endpoint to backend,None omitted,Verified in source
+NF-0457,R-045,file[].detection[].attributes[].attribute_name,String,required,DLP entity,matched value,copied,alert JSON,Highly sensitive content,endpoint to backend,caller supplies,Verified in source
+NF-0458,R-045,file[].detection[].attributes[].category,String,required,DLP subtype,subtype label,copied,alert JSON,Security evidence,endpoint to backend,unknown fallback,Verified in source
+NF-0459,R-045,file[].detection[].attributes[].snippet,String,required,DLP analyzer,context snippet,copied,alert JSON,Highly sensitive content,endpoint to backend,default empty,Verified in source
+NF-0460,R-045,check.properties.summary.header,String,conditional,action UI,summary header,constructed,alert JSON,Public operational,endpoint to backend,absent without summary,Verified in source
+NF-0461,R-045,check.properties.summary.title,String,conditional,action UI,summary title,constructed with filename,alert JSON,File metadata,endpoint to backend,absent without summary,Verified in source
+NF-0462,R-045,check.properties.summary.description,String,conditional,action UI,summary explanation,constructed,alert JSON,Potential sensitive metadata,endpoint to backend,absent without summary,Verified in source
+NF-0463,R-045,check.properties.summary.acknowledgedButtons,Vec<String>,omitted empty,action UI,button labels,serialized rename,alert JSON,Configuration,endpoint to backend,empty omitted,Verified in source
+NF-0464,R-045,check.properties.summary.justification_list,Vec<String>,omitted empty,policy template,justification options,copied,alert JSON,Configuration,endpoint to backend,empty omitted,Verified in source
+NF-0465,R-046,id,Uuid,required,Alertable::serialize,transport/storage alert ID,new UUID,broker and SQLite,Correlation identifier,producer to alert engine,always created,Verified in source
+NF-0466,R-046,bytes,Vec<u8>,required,payload serializer,opaque alert payload,JSON serialization with empty-object fallback,broker and SQLite,Potentially highly sensitive,producer to alert engine,serialization failure becomes {},Verified in source
+NF-0467,R-046,content_type,&'static str,required,Alertable,HTTP media type,static string,broker and SQLite,Public operational,producer to alert engine,JSON helper uses application/json,Verified in source
+NF-0468,R-046,batch_family,&'static str,required,Alertable,batching partition,static string,broker and SQLite,Operational metadata,producer to alert engine,empty disables batching,Verified in source
+NF-0469,R-046,http_config,Option<AlertHttpConfig>,optional,producer,HTTP routing override,copied,broker and SQLite,Configuration and possible secret references,producer to alert engine,None uses profile default,Verified in source
+NF-0470,R-047,type,String,required,AlertIpcMessage,message variant tag,serde tag alert/batch/lifecycle,broker JSON,Public operational,producer to receiver,unknown variant rejects decode,Verified in source
+NF-0471,R-047,id,Uuid,required,SerializedAlert,alert ID,copied,broker JSON,Correlation identifier,producer to receiver,required,Verified in source
+NF-0472,R-047,bytes,Vec<u8>,required,SerializedAlert,opaque payload,copied and JSON byte array,broker JSON,Potentially highly sensitive,producer to receiver,required,Verified in source
+NF-0473,R-047,content_type,String,required,SerializedAlert,HTTP media type,owned conversion,broker JSON,Public operational,producer to receiver,leaked on reverse conversion,Verified in source
+NF-0474,R-047,batch_family,String,required,SerializedAlert,batching partition,owned conversion,broker JSON,Operational metadata,producer to receiver,leaked on reverse conversion,Verified in source
+NF-0475,R-047,http_config,Option<AlertHttpConfig>,optional,SerializedAlert,routing override,copied,broker JSON,Configuration and possible secret references,producer to receiver,None uses default,Verified in source
+NF-0476,R-047,payloads,Vec<AlertIpcPayload>,conditional,batch producer,batch alerts,copied,broker JSON,Potentially highly sensitive,producer to receiver,batch variant producer path exists,Verified in source
+NF-0477,R-047,lifecycle.process_id,String,conditional,lifecycle sender,service identity,copied,broker JSON,Operational identifier,producer to receiver,only lifecycle variant,Verified in source
+NF-0478,R-047,lifecycle.event_type,LifecycleEventType,conditional,lifecycle sender,start/stop/crash/heartbeat,snake_case serialization,broker JSON,Operational evidence,producer to receiver,only lifecycle variant,Verified in source
+NF-0479,R-047,lifecycle.timestamp,u64,conditional,SystemTime,event epoch milliseconds,as_millis cast,broker JSON,Operational timestamp,producer to receiver,pre-epoch becomes zero,Verified in source
+NF-0480,R-047,lifecycle.context,Option<String>,optional,lifecycle sender,extra context,copied,broker JSON,Potential sensitive error context,producer to receiver,None allowed,Verified in source
+NF-0481,R-048,id,Uuid,required,SerializedAlert,primary alert ID,string/UUID storage,SQLite,Correlation identifier,endpoint local storage,invalid DB UUID row is skipped by converter,Verified in source
+NF-0482,R-048,payload_bytes,Vec<u8>,required,SerializedAlert,opaque payload,base64 database model conversion,SQLite,Potentially highly sensitive,endpoint local storage,invalid base64 row skipped,Verified in source
+NF-0483,R-048,content_type,String,required,SerializedAlert,HTTP media type,copied,SQLite,Public operational,endpoint local storage,required column,Verified in source
+NF-0484,R-048,batch_family,String,required,SerializedAlert,batching key,copied,SQLite,Operational metadata,endpoint local storage,empty valid,Verified in source
+NF-0485,R-048,status,AlertStatus,required,alert storage,Pending/Sending/Retry/Sent/Failed,uppercase string mapping,SQLite,Operational evidence,endpoint local storage,unknown DB value cannot parse,Verified in source
+NF-0486,R-048,retry_count,i32,required,dispatcher,retry attempts,incremented,SQLite,Operational evidence,endpoint local storage,default from schema path,Verified in source
+NF-0487,R-048,next_retry_at,Option<DateTime<Utc>>,optional,retry scheduler,next eligible send time,RFC3339 conversion,SQLite,Operational timestamp,endpoint local storage,None outside retry,Verified in source
+NF-0488,R-048,created_at,DateTime<Utc>,required,storage insert,creation time,RFC3339 conversion,SQLite,Operational timestamp,endpoint local storage,invalid timestamp row skipped,Verified in source
+NF-0489,R-048,updated_at,DateTime<Utc>,required,storage updates,last mutation time,RFC3339 conversion,SQLite,Operational timestamp,endpoint local storage,invalid timestamp row skipped,Verified in source
+NF-0490,R-048,http_config_json,Option<String>,optional,SerializedAlert,route override,JSON serialization,SQLite,Configuration and possible secret references,endpoint local storage,malformed JSON ignored on restore,Verified in source
+NF-0491,R-049,id,Uuid,required,quarantine insert,quarantine entry ID,new UUID/DB,SQLite,Correlation identifier,endpoint local storage,invalid row skipped,Verified in source
+NF-0492,R-049,original_alert_id,Uuid,required,StoredAlert,source alert ID,copied,SQLite,Correlation identifier,endpoint local storage,invalid row skipped,Verified in source
+NF-0493,R-049,payload_bytes,Vec<u8>,required,StoredAlert,poison payload,base64 model conversion,SQLite,Potentially highly sensitive,endpoint local storage,decode failure skips row,Verified in source
+NF-0494,R-049,content_type,String,required,StoredAlert,media type,copied,SQLite,Public operational,endpoint local storage,required,Verified in source
+NF-0495,R-049,batch_family,String,required,StoredAlert,batch partition,copied,SQLite,Operational metadata,endpoint local storage,required,Verified in source
+NF-0496,R-049,quarantine_reason,String,required,dispatcher,poison reason,copied,SQLite,Operational error,endpoint local storage,caller supplies,Verified in source
+NF-0497,R-049,quarantined_at,DateTime<Utc>,required,storage,quarantine time,RFC3339,SQLite,Operational timestamp,endpoint local storage,invalid row skipped,Verified in source
+NF-0498,R-049,retry_count,i32,required,StoredAlert,attempts before quarantine,copied,SQLite,Operational evidence,endpoint local storage,required,Verified in source
+NF-0499,R-049,http_config_json,Option<String>,optional,StoredAlert,route override,copied,SQLite,Configuration and possible secret references,endpoint local storage,None allowed,Verified in source
+NF-0500,R-050,id,Uuid,required,DLQ insert,DLQ entry ID,new UUID/DB,SQLite,Correlation identifier,endpoint local storage,invalid row skipped,Verified in source
+NF-0501,R-050,original_alert_id,Uuid,required,StoredAlert,source alert ID,copied,SQLite,Correlation identifier,endpoint local storage,invalid row skipped,Verified in source
+NF-0502,R-050,payload_bytes,Vec<u8>,required,StoredAlert,failed payload,base64 model conversion,SQLite,Potentially highly sensitive,endpoint local storage,decode failure skips row,Verified in source
+NF-0503,R-050,content_type,String,required,StoredAlert,media type,copied,SQLite,Public operational,endpoint local storage,required,Verified in source
+NF-0504,R-050,batch_family,String,required,StoredAlert,batch partition,copied,SQLite,Operational metadata,endpoint local storage,required,Verified in source
+NF-0505,R-050,failure_reason,String,required,dispatcher,terminal failure reason,copied,SQLite,Operational error,endpoint local storage,caller supplies,Verified in source
+NF-0506,R-050,retry_count,i32,required,StoredAlert,total attempts,copied,SQLite,Operational evidence,endpoint local storage,required,Verified in source
+NF-0507,R-050,first_failure_at,DateTime<Utc>,required,storage,first failure time,RFC3339,SQLite,Operational timestamp,endpoint local storage,invalid row skipped,Verified in source
+NF-0508,R-050,dlq_at,DateTime<Utc>,required,storage,DLQ insertion time,RFC3339,SQLite,Operational timestamp,endpoint local storage,invalid row skipped,Verified in source
+NF-0509,R-050,acknowledged,bool,required,operator workflow,operator acknowledgement,copied,SQLite,Audit evidence,operator to endpoint,default false in insert path,Verified in source
+NF-0510,R-050,acknowledged_at,Option<DateTime<Utc>>,optional,operator workflow,acknowledgement time,RFC3339,SQLite,Audit timestamp,operator to endpoint,None before acknowledgement,Verified in source
+NF-0511,R-050,acknowledged_by,Option<String>,optional,operator workflow,operator identity,copied,SQLite,Human identifier,operator to endpoint,None before acknowledgement,Verified in source
+NF-0512,R-050,http_config_json,Option<String>,optional,StoredAlert,route override,copied,SQLite,Configuration and possible secret references,endpoint local storage,None allowed,Verified in source
+NF-0513,R-051,id,Uuid,required,DiagnosticPayload::new,diagnostic ID,new UUID,broker JSON,Correlation identifier,component to diagnostics receiver,always created,Verified in source
+NF-0514,R-051,timestamp,DateTime<Utc>,required,DiagnosticPayload::new,event time,Utc::now,broker JSON,Operational timestamp,component to diagnostics receiver,always created,Verified in source
+NF-0515,R-051,level,Level,required,caller,severity,serde snake_case,broker JSON,Operational evidence,component to diagnostics receiver,five variants,Verified in source
+NF-0516,R-051,category,Category,required,caller,diagnostic category,serde snake_case,broker JSON,Operational evidence,component to diagnostics receiver,ten variants,Verified in source
+NF-0517,R-051,component,Component,required,caller/module inference,emitting component,serde snake_case,broker JSON,Operational evidence,component to diagnostics receiver,unknown fallback available,Verified in source
+NF-0518,R-051,code,Option<String>,optional but constructor Some,caller,diagnostic code,copied,broker JSON,Operational evidence,component to diagnostics receiver,None omitted,Verified in source
+NF-0519,R-051,message,String,required,caller,human diagnostic text,copied,broker JSON,Potential sensitive error data,component to diagnostics receiver,empty representable,Verified in source
+NF-0520,R-051,context,Option<serde_json::Value>,optional,caller,structured diagnostic context,copied,broker JSON,Potentially highly sensitive,component to diagnostics receiver,None omitted and arbitrary schema,Verified in source
+NF-0521,R-052,process_id,String,required,sender,service/process identity,copied,broker JSON,Operational identifier,component to receiver,constructor requires,Verified in source
+NF-0522,R-052,event_type,LifecycleEventType,required,sender,lifecycle class,snake_case,broker JSON,Operational evidence,component to receiver,four variants,Verified in source
+NF-0523,R-052,timestamp,u64,required,SystemTime,event epoch milliseconds,as_millis cast,broker JSON,Operational timestamp,component to receiver,pre-epoch becomes zero,Verified in source
+NF-0524,R-052,context,Option<String>,optional,sender,free-form lifecycle context,copied,broker JSON,Potential sensitive error data,component to receiver,None default,Verified in source
+NF-0525,R-053,type,String,required,DiagnosticsMessage,variant discriminator,event/batch/lifecycle,broker JSON,Public operational,component to receiver,unknown rejects decode,Verified in source
+NF-0526,R-053,payload,DiagnosticPayload,conditional,diagnostic sender,single event,nested record,broker JSON,Potentially sensitive,component to receiver,event variant only,Verified in source
+NF-0527,R-053,payloads,Vec<DiagnosticPayload>,conditional,batch sender,batch events,nested records,broker JSON,Potentially sensitive,component to receiver,no batch producer found,Verified in source
+NF-0528,R-053,event,ServiceLifecycleEvent,conditional,lifecycle sender,lifecycle event,nested record,broker JSON,Operational evidence,component to receiver,lifecycle variant only,Verified in source
+NF-0529,R-054,method,String,required,proxy response path,HTTP method,copied,ring then file,Public operational,proxy to local log,always supplied,Verified in source
+NF-0530,R-054,uri,String,required,request URI,target URI,copied,ring then file,Potentially sensitive metadata,proxy to local log,always supplied,Verified in source
+NF-0531,R-054,status,u16,required,response,HTTP status,copied,ring then file,Public operational,proxy to local log,always supplied,Verified in source
+NF-0532,R-054,ts,DateTime<Utc>,required,logger,event time,Utc now/caller,ring then file,Operational timestamp,proxy to local log,always supplied,Verified in source
+NF-0533,R-055,response.status,String,required,health monitor,current health label,mapped from HealthState,local JSON endpoint,Operational health,proxy to local caller,disabled when monitor absent,Verified in source
+NF-0534,R-055,response.timestamp,String,required,health endpoint,response generation time,RFC3339,local JSON endpoint,Operational timestamp,proxy to local caller,serialization failure returns 500,Verified in source
+NF-0535,R-055,metrics.total_requests,u64,required,health atomics,total outcomes,sum successes and failures,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0536,R-055,metrics.successful_requests,u64,required,health metrics,successful count,total minus failed,local JSON endpoint,Operational metric,proxy to local caller,assumes failed not greater total,Verified in source
+NF-0537,R-055,metrics.failed_requests,u64,required,health atomics,failed count,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0538,R-055,metrics.failure_rate,f64,required,health monitor,failure fraction,derived over configured window semantics,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0539,R-055,metrics.dns_failures,u64,required,health atomics,DNS failures,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0540,R-055,metrics.connection_timeouts,u64,required,health atomics,connection timeouts,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0541,R-055,metrics.upstream_502,u64,required,health atomics,502 count,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0542,R-055,metrics.upstream_503,u64,required,health atomics,503 count,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0543,R-055,metrics.last_success_ago_secs,u64,required,last success epoch,recency seconds,now minus timestamp,local JSON endpoint,Operational metric,proxy to local caller,zero behavior depends monitor,Verified in source
+NF-0544,R-055,metrics.restart_count,u64,required,health monitor,restarts requested/completed counter,copied,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0545,R-055,circuit_breakers.total_breakers,usize,required,global map,breaker count,map len,local JSON endpoint,Operational metric,proxy to local caller,zero when disabled,Verified in source
+NF-0546,R-055,circuit_breakers.open_count,usize,required,breaker states,open count,iteration count,local JSON endpoint,Operational metric,proxy to local caller,zero when none,Verified in source
+NF-0547,R-055,circuit_breakers.half_open_count,usize,required,breaker states,half-open count,iteration count,local JSON endpoint,Operational metric,proxy to local caller,zero when none,Verified in source
+NF-0548,R-055,circuit_breakers.closed_count,usize,required,breaker states,closed count,iteration count,local JSON endpoint,Operational metric,proxy to local caller,zero when none,Verified in source
+NF-0549,R-055,circuit_breakers.open_hosts,Vec<String>,default empty,breaker map,currently fast-failed hosts,collected keys,local JSON endpoint,Network metadata,proxy to local caller,empty when none,Verified in source
+NF-0550,R-055,circuit_breakers.half_open_hosts,Vec<String>,default empty,breaker map,recovery-test hosts,collected keys,local JSON endpoint,Network metadata,proxy to local caller,empty when none,Verified in source
+NF-0551,R-056,active,u64,required,semaphore metrics,current permits held,atomic snapshot,memory/log,Operational metric,proxy internal,negative atomic clamped zero,Verified in source
+NF-0552,R-056,capacity,u64,required,startup config,maximum connections,atomic snapshot,memory/log,Operational metric,proxy internal,zero before initialized,Verified in source
+NF-0553,R-056,utilization_pct,u64,required,active/capacity,pool utilization,integer active*100/capacity,memory/log,Operational metric,proxy internal,zero when capacity zero,Verified in source
+NF-0554,R-056,available,u64,required,active/capacity,available permits,saturating subtraction,memory/log,Operational metric,proxy internal,zero when exhausted,Verified in source
+NF-0555,R-056,total_accepted,u64,required,accept paths,total connections,atomic counter,memory/log,Operational metric,proxy internal,monotonic process lifetime,Verified in source
+NF-0556,R-056,rejected_limit,u64,required,semaphore timeout,rejected connections,atomic counter,memory/log,Operational metric,proxy internal,monotonic process lifetime,Verified in source
+NF-0557,R-056,avg_wait_ms,u64,required,wait totals,mean wait,integer total/count,memory/log,Operational metric,proxy internal,zero when no waits,Verified in source
+NF-0558,R-057,host,String,required,CircuitBreaker,protected destination,copied,memory/log,Network metadata,proxy internal,constructor requires,Verified in source
+NF-0559,R-057,state,CircuitState,required,CircuitBreaker,current Closed/Open/HalfOpen,copied,memory/log,Operational health,proxy internal,three variants,Verified in source
+NF-0560,R-057,failure_count,u32,required,CircuitBreaker,consecutive failure count,atomic/state snapshot,memory/log,Operational metric,proxy internal,resets on transitions,Verified in source
+NF-0561,R-057,success_count,u32,required,CircuitBreaker,recovery success count,state snapshot,memory/log,Operational metric,proxy internal,resets on transitions,Verified in source
+NF-0562,R-057,last_state_change,Instant,required,CircuitBreaker,state age,monotonic instant,memory/log,Operational timestamp,proxy internal,not serializable,Verified in source
+NF-0563,R-058,diocnatlook_success,u64,required,macOS NAT lookup,successful destination resolutions,atomic snapshot,memory/log,Operational metric,redirector to proxy,monotonic process lifetime,Verified in source
+NF-0564,R-058,diocnatlook_failure,u64,required,macOS NAT lookup,failed destination resolutions,atomic snapshot,memory/log,Operational metric,redirector to proxy,monotonic process lifetime,Verified in source
+NF-0565,R-058,extension_metadata_success,u64,required,system extension,metadata resolutions,atomic snapshot,memory/log,Operational metric,extension to proxy,monotonic process lifetime,Verified in source
+NF-0566,R-058,sni_success,u64,required,TLS SNI,SNI resolutions,atomic snapshot,memory/log,Operational metric,TLS to proxy,monotonic process lifetime,Verified in source
+NF-0567,R-058,sni_failure,u64,required,TLS SNI,SNI parse failures,atomic snapshot,memory/log,Operational metric,TLS to proxy,monotonic process lifetime,Verified in source
+NF-0568,R-058,mismatch_count,u64,required,resolution comparison,destination mismatches,atomic snapshot,memory/log,Security/operational evidence,proxy internal,monotonic process lifetime,Verified in source
+NF-0569,R-058,extension_mismatch_count,u64,required,resolution comparison,extension mismatches,atomic snapshot,memory/log,Security/operational evidence,proxy internal,monotonic process lifetime,Verified in source
+NF-0570,R-058,dropped_connections,u64,required,resolver,connections dropped on resolution failure,atomic snapshot,memory/log,Operational metric,proxy internal,monotonic process lifetime,Verified in source
+NF-0571,R-059,id,String,required,Network Extension,connection identifier,copied,Unix-socket frame,Correlation identifier,system extension to proxy,required by protocol,Verified in source
+NF-0572,R-059,process.pid,u32,required,Network Extension,source PID,copied,Unix-socket frame,Process identifier,system extension to proxy,PID recyclable,Verified in source
+NF-0573,R-059,process.name,String,required,Network Extension,process display name,copied,Unix-socket frame,Potentially sensitive metadata,system extension to proxy,empty representable,Verified in source
+NF-0574,R-059,process.path,PathBuf,required,Network Extension,executable path,copied,Unix-socket frame,File-system path,system extension to proxy,required by schema,Verified in source
+NF-0575,R-059,source,SocketAddr,required,Network Extension,client endpoint,Serde socket address,Unix-socket frame,Network identifier,system extension to proxy,required by schema,Verified in source
+NF-0576,R-059,destination,SocketAddr,required,Network Extension,original destination,Serde socket address,Unix-socket frame,Network identifier,system extension to proxy,required by schema,Verified in source
+NF-0577,R-059,domain,Option<String>,optional,Network Extension,resolved domain,copied,Unix-socket frame,Network metadata,system extension to proxy,None allowed,Verified in source
+NF-0578,R-059,protocol,Protocol,required,Network Extension,TCP or UDP,lowercase serde,Unix-socket frame,Public operational,system extension to proxy,two variants,Verified in source
+NF-0579,R-059,timestamp,i64,required,Network Extension,connection start epoch milliseconds,copied,Unix-socket frame,Operational timestamp,system extension to proxy,unit specified in source comment,Verified in source
+NF-0580,R-060,type,String,required,ExtensionMessage,variant discriminator,snake_case serde tag,Unix-socket frame,Public operational,system extension to proxy,unknown rejects decode,Verified in source
+NF-0581,R-060,tcp_redirect.id,String,conditional,Network Extension,message/connection ID,copied,Unix-socket frame,Correlation identifier,system extension to proxy,variant only,Verified in source
+NF-0582,R-060,tcp_redirect.metadata,ConnectionMetadata,conditional,Network Extension,connection context,nested R-059,Unix-socket frame,Process/network metadata,system extension to proxy,variant only,Verified in source
+NF-0583,R-060,udp_packet.id,String,conditional,Network Extension,packet ID,copied,Unix-socket frame,Correlation identifier,system extension to proxy,variant only,Verified in source
+NF-0584,R-060,udp_packet.metadata,ConnectionMetadata,conditional,Network Extension,flow context,nested R-059,Unix-socket frame,Process/network metadata,system extension to proxy,variant only,Verified in source
+NF-0585,R-060,udp_packet.payload,Vec<u8>,conditional,Network Extension,UDP payload,base64 custom serde,Unix-socket frame,Potentially highly sensitive content,system extension to proxy,frame capped 1 MiB,Verified in source
+NF-0586,R-060,connection_close.id,String,conditional,Network Extension,connection ID,copied,Unix-socket frame,Correlation identifier,system extension to proxy,variant only,Verified in source
+NF-0587,R-060,connection_close.reason,CloseReason,conditional,Network Extension,closure class,snake_case serde,Unix-socket frame,Operational evidence,system extension to proxy,six variants,Verified in source
+NF-0588,R-060,heartbeat.timestamp,i64,conditional,Network Extension,heartbeat epoch milliseconds,copied,Unix-socket frame,Operational timestamp,system extension to proxy,variant only,Verified in source
+NF-0589,R-060,ping,unit variant,conditional,Network Extension,initial handshake,no fields,Unix-socket frame,Operational evidence,system extension to proxy,variant only,Verified in source
+NF-0590,R-061,type,String,required,ProxyMessage,variant discriminator,snake_case serde tag,Unix-socket frame,Public operational,proxy to system extension,unknown rejects decode,Verified in source
+NF-0591,R-061,ack.id,String,conditional,proxy,message ID acknowledged,copied,Unix-socket frame,Correlation identifier,proxy to system extension,variant only,Verified in source
+NF-0592,R-061,ack.status,AckStatus,conditional,proxy,accepted/rejected,snake_case serde,Unix-socket frame,Operational evidence,proxy to system extension,two variants,Verified in source
+NF-0593,R-061,ack.error,Option<String>,optional,proxy,rejection error,copied,Unix-socket frame,Operational error,proxy to system extension,None omitted,Verified in source
+NF-0594,R-061,udp_response.id,String,conditional,proxy,packet correlation ID,copied,Unix-socket frame,Correlation identifier,proxy to system extension,variant only,Verified in source
+NF-0595,R-061,udp_response.payload,Vec<u8>,conditional,upstream UDP,response bytes,base64 custom serde,Unix-socket frame,Potentially highly sensitive content,proxy to system extension,variant only,Verified in source
+NF-0596,R-061,heartbeat_ack.timestamp,i64,conditional,extension heartbeat,echoed client timestamp,copied,Unix-socket frame,Operational timestamp,proxy to system extension,variant only,Verified in source
+NF-0597,R-061,heartbeat_ack.server_timestamp,i64,conditional,proxy,server epoch milliseconds,copied,Unix-socket frame,Operational timestamp,proxy to system extension,variant only,Verified in source
+NF-0598,R-061,close_request.id,String,conditional,proxy,connection ID,copied,Unix-socket frame,Correlation identifier,proxy to system extension,variant only,Verified in source
+NF-0599,R-061,close_request.reason,CloseReason,conditional,proxy,requested closure reason,snake_case serde,Unix-socket frame,Operational evidence,proxy to system extension,variant only,Verified in source
+NF-0600,R-061,config_update.excluded_pids,Vec<u32>,conditional,proxy config,process exclusions,copied,Unix-socket frame,Process identifiers,proxy to system extension,empty excludes no PIDs,Verified in source
+NF-0601,R-061,config_update.excluded_process_names,Vec<String>,conditional,proxy config,name exclusions,copied,Unix-socket frame,Process metadata,proxy to system extension,empty excludes no names,Verified in source
+NF-0602,R-061,config_update.proxy_udp,bool,conditional,proxy config,UDP enable state,copied,Unix-socket frame,Configuration,proxy to system extension,variant only,Verified in source
+NF-0603,R-061,pong.excluded_pids,Vec<u32>,conditional,proxy config,handshake PID exclusions,copied,Unix-socket frame,Process identifiers,proxy to system extension,empty valid,Verified in source
+NF-0604,R-061,pong.excluded_process_names,Vec<String>,conditional,proxy config,handshake name exclusions,copied,Unix-socket frame,Process metadata,proxy to system extension,empty valid,Verified in source
+NF-0605,R-061,pong.proxy_udp,bool,conditional,proxy config,UDP enable state,copied,Unix-socket frame,Configuration,proxy to system extension,variant only,Verified in source
+NF-0606,R-061,pong.udp_ports,Vec<u16>,conditional,proxy config,intercepted UDP ports,copied,Unix-socket frame,Configuration,proxy to system extension,empty means no UDP interception,Verified in source
+NF-0607,R-061,pong.flow_listener_addr,String,conditional,proxy listener,TCP relay address,copied,Unix-socket frame,Network configuration,proxy to system extension,variant only,Verified in source
+NF-0608,R-061,pong.flow_listener_port,u16,conditional,proxy listener,TCP relay port,copied,Unix-socket frame,Network configuration,proxy to system extension,variant only,Verified in source
+NF-0609,R-061,pong.heartbeat_port,u16,conditional,proxy listener,heartbeat HTTP port,copied,Unix-socket frame,Network configuration,proxy to system extension,variant only,Verified in source
+NF-0610,R-061,backpressure.active,bool,conditional,pool usage,backpressure state,copied,Unix-socket frame,Operational control,proxy to system extension,variant only,Verified in source
+NF-0611,R-061,backpressure.usage_percent,u8,conditional,pool usage,usage percentage,derived/clamped by sender,Unix-socket frame,Operational metric,proxy to system extension,0-100 documented,Verified in source
+NF-0612,R-061,shutdown,unit variant,conditional,proxy shutdown,extension stop signal,no fields,Unix-socket frame,Operational control,proxy to system extension,variant only,Verified in source
+NF-0613,R-062,key.src_ip,u32,required,WinDivert packet,source IPv4,copied,flow map,Network identifier,redirector internal,IPv4-only,Verified in source
+NF-0614,R-062,key.src_port,u16,required,WinDivert packet,source port,copied,flow map,Network metadata,redirector internal,required,Verified in source
+NF-0615,R-062,key.dst_ip,u32,required,WinDivert packet,destination IPv4,copied,flow map,Network identifier,redirector internal,IPv4-only,Verified in source
+NF-0616,R-062,key.dst_port,u16,required,WinDivert packet,destination port,copied,flow map,Network metadata,redirector internal,required,Verified in source
+NF-0617,R-062,key.protocol,u8,constant 17,UdpFlowKey::new,IP protocol,static UDP 17,flow map,Public operational,redirector internal,constructor forces 17,Verified in source
+NF-0618,R-062,info.pid,u32,required,process attribution,source PID,copied,flow map,Process identifier,redirector internal,PID recyclable,Verified in source
+NF-0619,R-062,info.process_name,Option<String>,optional,process attribution,process name,copied,flow map,Potentially sensitive metadata,redirector internal,None allowed,Verified in source
+NF-0620,R-062,info.first_seen,Instant,required,flow creation,monotonic first seen,Instant::now,flow map,Operational timestamp,redirector internal,not serializable,Verified in source
+NF-0621,R-062,info.last_seen,Instant,required,each packet,monotonic last seen,updated,flow map,Operational timestamp,redirector internal,not serializable,Verified in source
+NF-0622,R-062,info.packet_count,u64,default 1,each packet,packet count,saturating increment,flow map,Operational metric,redirector internal,saturates at u64 max,Verified in source
+NF-0623,R-066,ServiceState,enum,required,service lifecycle,current service state,eight variants,memory channel,Operational evidence,service to monitor,source comments state valid transitions but enforcement separate,Verified in source
+NF-0624,R-066,StatusUpdate.StateChange.service,String,conditional,service wrapper,service name,copied,memory channel,Operational identifier,service to monitor,variant only,Verified in source
+NF-0625,R-066,StatusUpdate.StateChange.state,ServiceState,conditional,service wrapper,new state,copied,memory channel,Operational evidence,service to monitor,variant only,Verified in source
+NF-0626,R-066,StatusUpdate.Heartbeat.service,String,conditional,HeartbeatTask,service name,copied,memory channel,Operational identifier,service to monitor,variant only,Verified in source
+NF-0627,R-066,StatusUpdate.Heartbeat.timestamp,SystemTime,conditional,HeartbeatTask,heartbeat time,SystemTime::now,memory channel,Operational timestamp,service to monitor,not serialized,Verified in source
+NF-0628,R-066,StatusUpdate.Error.service,String,conditional,service wrapper,service name,copied,memory channel,Operational identifier,service to monitor,variant only,Verified in source
+NF-0629,R-066,StatusUpdate.Error.error,String,conditional,service wrapper,error text,copied,memory channel,Potential sensitive error data,service to monitor,variant only,Verified in source
+NF-0630,R-066,StatusUpdate.Error.severity,ErrorLevel,conditional,service wrapper,error severity,copied,memory channel,Operational evidence,service to monitor,variant only,Verified in source
+NF-0631,R-066,StatusUpdate.Crash.service,String,conditional,service wrapper,service name,copied,memory channel,Operational identifier,service to monitor,variant only,Verified in source
+NF-0632,R-066,StatusUpdate.Crash.error,String,conditional,service wrapper,crash error,copied,memory channel,Potential sensitive error data,service to monitor,variant only,Verified in source
+NF-0633,R-066,StatusUpdate.Crash.stack_trace,Option<String>,optional,service wrapper,stack trace,copied,memory channel,Potentially sensitive diagnostics,service to monitor,None allowed,Verified in source
+NF-0634,R-002,started,Vec<ProcessInfo>,default empty,ProcessTable::diff,new process observations,set difference by PID/start time,memory,Process metadata,enumerator to monitor,empty when no starts,Verified in source
+NF-0635,R-002,exited,Vec<ProcessInfo>,default empty,ProcessTable::diff,ended process observations,set difference by PID/start time,memory,Process metadata,enumerator to monitor,empty when no exits,Verified in source
+NF-0636,R-018,Added.0,Uuid,conditional,EntityStore::upsert,new entity store key,copied,memory broadcast,Correlation identifier,store to workers,consumer must look up entity; lagging receivers can lose event,Verified in source
+NF-0637,R-018,GovernanceUpdated.0,Uuid,conditional,EntityStore governance mutation,changed entity store key,copied,memory broadcast,Security correlation identifier,store to workers,consumer must look up entity; lagging receivers can lose event,Verified in source
+NF-0638,R-018,Rediscovered.0,Uuid,conditional,EntityStore blocked/quarantined rediscovery,rediscovered entity store key,copied,memory broadcast,Security correlation identifier,store to enforcer,consumer must look up entity; lagging receivers can lose event,Verified in source
+NF-0639,R-018,Removed.0,Uuid,conditional,EntityStore removal,removed entity store key,copied,memory broadcast,Correlation identifier,store to workers,entity no longer available for lookup; lagging receivers can lose event,Verified in source

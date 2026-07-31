@@ -1,0 +1,19 @@
+# Findings and insights
+
+
+| finding | sensor_only_cross_sensor | required_fields | required_coverage | exact_logic | dedup | action | availability | mvs |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Sensitive data sent to model | sensor-only | prediction + request evidence + allow/anonymize outcome | healthy content capture and detector | positive sensitive prediction on request and action not blocked | request_id/category/side | investigate/configure policy | Available through adapter mapping only | Yes |
+| Sensitive model response blocked | sensor-only | response prediction + blocked outcome | response capture/DLP healthy | positive prediction on response and block observed | request_id/category/response | review policy/evidence | Available through adapter mapping only | Yes |
+| Gateway policy bypass | cross-sensor | direct provider use outside gateway plus managed route expectation | gateway + browser/endpoint/provider source | other sensor sees invocation not correlated to gateway under governed scope | actor/app/time/model | route traffic through gateway | Requires an external authoritative source | Yes |
+| Unattributed gateway usage | sensor-only signal/badge | request lacking usable user/account identifiers | request telemetry healthy | request exists and identity fields absent | request_id | fix key/JWT attribution | Available through adapter mapping only | Yes |
+| Disallowed model request blocked | sensor-only | requested model + allowlist decision + 4xx | model validation path healthy | request rejected by model restriction | request_id/key/model | update request or approved models | Available through adapter mapping only | Yes |
+| Provider reliability degradation | sensor-only metric/operator alert | error/latency window | traffic volume and persistence sufficient | thresholded error/latency relative to baseline | provider/model/window | reroute/investigate provider | Derivable centrally from current output | Conditional |
+| Potential hallucination | sensor-only signal | hallucination detector result | hallucination worker healthy and configured | detector positive | request_id/model | review response and context | Available through adapter mapping only | No: signal until evidence/confidence policy defined |
+| Unapproved AI application | cross-sensor | gateway app activity + authoritative approval inventory | gateway + policy/CMDB | observed active app without approved claim | app/tenant/window | approve/restrict/retire | Requires an external authoritative source | Yes |
+
+The MVS customer finding is **Sensitive data sent to model** only when the
+request-side prediction, action outcome, identifiable affected request/app and
+healthy capture/detector coverage are all present. Potential hallucination
+remains a signal until confidence, evidence and resolution semantics are
+admitted.

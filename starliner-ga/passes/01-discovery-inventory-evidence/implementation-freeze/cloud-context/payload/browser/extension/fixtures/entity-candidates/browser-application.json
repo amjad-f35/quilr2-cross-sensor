@@ -1,0 +1,20 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Browser application entity candidate",
+    "evidence_status": "Proposed",
+    "expected": "candidate_only"
+  },
+  "record": {
+    "type": "browser_app",
+    "source_external_id": "ai.example.invalid",
+    "observed_name": "Fixture AI App",
+    "identifiers": [
+      {
+        "type": "domain",
+        "value": "ai.example.invalid",
+        "quality": "weak"
+      }
+    ]
+  }
+}

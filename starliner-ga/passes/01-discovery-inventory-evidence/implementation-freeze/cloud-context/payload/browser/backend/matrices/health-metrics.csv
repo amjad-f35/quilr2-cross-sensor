@@ -1,0 +1,6 @@
+Health ID,Metric/signal,Layer,Source,Healthy condition,Degraded condition,Unavailable condition,Emission today,Target action,Evidence
+H-001,extension heartbeat freshness,Extension/backend,DeviceHeartbeat.lastAccessedTimestamp,Within configured window,Late beyond warning,No heartbeat beyond outage threshold with expected install evidence,Heartbeat graph/Kafka,SensorHealthEvent,Verified in source
+H-019,heartbeat bucket durability,Backend,process-local map,Process running until flush,Backlog,Pod death loses unflushed data,Logs only,Replace with durable/shared outbox,Verified in source
+H-020,heartbeat Kafka publish,Backend,send result,All chunks true,Partial false,Producer unavailable,Logs,Do not delete failed bucket; emit metric,Verified in source
+H-021,heartbeat consumer validity,Backend,deserialize count,All valid,Some malformed,All malformed committed,Logs,Quarantine and metric,Verified in source
+H-022,Neo4j heartbeat write,Backend,write/retry/timeout,Success,Transient retries,Terminal/timeout,Logs,Metric/health,Verified in source

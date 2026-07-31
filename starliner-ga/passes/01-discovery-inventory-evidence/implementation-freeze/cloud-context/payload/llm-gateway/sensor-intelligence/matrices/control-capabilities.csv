@@ -1,0 +1,9 @@
+control_capability,enforcement_point,pre_post_action,inputs,decision_source,result,failure_mode,bypass_conditions,effect_verification
+Observe/log,all gateway handlers,post and pre,request/response metadata,local instrumentation,records evidence,persistence failure may lose telemetry,traffic bypasses gateway,No external effect verification
+Monitor,DLP processing,pre/post,predictions + category mode,local config/policy,request continues with signal,detector failure may fail open by path,uncovered content/path,Response status only
+Redact/transform,gateway request/response body,pre upstream/post upstream,entity matches/actions,local config/policy,modified payload/response,format-specific replacement limits,unsupported body fields,Final text recorded in Axis on logged paths
+Block,gateway inline request/response,pre or post,detector/policy result,local config/policy,HTTP/stream error instead of normal result,fail behavior is handler-specific,direct provider access,Effect is gateway response; provider side effect may already exist for post-response block
+Rate/concurrency limit,gateway ingress,pre upstream,key counters and settings,local DB/config,429,state/store availability semantics vary,multi-replica consistency unresolved,Gateway response observed
+Model allowlist,gateway routing,pre upstream,requested/resolved model,API key settings,reject or route,config lookup failure,alternate route/bypass,Gateway response observed
+Source-IP restriction,gateway ingress,pre upstream,source IP and allowlist,key settings,403 or continue,proxy header trust must be deployed correctly,direct/bad proxy path,Gateway response observed
+Config approval/rollback,administration API,pre configuration effect,change request/version,RBAC/session,config mutation,partial sync/notification failure possible,direct DB modification,Snapshot/audit evidence

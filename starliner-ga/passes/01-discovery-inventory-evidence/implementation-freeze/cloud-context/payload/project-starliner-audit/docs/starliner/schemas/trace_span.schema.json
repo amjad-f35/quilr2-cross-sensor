@@ -1,0 +1,91 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "attributes": {
+      "additionalProperties": true,
+      "title": "Attributes",
+      "type": "object"
+    },
+    "duration_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duration Ms"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Span Id"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Id"
+    },
+    "schema_version": {
+      "default": "starliner.trace_span.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "span_id": {
+      "title": "Span Id",
+      "type": "string"
+    },
+    "started_at": {
+      "title": "Started At",
+      "type": "string"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "flow_id",
+    "span_id",
+    "name"
+  ],
+  "title": "TraceSpan",
+  "type": "object"
+}

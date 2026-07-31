@@ -1,0 +1,58 @@
+schema: sensor-intelligence.native-metric-types.v1
+sensor: mcpgateway
+canonical_metrics:
+  - name: mcp.tool.calls
+    type: counter
+    unit: count
+    value: 1
+    dimensions: [backend_id, tool_name, status]
+    time: mapper_completion
+    platform_availability: Available now without sensor changes
+  - name: mcp.tool.latency_ms
+    type: histogram_sample
+    unit: ms
+    value: full_tools_call_branch_elapsed_ms
+    dimensions: [backend_id, tool_name, status]
+    time: mapper_completion
+    platform_availability: Available now without sensor changes
+process_counters:
+  scheduling: [background.dropped, background.unscheduled, background.failed, background.cancelled]
+  enqueue:
+    - backend_discovery.records
+    - backend_discovery.duplicates
+    - backend_discovery.enqueue_failed
+    - tool_discovery.records
+    - tool_discovery.duplicates
+    - tool_discovery.enqueue_failed
+    - tool_call.records
+    - tool_call.duplicates
+    - tool_call.enqueue_failed
+    - outbox_dropped
+  delivery:
+    - delivery.shutdown_timeout
+    - delivery.shutdown_cancelled
+    - delivery.loop_error
+    - delivery.network_timeout
+    - delivery.malformed_response
+    - delivery.network_error
+    - delivery.retryable_http
+    - delivery.non_success_http
+    - delivery.accepted
+    - delivery.duplicate
+    - delivery.rejected
+    - delivery.dead_letter
+    - delivery.unknown_result
+    - delivery.failed_terminal
+    - delivery.retry
+delivery_health:
+  - outbox_depth
+  - oldest_record_age_seconds
+  - delivery_lag_seconds
+  - last_success_at
+  - last_error_at
+  - accepted_total
+  - duplicate_total
+  - rejected_total
+  - retry_total
+  - dead_letter_total
+

@@ -1,0 +1,20 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "generated_from_verified_source_fields",
+    "kind": "backend_request_sensitive_record",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/08-data-dictionary.md",
+      "matrices/sensor-intelligence/quilr1-platform/native-fields.csv"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "request_context": {
+    "Authorization": "Bearer SYNTHETIC_SECRET_FIXTURE_DO_NOT_ACCEPT",
+    "subscriberid": "subscriber_fixture_001",
+    "tenant-id": "tenant_fixture_001"
+  },
+  "expected_privacy_disposition": "reject_or_protected_raw_evidence"
+}

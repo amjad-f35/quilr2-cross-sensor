@@ -1,0 +1,67 @@
+record_id,native_type,class,producer,current_consumer,persistence_or_transport,serialization,status,evidence_status,platform
+R-001,platform::process_info::ProcessInfo,Observation,macOS and Windows enumerators,ProcessTable and Correlator,memory,None,Active not emitted,Verified in source,macOS; Windows
+R-002,process start and exit delta,Derived observation,ProcessTable::diff,process monitor,memory,Internal collections,Active transient,Verified in source,macOS; Windows
+R-003,entity::Entity,Observation current state,correlator and scanners,EntityStore snapshot ingest,memory and JSON snapshot,Serde JSON,Active,Verified in source,macOS; Windows
+R-004,ApplicationData,Observation derived,correlator Lua and package scans,EntityKind::Application,EntityStore and snapshot,Tagged under Entity,Active,Verified in source,macOS; Windows
+R-005,McpServerData,Observation candidate,Lua converter,EntityKind::McpServer,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-006,HookData,Observation candidate,Lua converter,EntityKind::Hook,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-007,SkillData,Observation candidate,Lua converter,EntityKind::Skill,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-008,AgentData,Observation candidate,Lua converter,EntityKind::Agent,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-009,ModelData,Observation candidate,Lua converter,EntityKind::Model,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-010,ControlledRepoData,Observation candidate,Lua converter,EntityKind::ControlledRepo,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-011,PermissionData,Observation candidate,Lua converter,EntityKind::Permission,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-012,PluginData,Observation candidate,Lua converter,EntityKind::Plugin,EntityStore and snapshot,Tagged under Entity,Conditional active,Verified in source,macOS; Windows
+R-013,GovernanceFields,Control current state,defaults and backend responses,Entity and Enforcer,store snapshot and wire,Nested JSON,Active mixed ownership,Verified in source,macOS; Windows
+R-014,monitor DeviceContext,Context,ContextManager,sync hooks enforcement,memory,Mapped to SyncDeviceContext,Active,Verified in source,macOS; Windows
+R-015,monitor UserContext,Sensitive context,Persona and orchestrator,sync hooks enforcement,memory,Mapped to SyncUserContext,Active contains token,Verified in source,macOS; Windows
+R-016,monitor TenantContext,Context,Persona and orchestrator,sync,memory,Mapped to SyncTenantContext,Active,Verified in source,macOS; Windows
+R-017,snapshot::Snapshot,Persistence,snapshot timer and shutdown,monitor restore,local file,Pretty JSON,Active version 1,Verified in source,macOS; Windows
+R-018,store::ChangeEvent,Internal event,EntityStore,Enforcer and hook manager,Tokio broadcast,Not serialized,Active transient,Verified in source,macOS; Windows
+R-019,sync::types::DiscoveredEntity,Current outbound wire,to_discovered_entity,current dashboard API,gzip HTTP,JSON batch,Active lossy,Verified in source,macOS; Windows
+R-020,SyncTenantContext,Wire context,ingest converter,DiscoveredEntity,gzip HTTP,JSON,Active,Verified in source,macOS; Windows
+R-021,SyncGovernance,Wire control state,ingest converter,DiscoveredEntity,gzip HTTP,JSON,Active,Verified in source,macOS; Windows
+R-022,SyncDeviceContext,Wire context,ingest and activity builders,DiscoveredEntity and ActivityEntry,gzip or JSON HTTP,JSON,Active,Verified in source,macOS; Windows
+R-023,SyncUserContext,Wire context,ingest and activity builders,DiscoveredEntity and ActivityEntry,gzip or JSON HTTP,JSON,Active,Verified in source,macOS; Windows
+R-024,ActivityEntry,Derived observation,hook evaluator,activity API,bounded memory and HTTP,JSON array,Active best effort,Verified in source,macOS; Windows
+R-025,HookRequest,Observation transport,Cursor or Claude thin client,HookIpcServer,local IPC,JSON,Conditional active,Verified in source,macOS; Windows
+R-026,HookResponse and DetectionInfo,Control result,hook evaluator,thin client and IDE,local IPC,JSON,Active but production Allow empty,Verified in source,macOS; Windows
+R-027,IngestResponse and IngestMapping,Control ack input,current API,EntityStore,HTTP response,JSON,Active,Verified in source,macOS; Windows
+R-028,IngestSettings,Control input,current API ingest response,governance mapper,HTTP response,Nested JSON,Active,Verified in source,macOS; Windows
+R-029,AppAddEnvelope and AppResolution,Identity control input,current app-add API,app-ID resolver,HTTP response,JSON with renamed fields,Active,Verified in source,macOS; Windows
+R-030,DeltaResponse and DeltaSetting,Control input,current delta API,EntityStore and Enforcer,HTTP response,JSON,Active,Verified in source,macOS; Windows
+R-031,ProcessMapApiResponse graph,Configuration input,current process-map API,Correlator,HTTP response,JSON,Active,Verified in source,macOS; Windows
+R-032,InstalledFile,Internal control result,HookInstaller,integrity monitor,memory,None,Conditional active,Verified in source,macOS; Windows
+R-033,MonitoredFile,Internal state config,hook manager,IntegrityMonitor,memory,None,Conditional active,Verified in source,macOS; Windows
+R-034,proxy RequestContext,Derived observation state,proxy request constructors,DLP policy alerts logs,request memory,Dynamic JSON map plus fields,Active,Verified in source,macOS; Windows
+R-035,ClientConnMeta RequestId SniHost,Context,proxy accept and TLS paths,request extensions,memory,None,Active,Verified in source,macOS; Windows
+R-036,proxy ProcessAttribution,Observation attribution,redirectors and app refresh,proxy request context,TTL memory cache,None,Conditional active,Verified in source,macOS; Windows
+R-037,BodyCaptureMeta,Internal observation state,proxy body capture,extraction and forward,memory or temp file,None,Conditional active,Verified in source,macOS; Windows
+R-038,DlpPattern DlpField ExtractStage,Configuration input,file and backend config,extractor,process memory,Serde config,Conditional active,Verified in source,macOS; Windows
+R-039,templating Detection,Derived observation,DLP analyzers,finding decision UI alerts,request local broker alert,JSON in selected paths,Conditional active,Verified in source,macOS; Windows
+R-040,DlpFinding,Derived observation,DlpEngine,request action,request memory,None,Conditional active,Verified in source,macOS; Windows
+R-041,DlpDecision,Control result,DLP action logic,request handler,request memory,None,Conditional active,Verified in source,macOS; Windows
+R-042,PopupRequest,Local control request,proxy templating client,template service,broker,JSON,Conditional active,Verified in source,macOS; Windows
+R-043,PopupResponse,Local user control result,template service,proxy waiter,broker,JSON,Conditional active,Verified in source,macOS; Windows
+R-044,alert LogPayload,Evidence outbound alert,proxy DLP alert builder,SerializedAlert,alert pipeline,JSON,Active selected paths,Verified in source,macOS; Windows
+R-045,alert UploadLogPayload,Evidence outbound alert,proxy upload builder,SerializedAlert,alert pipeline,JSON,Active selected paths,Verified in source,macOS; Windows
+R-046,SerializedAlert,Transport envelope,Alertable serialize,alert IPC and storage,memory and broker,Opaque bytes plus metadata,Active,Verified in source,macOS; Windows
+R-047,AlertIpcPayload and AlertIpcMessage,Local transport envelope,AlertSender,AlertReceiver,broker,JSON,Active,Verified in source,macOS; Windows
+R-048,StoredAlert and alerts row,Persistence,alert ingestor,dispatcher,SQLite,Columns and payload bytes,Active,Verified in source,macOS; Windows
+R-049,QuarantinedAlert,Persistence failure,alert storage,operator retry tooling,SQLite,Columns and payload bytes,Active path exists,Verified in source,macOS; Windows
+R-050,DlqEntry,Persistence failure,alert storage,operator acknowledgement,SQLite,Columns and payload bytes,Active path exists,Verified in source,macOS; Windows
+R-051,DiagnosticPayload,Operational evidence,diagnostic macros,broker and optional receiver,broker queue,JSON,Active producer,Verified in source,macOS; Windows
+R-052,diagnostics ServiceLifecycleEvent,Operational event,DiagnosticsSender,broker receiver,broker,JSON snake_case,Partial active variants,Verified in source,macOS; Windows
+R-053,DiagnosticsMessage,Transport envelope,DiagnosticsSender,DiagnosticsReceiver,broker,Tagged JSON,Active event and lifecycle; batch producer absent,Verified in source,macOS; Windows
+R-054,traffic LogEvent,Operational observation,proxy response path,local traffic logger,lock-free queue and file,Local line format,Conditional local only,Verified in source,macOS; Windows
+R-055,proxy HealthMetrics and HealthResponse,Operational state,ProxyHealthMonitor,local health endpoint and logs,memory,JSON response,Active unless disabled,Verified in source,macOS; Windows
+R-056,ConnectionPoolSnapshot,Operational metric,proxy atomics,structured log,memory,None,Active,Verified in source,macOS; Windows
+R-057,CircuitBreakerMetrics,Operational state,circuit breakers,health and logs,memory,Derived struct,Conditional,Verified in source,macOS; Windows
+R-058,destination MetricsSnapshot,Operational metric,destination counters,logs or debug,memory,Plain struct,Conditional active,Verified in source,macOS; Windows
+R-059,macOS ConnectionMetadata,Observation transport,Network Extension,Rust relay and attribution,Unix socket,Length-prefixed JSON,Conditional,Verified in source,macOS
+R-060,ExtensionMessage,Local transport event,Network Extension,Rust proxy,Unix socket,Tagged length-prefixed JSON,Conditional,Verified in source,macOS
+R-061,ProxyMessage,Local control ack,Rust proxy,Network Extension,Unix socket,Tagged length-prefixed JSON,Conditional,Verified in source,macOS
+R-062,UdpFlowKey and UdpFlowInfo,Internal observation state,WinDivert tracker,redirector attribution,memory,None,Conditional,Verified in source,Windows
+R-063,Persona,Sensitive identity current state,authentication and vault,bridges monitor proxy,vault and broker projection,Serde JSON,Active,Verified in source,macOS; Windows
+R-064,EmailCandidate,Sensitive observation candidate,Persona discovery,validation and dedup,helper frame and memory,JSON,Conditional private type,Verified in source,macOS; Windows
+R-065,Persona UserContext and UserDevice,Control identity input,fetch-user-details,kill switch and Persona,HTTP and memory,JSON,Active,Verified in source,macOS; Windows
+R-066,ServiceState and StatusUpdate,Operational state event,lifecycle and wrappers,service monitor supervisor,memory channel,ServiceState serde and internal message,Active with disagreeing sources,Verified in source,macOS; Windows

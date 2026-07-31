@@ -1,0 +1,173 @@
+{
+  "evidence_status": "Verified in source",
+  "records": [
+    {
+      "native_record": "api_request_log",
+      "producer": "PerformanceLoggerAsync.finalize_request \u2192 DatabaseManager.log_api_request",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "SQLite/ClickHouse and query APIs",
+      "trigger": "per gateway request",
+      "delivery_reliability": "No Quilr 2.0 acknowledgement",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "axis_alert",
+      "producer": "convert_predictions_to_axis_format",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "NATS db_write_queue \u2192 Axis backend",
+      "trigger": "per prompt/response guardrail log",
+      "delivery_reliability": "JetStream/db writer semantics; final Axis acknowledgement unresolved",
+      "schema_version": "Axis native shape; version field absent",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "dlp_request",
+      "producer": "nats_client",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "NATS JetStream",
+      "trigger": "per classification",
+      "delivery_reliability": "request/reply with timeout",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "dlp_result",
+      "producer": "OOB data-risk/exploit workers",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "NATS response subject",
+      "trigger": "per classification",
+      "delivery_reliability": "request correlation ID",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "hallucination_result",
+      "producer": "hallucination_check_async",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "in-process response wrapper/log",
+      "trigger": "per enabled response",
+      "delivery_reliability": "fails open on infra error",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "policy_decision",
+      "producer": "policy engine/guardian helpers",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "request-local and logs",
+      "trigger": "per enabled evaluation",
+      "delivery_reliability": "decision is not proof of upstream effect",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "config_snapshot",
+      "producer": "llmgateway_config_audit/DatabaseManager",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "SQLite/ClickHouse",
+      "trigger": "on configuration mutation",
+      "delivery_reliability": "version/hash",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "config_change_request",
+      "producer": "self_service/config_change_requests",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "SQLite/ClickHouse",
+      "trigger": "per request and review",
+      "delivery_reliability": "stateful workflow",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "provider_health_rollup",
+      "producer": "provider_health/global_provider_health",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "query result",
+      "trigger": "on operator request",
+      "delivery_reliability": "derived from request logs",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "gateway_probe",
+      "producer": "OTHER_APPS/gateway_health.worker",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "probe_store SQLite",
+      "trigger": "timer",
+      "delivery_reliability": "local durable store",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "redteam_run_case",
+      "producer": "redteaming_v2/worker",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "SQLite/NATS/result store",
+      "trigger": "per run/case",
+      "delivery_reliability": "separate assurance workload",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "intent_analysis_result",
+      "producer": "intent_analysis_worker",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "ClickHouse/result store",
+      "trigger": "per analysis job",
+      "delivery_reliability": "operator analytics",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "prompt_store_record",
+      "producer": "prompt_store",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "gateway database",
+      "trigger": "CRUD",
+      "delivery_reliability": "admin-configured prompt material",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    },
+    {
+      "native_record": "api_key_setting",
+      "producer": "api_keys/app_config",
+      "fields": "See native-fields.csv and cited producer",
+      "transport_storage": "encrypted gateway database plus ClickHouse sync",
+      "trigger": "CRUD",
+      "delivery_reliability": "credential-bearing fields must not enter telemetry",
+      "schema_version": "No explicit record-level version found",
+      "platform_target": "SourceObservation/CanonicalEventCandidate/EvidenceReference according to mapping",
+      "product_use": "Evidence/activity/analytics/coverage; raw content is drill-down only",
+      "evidence_status": "Verified in source"
+    }
+  ]
+}

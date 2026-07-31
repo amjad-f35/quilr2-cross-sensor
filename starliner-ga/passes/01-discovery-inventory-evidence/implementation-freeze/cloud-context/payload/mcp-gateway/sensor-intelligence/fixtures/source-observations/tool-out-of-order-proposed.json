@@ -1,0 +1,23 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "out-of-order source observation"
+  },
+  "delivery_order": [
+    {
+      "observation_id": "tool-sequence-5",
+      "sequence": 5,
+      "operation": "upsert"
+    },
+    {
+      "observation_id": "tool-sequence-4",
+      "sequence": 4,
+      "operation": "upsert"
+    }
+  ],
+  "expected": {
+    "both_preserved": true,
+    "materialized_current_sequence": 5
+  }
+}
+

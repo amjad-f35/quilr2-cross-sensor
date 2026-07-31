@@ -1,0 +1,22 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "compatibility_control_result_success",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "docs/sensor-intelligence/quilr1-platform/16-policy-control-and-enforcement.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "result": {
+    "command_id": "quilr1-fixture-command-001",
+    "request_delivery": "delivered",
+    "native_acknowledgement": "accepted",
+    "native_effect": "observed",
+    "verification_observation_id": "quilr1-fixture-effect-observation-001",
+    "canonical_command_status": "effect_verified"
+  },
+  "qualification": "Proposed state-machine oracle only; it is not evidence that Quilr 1 currently emits effect observations."
+}

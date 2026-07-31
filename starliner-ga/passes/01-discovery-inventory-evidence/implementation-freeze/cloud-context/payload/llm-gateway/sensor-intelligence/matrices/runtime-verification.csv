@@ -1,0 +1,4 @@
+capability,command,environment,result,failure_boundary
+Eight targeted LLM Gateway test files,pytest -q [8 cited files],Python 3.12; disposable /private/tmp dependencies,"75 passed, 1 failed",provider-health normalization returns model-router rather than test-expected None
+Initial dependency-free collection,same target under available Starliner venv,pytest present; gateway deps absent,collection errors for openai/clickhouse_connect; RBAC tests initially lacked blacksheep,"environment dependency, resolved by disposable install for final run"
+Live external integrations,not executed,provider/NATS/ClickHouse/Axis credentials unavailable,Unresolved,no production service authority

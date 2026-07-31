@@ -1,0 +1,14 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Native upload result with sensitive path",
+    "evidence_status": "Verified in source",
+    "expected": "accepted_then_path_restricted"
+  },
+  "record": {
+    "id": "upload-flow-001",
+    "type": "uploaded_file_scanned",
+    "timestamp": 1753876801000,
+    "data": "[{\"dlp_results\": [], \"label\": \"Confidential\", \"classification_labels\": [\"Confidential\"], \"metadata\": {\"file_extension\": \"pdf\", \"mime_type\": \"application/pdf\", \"path_extension\": \"pdf\", \"file_path\": \"/Users/fixture/report.pdf\", \"file_kind\": \"Document\"}}]"
+  }
+}

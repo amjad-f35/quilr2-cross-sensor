@@ -1,0 +1,30 @@
+# Metrics and analytics
+
+
+| metric | existing_derived_proposed | formula | unit | dimensions | source_events | coverage_dependency | product_card | drill_down |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| requests_total | Derived | count(api_request_log) | requests | tenant, app/key, provider, model, status, user, time | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| request_success_rate | Derived | count(success)/count(all) | ratio | provider, model, tenant, time | status_code | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| request_error_rate | Derived | count(error)/count(all) | ratio | provider, model, error_type, time | status_code/error_type | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| total_latency_ms | Existing | persisted elapsed wall time | milliseconds | provider, model, endpoint | PerformanceLoggerAsync | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| upstream_latency_ms | Existing | sum of timed upstream legs | milliseconds | provider, model | PerformanceLoggerAsync | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| quilr_processing_time_ms | Existing | elapsed Quilr processing window | milliseconds | tenant, endpoint | PerformanceLoggerAsync | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Operator-only | Filtered api_request_log/Axis/probe evidence |
+| guardrails_latency_ms | Existing | sum request-side + response-side DLP legs | milliseconds | tenant, endpoint | PerformanceLoggerAsync | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Operator-only | Filtered api_request_log/Axis/probe evidence |
+| first_response_time_ms | Existing | first chunk minus request start; nonstream falls back to total latency | milliseconds | provider, model, stream | PerformanceLoggerAsync | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics with caveat | Filtered api_request_log/Axis/probe evidence |
+| request_tokens | Existing | provider usage or estimate | tokens | provider, model, tenant | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| response_tokens | Existing | provider usage or stream estimate | tokens | provider, model, tenant | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| cache_read_tokens | Existing | provider usage promoted field | tokens | provider, model | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| cache_write_tokens | Existing | Anthropic provider usage | tokens | provider, model | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| reasoning_tokens | Existing | provider usage detail | tokens | provider, model | api_request_log | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| blocked_requests | Derived | count(is_blocked_by_quilr) | requests | side, category, tenant, app | actions_and_categories | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Finding/Analytics | Filtered api_request_log/Axis/probe evidence |
+| anonymized_requests | Derived | count(is_anonymized_by_quilr) | requests | side, category, tenant, app | actions_and_categories | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics | Filtered api_request_log/Axis/probe evidence |
+| sensitive_detections | Derived | count(predictions) | detections | category, action, side | Axis/predictions | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Finding/Analytics | Filtered api_request_log/Axis/probe evidence |
+| estimated_cost | Derived | token counts × versioned model pricing | currency | provider, model, tenant | usage + model_pricing.json | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Analytics with pricing disclaimer | Filtered api_request_log/Axis/probe evidence |
+| provider_health | Derived | request success/failure/latency windows | state/ratio | provider, model, tenant | provider_health handlers | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Coverage and health | Filtered api_request_log/Axis/probe evidence |
+| probe_latency_ms | Existing | probe completion minus start | milliseconds | component/endpoint | gateway_health | Gateway route and persistence path healthy; unsensed bypass traffic excluded | Coverage and health | Filtered api_request_log/Axis/probe evidence |
+
+Token values may be provider-reported or estimated on streaming paths. The
+non-streaming first-response time intentionally falls back to total latency, so
+it is not semantically identical to streaming time-to-first-token. Cost is only
+defensible with a versioned price effective at occurrence time and excludes
+unobserved discounts/billing adjustments.

@@ -1,0 +1,20 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "unsupported-version rejection scenario"
+  },
+  "input": {
+    "schema": "starliner.source_observation.v99",
+    "schema_version": 99,
+    "tenant_id": "tenant-fixture",
+    "sensor_id": "mcp_gateway_fixture",
+    "source_entity_type": "mcp_backend",
+    "source_external_id": "backend-fixture"
+  },
+  "expected": {
+    "accepted": false,
+    "classification": "unsupported_contract_version",
+    "retryable": false,
+    "must_not_persist": true
+  }
+}

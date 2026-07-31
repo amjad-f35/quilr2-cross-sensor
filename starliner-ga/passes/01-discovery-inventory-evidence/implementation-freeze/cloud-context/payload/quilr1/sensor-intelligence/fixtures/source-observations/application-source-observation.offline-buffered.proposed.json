@@ -1,0 +1,78 @@
+{
+  "protocol_version": "starliner.protocol.v1",
+  "record_id": "quilr1-fixture-record-004",
+  "record_type": "source_observation",
+  "schema_version": "starliner.source_observation.v1",
+  "source_profile": "starliner.source.quilr1_clickhouse_application.v1",
+  "source_profile_version": "0.1.0-proposed",
+  "claimed_tenant_id": "tenant_fixture_001",
+  "source_definition_id": "quilr1-clickhouse-application",
+  "source_installation_id": "quilr1-fixture-installation",
+  "runtime_instance_id": "quilr1-fixture-runtime",
+  "claimed_producer_identity": "synthetic://quilr1-adapter-fixture",
+  "adapter_id": "quilr1-platform-adapter",
+  "adapter_version": "0.1.0-proposed",
+  "claimed_certification_id": "not-certified-fixture",
+  "operation": "upsert",
+  "source_native_id": "tenant_fixture_001:app_fixture_001",
+  "source_revision": "offline-buffered-fixture",
+  "supersedes_record_id": null,
+  "occurred_at": "2026-07-28T00:00:00.003Z",
+  "observed_at": "2026-07-28T00:00:00.003Z",
+  "enqueued_at": "2026-07-29T00:00:00.010Z",
+  "clock": {
+    "quality": "unknown",
+    "offset_ms": null,
+    "uncertainty_ms": null,
+    "boot_epoch_id": null,
+    "monotonic_ns": null
+  },
+  "sequence": {
+    "stream_id": "quilr1-fixture-offline-stream",
+    "epoch": "fixture-offline-epoch-001",
+    "number": "1",
+    "previous_record_hash": null
+  },
+  "correlation": {
+    "traceparent": null,
+    "tracestate": null,
+    "observation_id": "quilr1-fixture-observation-004",
+    "session_id": null,
+    "request_id": null,
+    "run_id": "quilr1-fixture-offline-replay-run-001",
+    "step_id": null,
+    "action_id": null,
+    "decision_id": null,
+    "command_id": null,
+    "reconciliation_run_id": "quilr1-fixture-reconciliation-001",
+    "trail_id": null
+  },
+  "privacy": {
+    "collection_policy_id": "quilr1-fixture-policy",
+    "collection_policy_version": "0.1-proposed",
+    "highest_classification": "enterprise_identifier",
+    "content_reference_count": 0,
+    "capture_summary": {
+      "enterprise_identifier": 4,
+      "structural": 2
+    }
+  },
+  "idempotency_key": "quilr1:application:tenant_fixture_001:app_fixture_001:offline-buffered",
+  "body_hash": "sha256:cc2e47d8c6cc87e6ddd3c6c39e12fee65d88e7fa52eaa90353eabc45a89a6079",
+  "record_hash": "sha256:fd3f481c4a467a7026550b5ab67c54339366fc3e613367f5ecb2a2e7407d22b9",
+  "signature": null,
+  "body": {
+    "source_object_type": "legacy_application_row",
+    "source_table_profile": "clickhouse.application_projection.unresolved_version",
+    "schema_fingerprint": "unresolved-live-schema",
+    "row": {
+      "tenant": "tenant_fixture_001",
+      "subscriber": "subscriber_fixture_001",
+      "app_id": "app_fixture_001",
+      "app_name": "Fixture Generative AI App",
+      "domain": "fixture-ai.example.invalid",
+      "app_category": "Generative AI"
+    },
+    "delivery_fixture": "captured_before_network_outage_enqueued_after_recovery"
+  }
+}

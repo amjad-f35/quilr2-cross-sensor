@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "CapabilityMode": {
+      "description": "Declared sensor behavior for an action family (RFC-0007 \u00a77).",
+      "enum": [
+        "enforce",
+        "observe",
+        "shadow",
+        "metadata_only",
+        "deferred",
+        "unsupported"
+      ],
+      "title": "CapabilityMode",
+      "type": "string"
+    },
+    "TestResult": {
+      "description": "ContractTestResult outcomes (RFC-0007 \u00a713).",
+      "enum": [
+        "passed",
+        "failed",
+        "skipped",
+        "blocked",
+        "degraded"
+      ],
+      "title": "TestResult",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Immutable certification ledger entry (RFC-0007 \u00a714).",
+  "properties": {
+    "adapter_version": {
+      "title": "Adapter Version",
+      "type": "string"
+    },
+    "capability_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Capability Hash"
+    },
+    "certified_capabilities": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CapabilityMode"
+      },
+      "title": "Certified Capabilities",
+      "type": "object"
+    },
+    "contract_version": {
+      "default": "starliner.sensor.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "product_commit": {
+      "title": "Product Commit",
+      "type": "string"
+    },
+    "product_ref": {
+      "title": "Product Ref",
+      "type": "string"
+    },
+    "result": {
+      "$ref": "#/$defs/TestResult",
+      "default": "passed"
+    },
+    "schema": {
+      "const": "starliner.sensor_certification_record.v1",
+      "default": "starliner.sensor_certification_record.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensor": {
+      "title": "Sensor",
+      "type": "string"
+    },
+    "test_pack": {
+      "title": "Test Pack",
+      "type": "string"
+    },
+    "test_pack_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Test Pack Hash"
+    },
+    "uncertified_capabilities": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CapabilityMode"
+      },
+      "title": "Uncertified Capabilities",
+      "type": "object"
+    }
+  },
+  "required": [
+    "sensor",
+    "product_commit",
+    "product_ref",
+    "adapter_version",
+    "test_pack"
+  ],
+  "title": "SensorCertificationRecord",
+  "type": "object"
+}

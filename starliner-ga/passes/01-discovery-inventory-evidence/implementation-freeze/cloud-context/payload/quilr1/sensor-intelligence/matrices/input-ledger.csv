@@ -1,0 +1,18 @@
+Input,Type,Version or commit,Purpose,Platform relevance,Status
+quilrbusiness/quilr-query-builder,target repository,c794c45a9c22b75f101c7c73da508d6e7870f97b,Query aggregation workflows persistence schedulers and diagnostics,Primary Quilr 1 runtime,Verified and pinned
+quilrbusiness/quilr-web,target repository,e6f9d03ddedde756ec447e3fabccdb3a8c418ea9,Product UI routes clients state and Next runtime,Primary Quilr 1 product surface,Verified and pinned
+quilr-platform-analysis,repository-analysis corpus,pinned to both target commits,Complete file symbol interface state runtime and dynamic evidence,Required first-pass evidence base,Reviewed
+docs/quilr2-cross-sensor,cross-sensor architecture,current workspace corpus,Canonical identity observation event finding metric product and migration decisions,Target mapping authority,Reviewed for Quilr 1 scope
+jwt-decoder-library,supporting repository,5dfc35a8da27183f66e1d89206e9829a8c03a6f9,JWT filter and request context,Trust and identity boundary,Verified supporting source
+quilr-authz-lib,supporting repository,ce03e70b41736f9bf240e2f53f3fe8a6e555d56f,Permission aspect and PDP client,Authorization boundary,Verified supporting source
+quilr-kafka-client,supporting repository,c484b3645f8747ec2a52a942d23a179a4341c002,Audit publication,Emission boundary,Verified supporting source
+quilr-common-lib,supporting repository,40e8bce63d505e6b50e85d1902bfc776f761f82c,ServiceResponse Redis DWH graph and entity behavior,Store and transport semantics,Verified supporting source
+quilr-components,supporting repository,2d66c4a1dafd7cba10c2979b58b2a83d34d24721,Private web component package,Product UI dependency,Verified build with non-green tests
+ci-scripts,supporting repository,cf687f6a1713498d2843f0f60a8ddf30d672775d,Reusable GitHub Actions selection,Build evidence boundary,Verified exact CI source
+quilr-bff,supporting repository,929ea208f36ef2db4446064e76643e292507b715,Service prefix and header forwarding,Network extraction boundary,Source and runtime verified
+nginx-ingress-controller,supporting repository,412ed6f4fcea07c687f3164ec4f6bef68d7541ff,Direct route rewriting,Network boundary,Verified supporting source
+quilr-migration-service,supporting repository,e4a8ac44844b8c3991881cf7fe873d973fcdb7a7,PostgreSQL and ClickHouse DDL,Legacy schema evidence,Partially resolves source schemas
+quilr-helm-charts-axis-bank,supporting repository,b1adf162383166770bb4acc74ec9b409da08c8c5,Runtime deployment resources and probes,Operations and coverage,Verified intended source not live state
+quilr-helm-charts,supporting repository,a72753199c90b14a8f8b16d599ebc14a11affac3,SaaS web chart and configuration,Operations,Verified intended source not live state
+quilr-jenkins-shared-library,supporting repository,d16ec670f1a5e9d6f641b099c52e6ecab9f854c3,Image tag and push behavior,Artifact and release identity,Verified supporting source
+quilr-graph-service,supporting repository,a4a80bb8c43fccc82153f825d987419860cd816a,Graph labels and query boundary,Relationship evidence,Verified supporting source with live authority unresolved

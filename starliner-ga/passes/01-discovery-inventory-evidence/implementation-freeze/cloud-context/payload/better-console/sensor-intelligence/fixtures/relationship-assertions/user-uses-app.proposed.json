@@ -1,0 +1,9 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "subject": "synthetic-user",
+  "predicate": "uses",
+  "object": "synthetic-app",
+  "tenantId": "tenant-example",
+  "authority": "source-derived"
+}

@@ -1,0 +1,11 @@
+control,enforcement_point,mode,effect,failure_behavior,current_telemetry,platform_command_availability
+Tool enable disable,MCPHandler,Enforce,Prevent call,Local deterministic,Reduced error action,Available through adapter mapping only
+Tool confirmation,Direct and OneMCP handlers,Enforce,Require approval,Expiry or context miss,No approval event,Available through adapter mapping only
+Input DLP,DLPService,Monitor redact block,Transform or prevent upstream,Invalid redacted JSON uses original,Labels outcome block,Available through adapter mapping only
+Output DLP,DLPService,Monitor redact block,Transform or suppress result,Branch-specific,Labels outcome block,Available through adapter mapping only
+ZIA URL policy,MCP handler mixin,Filter,Remove blocked URLs,Timeout and cache behavior,Not mapped,Available through adapter mapping only
+Smart-group domain exclusions,MCPHandler,Transform,Inject domain filter,No groups means no exclusion,Not mapped,Available through adapter mapping only
+Legacy Starliner policy,Private SDK,Shadow enforce,Proceed or deny,SDK missing proceeds,Decision details absent,Unresolved
+Scoped access,Routes and resolver,Enforce,Deny visibility or use,Structured rejection,SQLite event only,Available through adapter mapping only
+Workflow quota readiness,Workflow services,Enforce,Block enqueue or execution,Schedule event,Not Starliner mapped,Available through adapter mapping only
+Outbox replay,None,None,None,None,None,Requires minor sensor instrumentation

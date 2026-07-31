@@ -1,0 +1,25 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Vanguard heartbeat including fields dropped by BES",
+    "evidence_status": "Verified in source",
+    "expected": "accepted_with_known_field_loss"
+  },
+  "record": {
+    "rulesLastSync": 1753876500000,
+    "relaysLastSync": 1753876500000,
+    "lookupsLastSync": 1753876500000,
+    "dlpLastSync": 1753876500000,
+    "osName": "MacOS",
+    "extensionVersion": "1.2.3",
+    "availableVersion": "1.2.4",
+    "agentVersion": "0.8.0",
+    "hostname": "fixture-host",
+    "agentEnabled": true,
+    "extensionEnabled": true,
+    "browserName": "Chrome",
+    "browserVersion": "126.0",
+    "device": 42,
+    "deviceType": "laptop"
+  }
+}

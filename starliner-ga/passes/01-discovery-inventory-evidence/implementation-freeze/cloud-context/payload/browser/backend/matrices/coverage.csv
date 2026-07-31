@@ -1,0 +1,3 @@
+Coverage ID,Environment/surface,Capability,Supported code path,Coverage class,Known blind spots,Negative-event semantics,Availability,Evidence
+CV-011,Browser backend ingress,Event acceptance,BES HTTP,Direct when request reaches service,"Network failure, auth, validation, missing extension-log-service",No backend record may be upstream delivery failure,Available through adapter mapping only,Verified in source
+CV-012,Backend heartbeat,Health aggregation,Process-local bucket/Kafka/Neo4j,Partial durability,"Pod restart, multi-pod fragmentation, false send deletion",Missing graph update does not prove sensor offline,Requires substantial sensor changes,Verified in source

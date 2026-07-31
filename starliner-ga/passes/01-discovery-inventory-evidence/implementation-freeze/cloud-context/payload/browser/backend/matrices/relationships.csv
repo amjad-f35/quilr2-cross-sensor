@@ -1,0 +1,3 @@
+Relationship ID,Source entity,Relationship,Target entity,Direct or inferred,Native evidence,Lifecycle,Confidence,Platform availability,Evidence,Notes
+R-001,Persona,USES,Device,Direct,DeviceHeartbeat personaId/deviceId,Refreshed by heartbeat,High within auth context,Available through adapter mapping only,Verified in source,Do not infer absence from missed heartbeat
+R-002,Device,HOSTS,Browser product/instance,Inferred from same heartbeat,DeviceHeartbeat browser fields,Refreshed by heartbeat,Medium until browser-instance ID exists,Derivable centrally from current output,Inference,Browser product is not instance

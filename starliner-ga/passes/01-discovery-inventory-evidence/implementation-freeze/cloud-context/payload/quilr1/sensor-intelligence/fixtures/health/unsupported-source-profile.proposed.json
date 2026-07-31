@@ -1,0 +1,24 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "unsupported_source_profile_health",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "docs/sensor-intelligence/quilr1-platform/24-coverage-capabilities-and-health.md",
+      "docs/sensor-intelligence/quilr1-platform/30-acceptance-scenarios.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "observed_state": {
+    "source_profile": "starliner.source.quilr1_clickhouse_application.v1",
+    "observed_source_profile_version": "99.0.0",
+    "supported_source_profile_versions": [
+      "0.1.0-proposed"
+    ],
+    "capability_status": "unsupported_version",
+    "extracting": false,
+    "checkpoint_advanced": false
+  }
+}

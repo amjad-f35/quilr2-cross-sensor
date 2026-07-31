@@ -1,0 +1,17 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "enforcement failure result; not implemented"
+  },
+  "result": {
+    "command_id": "command-fixture-1",
+    "status": "failed",
+    "reason_code": "target_not_found",
+    "effect_observed": false
+  },
+  "expected": {
+    "retry_automatic": false,
+    "audit_record_required": true
+  }
+}
+

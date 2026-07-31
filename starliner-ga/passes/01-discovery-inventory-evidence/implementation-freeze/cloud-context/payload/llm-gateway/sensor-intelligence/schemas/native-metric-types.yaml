@@ -1,0 +1,213 @@
+{
+  "metrics": [
+    {
+      "metric": "requests_total",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(api_request_log)",
+      "unit": "requests",
+      "dimensions": "tenant, app/key, provider, model, status, user, time",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "request_success_rate",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(success)/count(all)",
+      "unit": "ratio",
+      "dimensions": "provider, model, tenant, time",
+      "source_events": "status_code",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "request_error_rate",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(error)/count(all)",
+      "unit": "ratio",
+      "dimensions": "provider, model, error_type, time",
+      "source_events": "status_code/error_type",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "total_latency_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "persisted elapsed wall time",
+      "unit": "milliseconds",
+      "dimensions": "provider, model, endpoint",
+      "source_events": "PerformanceLoggerAsync",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "upstream_latency_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "sum of timed upstream legs",
+      "unit": "milliseconds",
+      "dimensions": "provider, model",
+      "source_events": "PerformanceLoggerAsync",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "quilr_processing_time_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "elapsed Quilr processing window",
+      "unit": "milliseconds",
+      "dimensions": "tenant, endpoint",
+      "source_events": "PerformanceLoggerAsync",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Operator-only",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "guardrails_latency_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "sum request-side + response-side DLP legs",
+      "unit": "milliseconds",
+      "dimensions": "tenant, endpoint",
+      "source_events": "PerformanceLoggerAsync",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Operator-only",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "first_response_time_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "first chunk minus request start; nonstream falls back to total latency",
+      "unit": "milliseconds",
+      "dimensions": "provider, model, stream",
+      "source_events": "PerformanceLoggerAsync",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics with caveat",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "request_tokens",
+      "existing_derived_proposed": "Existing",
+      "formula": "provider usage or estimate",
+      "unit": "tokens",
+      "dimensions": "provider, model, tenant",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "response_tokens",
+      "existing_derived_proposed": "Existing",
+      "formula": "provider usage or stream estimate",
+      "unit": "tokens",
+      "dimensions": "provider, model, tenant",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "cache_read_tokens",
+      "existing_derived_proposed": "Existing",
+      "formula": "provider usage promoted field",
+      "unit": "tokens",
+      "dimensions": "provider, model",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "cache_write_tokens",
+      "existing_derived_proposed": "Existing",
+      "formula": "Anthropic provider usage",
+      "unit": "tokens",
+      "dimensions": "provider, model",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "reasoning_tokens",
+      "existing_derived_proposed": "Existing",
+      "formula": "provider usage detail",
+      "unit": "tokens",
+      "dimensions": "provider, model",
+      "source_events": "api_request_log",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "blocked_requests",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(is_blocked_by_quilr)",
+      "unit": "requests",
+      "dimensions": "side, category, tenant, app",
+      "source_events": "actions_and_categories",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Finding/Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "anonymized_requests",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(is_anonymized_by_quilr)",
+      "unit": "requests",
+      "dimensions": "side, category, tenant, app",
+      "source_events": "actions_and_categories",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "sensitive_detections",
+      "existing_derived_proposed": "Derived",
+      "formula": "count(predictions)",
+      "unit": "detections",
+      "dimensions": "category, action, side",
+      "source_events": "Axis/predictions",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Finding/Analytics",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "estimated_cost",
+      "existing_derived_proposed": "Derived",
+      "formula": "token counts \u00d7 versioned model pricing",
+      "unit": "currency",
+      "dimensions": "provider, model, tenant",
+      "source_events": "usage + model_pricing.json",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Analytics with pricing disclaimer",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "provider_health",
+      "existing_derived_proposed": "Derived",
+      "formula": "request success/failure/latency windows",
+      "unit": "state/ratio",
+      "dimensions": "provider, model, tenant",
+      "source_events": "provider_health handlers",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Coverage and health",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    },
+    {
+      "metric": "probe_latency_ms",
+      "existing_derived_proposed": "Existing",
+      "formula": "probe completion minus start",
+      "unit": "milliseconds",
+      "dimensions": "component/endpoint",
+      "source_events": "gateway_health",
+      "coverage_dependency": "Gateway route and persistence path healthy; unsensed bypass traffic excluded",
+      "product_card": "Coverage and health",
+      "drill_down": "Filtered api_request_log/Axis/probe evidence"
+    }
+  ]
+}

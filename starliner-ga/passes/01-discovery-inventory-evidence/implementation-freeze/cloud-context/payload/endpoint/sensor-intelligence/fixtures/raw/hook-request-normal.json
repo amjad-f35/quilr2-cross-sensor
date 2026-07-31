@@ -1,0 +1,22 @@
+{
+  "_fixture": {
+    "id": "FX-RAW-001",
+    "evidence_label": "Generated from verified native schema",
+    "runtime_observed": false,
+    "fixture_class": "normal",
+    "source_basis": "system-monitor/v2/src/hook_manager/protocol.rs HookRequest"
+  },
+  "payload": {
+    "session_id": "session-test-001",
+    "ide_type": "cursor",
+    "event_name": "tool_use",
+    "tool_name": "read_file",
+    "tool_input": "{\"path\":\"/Users/TEST/project/README.md\"}",
+    "command": null,
+    "file_path": "/Users/TEST/project/README.md",
+    "prompt": null,
+    "cwd": "/Users/TEST/project",
+    "timestamp": "2026-01-01T00:00:00Z"
+  }
+}
+

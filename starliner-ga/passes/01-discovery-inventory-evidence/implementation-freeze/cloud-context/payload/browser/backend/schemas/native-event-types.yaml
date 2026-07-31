@@ -1,0 +1,15 @@
+schema_version: 1
+profile: browser-backend
+events:
+- event_id: EV-046
+  name: EventLogKafkaRecord publication
+  payload_record: EventLogKafkaRecord
+  delivery: HTTP response may precede callback delivery
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay
+- event_id: EV-047
+  name: HeartbeatBatch publication
+  payload_record: HeartbeatBatch
+  delivery: Bucket deleted after producer call; false result is logged but not thrown
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat

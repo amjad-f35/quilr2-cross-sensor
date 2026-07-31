@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "status": "Verified in source; target health mapping Proposed",
+  "sensor": "browser-extension",
+  "coverage": [
+    {
+      "coverage_id": "CV-001",
+      "environment": "Chrome/Chromium page",
+      "capability": "Navigation/DOM/auth/prompt/copy/paste/upload",
+      "coverage_class": "Direct but permission/runtime dependent",
+      "blind_spots": "Cross-origin/shadow/page changes/service-worker suspension",
+      "negative_semantics": "No event does not prove no activity",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-002",
+      "environment": "Chrome extension profile",
+      "capability": "Third-party extension inventory/lifecycle",
+      "coverage_class": "Direct per observed profile",
+      "blind_spots": "Stable profile identity missing; non-Chrome extensions excluded",
+      "negative_semantics": "Missing record may mean failed batch/service",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "coverage_id": "CV-003",
+      "environment": "Chrome downloads",
+      "capability": "Download observation/scan",
+      "coverage_class": "Direct for browser downloads",
+      "blind_spots": "Non-browser transfers and API permission limits",
+      "negative_semantics": "No event does not prove no file transfer",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-004",
+      "environment": "Named AI web apps",
+      "capability": "Prompt request/response/account",
+      "coverage_class": "Partial, app/config/version dependent",
+      "blind_spots": "Most response configs commented in active iConfigs; site drift",
+      "negative_semantics": "Absence cannot mean no AI use",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "coverage_id": "CV-005",
+      "environment": "Arbitrary AI web app",
+      "capability": "Prompt discovery",
+      "coverage_class": "Partial heuristic",
+      "blind_spots": "Unknown UI/network protocols",
+      "negative_semantics": "Absence cannot mean no AI use",
+      "availability": "Unresolved"
+    },
+    {
+      "coverage_id": "CV-006",
+      "environment": "Windows native host",
+      "capability": "File search/index/system ID/clipboard",
+      "coverage_class": "Supported code path",
+      "blind_spots": "Private dependencies/runtime not exercised in current environment",
+      "negative_semantics": "No native event may mean agent/config/OS failure",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-007",
+      "environment": "macOS native host",
+      "capability": "File search/index/system ID/clipboard",
+      "coverage_class": "Supported code path",
+      "blind_spots": "SystemID top-level fields empty; command/profile dependencies",
+      "negative_semantics": "No event may mean permissions/agent/config failure",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-008",
+      "environment": "Linux native host",
+      "capability": "Clipboard",
+      "coverage_class": "Unsupported/stub",
+      "blind_spots": "No Linux clipboard implementation",
+      "negative_semantics": "No events are expected, not proof of no clipboard activity",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-009",
+      "environment": "Linux native host",
+      "capability": "System identifiers",
+      "coverage_class": "Unsupported",
+      "blind_spots": "Returns error marker",
+      "negative_semantics": "Identity missing is capability gap",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-010",
+      "environment": "Local filesystem",
+      "capability": "Upload file resolution",
+      "coverage_class": "Point query, not exhaustive discovery feed",
+      "blind_spots": "Permissions, mounts, ephemeral files, collisions",
+      "negative_semantics": "Not found does not prove file absent",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-011",
+      "environment": "Browser backend ingress",
+      "capability": "Event acceptance",
+      "coverage_class": "Direct when request reaches service",
+      "blind_spots": "Network failure, auth, validation, missing extension-log-service",
+      "negative_semantics": "No backend record may be upstream delivery failure",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "coverage_id": "CV-012",
+      "environment": "Backend heartbeat",
+      "capability": "Health aggregation",
+      "coverage_class": "Partial durability",
+      "blind_spots": "Pod restart, multi-pod fragmentation, false send deletion",
+      "negative_semantics": "Missing graph update does not prove sensor offline",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "coverage_id": "CV-013",
+      "environment": "Offline browser",
+      "capability": "Event buffering",
+      "coverage_class": "Partial",
+      "blind_spots": "Enqueue not immediately persisted; batches excluded",
+      "negative_semantics": "Offline absence cannot imply no activity",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "coverage_id": "CV-014",
+      "environment": "Offline native",
+      "capability": "Native output buffering",
+      "coverage_class": "Unsupported for central delivery",
+      "blind_spots": "stdout disconnect drops/skips messages",
+      "negative_semantics": "Absence is transport state",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "coverage_id": "CV-015",
+      "environment": "Cloud VM",
+      "capability": "Agent discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "No cloud API/metadata inventory",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-016",
+      "environment": "Serverless",
+      "capability": "Agent discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "No provider/control-plane integration",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-017",
+      "environment": "CI/CD runner",
+      "capability": "Agent discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "No runner/integration scanner",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-018",
+      "environment": "Ephemeral agent/runtime",
+      "capability": "Agent discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "No runtime registry/process/container discovery",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-019",
+      "environment": "MCP server/tool/backend",
+      "capability": "Discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "VTest MCP is test control only",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-020",
+      "environment": "Repository/folder/files/skills",
+      "capability": "Agent semantic discovery",
+      "coverage_class": "Unsupported",
+      "blind_spots": "Native file search only resolves upload candidates",
+      "negative_semantics": "Cannot make negative claim",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-021",
+      "environment": "gRPC transport",
+      "capability": "Transport",
+      "coverage_class": "Unsupported",
+      "blind_spots": "Uses existing DOM/Chrome/native/HTTPS/Kafka boundaries",
+      "negative_semantics": "No semantic coverage effect",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "coverage_id": "CV-022",
+      "environment": "Diagnostics",
+      "capability": "Rich evidence",
+      "coverage_class": "On-demand only",
+      "blind_spots": "Consent/config and cache/upload state",
+      "negative_semantics": "No diagnostic means not requested, not healthy/unhealthy",
+      "availability": "Available through adapter mapping only"
+    }
+  ]
+}

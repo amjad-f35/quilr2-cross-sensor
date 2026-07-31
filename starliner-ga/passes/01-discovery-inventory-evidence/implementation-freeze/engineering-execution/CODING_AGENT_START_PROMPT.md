@@ -41,6 +41,10 @@ The complete local context root is:
 
 `/Users/t4ctic4l/Documents/Codex/Consolidate`
 
+If that local root is unavailable, use
+`implementation-freeze/cloud-context/README.md` and its content-addressed
+payload. Do not re-archeologize every sensor or organization repository.
+
 The normative architecture repository is:
 
 `/Users/t4ctic4l/Documents/Codex/Consolidate/docs/quilr2-cross-sensor`
@@ -148,7 +152,9 @@ Generated artifacts come from accepted source contracts and are never edited
 by hand. Never delete or weaken a test to make a candidate pass.
 
 Use one branch for one coherent work item or vertical increment, with multiple
-verified commits and one early draft PR. Do not create a branch per commit.
+verified commits. Push each verified candidate SHA to that branch. Do not
+create a branch per commit and do not open a PR unless the user explicitly
+requests one.
 One agent owns writes to a branch. Before using or closing a historical branch
 or PR, classify and deliberately port/reject its unique behavior and tests
 using `BRANCH_AND_PR_BASELINE.md`; never merge a stale prototype wholesale or

@@ -1,0 +1,42 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Normal PackageLogEnvelope visit",
+    "evidence_status": "Verified in source",
+    "expected": "accepted"
+  },
+  "record": {
+    "user": {
+      "username": "analyst@example.invalid",
+      "accountname": "ai-user@example.invalid",
+      "machinename": "device-42"
+    },
+    "check": {
+      "id": "CID_16",
+      "name": "visit",
+      "properties": {
+        "context_id": "ctx-001",
+        "retry_count": 0,
+        "credentials": {
+          "email": "ai-user@example.invalid"
+        }
+      }
+    },
+    "browser": {
+      "name": "Chrome",
+      "version": "126.0",
+      "os": "MacOS",
+      "useragent": "fixture-user-agent"
+    },
+    "extension": {
+      "id": "fixture-vanguard-product-id",
+      "version": "1.2.3"
+    },
+    "application": {
+      "name": "Fixture AI App",
+      "url": "https://ai.example.invalid/chat",
+      "domain": "ai.example.invalid",
+      "authenticationtype": "CredsBased"
+    }
+  }
+}

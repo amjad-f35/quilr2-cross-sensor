@@ -1,0 +1,15 @@
+metric_name,category,definition,source,dimensions,time_semantics,availability,product_disposition
+mcp.tool.calls,Usage,One per observed Direct call,MetricEvent,backend tool status,Mapper completion,Available now without sensor changes,Analytics
+mcp.tool.latency_ms,Performance,Full tools-call branch elapsed,MetricEvent,backend tool status,Mapper completion,Available now without sensor changes,Analytics
+background.dropped,Reliability,Dropped observe tasks,Runtime counter,None,Process lifetime,Available through adapter mapping only,Coverage and health
+outbox_dropped,Reliability,Records dropped on full outbox,Runtime counter,None,Process lifetime,Available through adapter mapping only,Coverage and health
+delivery.accepted,Reliability,Accepted records,Worker counter,None,Process lifetime,Available through adapter mapping only,Operator-only
+delivery.retry,Reliability,Retry transitions,Worker counter,None,Process lifetime,Available through adapter mapping only,Operator-only
+outbox_depth,Reliability,Active outbox rows,Repository health,None,Read time,Available through adapter mapping only,Coverage and health
+oldest_record_age_seconds,Reliability,Age of oldest active row,Repository health,None,Read time,Available through adapter mapping only,Coverage and health
+tool_success_rate,Reliability,Successful logs divided by total,tool_call_logs,tenant backend tool,Event window,Available through adapter mapping only,Analytics
+rejection_rate,Security,Rejected requests divided by attempts,Rejection and logs,tenant backend reason,Event window,Available through adapter mapping only,Analytics
+oauth_refresh_failure_rate,Reliability,Failed refresh divided by refresh attempts,events,tenant backend,Event window,Available through adapter mapping only,Analytics
+workflow_run_success_rate,Reliability,Succeeded divided by terminal runs,Runner DB,tenant agent,Run window,Available through adapter mapping only,Analytics
+model_cost,Cost,Model usage cost,None,None,None,Not observable by this sensor,Discard with reason
+enterprise_mcp_coverage,Coverage,Observed versus all MCP traffic,None,None,None,Requires an external authoritative source,Coverage and health

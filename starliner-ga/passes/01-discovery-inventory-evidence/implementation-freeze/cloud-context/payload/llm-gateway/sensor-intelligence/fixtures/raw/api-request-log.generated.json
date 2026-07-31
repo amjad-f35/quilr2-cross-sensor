@@ -1,0 +1,16 @@
+{
+  "_fixture_status": "Generated from verified PerformanceLoggerAsync.start_request/finalize_request keys; values are synthetic",
+  "request_id": "00000000-0000-4000-8000-000000000001",
+  "tenant_id": "example-tenant",
+  "api_key_hash": "synthetic-sha256-placeholder",
+  "timestamp": "2026-07-30T00:00:00",
+  "endpoint": "/openai_compatible/chat/completions",
+  "model_name": "verified-schema-example-model",
+  "provider": "openai",
+  "stream": false,
+  "status_code": 200,
+  "total_latency_ms": 100,
+  "is_blocked_by_quilr": false,
+  "is_anonymized_by_quilr": false,
+  "guardrails_outcome": "normal"
+}

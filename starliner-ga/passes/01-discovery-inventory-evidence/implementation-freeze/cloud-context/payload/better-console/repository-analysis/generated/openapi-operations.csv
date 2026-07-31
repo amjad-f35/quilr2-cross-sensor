@@ -1,0 +1,215 @@
+method,path,operation_id,tags,summary,security,parameter_count,has_request_body,response_codes
+POST,/platformadminapis/v2/apps/browser/bulk,bulkUpdateBrowserApps,Browser app management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/apps/browser/export,exportBrowserApps,Browser app management,,"[{""consoleSession"":[]}]",6,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/apps/browser/options,getBrowserAppOptions,Browser app management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502
+GET,/platformadminapis/v2/apps/browser/owner-options,getBrowserAppOwnerOptions,Browser app management,,"[{""consoleSession"":[]}]",3,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/apps/browser/pending,getBrowserAppPendingActions,Browser app management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502
+GET,/platformadminapis/v2/audit-logs,getAuditLogs,Platform admin audit,,"[{""consoleSession"":[]}]",15,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/audit-logs/{correlation_id}/snapshots,getAuditLogSnapshots,Platform admin audit,,"[{""consoleSession"":[]}]",2,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/auth/oauth/{provider}/callback,oauthCallback,Platform admin session,,[],4,no,303; 401; 403; 503
+GET,/platformadminapis/v2/auth/oauth/{provider}/start,oauthStart,Platform admin session,,[],4,no,307; 404; 503
+POST,/platformadminapis/v2/auth/password/login,passwordLogin,Platform admin session,,[],1,yes,200; 401; 403; 409; 429; 503
+GET,/platformadminapis/v2/auth/providers,getAuthProviders,Platform admin session,,[],1,no,200; 502; 503
+POST,/platformadminapis/v2/auth/saml/callback,samlCallback,Platform admin session,,[],0,yes,303; 400; 401; 503
+GET,/platformadminapis/v2/auth/saml/metadata/{tenant_id},samlMetadata,Platform admin session,,[],1,no,200; 404; 502
+GET,/platformadminapis/v2/auth/saml/start,samlStart,Platform admin session,,[],3,no,307; 404; 502
+GET,/platformadminapis/v2/auth/sessions,listSessions,Platform admin session,,"[{""consoleSession"":[]}]",0,no,200; 401
+DELETE,/platformadminapis/v2/auth/sessions,logoutAll,Platform admin session,,"[{""consoleSession"":[]}]",1,no,200; 401; 403
+DELETE,/platformadminapis/v2/auth/sessions/{session_id},revokeSession,Platform admin session,,"[{""consoleSession"":[]}]",2,no,200; 401; 403
+GET,/platformadminapis/v2/auth/tenant-options,getTenantOptions,Platform admin session,,[],0,no,200; 401
+POST,/platformadminapis/v2/auth/tenant/select,selectTenant,Platform admin session,,[],1,yes,200; 401; 403
+POST,/platformadminapis/v2/auth/tenant/{tenant_id},switchTenant,Platform admin session,,"[{""consoleSession"":[]}]",2,no,200; 401; 403
+GET,/platformadminapis/v2/browser-extension/classification/attributes/{code}/values,getBrowserExtensionClassificationAttributeValues,Browser Extension,,"[{""consoleSession"":[]}]",7,no,200; 400; 401; 403
+GET,/platformadminapis/v2/browser-extension/deployment/status,getBrowserExtensionDeploymentStatus,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500
+GET,/platformadminapis/v2/browser-extension/domain-whitelist,getBrowserExtensionDomainWhitelist,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500; 503
+GET,/platformadminapis/v2/browser-extension/integration/status,getBrowserExtensionIntegrationStatus,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403
+GET,/platformadminapis/v2/browser-extension/organization-domains/status,getBrowserExtensionOrganizationDomainsStatus,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500; 503
+GET,/platformadminapis/v2/browser-extension/personas,getBrowserExtensionPersonas,Browser Extension,,"[{""consoleSession"":[]}]",15,no,200; 400; 401; 403; 500
+POST,/platformadminapis/v2/browser-extension/personas,postBrowserExtensionPersonas,Browser Extension,,"[{""consoleSession"":[]}]",15,yes,200; 400; 401; 403; 500
+GET,/platformadminapis/v2/browser-extension/personas/filters,getBrowserExtensionPersonaFilters,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500
+GET,/platformadminapis/v2/browser-extension/personas/metrics,getBrowserExtensionPersonaMetrics,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500
+GET,/platformadminapis/v2/browser-extension/personas/settings,getBrowserExtensionPersonaSettings,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500
+GET,/platformadminapis/v2/browser-extension/preferences,getBrowserExtensionPreferences,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 404; 500; 503
+GET,/platformadminapis/v2/browser-extension/users/{user_id}/profile-picture,getBrowserExtensionUserProfilePicture,Browser Extension,,"[{""consoleSession"":[]}]",1,no,200; 400; 401; 403; 404; 413; 500
+GET,/platformadminapis/v2/browser-extension/version,getBrowserExtensionVersion,Browser Extension,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 504
+GET,/platformadminapis/v2/console-assist,listConsoleAssist,Platform admin console assist,,"[{""consoleSession"":[]}]",2,no,200; 400; 401; 403; 503
+POST,/platformadminapis/v2/console-assist,createConsoleAssist,Platform admin console assist,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+POST,/platformadminapis/v2/console-assist/report,reportConsoleAssistError,Platform admin console assist,,"[{""consoleSession"":[]}]",1,yes,202; 204; 400; 401; 403
+GET,/platformadminapis/v2/custom-dashboards,listCustomDashboards,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/custom-dashboards/audience,getCustomDashboardAudience,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",0,no,200; 401; 503
+POST,/platformadminapis/v2/custom-dashboards/generations,startCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 429; 503
+GET,/platformadminapis/v2/custom-dashboards/generations/{run_id},getCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",1,no,200; 401; 404
+POST,/platformadminapis/v2/custom-dashboards/generations/{run_id}/confirm,confirmCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 409; 422
+POST,/platformadminapis/v2/custom-dashboards/generations/{run_id}/messages,messageCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 409; 429
+POST,/platformadminapis/v2/custom-dashboards/generations/{run_id}/publish,publishCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 409
+POST,/platformadminapis/v2/custom-dashboards/generations/{run_id}/retry,retryCustomDashboardGeneration,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 409; 429; 503
+GET,/platformadminapis/v2/custom-dashboards/{dashboard_id},getCustomDashboard,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",1,no,200; 401; 403; 404
+DELETE,/platformadminapis/v2/custom-dashboards/{dashboard_id},deleteCustomDashboard,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 404; 409
+PATCH,/platformadminapis/v2/custom-dashboards/{dashboard_id},updateCustomDashboard,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409
+POST,/platformadminapis/v2/custom-dashboards/{dashboard_id}/clone,cloneCustomDashboard,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 404
+POST,/platformadminapis/v2/custom-dashboards/{dashboard_id}/execute,executeCustomDashboard,Platform admin custom dashboards,,"[{""consoleSession"":[]}]",2,yes,200; 401; 403; 404; 422
+GET,/platformadminapis/v2/findings,getFindings,Platform admin findings,,"[{""consoleSession"":[]}]",58,no,200; 400; 401; 403; 502
+POST,/platformadminapis/v2/findings/agent/activate,activateFindingsAgent,Platform admin findings,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 502; 503
+GET,/platformadminapis/v2/findings/agent/options,getFindingsAgentOptions,Platform admin findings,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 503
+POST,/platformadminapis/v2/findings/agent/summarization,summarizeFindingsAgentAction,Platform admin findings,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 502; 503
+GET,/platformadminapis/v2/findings/detail,getFindingDetail,Platform admin findings,,"[{""consoleSession"":[]}]",9,no,200; 400; 401; 403; 404; 502
+POST,/platformadminapis/v2/findings/query,queryFindings,Platform admin findings,,"[{""consoleSession"":[]}]",0,yes,200; 400; 401; 403; 413; 502
+GET,/platformadminapis/v2/findings/query/schema,getFindingsQuerySchema,Platform admin findings,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/gateways/llm/apps,getLlmGatewayApplications,LLM Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 403; 503
+POST,/platformadminapis/v2/gateways/llm/apps,createLlmGatewayApplication,LLM Gateway management,,"[{""consoleSession"":[]}]",1,yes,201; 400; 403; 409
+GET,/platformadminapis/v2/gateways/llm/apps/name-availability,getLlmGatewayAppNameAvailability,LLM Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 400; 403
+GET,/platformadminapis/v2/gateways/llm/apps/{application_id}/configuration,getLlmGatewayConfiguration,LLM Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 403; 404
+PUT,/platformadminapis/v2/gateways/llm/apps/{application_id}/configuration,saveLlmGatewayConfiguration,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 400; 403; 404; 409
+PUT,/platformadminapis/v2/gateways/llm/apps/{application_id}/detections,updateLlmGatewayCustomDetection,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 400; 403; 404
+POST,/platformadminapis/v2/gateways/llm/apps/{application_id}/expire,expireLlmGatewayApplication,LLM Gateway management,,"[{""consoleSession"":[]}]",2,no,200; 403; 404; 409
+GET,/platformadminapis/v2/gateways/llm/apps/{application_id}/prompts,getLlmGatewayPrompts,LLM Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 403; 404
+PUT,/platformadminapis/v2/gateways/llm/apps/{application_id}/prompts,upsertLlmGatewayPrompt,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 201; 400; 403; 404
+DELETE,/platformadminapis/v2/gateways/llm/apps/{application_id}/prompts/{prompt_id},deleteLlmGatewayPrompt,LLM Gateway management,,"[{""consoleSession"":[]}]",3,no,200; 403; 404
+GET,/platformadminapis/v2/gateways/llm/apps/{application_id}/providers,getLlmGatewayProviderCredentials,LLM Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 403; 404
+PUT,/platformadminapis/v2/gateways/llm/apps/{application_id}/tags,updateLlmGatewayTags,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 400; 403; 404
+GET,/platformadminapis/v2/gateways/llm/apps/{application_id}/versions,getLlmGatewayConfigurationVersions,LLM Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 403; 404
+POST,/platformadminapis/v2/gateways/llm/apps/{application_id}/versions/rollback,rollbackLlmGatewayConfiguration,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 403; 404; 409
+POST,/platformadminapis/v2/gateways/llm/audit/search,searchLlmGatewayAudit,LLM Gateway management,,"[{""consoleSession"":[]}]",0,yes,200; 400; 403
+POST,/platformadminapis/v2/gateways/llm/change-requests/search,searchLlmGatewayChangeRequests,LLM Gateway management,,"[{""consoleSession"":[]}]",0,yes,200; 400; 403
+POST,/platformadminapis/v2/gateways/llm/change-requests/{request_id}/approve,approveLlmGatewayChangeRequest,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 403; 404; 409
+POST,/platformadminapis/v2/gateways/llm/change-requests/{request_id}/reject,rejectLlmGatewayChangeRequest,LLM Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 403; 404; 409
+POST,/platformadminapis/v2/gateways/llm/models/discover,discoverLlmGatewayModels,LLM Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 403; 404
+POST,/platformadminapis/v2/gateways/llm/models/validate,validateLlmGatewayModel,LLM Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 403; 404
+GET,/platformadminapis/v2/gateways/llm/smart-groups,getLlmGatewaySmartGroups,LLM Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 403
+GET,/platformadminapis/v2/gateways/mcp/agents,listMcpGatewayAgents,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+POST,/platformadminapis/v2/gateways/mcp/agents,createMcpGatewayAgent,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+DELETE,/platformadminapis/v2/gateways/mcp/agents/{agent},deleteMcpGatewayAgent,Gateway management,,"[{""consoleSession"":[]}]",2,no,200
+PUT,/platformadminapis/v2/gateways/mcp/agents/{agent}/backends/{backend_id},updateMcpGatewayAgentBackend,Gateway management,,"[{""consoleSession"":[]}]",3,yes,200; 404
+GET,/platformadminapis/v2/gateways/mcp/analytics,getMcpGatewayAnalytics,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403
+GET,/platformadminapis/v2/gateways/mcp/backends,listMcpGatewayBackends,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 503
+POST,/platformadminapis/v2/gateways/mcp/backends,createMcpGatewayBackend,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+POST,/platformadminapis/v2/gateways/mcp/backends/probe,probeMcpGatewayBackend,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/base-url,getMcpGatewayBaseUrl,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/clients,listMcpGatewayClients,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/health,getMcpGatewayHealth,Gateway management,,"[{""consoleSession"":[]}]",3,no,200; 403
+GET,/platformadminapis/v2/gateways/mcp/library,listMcpGatewayLibrary,Gateway management,,"[{""consoleSession"":[]}]",5,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/library/requests,listMcpGatewayLibraryRequests,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 403
+POST,/platformadminapis/v2/gateways/mcp/library/requests/{request_id}/dismiss,dismissMcpGatewayLibraryRequest,Gateway management,,"[{""consoleSession"":[]}]",2,no,200; 403
+GET,/platformadminapis/v2/gateways/mcp/library/{catalog_id},getMcpGatewayLibraryItem,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404; 503
+POST,/platformadminapis/v2/gateways/mcp/library/{catalog_id}/install,installMcpGatewayLibraryItem,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200
+POST,/platformadminapis/v2/gateways/mcp/library/{catalog_id}/request,requestMcpGatewayLibraryItem,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200
+POST,/platformadminapis/v2/gateways/mcp/library/{catalog_id}/uninstall,uninstallMcpGatewayLibraryItem,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200
+GET,/platformadminapis/v2/gateways/mcp/logs,listMcpGatewayLogs,Gateway management,,"[{""consoleSession"":[]}]",11,no,200
+GET,/platformadminapis/v2/gateways/mcp/logs/filter-options,getMcpGatewayLogFilterOptions,Gateway management,,"[{""consoleSession"":[]}]",4,no,200
+GET,/platformadminapis/v2/gateways/mcp/onemcp/memories,getOneMcpMemories,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+POST,/platformadminapis/v2/gateways/mcp/onemcp/memories,updateOneMcpMemories,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/onemcp/smart-mode,getOneMcpSmartMode,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+POST,/platformadminapis/v2/gateways/mcp/onemcp/smart-mode,updateOneMcpSmartMode,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/smart-groups,listMcpSmartGroups,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/topics,getMcpGatewayTopics,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403
+GET,/platformadminapis/v2/gateways/mcp/user-status,getMcpGatewayUserStatus,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/workflow-graph,getMcpGatewayWorkflowGraph,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403
+POST,/platformadminapis/v2/gateways/mcp/zia/connect,connectMcpZia,Gateway management,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/zia/groups-departments,getMcpZiaGroups,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/gateways/mcp/zia/status,getMcpZiaStatus,Gateway management,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+GET,/platformadminapis/v2/inventory,getInventory,Platform admin inventory,,"[{""consoleSession"":[]}]",17,no,200; 400; 401; 403
+GET,/platformadminapis/v2/inventory/{asset_id},getInventoryDetail,Platform admin inventory,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 404
+PATCH,/platformadminapis/v2/inventory/{asset_id}/browser/classification,updateInventoryBrowserClassification,Browser app management,,"[{""consoleSession"":[]}]",2,yes,204; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/inventory/{asset_id}/browser/detection,getInventoryBrowserDetection,Browser app management,,"[{""consoleSession"":[]}]",2,no,200; 400; 401; 403; 404; 502
+POST,/platformadminapis/v2/inventory/{asset_id}/browser/detection,updateInventoryBrowserDetection,Browser app management,,"[{""consoleSession"":[]}]",2,yes,204; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/inventory/{asset_id}/browser/intel,getInventoryBrowserIntel,Browser app management,,"[{""consoleSession"":[]}]",2,no,200; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/inventory/{asset_id}/browser/management,getInventoryBrowserManagement,Browser app management,,"[{""consoleSession"":[]}]",1,no,200; 401; 403; 404; 502
+PUT,/platformadminapis/v2/inventory/{asset_id}/browser/owners,updateInventoryBrowserOwners,Browser app management,,"[{""consoleSession"":[]}]",2,yes,204; 400; 401; 403; 404; 502
+PATCH,/platformadminapis/v2/inventory/{asset_id}/browser/settings,updateInventoryBrowserSettings,Browser app management,,"[{""consoleSession"":[]}]",2,yes,204; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/inventory/{asset_id}/icon,getInventoryIcon,Platform admin inventory,,"[{""consoleSession"":[]}]",1,no,200; 401; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/activity,getInventoryLlmActivity,Gateway management,,"[{""consoleSession"":[]}]",10,no,200; 400; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/activity/filter-options,getInventoryLlmActivityFilterOptions,Gateway management,,"[{""consoleSession"":[]}]",10,no,200; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/analytics,getInventoryLlmAnalytics,Gateway management,,"[{""consoleSession"":[]}]",6,no,200; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/config,getInventoryLlmConfig,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 403; 404
+PUT,/platformadminapis/v2/inventory/{asset_id}/llm/config,updateInventoryLlmConfig,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 400; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/health,getInventoryLlmHealth,Gateway management,,"[{""consoleSession"":[]}]",6,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/llm/usage,getInventoryLlmUsage,Gateway management,,"[{""consoleSession"":[]}]",6,no,200; 403; 404
+DELETE,/platformadminapis/v2/inventory/{asset_id}/mcp,deleteInventoryMcpBackend,Gateway management,,"[{""consoleSession"":[]}]",2,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/activity,getInventoryMcpActivity,Gateway management,,"[{""consoleSession"":[]}]",11,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/activity/filter-options,getInventoryMcpActivityFilterOptions,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/analytics,getInventoryMcpAnalytics,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/backend,getInventoryMcpBackend,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/capabilities,getInventoryMcpCapabilities,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+POST,/platformadminapis/v2/inventory/{asset_id}/mcp/capabilities/refresh,refreshInventoryMcpCapabilities,Gateway management,,"[{""consoleSession"":[]}]",2,no,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/graph,getInventoryMcpGraph,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/scoped-rules,getInventoryMcpScopedRules,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+PUT,/platformadminapis/v2/inventory/{asset_id}/mcp/scoped-rules,updateInventoryMcpScopedRules,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+DELETE,/platformadminapis/v2/inventory/{asset_id}/mcp/scoped-rules,deleteInventoryMcpScopedRules,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+POST,/platformadminapis/v2/inventory/{asset_id}/mcp/scoped-rules/resolve,resolveInventoryMcpScopedRules,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/settings,getInventoryMcpSettings,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+PUT,/platformadminapis/v2/inventory/{asset_id}/mcp/settings,updateInventoryMcpSettings,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+PATCH,/platformadminapis/v2/inventory/{asset_id}/mcp/status,updateInventoryMcpStatus,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/tokens,listInventoryMcpTokens,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+POST,/platformadminapis/v2/inventory/{asset_id}/mcp/tokens,createInventoryMcpToken,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+DELETE,/platformadminapis/v2/inventory/{asset_id}/mcp/tokens/{token_id},deleteInventoryMcpToken,Gateway management,,"[{""consoleSession"":[]}]",3,no,200
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/topics,getInventoryMcpTopics,Gateway management,,"[{""consoleSession"":[]}]",4,no,200; 403; 404
+GET,/platformadminapis/v2/inventory/{asset_id}/mcp/upstream-auth,getInventoryMcpUpstreamAuth,Gateway management,,"[{""consoleSession"":[]}]",1,no,200; 404
+PUT,/platformadminapis/v2/inventory/{asset_id}/mcp/upstream-auth,updateInventoryMcpUpstreamAuth,Gateway management,,"[{""consoleSession"":[]}]",2,yes,200; 404
+GET,/platformadminapis/v2/overview/agentic-inventory,getOverviewAgenticInventory,Platform admin overview,,"[{""consoleSession"":[]}]",5,no,200; 400; 401; 403
+GET,/platformadminapis/v2/overview/dashboard/adoption,getOverviewDashboardAdoption,Platform admin overview,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/adoption/flows,getOverviewDashboardAdoptionFlows,Platform admin overview,,"[{""consoleSession"":[]}]",7,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/adoption/users,getOverviewDashboardAdoptionUsers,Platform admin overview,,"[{""consoleSession"":[]}]",11,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/agentic,getOverviewDashboardAgentic,Platform admin overview,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/cost,getOverviewDashboardCost,Platform admin overview,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/posture,getOverviewDashboardPosture,Platform admin overview,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/dashboard/topics,getOverviewDashboardTopics,Platform admin overview,,"[{""consoleSession"":[]}]",4,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/discovered,getOverviewDiscovered,Platform admin overview,,"[{""consoleSession"":[]}]",9,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/drill,getOverviewDrill,Platform admin overview,,"[{""consoleSession"":[]}]",7,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/graph,getOverviewGraph,Platform admin overview,,"[{""consoleSession"":[]}]",5,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/overview/graph/rail,getOverviewGraphRail,Platform admin overview,,"[{""consoleSession"":[]}]",3,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/platform-access,getPlatformAccess,Platform admin access,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 500; 503
+GET,/platformadminapis/v2/policy/browser-extension/condition-values,getBrowserExtensionPolicyConditionValues,Browser Extension policy,,"[{""consoleSession"":[]}]",6,no,200; 400; 401; 403; 502
+GET,/platformadminapis/v2/policy/browser-extension/controls,listBrowserExtensionPolicyControls,Browser Extension policy,,"[{""consoleSession"":[]}]",7,no,200; 400; 401; 403; 502; 503
+POST,/platformadminapis/v2/policy/browser-extension/controls,createBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 409; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/agent-summarization,summarizeBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/override,overrideBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 409; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/validate,validateBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",0,yes,200; 400; 401; 403; 502
+DELETE,/platformadminapis/v2/policy/browser-extension/controls/{control_id},deleteBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",3,no,200; 400; 401; 403; 404; 502
+PATCH,/platformadminapis/v2/policy/browser-extension/controls/{control_id},updateBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/{control_id}/disable,disableBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 404; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/{control_id}/enable,enableBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 404; 502
+GET,/platformadminapis/v2/policy/browser-extension/controls/{control_id}/findings-statistics,getBrowserExtensionPolicyFindingsStatistics,Browser Extension policy,,"[{""consoleSession"":[]}]",1,no,200; 401; 403; 404; 502
+POST,/platformadminapis/v2/policy/browser-extension/controls/{control_id}/restore,restoreBrowserExtensionPolicyControl,Browser Extension policy,,"[{""consoleSession"":[]}]",2,no,200; 401; 403; 404; 502
+GET,/platformadminapis/v2/policy/browser-extension/options,getBrowserExtensionPolicyOptions,Browser Extension policy,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 503
+GET,/platformadminapis/v2/policy/detection-models/adversarial-risks,getDetectionModelsAdversarialRisks,Detection models,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 503
+PATCH,/platformadminapis/v2/policy/detection-models/adversarial-risks/{category_id}/enabled,patchDetectionModelsAdversarialRiskEnabled,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 502
+POST,/platformadminapis/v2/policy/detection-models/adversarial-risks/{category_id}/test,testDetectionModelsAdversarialRisk,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 429; 502
+GET,/platformadminapis/v2/policy/detection-models/data-risks/contextual,getDetectionModelsContextualDataRisks,Detection models,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 503
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/contextual/{category_id},patchDetectionModelsContextualDataRisk,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 502
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/contextual/{category_id}/subcategories/{subcategory},patchDetectionModelsContextualSubcategory,Detection models,,"[{""consoleSession"":[]}]",3,yes,200; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/policy/detection-models/data-risks/custom,listDetectionModelsCustomDataRisks,Detection models,,"[{""consoleSession"":[]}]",3,no,200; 400; 401; 403; 502
+POST,/platformadminapis/v2/policy/detection-models/data-risks/custom,createDetectionModelsCustomDataRisk,Detection models,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 502
+DELETE,/platformadminapis/v2/policy/detection-models/data-risks/custom/{model_id},deleteDetectionModelsCustomDataRisk,Detection models,,"[{""consoleSession"":[]}]",2,no,204; 401; 403; 404; 409; 502
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/custom/{model_id},updateDetectionModelsCustomDataRisk,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 502
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/custom/{model_id}/enabled,patchDetectionModelsCustomDataRiskEnabled,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 502
+POST,/platformadminapis/v2/policy/detection-models/data-risks/files,uploadDetectionModelsDataRiskFile,Detection models,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 413; 429; 502
+GET,/platformadminapis/v2/policy/detection-models/data-risks/non-contextual,getDetectionModelsNonContextualDataRisks,Detection models,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 502; 503
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/non-contextual/categories/{category},patchDetectionModelsNonContextualCategory,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 502
+PATCH,/platformadminapis/v2/policy/detection-models/data-risks/non-contextual/{pattern_id},patchDetectionModelsNonContextualPattern,Detection models,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 502
+POST,/platformadminapis/v2/policy/detection-models/data-risks/suggestions,suggestDetectionModelsDataRisk,Detection models,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 429; 502
+POST,/platformadminapis/v2/policy/detection-models/data-risks/test,testDetectionModelsDataRisk,Detection models,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 404; 429; 502
+GET,/platformadminapis/v2/saved-views,listSavedViews,Platform admin saved views,,"[{""consoleSession"":[]}]",1,no,200; 400; 401; 403; 503
+POST,/platformadminapis/v2/saved-views,createSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 409; 413; 503
+GET,/platformadminapis/v2/saved-views/interactions,listInteractionsSavedViews,Platform admin saved views,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+POST,/platformadminapis/v2/saved-views/interactions,createInteractionsSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 409; 413; 503
+DELETE,/platformadminapis/v2/saved-views/interactions/{view_id},deleteInteractionsSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",3,no,204; 400; 401; 403; 404; 409; 503
+PATCH,/platformadminapis/v2/saved-views/interactions/{view_id},updateInteractionsSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 413; 503
+PUT,/platformadminapis/v2/saved-views/preferences/interactions,updateInteractionsSavedViewPreference,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 404; 503
+PUT,/platformadminapis/v2/saved-views/preferences/inventory,updateInventorySavedViewPreference,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 404; 503
+PUT,/platformadminapis/v2/saved-views/preferences/users,updateUserSavedViewPreference,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,200; 400; 401; 403; 404; 503
+GET,/platformadminapis/v2/saved-views/users,listUserSavedViews,Platform admin saved views,,"[{""consoleSession"":[]}]",0,no,200; 401; 403; 503
+POST,/platformadminapis/v2/saved-views/users,createUserSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",1,yes,201; 400; 401; 403; 409; 413; 503
+DELETE,/platformadminapis/v2/saved-views/users/{view_id},deleteUserSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",3,no,204; 400; 401; 403; 404; 409; 503
+PATCH,/platformadminapis/v2/saved-views/users/{view_id},updateUserSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 413; 503
+DELETE,/platformadminapis/v2/saved-views/{view_id},deleteSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",3,no,204; 400; 401; 403; 404; 409; 503
+PATCH,/platformadminapis/v2/saved-views/{view_id},updateSavedView,Platform admin saved views,,"[{""consoleSession"":[]}]",2,yes,200; 400; 401; 403; 404; 409; 413; 503
+GET,/platformadminapis/v2/session,getSession,Platform admin session,,"[{""consoleSession"":[]}]",0,no,200; 401
+DELETE,/platformadminapis/v2/session,deleteSession,Platform admin session,,[],1,no,200; 403
+GET,/platformadminapis/v2/users,getUsers,Platform admin users,,"[{""consoleSession"":[]}]",15,no,200; 400; 401; 403; 502
+POST,/platformadminapis/v2/users/browser-apps/approval,updateUserBrowserAppApprovals,Browser app management,,"[{""consoleSession"":[]}]",1,yes,204; 400; 401; 403; 404; 502
+GET,/platformadminapis/v2/users/detail,getUserDetail,Platform admin users,,"[{""consoleSession"":[]}]",5,no,200; 400; 401; 403; 404; 502
+POST,/platformadminapis/v2/users/query,queryUsers,Platform admin users,,"[{""consoleSession"":[]}]",0,yes,200; 400; 401; 403; 413; 502
+GET,/quilr_internal_admin/apis/v1/dashboard,getInternalAdminDashboard,Quilr internal administration,,"[{""internalAdminSession"":[]}]",0,no,200; 401
+GET,/quilr_internal_admin/apis/v1/session,getInternalAdminSession,Quilr internal administration,,"[{""internalAdminSession"":[]}]",0,no,200; 401
+POST,/quilr_internal_admin/apis/v1/session,createInternalAdminSession,Quilr internal administration,,[],1,yes,200; 401; 403
+DELETE,/quilr_internal_admin/apis/v1/session,deleteInternalAdminSession,Quilr internal administration,,"[{""internalAdminSession"":[]}]",1,no,204; 401; 403

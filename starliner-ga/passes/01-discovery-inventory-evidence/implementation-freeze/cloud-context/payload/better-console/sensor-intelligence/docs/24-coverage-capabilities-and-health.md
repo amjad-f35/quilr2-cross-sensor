@@ -1,0 +1,14 @@
+# Coverage, Capabilities, and Health
+
+| Health | Source | Healthy | Degraded | Consumer |
+| --- | --- | --- | --- | --- |
+| process readiness | /health | main ClickHouse query succeeds | HTTP failure | load balancer/operator |
+| topic schema | background logs/verify_schema | three tables readable | retry loop | operator |
+| topic generation | runner state/logs | leader cycles complete | errors/retry/dead letters | operator |
+| local mirror | LocalStore readiness/meta | completed refresh/current TTL | cold/stale/expired | API/UI |
+| graph deployment | circuit state/readiness | query completes | cooldown/unavailable | API/UI |
+| auth stores | request/session behavior | principal/session operations succeed | 503/fail closed | user/operator |
+| source coverage | v2 readiness fields | source ready and observed | not ready/not observed | customer |
+| adapter delivery | future WAL/reconcile | balanced and acked | lag/quarantine/mismatch | operator |
+
+`/health` is process/main-ClickHouse health only. Capability health must remain source-specific; an outage lowers coverage and must not delete inventory.

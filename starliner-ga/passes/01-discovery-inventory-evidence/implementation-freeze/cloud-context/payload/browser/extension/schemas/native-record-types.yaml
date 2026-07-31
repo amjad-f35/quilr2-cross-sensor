@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "evidence": "Verified in source",
+  "records": [
+    {
+      "record_id": "NR-001",
+      "name": "UserActionEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts UserActionEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-002",
+      "name": "PageLoadEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts PageLoadEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-003",
+      "name": "FormFillEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts FormFillEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-004",
+      "name": "ButtonClickEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts ButtonClickEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-005",
+      "name": "LinkClickEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts LinkClickEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-006",
+      "name": "KeyPressEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts KeyPressEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-007",
+      "name": "CopyEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts CopyEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-008",
+      "name": "PasteEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts PasteEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-009",
+      "name": "UploadEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts UploadEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-010",
+      "name": "DownloadEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts DownloadEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-011",
+      "name": "PackageLogEnvelope",
+      "layer": "Extension output",
+      "model": "PackageLog.generateLogsBody object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/PackageLog/index.ts"
+    },
+    {
+      "record_id": "NR-012",
+      "name": "AuthCheck",
+      "layer": "Extension output",
+      "model": "AuthLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/AuthLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-013",
+      "name": "VisitCheck",
+      "layer": "Extension output",
+      "model": "VisitLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/VisitLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-014",
+      "name": "PromptDlpCheck",
+      "layer": "Extension output",
+      "model": "DlpLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/DlpLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-015",
+      "name": "CopyPasteCheck",
+      "layer": "Extension output",
+      "model": "CopyPasteLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/CopyPasteLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-016",
+      "name": "UploadCheck",
+      "layer": "Extension output",
+      "model": "UploadLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/UploadLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-017",
+      "name": "DownloadCheck",
+      "layer": "Extension output",
+      "model": "DownloadLogDrop check object",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/DownloadLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-018",
+      "name": "ExtensionListingCheck",
+      "layer": "Extension output",
+      "model": "ExtensionLogDrop check object plus ExtensionInfo",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/ExtensionLogDrop/index.ts"
+    },
+    {
+      "record_id": "NR-019",
+      "name": "HeartBeatRequestPayload",
+      "layer": "Extension output",
+      "model": "types/network.d.ts HeartBeatRequestPayload",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/network.d.ts"
+    },
+    {
+      "record_id": "NR-020",
+      "name": "DiagnosticPayload",
+      "layer": "Extension diagnostic",
+      "model": "types/diagnostic.d.ts DiagnosticPayload",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/diagnostic.d.ts"
+    },
+    {
+      "record_id": "NR-021",
+      "name": "UploadWorkflowDiagnosticBatch",
+      "layer": "Extension diagnostic",
+      "model": "types/diagnostic.d.ts UploadWorkflowDiagnosticBatch",
+      "implementation_status": "Partially implemented",
+      "source": "Project-Vanguard/src/core/diagnostics/uploadWorkflowDiagnostics.ts"
+    },
+    {
+      "record_id": "NR-022",
+      "name": "NativeMessage",
+      "layer": "Extension/native transport",
+      "model": "TS NativeMessageEvent and Rust Message",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/nativemessaging.d.ts; project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "record_id": "NR-023",
+      "name": "SystemAction",
+      "layer": "Extension/native transport",
+      "model": "TS/Rust SystemAction",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/core/types/action.rs"
+    },
+    {
+      "record_id": "NR-024",
+      "name": "SystemEvent",
+      "layer": "Native internal",
+      "model": "core/types/event.rs SystemEvent",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/core/types/event.rs"
+    },
+    {
+      "record_id": "NR-025",
+      "name": "ClipboardChangeEvent",
+      "layer": "Native output",
+      "model": "services/clipboard_monitor ClipboardChangeEvent",
+      "implementation_status": "Partially implemented",
+      "source": "project-sentinel/src/services/clipboard_monitor/mod.rs"
+    },
+    {
+      "record_id": "NR-026",
+      "name": "FileMetadata",
+      "layer": "Native input",
+      "model": "services/file_search/models.rs FileMetadata",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/services/file_search/models.rs"
+    },
+    {
+      "record_id": "NR-027",
+      "name": "FilePath",
+      "layer": "Native internal",
+      "model": "services/file_search/models.rs FilePath",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/services/file_search/models.rs"
+    },
+    {
+      "record_id": "NR-028",
+      "name": "FileActivityResponseItem",
+      "layer": "Native output",
+      "model": "handlers/file_upload_handler.rs FileActivityResponseItem",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_upload_handler.rs"
+    },
+    {
+      "record_id": "NR-029",
+      "name": "FileAnalysisMetadata",
+      "layer": "Native output",
+      "model": "core/utils/file_metadata FileAnalysisMetadata",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/core/utils/file_metadata/mod.rs"
+    },
+    {
+      "record_id": "NR-030",
+      "name": "SystemID",
+      "layer": "Native state/output",
+      "model": "core/utils/system_identifiers SystemID",
+      "implementation_status": "Partially implemented",
+      "source": "project-sentinel/src/core/utils/system_identifiers/mod.rs"
+    },
+    {
+      "record_id": "NR-031",
+      "name": "FilesIndexRow",
+      "layer": "Native state",
+      "model": "core/models/files.rs Model",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/core/models/files.rs"
+    },
+    {
+      "record_id": "NR-032",
+      "name": "EventLogRequest",
+      "layer": "Backend input",
+      "model": "actionrelay/request/EventLogRequest.java",
+      "implementation_status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/request/EventLogRequest.java"
+    },
+    {
+      "record_id": "NR-033",
+      "name": "EventLogKafkaRecord",
+      "layer": "Backend output",
+      "model": "actionrelay/dto/EventLogKafkaRecord.java",
+      "implementation_status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/dto/EventLogKafkaRecord.java"
+    },
+    {
+      "record_id": "NR-034",
+      "name": "HeartbeatRequest",
+      "layer": "Backend input",
+      "model": "persona/heartbeat/dto/HeartbeatRequest.java",
+      "implementation_status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/HeartbeatRequest.java"
+    },
+    {
+      "record_id": "NR-035",
+      "name": "DeviceHeartbeat",
+      "layer": "Backend internal/output",
+      "model": "persona/heartbeat/dto/DeviceHeartbeat.java",
+      "implementation_status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/DeviceHeartbeat.java"
+    },
+    {
+      "record_id": "NR-036",
+      "name": "HeartbeatBatch",
+      "layer": "Backend output",
+      "model": "persona/heartbeat/dto/HeartbeatBatch.java",
+      "implementation_status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/HeartbeatBatch.java"
+    },
+    {
+      "record_id": "NR-037",
+      "name": "Transformed risk/status/action/interaction maps",
+      "layer": "Backend legacy",
+      "model": "UserActionService transformAndIngestEvents and YAML schemas",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-038",
+      "name": "Starliner DeliveryEnvelope",
+      "layer": "Target contract",
+      "model": "starliner_contracts.delivery_envelope.DeliveryEnvelope",
+      "implementation_status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts/delivery_envelope.py"
+    },
+    {
+      "record_id": "NR-039",
+      "name": "Starliner SourceObservation",
+      "layer": "Target contract",
+      "model": "starliner_contracts.observations.SourceObservation",
+      "implementation_status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts/observations.py"
+    },
+    {
+      "record_id": "NR-040",
+      "name": "Starliner canonical event records",
+      "layer": "Target contract",
+      "model": "CanonicalActivity, ActionEvent, RelationshipEvent, MetricEvent, SensorHealthEvent",
+      "implementation_status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts"
+    },
+    {
+      "record_id": "NR-041",
+      "name": "StatusEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts StatusEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-042",
+      "name": "ArtifactsToTrails",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts ArtifactsToTrails",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-043",
+      "name": "UploadScannedEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts UploadScannedEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-044",
+      "name": "UserTriggeredInteractionEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts UserTriggeredInteractionEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-045",
+      "name": "VoidEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts VoidEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-046",
+      "name": "UserInteractionEvent",
+      "layer": "Extension internal",
+      "model": "types/userAction.d.ts UserInteractionEvent",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-047",
+      "name": "UserActionTrail",
+      "layer": "Extension state",
+      "model": "types/userAction.d.ts UserActionTrail",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "record_id": "NR-048",
+      "name": "PolicyResult",
+      "layer": "Extension configuration",
+      "model": "types/controls.d.ts PolicyResult",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/controls.d.ts"
+    },
+    {
+      "record_id": "NR-049",
+      "name": "ClipboardMonitorConfig",
+      "layer": "Native configuration",
+      "model": "services/clipboard_monitor/config.rs ClipboardMonitorConfig",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/services/clipboard_monitor/config.rs"
+    },
+    {
+      "record_id": "NR-050",
+      "name": "AgentConfigurationUpdateData",
+      "layer": "Native configuration",
+      "model": "handlers/agent_configuration_update_handler.rs structs",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/handlers/agent_configuration_update_handler.rs"
+    },
+    {
+      "record_id": "NR-051",
+      "name": "NativeFilePersona",
+      "layer": "Native sensitive input",
+      "model": "services/file_search/models.rs Persona",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/services/file_search/models.rs"
+    },
+    {
+      "record_id": "NR-052",
+      "name": "ExtensionSettingsInfo",
+      "layer": "Extension configuration",
+      "model": "types/extensionManagement.d.ts ExtensionSettingsInfo",
+      "implementation_status": "Implemented",
+      "source": "Project-Vanguard/src/types/extensionManagement.d.ts"
+    },
+    {
+      "record_id": "NR-053",
+      "name": "LegacyTransformer.ai_risk_schema.yml",
+      "layer": "Backend legacy",
+      "model": "ai_risk_schema.yml consumed by private UserActionService transformation path",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/resources/ai_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-054",
+      "name": "LegacyTransformer.data_risk_schema.yml",
+      "layer": "Backend legacy",
+      "model": "data_risk_schema.yml consumed by private UserActionService transformation path",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/resources/data_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-055",
+      "name": "LegacyTransformer.identity_risk_schema.yml",
+      "layer": "Backend legacy",
+      "model": "identity_risk_schema.yml consumed by private UserActionService transformation path",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/resources/identity_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-056",
+      "name": "LegacyTransformer.interaction_schema.yml",
+      "layer": "Backend legacy",
+      "model": "interaction_schema.yml consumed by private UserActionService transformation path",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/resources/interaction_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-057",
+      "name": "LegacyTransformer.saas_risk_schema.yml",
+      "layer": "Backend legacy",
+      "model": "saas_risk_schema.yml consumed by private UserActionService transformation path",
+      "implementation_status": "Dead-code candidate",
+      "source": "browser-extension-service/src/main/resources/saas_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java"
+    },
+    {
+      "record_id": "NR-058",
+      "name": "UploadWorkflowEventRecord",
+      "layer": "Extension diagnostic",
+      "model": "types/diagnostic.d.ts UploadWorkflowEventRecord",
+      "implementation_status": "Partially implemented",
+      "source": "Project-Vanguard/src/types/diagnostic.d.ts"
+    },
+    {
+      "record_id": "NR-059",
+      "name": "TaskInfo",
+      "layer": "Native operational",
+      "model": "heartbeat/task_manager.rs TaskInfo",
+      "implementation_status": "Implemented",
+      "source": "project-sentinel/src/heartbeat/task_manager.rs"
+    }
+  ]
+}

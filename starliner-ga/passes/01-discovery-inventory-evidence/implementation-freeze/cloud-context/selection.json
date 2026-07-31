@@ -1,0 +1,151 @@
+{
+  "schema_version": "die-cloud-context-selection/1.0.0",
+  "maximum_file_bytes": 2097152,
+  "maximum_bundle_bytes": 15728640,
+  "allowed_extensions": [
+    ".csv",
+    ".json",
+    ".md",
+    ".mjs",
+    ".ndjson",
+    ".py",
+    ".sh",
+    ".sql",
+    ".toml",
+    ".txt",
+    ".yaml",
+    ".yml"
+  ],
+  "source_packages": [
+    {
+      "id": "better-console",
+      "source_root": "Better-Console-Analysis",
+      "evidence_role": "Legacy alternative-console behavior, active consumers, routes, storage and contradictions; never Quilr 2 target authority.",
+      "selections": [
+        { "path": "README.md", "destination": "README.md" },
+        { "path": "docs/sensor-intelligence/better-console-backend", "destination": "sensor-intelligence/docs" },
+        { "path": "matrices/sensor-intelligence/better-console-backend", "destination": "sensor-intelligence/matrices" },
+        { "path": "schemas/sensor-intelligence/better-console-backend", "destination": "sensor-intelligence/schemas" },
+        { "path": "fixtures/sensor-intelligence/better-console-backend", "destination": "sensor-intelligence/fixtures" },
+        { "path": "better-console-backend-analysis", "destination": "repository-analysis", "maximum_depth": 0 },
+        { "path": "better-console-backend-analysis/generated-analysis/environment-variables.csv", "destination": "repository-analysis/generated/environment-variables.csv" },
+        { "path": "better-console-backend-analysis/generated-analysis/http-route-inventory.csv", "destination": "repository-analysis/generated/http-route-inventory.csv" },
+        { "path": "better-console-backend-analysis/generated-analysis/openapi-operations.csv", "destination": "repository-analysis/generated/openapi-operations.csv" },
+        { "path": "better-console-backend-analysis/generated-analysis/openapi-schema-fields.csv", "destination": "repository-analysis/generated/openapi-schema-fields.csv" },
+        { "path": "better-console-backend-analysis/generated-analysis/sql-table-identifiers.json", "destination": "repository-analysis/generated/sql-table-identifiers.json" }
+      ]
+    },
+    {
+      "id": "browser",
+      "source_root": "Browser-Extension-System/Browser-extension-sensor-analysis",
+      "evidence_role": "Browser Extension and Browser Backend source archaeology, native capture, field lineage, access recipes and combined LG-008 reconciliation.",
+      "selections": [
+        { "path": "ANALYSIS_STATE.md", "destination": "ANALYSIS_STATE.md" },
+        { "path": "outputs/browser-extension-sensor-intelligence/docs/sensor-intelligence/browser-extension", "destination": "extension/docs" },
+        { "path": "outputs/browser-extension-sensor-intelligence/matrices/sensor-intelligence/browser-extension", "destination": "extension/matrices" },
+        { "path": "outputs/browser-extension-sensor-intelligence/schemas/sensor-intelligence/browser-extension", "destination": "extension/schemas" },
+        { "path": "outputs/browser-extension-sensor-intelligence/fixtures/sensor-intelligence/browser-extension", "destination": "extension/fixtures" },
+        { "path": "outputs/browser-backend-sensor-intelligence/docs/sensor-intelligence/browser-backend", "destination": "backend/docs" },
+        { "path": "outputs/browser-backend-sensor-intelligence/matrices/sensor-intelligence/browser-backend", "destination": "backend/matrices" },
+        { "path": "outputs/browser-backend-sensor-intelligence/schemas/sensor-intelligence/browser-backend", "destination": "backend/schemas" },
+        { "path": "outputs/browser-backend-sensor-intelligence/fixtures/sensor-intelligence/browser-backend", "destination": "backend/fixtures" },
+        { "path": "outputs/lg008-browser-backend-central-pass/docs/lg008-global-reconciliation", "destination": "combined-lg008-reconciliation" }
+      ]
+    },
+    {
+      "id": "endpoint",
+      "source_root": "ENDPOINT-AGENT-ANALYSIS-COMPLETE",
+      "evidence_role": "Endpoint native capture, processes, identity, IPC, discovery, DLP, storage, delivery limitations and LG-008 reconciliation.",
+      "selections": [
+        { "path": "README.md", "destination": "README.md" },
+        { "path": "docs/sensor-intelligence/endpoint-sensor", "destination": "sensor-intelligence/docs" },
+        { "path": "matrices/sensor-intelligence/endpoint-sensor", "destination": "sensor-intelligence/matrices" },
+        { "path": "schemas/sensor-intelligence/endpoint-sensor", "destination": "sensor-intelligence/schemas" },
+        { "path": "fixtures/sensor-intelligence/endpoint-sensor", "destination": "sensor-intelligence/fixtures" },
+        { "path": "docs/lg008-endpoint-reconciliation", "destination": "lg008-reconciliation" },
+        { "path": "repository-analysis", "destination": "repository-analysis", "maximum_depth": 0 }
+      ]
+    },
+    {
+      "id": "llm-gateway",
+      "source_root": "LLM-GATEWAY-ANALYSIS/WORKSPACE",
+      "evidence_role": "Reachable LLM Gateway routes and runtime behavior plus serialized, emitted and stored field truth; rejected lexical-key expansion is excluded.",
+      "selections": [
+        { "path": "docs/sensor-intelligence/llm-gateway", "destination": "sensor-intelligence/docs" },
+        { "path": "docs/lg008-llm-gateway-reconciliation", "destination": "lg008-reconciliation" },
+        {
+          "path": "matrices/sensor-intelligence/llm-gateway",
+          "destination": "sensor-intelligence/matrices",
+          "exclude_files": [
+            "field-lineage.csv",
+            "native-fields.csv",
+            "platform-contract-mapping.csv",
+            "symbols.csv",
+            "utilities.csv"
+          ]
+        },
+        {
+          "path": "schemas/sensor-intelligence/llm-gateway",
+          "destination": "sensor-intelligence/schemas",
+          "exclude_files": ["adapter-observation-mapping.yaml"]
+        },
+        { "path": "fixtures/sensor-intelligence/llm-gateway", "destination": "sensor-intelligence/fixtures" },
+        { "path": "lg008-llm-gateway/reports/lg008-validation.md", "destination": "lg008-evidence/lg008-validation.md" },
+        { "path": "lg008-llm-gateway/reports/lg008-validation.json", "destination": "lg008-evidence/lg008-validation.json" },
+        { "path": "lg008-llm-gateway/reports/lg008-closure.json", "destination": "lg008-evidence/lg008-closure.json" },
+        { "path": "lg008-llm-gateway/unresolved/unresolved-evidence-register.yaml", "destination": "lg008-evidence/unresolved-evidence-register.yaml" },
+        { "path": "lg008-llm-gateway/runtime/validation-procedures.yaml", "destination": "lg008-evidence/runtime-validation-procedures.yaml" },
+        { "path": "lg008-llm-gateway/catalogs/features.csv", "destination": "lg008-evidence/features.csv" },
+        { "path": "lg008-llm-gateway/catalogs/capabilities.csv", "destination": "lg008-evidence/capabilities.csv" },
+        { "path": "lg008-llm-gateway/catalogs/records.csv", "destination": "lg008-evidence/records.csv" },
+        { "path": "lg008-llm-gateway/catalogs/events.csv", "destination": "lg008-evidence/events.csv" },
+        { "path": "lg008-llm-gateway/catalogs/messages.csv", "destination": "lg008-evidence/messages.csv" }
+      ]
+    },
+    {
+      "id": "mcp-gateway",
+      "source_root": "MCP-GATEWAY-ANALYSIS-COMPLETE",
+      "evidence_role": "MCP Gateway protocol, routes, tool/resource behavior, persistence, current tests, runtime evidence and reconciled source delta.",
+      "selections": [
+        { "path": "README.md", "destination": "README.md" },
+        { "path": "analysis/mcpgateway-sensor-intelligence/docs/sensor-intelligence/mcpgateway", "destination": "sensor-intelligence/docs" },
+        { "path": "analysis/mcpgateway-sensor-intelligence/matrices/sensor-intelligence/mcpgateway", "destination": "sensor-intelligence/matrices" },
+        { "path": "analysis/mcpgateway-sensor-intelligence/schemas/sensor-intelligence/mcpgateway", "destination": "sensor-intelligence/schemas" },
+        { "path": "analysis/mcpgateway-sensor-intelligence/fixtures/sensor-intelligence/mcpgateway", "destination": "sensor-intelligence/fixtures" },
+        { "path": "analysis/lg008-mcpgateway-reconciliation/docs/lg008-global-reconciliation", "destination": "lg008-reconciliation" },
+        { "path": "analysis/mcpgateway-repository-analysis", "destination": "repository-analysis", "maximum_depth": 0 },
+        { "path": "analysis/mcpgateway-repository-analysis/evidence/active-interface-registry.md", "destination": "repository-analysis/evidence/active-interface-registry.md" },
+        { "path": "analysis/mcpgateway-repository-analysis/evidence/executable-environment-reference.md", "destination": "repository-analysis/evidence/executable-environment-reference.md" },
+        { "path": "analysis/mcpgateway-repository-analysis/evidence/mcp-tool-resource-registry.md", "destination": "repository-analysis/evidence/mcp-tool-resource-registry.md" },
+        { "path": "analysis/mcpgateway-repository-analysis/evidence/ddl-statements.md", "destination": "repository-analysis/evidence/ddl-statements.md" }
+      ]
+    },
+    {
+      "id": "quilr1",
+      "source_root": "Quilr1-Platform-Analysis",
+      "evidence_role": "Historical Quilr 1 data flow, stores, APIs, UI composition, runtime contradictions and failure modes; migration and target reuse are out of scope.",
+      "selections": [
+        { "path": "README.md", "destination": "README.md" },
+        { "path": "docs/sensor-intelligence/quilr1-platform", "destination": "sensor-intelligence/docs" },
+        { "path": "matrices/sensor-intelligence/quilr1-platform", "destination": "sensor-intelligence/matrices" },
+        { "path": "schemas/sensor-intelligence/quilr1-platform", "destination": "sensor-intelligence/schemas" },
+        { "path": "fixtures/sensor-intelligence/quilr1-platform", "destination": "sensor-intelligence/fixtures" },
+        { "path": "docs/lg008-global-reconciliation", "destination": "lg008-reconciliation" },
+        { "path": "quilr-platform-analysis", "destination": "repository-analysis", "maximum_depth": 0 },
+        { "path": "quilr-platform-analysis/api", "destination": "repository-analysis/api" },
+        { "path": "quilr-platform-analysis/routes", "destination": "repository-analysis/routes" },
+        { "path": "quilr-platform-analysis/cross-repository", "destination": "repository-analysis/cross-repository" }
+      ]
+    },
+    {
+      "id": "project-starliner-audit",
+      "source_root": "project-starliner-audit",
+      "evidence_role": "Starting implementation, integration seams and historical Starliner contract evidence; frozen Quilr 2 contracts supersede conflicts.",
+      "selections": [
+        { "path": "README.md", "destination": "README.md" },
+        { "path": "docs/adr", "destination": "docs/adr" },
+        { "path": "docs/starliner", "destination": "docs/starliner" }
+      ]
+    }
+  ]
+}

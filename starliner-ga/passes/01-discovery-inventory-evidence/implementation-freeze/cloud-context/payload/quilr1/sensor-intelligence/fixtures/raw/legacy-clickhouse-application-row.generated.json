@@ -1,0 +1,23 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "generated_from_verified_source_fields",
+    "kind": "legacy_clickhouse_application_row",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/work/quilr-query-builder/src/main/java/com/quilr/qb/ch/cleanup/TenantAppCacheQueries.java",
+      "quilr-platform-analysis/work/quilr-query-builder/src/main/java/com/quilr/qb/ch/cleanup/AppCacheQueries.java",
+      "quilr-platform-analysis/work/quilr-query-builder/src/main/java/com/quilr/qb/service/TenantAppCacheService.java"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "row": {
+    "tenant": "tenant_fixture_001",
+    "subscriber": "subscriber_fixture_001",
+    "app_id": "app_fixture_001",
+    "app_name": "Fixture Generative AI App",
+    "domain": "fixture-ai.example.invalid",
+    "app_category": "Generative AI"
+  }
+}

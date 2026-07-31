@@ -1,0 +1,25 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Per-record partial acceptance",
+    "evidence_status": "Proposed",
+    "expected": "matches"
+  },
+  "record": {
+    "accepted": [
+      "record-1"
+    ],
+    "duplicate": [
+      "record-2"
+    ],
+    "rejected": [
+      "record-3"
+    ],
+    "retryable": [
+      "record-4"
+    ],
+    "retry_only": [
+      "record-4"
+    ]
+  }
+}

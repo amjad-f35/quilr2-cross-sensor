@@ -1,0 +1,116 @@
+{
+  "$defs": {
+    "EntityRef": {
+      "additionalProperties": true,
+      "description": "A ``{type, id}`` reference used by findings/relationships.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "RelationKind": {
+      "description": "Relationship/edge types (RFC-0001 \u00a79).",
+      "enum": [
+        "member_of",
+        "owns",
+        "admin_of",
+        "invoked",
+        "runs_as",
+        "uses",
+        "called",
+        "accessed",
+        "writes_to",
+        "reads_from",
+        "approved_by",
+        "can_approve",
+        "connected_to",
+        "belongs_to",
+        "handles_data_class",
+        "applies_to",
+        "governed_by",
+        "used_by"
+      ],
+      "title": "RelationKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "attributes": {
+      "additionalProperties": true,
+      "title": "Attributes",
+      "type": "object"
+    },
+    "confidence": {
+      "default": 1.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "object": {
+      "$ref": "#/$defs/EntityRef"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "operation": {
+      "default": "upsert",
+      "title": "Operation",
+      "type": "string"
+    },
+    "relation": {
+      "$ref": "#/$defs/RelationKind"
+    },
+    "schema": {
+      "const": "starliner.relationship_event.v1",
+      "default": "starliner.relationship_event.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source_event_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Event Id"
+    },
+    "subject": {
+      "$ref": "#/$defs/EntityRef"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "subject",
+    "relation",
+    "object"
+  ],
+  "title": "RelationshipEvent",
+  "type": "object"
+}

@@ -1,0 +1,10 @@
+metric,definition,source,classification,availability
+heartbeat_age,time since sensor health record,Proposed adapter health,Customer coverage,Requires minor sensor instrumentation
+source_freshness,time since last accepted gateway observation,Current request log max timestamp,Customer coverage,Derivable centrally from current output
+outbox_depth,unacknowledged local records,Proposed Starliner outbox,Administrator health,Requires substantial sensor changes
+oldest_undelivered_age,age of oldest unacknowledged record,Proposed Starliner outbox,Customer coverage,Requires substantial sensor changes
+delivery_retry_count,delivery attempts/retries,Proposed Starliner publisher,Operator metric,Requires substantial sensor changes
+capture_errors,request logging/detector instrumentation failures,Existing logs; no stable aggregate,Administrator health,Requires minor sensor instrumentation
+policy_age,age of current config/policy version,config snapshot/watcher,Customer coverage,Available through adapter mapping only
+provider_probe_state,latest external probe/rollup,gateway_health,Administrator health,Available through adapter mapping only
+enforcement_readiness,"auth, DLP, policy and inline hook self-test",No complete self-test,Customer coverage,Requires substantial sensor changes

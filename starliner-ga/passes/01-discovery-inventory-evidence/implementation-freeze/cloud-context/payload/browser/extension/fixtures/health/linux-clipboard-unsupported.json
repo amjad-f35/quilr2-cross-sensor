@@ -1,0 +1,21 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Explicit unsupported Linux clipboard capability",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.sensor_health_event.v1",
+    "tenant_id": "tenant-fixture",
+    "sensor": {
+      "type": "browser",
+      "id": "browser-extension-instance-fixture"
+    },
+    "status": "degraded",
+    "reason_code": "capability_unsupported",
+    "contract_version": "starliner.sensor.v1",
+    "capability": "linux_clipboard",
+    "occurred_at": "2026-07-30T12:00:00Z"
+  }
+}

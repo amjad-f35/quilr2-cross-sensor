@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "EntityType": {
+      "enum": [
+        "human_user",
+        "agent",
+        "workload",
+        "api_key",
+        "service_account",
+        "credential",
+        "llm_provider",
+        "llm_model",
+        "mcp_backend",
+        "mcp_tool",
+        "saas_app",
+        "api_endpoint",
+        "data_class",
+        "policy",
+        "integration",
+        "smart_group",
+        "tenant"
+      ],
+      "title": "EntityType",
+      "type": "string"
+    },
+    "SensorType": {
+      "description": "Sensor surface emitting Starliner records.",
+      "enum": [
+        "llm_gateway",
+        "mcp_gateway",
+        "endpoint_agent",
+        "browser_extension",
+        "copilot_studio",
+        "saas_connector",
+        "cicd_sensor"
+      ],
+      "title": "SensorType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "attributes": {
+      "additionalProperties": true,
+      "title": "Attributes",
+      "type": "object"
+    },
+    "confidence": {
+      "default": 1.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Display Name"
+    },
+    "entity_id": {
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "entity_type": {
+      "$ref": "#/$defs/EntityType"
+    },
+    "first_seen_at": {
+      "title": "First Seen At",
+      "type": "string"
+    },
+    "last_seen_at": {
+      "title": "Last Seen At",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "starliner.entity_observation.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_sensor": {
+      "$ref": "#/$defs/SensorType"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "tenant_id",
+    "source_sensor"
+  ],
+  "title": "EntityObservation",
+  "type": "object"
+}

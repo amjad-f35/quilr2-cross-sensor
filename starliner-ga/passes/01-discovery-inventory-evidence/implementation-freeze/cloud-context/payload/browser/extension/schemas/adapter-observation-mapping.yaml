@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "status": "Proposed",
+  "sensor": "browser-extension",
+  "rules": [
+    {
+      "mapping_id": "PM-001",
+      "native_source": "PackageLogEnvelope",
+      "selector": "user plus UserContext",
+      "target": "SourceObservation HumanUser/ApplicationAccount",
+      "target_field_or_type": "source_external_id and safe attributes",
+      "transformation": "Prefer personaId from auth context; retain email as weak attribute",
+      "owner": "Adapter/platform",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-002",
+      "native_source": "PackageLogEnvelope",
+      "selector": "application",
+      "target": "SourceObservation ApplicationSurface",
+      "target_field_or_type": "domain/name and safe URL attributes",
+      "transformation": "Normalize domain; strip query/fragment by default",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-003",
+      "native_source": "VisitCheck",
+      "selector": "visit",
+      "target": "CanonicalActivity",
+      "target_field_or_type": "activity_type=application_visit",
+      "transformation": "Use source context_id/request time",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-004",
+      "native_source": "AuthCheck",
+      "selector": "login/signup",
+      "target": "CanonicalActivity",
+      "target_field_or_type": "activity_type=authentication_attempt/account_signup_attempt",
+      "transformation": "Map native detector fields to evidence",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-005",
+      "native_source": "AuthCheck",
+      "selector": "credential_reused",
+      "target": "Finding signal/RelationshipAssertion",
+      "target_field_or_type": "credential reused across accounts/apps",
+      "transformation": "Create sensitive evidence assertion; platform finding admission",
+      "owner": "Platform",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-006",
+      "native_source": "AuthCheck",
+      "selector": "compromised_password",
+      "target": "Finding signal",
+      "target_field_or_type": "compromised credential observed",
+      "transformation": "Require source/status/evidence time and lifecycle rules",
+      "owner": "Platform",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-007",
+      "native_source": "PromptDlpCheck",
+      "selector": "prompt_request/response",
+      "target": "CanonicalActivity",
+      "target_field_or_type": "ai_prompt_submitted/ai_response_observed",
+      "transformation": "Separate activity from DLP detector/policy/action records",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-008",
+      "native_source": "PromptDlpCheck",
+      "selector": "detections and sensitivity",
+      "target": "Evidence/DetectorResult",
+      "target_field_or_type": "native detections",
+      "transformation": "Preserve original/final phase and source detector",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-009",
+      "native_source": "PromptDlpCheck",
+      "selector": "mode/action_taken/outcome",
+      "target": "ActionEvent",
+      "target_field_or_type": "policy decision and enforcement result",
+      "transformation": "Emit attempted/authorized/executed/effect states only when evidence exists",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-010",
+      "native_source": "CopyPasteCheck",
+      "selector": "copy/paste",
+      "target": "CanonicalActivity",
+      "target_field_or_type": "clipboard_copy/clipboard_paste",
+      "transformation": "Map source/destination domain and safe content metadata",
+      "owner": "Adapter",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "PM-011",
+      "native_source": "ClipboardChangeEvent",
+      "selector": "native copy",
+      "target": "CanonicalActivity",
+      "target_field_or_type": "os_clipboard_changed",
+      "transformation": "Bind sensor/device/source application",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-012",
+      "native_source": "UploadCheck",
+      "selector": "file array",
+      "target": "CanonicalActivity plus DataAsset candidates",
+      "target_field_or_type": "file_upload_attempt",
+      "transformation": "Create deterministic per-file element IDs; safe MIME/size/label",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-013",
+      "native_source": "DownloadCheck",
+      "selector": "download item",
+      "target": "CanonicalActivity plus DataAsset candidate",
+      "target_field_or_type": "file_download",
+      "transformation": "Preserve URL safely and completion/error state",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-014",
+      "native_source": "ExtensionListingCheck",
+      "selector": "discover",
+      "target": "SourceObservation BrowserExtension",
+      "target_field_or_type": "source_external_id=Chrome extension ID",
+      "transformation": "Bind to explicit browser profile and sensor instance",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-015",
+      "native_source": "ExtensionListingCheck",
+      "selector": "install/enable/disable/uninstall",
+      "target": "CanonicalActivity/RelationshipEvent",
+      "target_field_or_type": "extension lifecycle",
+      "transformation": "Map event_type and observed state",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-016",
+      "native_source": "HeartBeatRequest/DeviceHeartbeat",
+      "selector": "versions/freshness",
+      "target": "SensorHealthEvent plus Device/Browser observations",
+      "target_field_or_type": "capability health and version attributes",
+      "transformation": "Use server receipt and bucket times separately",
+      "owner": "Adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-017",
+      "native_source": "SystemID",
+      "selector": "device identifiers",
+      "target": "SourceObservation Device/Sensor",
+      "target_field_or_type": "quality-labelled identifier attributes",
+      "transformation": "Reject empty strong IDs; hash/tokenize serial under tenant salt",
+      "owner": "Sensor/adapter",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "mapping_id": "PM-018",
+      "native_source": "Native action/result",
+      "selector": "acks and effect types",
+      "target": "ActionEvent",
+      "target_field_or_type": "received/attempted/succeeded/failed",
+      "transformation": "Correlate command/event/result by stable IDs",
+      "owner": "Sensor/adapter",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "PM-019",
+      "native_source": "DiagnosticPayload",
+      "selector": "diagnostic evidence",
+      "target": "Evidence reference/operator case",
+      "target_field_or_type": "restricted evidence pointer",
+      "transformation": "Store outside ordinary event pipeline with consent metadata",
+      "owner": "Operator platform",
+      "availability": "Requires an external authoritative source"
+    },
+    {
+      "mapping_id": "PM-020",
+      "native_source": "FailedLogQueue/outbox metrics",
+      "selector": "retry/depth/drop",
+      "target": "SensorHealthEvent/MetricEvent",
+      "target_field_or_type": "delivery health",
+      "transformation": "Export counters without raw event body",
+      "owner": "Sensor/adapter",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "mapping_id": "PM-021",
+      "native_source": "137 transformer schemas",
+      "selector": "mapping definitions",
+      "target": "No automatic target",
+      "target_field_or_type": "Migration reference only",
+      "transformation": "Audit each mapping only if legacy path reactivated",
+      "owner": "Platform migration",
+      "availability": "Unresolved"
+    },
+    {
+      "mapping_id": "PM-022",
+      "native_source": "File index SQLite",
+      "selector": "files table",
+      "target": "No routine canonical inventory",
+      "target_field_or_type": "Operator-only/local utility",
+      "transformation": "Do not upload full local filesystem inventory",
+      "owner": "Sensor",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "PM-023",
+      "native_source": "VTest MCP",
+      "selector": "test tools",
+      "target": "No canonical sensor entity",
+      "target_field_or_type": "Internal implementation only",
+      "transformation": "Exclude from product MCP inventory",
+      "owner": "Sensor",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "PM-024",
+      "native_source": "No gRPC",
+      "selector": "transport absence",
+      "target": "No semantic mapping",
+      "target_field_or_type": "N/A",
+      "transformation": "Use HTTPS batch first; evaluate gRPC only for throughput/streaming requirements",
+      "owner": "Architecture",
+      "availability": "Not observable by this sensor"
+    }
+  ],
+  "global_rules": {
+    "tenant": "Use authenticated UserContext or enrollment authority; never trust a conflicting body tenant.",
+    "sensor_instance": "Required stable compound/component instance ID; current source needs instrumentation.",
+    "time": [
+      "occurred_at",
+      "observed_at",
+      "emitted_at",
+      "received_at"
+    ],
+    "safety": "Allow-list safe scalar attributes; externalize or discard raw content, paths, headers, tokens and diagnostics.",
+    "absence": "No observation is not deletion or proof of inactivity."
+  }
+}

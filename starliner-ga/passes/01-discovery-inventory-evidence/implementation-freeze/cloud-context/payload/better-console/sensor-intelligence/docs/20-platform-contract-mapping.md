@@ -1,0 +1,36 @@
+# Platform Contract Mapping
+
+| source_record | target_contract | mapping_status | authority | gap |
+| --- | --- | --- | --- | --- |
+| llm_gateway_log | Starliner evidence/interaction/activity/evidence | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| mcp_tool_call | Starliner evidence/tool activity/evidence | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| mcp_rejected_request | Starliner evidence/rejection evidence | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| endpoint_dlp_log | Starliner evidence/DLP activity/evidence | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| endpoint_activity | Starliner evidence/activity | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| endpoint_entity | Starliner evidence/inventory candidate | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| browser_alert_event | Starliner evidence/finding signal | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| browser_app_setting | Starliner evidence/configuration snapshot | proposed | read-only projection | target IDs/privacy/retention require global reconciliation |
+| auth_principal | Starliner evidence/identity/authorization | proposed | read | target IDs/privacy/retention require global reconciliation |
+| auth_session | Starliner evidence/session state | proposed | read/write with TTL | target IDs/privacy/retention require global reconciliation |
+| console_saved_view | Starliner evidence/personal UI configuration | proposed | CRUD/soft delete | target IDs/privacy/retention require global reconciliation |
+| saved_view_preference | Starliner evidence/personal default | proposed | upsert/delete | target IDs/privacy/retention require global reconciliation |
+| custom_dashboard_document | Starliner evidence/dashboard definition | proposed | CRUD | target IDs/privacy/retention require global reconciliation |
+| custom_dashboard_run | Starliner evidence/generation state | proposed | workflow updates/cleanup | target IDs/privacy/retention require global reconciliation |
+| console_assist_message | Starliner evidence/support conversation | proposed | append/read | target IDs/privacy/retention require global reconciliation |
+| topic_catalog | Starliner evidence/derived topic | proposed | create/insert | target IDs/privacy/retention require global reconciliation |
+| topic_classification | Starliner evidence/derived mapping | proposed | create/insert | target IDs/privacy/retention require global reconciliation |
+| topic_runner_state | Starliner evidence/checkpoint/dead letter | proposed | create/insert | target IDs/privacy/retention require global reconciliation |
+| local_mirror | Starliner evidence/read model/cache | proposed | transactional replace/read | target IDs/privacy/retention require global reconciliation |
+| conversation_cache | Starliner evidence/performance cache | proposed | bounded sanitized writes | target IDs/privacy/retention require global reconciliation |
+| internal_telemetry | Starliner evidence/operator diagnostics | proposed | append/read | target IDs/privacy/retention require global reconciliation |
+| neo4j_persona | Starliner evidence/identity/deployment candidate | proposed | read only | target IDs/privacy/retention require global reconciliation |
+| neo4j_device | Starliner evidence/device candidate | proposed | read only | target IDs/privacy/retention require global reconciliation |
+| provider_configuration | Starliner evidence/configuration | proposed | read/update proxy | target IDs/privacy/retention require global reconciliation |
+| openapi_document | Starliner evidence/contract | proposed | generated/committed | target IDs/privacy/retention require global reconciliation |
+| orval_client | Starliner evidence/client contract | proposed | generated/committed | target IDs/privacy/retention require global reconciliation |
+| vite_asset | Starliner evidence/runtime UI | proposed | generated/untracked/embedded | target IDs/privacy/retention require global reconciliation |
+| api_completion_event | Starliner evidence/operational log | proposed | one per routed request | target IDs/privacy/retention require global reconciliation |
+| dashboard_alert | Starliner evidence/operator alert | proposed | network emission | target IDs/privacy/retention require global reconciliation |
+| product_analytics_state | Starliner evidence/presentation state | proposed | transient/client persistence | target IDs/privacy/retention require global reconciliation |
+
+Mappings are proposed evidence/candidate dispositions. No canonical request/response example is invented; synthetic fixtures are explicitly labeled.

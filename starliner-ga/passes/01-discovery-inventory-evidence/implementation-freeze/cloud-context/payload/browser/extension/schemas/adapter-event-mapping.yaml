@@ -1,0 +1,457 @@
+{
+  "schema_version": 1,
+  "status": "Proposed",
+  "sensor": "browser-extension",
+  "events": [
+    {
+      "mapping_id": "EM-001",
+      "native_event": "page_load",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-002",
+      "native_event": "form_fill",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-003",
+      "native_event": "button_click",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-004",
+      "native_event": "link_click",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-005",
+      "native_event": "key_press",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-006",
+      "native_event": "login",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-007",
+      "native_event": "signup",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-008",
+      "native_event": "visit",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-009",
+      "native_event": "data_leak_prevention prompt_request",
+      "target_contract": "CanonicalActivity plus ActionEvent and detector evidence",
+      "rule": "Separate prompt activity, detector result, policy decision and action outcome; raw text remains restricted",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-010",
+      "native_event": "data_leak_prevention prompt_response",
+      "target_contract": "CanonicalActivity plus ActionEvent and detector evidence",
+      "rule": "Separate prompt activity, detector result, policy decision and action outcome; raw text remains restricted",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-011",
+      "native_event": "copy",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-012",
+      "native_event": "paste",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-013",
+      "native_event": "upload",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-014",
+      "native_event": "download",
+      "target_contract": "CanonicalActivity",
+      "rule": "Map native name to activity_type; preserve source name/payload/evidence and browser event time",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-015",
+      "native_event": "extension-listing discover",
+      "target_contract": "SourceObservation plus CanonicalActivity for lifecycle",
+      "rule": "Observe extension product/install under explicit browser profile; lifecycle event uses source event type",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-016",
+      "native_event": "extension-listing install",
+      "target_contract": "SourceObservation plus CanonicalActivity for lifecycle",
+      "rule": "Observe extension product/install under explicit browser profile; lifecycle event uses source event type",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-017",
+      "native_event": "extension-listing enable",
+      "target_contract": "SourceObservation plus CanonicalActivity for lifecycle",
+      "rule": "Observe extension product/install under explicit browser profile; lifecycle event uses source event type",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-018",
+      "native_event": "extension-listing disable",
+      "target_contract": "SourceObservation plus CanonicalActivity for lifecycle",
+      "rule": "Observe extension product/install under explicit browser profile; lifecycle event uses source event type",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-019",
+      "native_event": "extension-listing uninstall",
+      "target_contract": "SourceObservation plus CanonicalActivity for lifecycle",
+      "rule": "Observe extension product/install under explicit browser profile; lifecycle event uses source event type",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-020",
+      "native_event": "heartbeat",
+      "target_contract": "SensorHealthEvent plus Device/Browser SourceObservation",
+      "rule": "Heartbeat is freshness evidence; do not convert absence directly to deletion",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-021",
+      "native_event": "upload workflow stages",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-022",
+      "native_event": "ping",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-023",
+      "native_event": "pong",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-024",
+      "native_event": "action",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-025",
+      "native_event": "acknowledgement",
+      "target_contract": "SensorHealthEvent/evidence",
+      "rule": "Operational evidence only; acknowledgement is not an enforcement effect",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-026",
+      "native_event": "err_action",
+      "target_contract": "SensorHealthEvent/evidence",
+      "rule": "Operational evidence only; acknowledgement is not an enforcement effect",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-027",
+      "native_event": "failed_transmission",
+      "target_contract": "SensorHealthEvent/evidence",
+      "rule": "Operational evidence only; acknowledgement is not an enforcement effect",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-028",
+      "native_event": "clipboard_copy",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-029",
+      "native_event": "clipboard_content_modified",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-030",
+      "native_event": "clipboard_content_deleted",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-031",
+      "native_event": "clipboard_content_restored",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-032",
+      "native_event": "uploaded_file_scanned",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-033",
+      "native_event": "downloaded_file_scanned",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-034",
+      "native_event": "downloaded_file_removed",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-035",
+      "native_event": "downloaded_file_restored",
+      "target_contract": "CanonicalActivity or ActionEvent",
+      "rule": "Bind result to explicit command/event/file element ID and retain attempted/acknowledged/succeeded separately",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-036",
+      "native_event": "task_heartbeat",
+      "target_contract": "SensorHealthEvent/evidence",
+      "rule": "Operational evidence only; acknowledgement is not an enforcement effect",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-037",
+      "native_event": "SystemIdentifier",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-038",
+      "native_event": "GetToken",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-039",
+      "native_event": "GetEmail",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-040",
+      "native_event": "persona_updated",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-041",
+      "native_event": "persona_deletion_in_progress",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-042",
+      "native_event": "config_updated",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-043",
+      "native_event": "log_level_updated",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-044",
+      "native_event": "file_scan_cancelled",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-045",
+      "native_event": "AgentUpdateAvailable",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-046",
+      "native_event": "EventLogKafkaRecord publication",
+      "target_contract": "No platform mapping",
+      "rule": "Retain only as source evidence or internal runtime signal",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Not observable by this sensor"
+    },
+    {
+      "mapping_id": "EM-047",
+      "native_event": "HeartbeatBatch publication",
+      "target_contract": "SensorHealthEvent plus Device/Browser SourceObservation",
+      "rule": "Heartbeat is freshness evidence; do not convert absence directly to deletion",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "mapping_id": "EM-048",
+      "native_event": "SourceObservation accepted",
+      "target_contract": "SourceObservation accepted",
+      "rule": "Already a proposed target record",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-049",
+      "native_event": "CanonicalActivity/ActionEvent",
+      "target_contract": "CanonicalActivity/ActionEvent",
+      "rule": "Already a proposed target record",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "mapping_id": "EM-050",
+      "native_event": "SensorHealthEvent",
+      "target_contract": "SensorHealthEvent",
+      "rule": "Already a proposed target record",
+      "identity_requirements": "tenant_id, sensor_instance_id and source correlation ID; entity IDs where applicable",
+      "sensitive_data_rule": "Allow-list safe scalar summary; put raw content/path/headers only in restricted evidence or drop",
+      "availability": "Requires minor sensor instrumentation"
+    }
+  ]
+}

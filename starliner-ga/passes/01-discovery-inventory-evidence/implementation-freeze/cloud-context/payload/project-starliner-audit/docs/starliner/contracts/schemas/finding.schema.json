@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "EntityRef": {
+      "additionalProperties": true,
+      "description": "A ``{type, id}`` reference used by findings/relationships.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "FindingKind": {
+      "description": "Finding types (RFC-0001 \u00a710).",
+      "enum": [
+        "runtime",
+        "design_time",
+        "configuration",
+        "coverage_gap",
+        "cost_anomaly",
+        "identity_risk",
+        "data_movement",
+        "policy_conflict"
+      ],
+      "title": "FindingKind",
+      "type": "string"
+    },
+    "RecommendedPolicy": {
+      "additionalProperties": true,
+      "properties": {
+        "policy_template_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Template Id"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "title": "RecommendedPolicy",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/EntityRef"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "finding_id": {
+      "title": "Finding Id",
+      "type": "string"
+    },
+    "principles": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Principles",
+      "type": "array"
+    },
+    "recommended_policy": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RecommendedPolicy"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema": {
+      "const": "starliner.finding.v1",
+      "default": "starliner.finding.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity",
+      "default": "medium"
+    },
+    "status": {
+      "default": "open",
+      "title": "Status",
+      "type": "string"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "type": {
+      "$ref": "#/$defs/FindingKind"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "finding_id",
+    "type",
+    "title"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

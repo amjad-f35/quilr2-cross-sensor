@@ -1,0 +1,25 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "control command; not implemented"
+  },
+  "command": {
+    "command_id": "command-fixture-1",
+    "idempotency_key": "command-idem-fixture-1",
+    "tenant_id": "tenant-fixture",
+    "target": {
+      "source_sensor_id": "mcp-gateway-instance-1",
+      "backend_id": "backend-fixture",
+      "tool_name": "search"
+    },
+    "operation": "set_tool_enabled",
+    "parameters": {
+      "enabled": false
+    }
+  },
+  "expected": {
+    "telemetry_channel_accepts_command": false,
+    "native_service_method_required": true
+  }
+}
+

@@ -1,0 +1,13 @@
+finding,business_question,evidence,surface,status
+platform-process-degraded,main dependency/background state indicates degraded capability,health/log/capability evidence,operator,implemented partial
+activity-topic-stalled,topic cursor/heartbeat stops beyond threshold,runner state + logs,operator,derivable; threshold external
+source-coverage-gap,one sensor read model unavailable or stale,readiness/coverage state,customer+operator,implemented partial
+identity-drift,principal/directory grants disagree or mirror unsynchronized,platform access projection,operator,implemented
+risky-llm-usage,source detections/findings indicate risk,LLM rows and detector semantics,customer,signal only pending canonical admission
+mcp-rejection-pattern,repeated rejected tool calls,MCP rejection rows,customer,derived candidate
+endpoint-dlp-activity,Endpoint DLP evidence meets detector definition,Endpoint rows,customer,signal only
+browser-alert-lifecycle,browser alert row status and evidence,browser rows,customer,source finding projection
+configuration-drift,current service configuration differs from expected policy,config snapshots/audit,operator/customer,partially derivable
+control-effect-missing,control accepted without later independent effect,control response + absent observation,operator,proposed cross-source finding
+adapter-reconciliation-gap,source extraction balance fails,future adapter metrics,operator,not implemented
+unsupported-source-version,profile/schema not supported,future capability manifest,operator/customer coverage,not implemented

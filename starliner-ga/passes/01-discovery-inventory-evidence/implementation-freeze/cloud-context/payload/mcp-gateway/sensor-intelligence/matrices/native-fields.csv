@@ -1,0 +1,32 @@
+record,field,type,origin,transformation,required,sensitivity,platform_availability
+SourceObservation,tenant_id,string,Route or registry,Null to unknown,Yes,Tenant identifier,Available now without sensor changes
+SourceObservation,observation_id,string,Mapper,Stable SHA-256 ID,Yes,Low,Available now without sensor changes
+SourceObservation,canonical_entity,EntityRef,Mapper,Locally minted,Yes,Identity authority conflict,Requires minor sensor instrumentation
+SourceObservation,sensor_id,string,Config,None,Yes,Operational,Available now without sensor changes
+SourceObservation,source_entity_type,string,Mapper,Hard-coded type,Yes,Low,Available now without sensor changes
+SourceObservation,source_external_id,string,Backend and tool,Safe normalization,Yes,Business metadata,Available now without sensor changes
+SourceObservation,observed_name,string,Tool name,Safe normalization,No,Business metadata,Available now without sensor changes
+SourceObservation,confidence,float,Mapper,Constant 1.0,Yes,Low,Available now without sensor changes
+SourceObservation,observed_at,string,Gateway clock,ISO format,Yes,Operational,Available now without sensor changes
+ActionEvent,request_id,string,Observation ID,Stable hash,Yes,Correlation,Available now without sensor changes
+ActionEvent,flow_id,string,Observation ID,Stable hash,Yes,Correlation,Available now without sensor changes
+ActionEvent,span_id,string,Observation ID,Stable hash,No,Correlation,Available now without sensor changes
+ActionEvent,actor.human_user_id,string,Email,Tenant-keyed HMAC,No,Pseudonymous,Available now without sensor changes
+ActionEvent,action.type,string,Mapper,mcp.tool.call,Yes,Low,Available now without sensor changes
+ActionEvent,action.boundary,string,upstream_called,Pre or post,No,Control evidence,Available now without sensor changes
+ActionEvent,resource.backend_id,string,Backend ID,Safe normalization,No,Business metadata,Available now without sensor changes
+ActionEvent,resource.tool_name,string,Tool name,Safe normalization,No,Business metadata,Available now without sensor changes
+ActionEvent,data.input_labels,list,DLP predictions,Allowlist reducer,No,Classification,Available now without sensor changes
+ActionEvent,data.output_labels,list,DLP predictions,Allowlist reducer,No,Classification,Available now without sensor changes
+ActionEvent,execution.status,string,Block and error flags,Blocked error success,No,Operational,Available now without sensor changes
+ActionEvent,execution.upstream_called,bool,ToolCallResult,Bool coercion,No,Control evidence,Available now without sensor changes
+ActionEvent,execution.latency_ms,int,Perf counter,Integer ms,No,Operational,Available now without sensor changes
+MetricEvent,metric_name,string,Mapper,Fixed vocabulary,Yes,Low,Available now without sensor changes
+MetricEvent,value,float,Call or latency,Clamp latency nonnegative,Yes,Operational,Available now without sensor changes
+FindingSignal,reason_codes,list,Block flags,Fixed codes,No,Security,Available now without sensor changes
+DeliveryEnvelope,idempotency_key,string,Mapper,Stable hash,Yes,Correlation,Available now without sensor changes
+DeliveryEnvelope,body_hash,string,Canonical body,SHA-256,Yes,Integrity,Available now without sensor changes
+DeliveryEnvelope,record_hash,string,Envelope and body,SHA-256,Yes,Integrity,Available now without sensor changes
+DeliveryEnvelope,safe_summary,object,DLP metadata,Strict allowlist,Yes,Classification,Available now without sensor changes
+starliner_outbox,payload_json,text,DeliveryRecord,Canonical JSON,Yes,Potentially sensitive metadata,Operator-only
+starliner_terminal_delivery,evidence_id,string,Ingest result,Safe regex,No,Operational,Operator-only

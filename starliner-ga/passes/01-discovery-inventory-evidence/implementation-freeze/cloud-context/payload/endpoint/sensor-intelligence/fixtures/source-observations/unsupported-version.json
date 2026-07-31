@@ -1,0 +1,16 @@
+{
+  "_fixture": {
+    "id": "FX-SO-007",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "unsupported version",
+    "source_basis": "proposed schema/version negotiation"
+  },
+  "payload": {
+    "record_version": 999,
+    "native_record_id": "test-unsupported-001",
+    "component_id": "system_monitor.config_discovery"
+  },
+  "expected_admission": "terminal unsupported-version result; safe quarantine; no body in error log"
+}
+

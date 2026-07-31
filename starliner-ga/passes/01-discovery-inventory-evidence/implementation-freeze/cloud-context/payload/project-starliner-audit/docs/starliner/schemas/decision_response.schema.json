@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "Decision": {
+      "description": "Allowed decision values returned by the Decision Plane.",
+      "enum": [
+        "allow",
+        "deny",
+        "redact",
+        "warn",
+        "monitor",
+        "require_approval",
+        "route_override"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "Obligations": {
+      "additionalProperties": true,
+      "properties": {
+        "emit_event": {
+          "default": true,
+          "title": "Emit Event",
+          "type": "boolean"
+        },
+        "log": {
+          "default": true,
+          "title": "Log",
+          "type": "boolean"
+        },
+        "max_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Tokens"
+        },
+        "redact": {
+          "default": false,
+          "title": "Redact",
+          "type": "boolean"
+        },
+        "redact_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Redact Fields",
+          "type": "array"
+        },
+        "require_human_approval": {
+          "default": false,
+          "title": "Require Human Approval",
+          "type": "boolean"
+        },
+        "route_override": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Override"
+        },
+        "tool_filter": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Filter"
+        },
+        "warn_user": {
+          "default": false,
+          "title": "Warn User",
+          "type": "boolean"
+        }
+      },
+      "title": "Obligations",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "decision": {
+      "$ref": "#/$defs/Decision"
+    },
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "decision_latency_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Latency Ms"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "mode": {
+      "default": "shadow",
+      "title": "Mode",
+      "type": "string"
+    },
+    "obligations": {
+      "$ref": "#/$defs/Obligations"
+    },
+    "policy_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Policy Ids",
+      "type": "array"
+    },
+    "policy_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Version"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reason"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "starliner.decision_response.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "ttl_ms": {
+      "default": 30000,
+      "title": "Ttl Ms",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "decision_id",
+    "request_id",
+    "flow_id",
+    "decision"
+  ],
+  "title": "DecisionResponse",
+  "type": "object"
+}

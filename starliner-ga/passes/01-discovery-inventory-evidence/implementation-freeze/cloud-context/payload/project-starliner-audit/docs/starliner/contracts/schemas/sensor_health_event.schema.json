@@ -1,0 +1,116 @@
+{
+  "$defs": {
+    "HealthSensor": {
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "HealthSensor",
+      "type": "object"
+    },
+    "HealthStatus": {
+      "enum": [
+        "healthy",
+        "degraded",
+        "unhealthy"
+      ],
+      "title": "HealthStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Degradation/health signal (RFC-0007 \u00a710).",
+  "properties": {
+    "capability": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Capability"
+    },
+    "contract_version": {
+      "default": "starliner.sensor.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "flow_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Flow Id"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "reason_code": {
+      "title": "Reason Code",
+      "type": "string"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Id"
+    },
+    "schema": {
+      "const": "starliner.sensor_health_event.v1",
+      "default": "starliner.sensor_health_event.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensor": {
+      "$ref": "#/$defs/HealthSensor"
+    },
+    "status": {
+      "$ref": "#/$defs/HealthStatus",
+      "default": "degraded"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "sensor",
+    "reason_code"
+  ],
+  "title": "SensorHealthEvent",
+  "type": "object"
+}

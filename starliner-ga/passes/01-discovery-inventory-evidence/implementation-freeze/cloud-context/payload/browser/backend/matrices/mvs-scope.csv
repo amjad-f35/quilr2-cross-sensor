@@ -1,0 +1,4 @@
+MVS ID,Scope item,Include/exclude,Existing boundary,New work,Starliner dependency,Acceptance test,Rationale
+MVS-001,Browser activity records login/signup/visit/prompt/copy/paste/upload/download,Include,BES UserActionService ingress,"Version gate, auth-bound adapter mapping and durable server outbox","DeliveryEnvelope, CanonicalActivity/ActionEvent",Golden fixtures accepted and replay duplicate,Highest-value existing central feed
+MVS-002,Heartbeat health/device/browser observations,Include,HeartbeatBatch Kafka,Consumer adapter and SensorHealthEvent mapping,SensorHealthEvent/SourceObservation,Normal/late/duplicate/malformed fixtures,Existing compact central feed
+MVS-004,Stable compound/component sensor identity,Include,No adequate boundary,Persist IDs in browser/native/backend registration,SensorManifest/DeliveryEnvelope,Restart/reinstall/multi-profile tests,Required for trustworthy attribution

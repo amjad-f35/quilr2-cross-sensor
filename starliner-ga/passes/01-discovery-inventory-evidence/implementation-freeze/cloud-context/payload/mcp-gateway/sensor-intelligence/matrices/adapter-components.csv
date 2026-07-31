@@ -1,0 +1,16 @@
+component,current_source,target_responsibility,change_class,status
+Profile,ObserveConfig and manifest,Versioned source profile,Minor,Proposed
+Registry capture,BackendRegistry hooks,Snapshot upsert delete revision,Minor to substantial,Proposed
+Direct capture,MCPHandler hook,All outcome and exception paths,Minor,Proposed
+OneMCP capture,None dedicated,Remote native resource prompt session,Substantial,Proposed
+Workflow capture,Workflow state,Agent run step delegation lineage,Substantial,Proposed
+Identity normalization,starliner/identity.py,Source IDs and key epoch no canonical IDs,Minor,Proposed
+Record normalization,MCPObserveMapper,Target source and event candidates,Substantial,Proposed
+Privacy,safe_labels and validator,Versioned field disposition,Minor,Proposed
+Outbox,StarlinerOutboxRepository,Sequence conflict retention,Substantial,Proposed
+Delivery,StarlinerDeliveryWorker,Workload identity signed receipt,Substantial,Proposed
+Health,Counters and routes,Durable capability health,Minor,Proposed
+Policy,Legacy adapter and native controls,Local signed bundle PEP,Substantial,Proposed
+Commands,None,Typed authenticated commands,Substantial,Proposed
+Effects,Native read-back,Effect observations,Substantial,Proposed
+Certification,M1 trace adapter,Full profile default CI,Substantial,Proposed

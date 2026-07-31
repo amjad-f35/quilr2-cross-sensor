@@ -1,0 +1,31 @@
+{
+  "_fixture": {
+    "id": "FX-CR-001",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "enforcement success and failure",
+    "source_basis": "verified enforcer stages plus proposed final effect"
+  },
+  "payload": [
+    {
+      "command_id": "test-command-success",
+      "result_status": "succeeded",
+      "steps": [
+        {"name": "graceful_termination", "status": "attempted"},
+        {"name": "final_process_tree_observation", "status": "target_absent"}
+      ],
+      "effect_observed": true
+    },
+    {
+      "command_id": "test-command-failure",
+      "result_status": "failed",
+      "steps": [
+        {"name": "graceful_termination", "status": "native_non_success"},
+        {"name": "force_termination", "status": "permission_denied"},
+        {"name": "final_process_tree_observation", "status": "target_present"}
+      ],
+      "effect_observed": false
+    }
+  ]
+}
+

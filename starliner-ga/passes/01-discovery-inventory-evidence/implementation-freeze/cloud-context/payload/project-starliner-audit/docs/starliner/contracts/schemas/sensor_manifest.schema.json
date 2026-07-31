@@ -1,0 +1,228 @@
+{
+  "$defs": {
+    "AdapterRef": {
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "AdapterRef",
+      "type": "object"
+    },
+    "CapabilityMode": {
+      "description": "Declared sensor behavior for an action family (RFC-0007 \u00a77).",
+      "enum": [
+        "enforce",
+        "observe",
+        "shadow",
+        "metadata_only",
+        "deferred",
+        "unsupported"
+      ],
+      "title": "CapabilityMode",
+      "type": "string"
+    },
+    "CertificationSummary": {
+      "additionalProperties": true,
+      "properties": {
+        "certified_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Certified At"
+        },
+        "golden_trace_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Golden Trace Hash"
+        },
+        "status": {
+          "default": "unknown",
+          "title": "Status",
+          "type": "string"
+        },
+        "test_pack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Test Pack"
+        },
+        "test_pack_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Test Pack Hash"
+        }
+      },
+      "title": "CertificationSummary",
+      "type": "object"
+    },
+    "ContractRef": {
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "default": "starliner.sensor.v1",
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "title": "ContractRef",
+      "type": "object"
+    },
+    "ProductRef": {
+      "additionalProperties": true,
+      "properties": {
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "repo": {
+          "title": "Repo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "ref",
+        "commit"
+      ],
+      "title": "ProductRef",
+      "type": "object"
+    },
+    "SubSensor": {
+      "additionalProperties": true,
+      "description": "A compound-sensor component, e.g. endpoint proxy/monitor/hooks (RFC-0008).",
+      "properties": {
+        "capabilities": {
+          "additionalProperties": {
+            "$ref": "#/$defs/CapabilityMode"
+          },
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "status": {
+          "default": "loaded",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "title": "SubSensor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "adapter": {
+      "$ref": "#/$defs/AdapterRef"
+    },
+    "capabilities": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CapabilityMode"
+      },
+      "title": "Capabilities",
+      "type": "object"
+    },
+    "certification": {
+      "$ref": "#/$defs/CertificationSummary"
+    },
+    "contract": {
+      "$ref": "#/$defs/ContractRef"
+    },
+    "known_degraded_modes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Known Degraded Modes",
+      "type": "array"
+    },
+    "product": {
+      "$ref": "#/$defs/ProductRef"
+    },
+    "schema": {
+      "const": "starliner.sensor_manifest.v1",
+      "default": "starliner.sensor_manifest.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensor": {
+      "title": "Sensor",
+      "type": "string"
+    },
+    "sensor_id": {
+      "title": "Sensor Id",
+      "type": "string"
+    },
+    "sensor_version": {
+      "title": "Sensor Version",
+      "type": "string"
+    },
+    "sub_sensors": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/SubSensor"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sub Sensors"
+    }
+  },
+  "required": [
+    "sensor",
+    "sensor_id",
+    "sensor_version",
+    "product",
+    "adapter"
+  ],
+  "title": "SensorManifest",
+  "type": "object"
+}

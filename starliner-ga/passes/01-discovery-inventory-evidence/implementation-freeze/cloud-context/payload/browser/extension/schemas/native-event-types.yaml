@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "evidence": "Verified in source",
+  "events": [
+    {
+      "event_id": "EV-001",
+      "name": "page_load",
+      "layer": "Extension internal",
+      "payload_record": "PageLoadEvent",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/browser/chrome/chrome.navigation.ts"
+    },
+    {
+      "event_id": "EV-002",
+      "name": "form_fill",
+      "layer": "Extension internal",
+      "payload_record": "FormFillEvent",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/contents/listeners/form.ts"
+    },
+    {
+      "event_id": "EV-003",
+      "name": "button_click",
+      "layer": "Extension internal",
+      "payload_record": "ButtonClickEvent",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "event_id": "EV-004",
+      "name": "link_click",
+      "layer": "Extension internal",
+      "payload_record": "LinkClickEvent",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "event_id": "EV-005",
+      "name": "key_press",
+      "layer": "Extension internal",
+      "payload_record": "KeyPressEvent",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/types/userAction.d.ts"
+    },
+    {
+      "event_id": "EV-006",
+      "name": "login",
+      "layer": "Extension output",
+      "payload_record": "AuthCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/AuthLogDrop"
+    },
+    {
+      "event_id": "EV-007",
+      "name": "signup",
+      "layer": "Extension output",
+      "payload_record": "AuthCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/AuthLogDrop"
+    },
+    {
+      "event_id": "EV-008",
+      "name": "visit",
+      "layer": "Extension output",
+      "payload_record": "VisitCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/VisitLogDrop"
+    },
+    {
+      "event_id": "EV-009",
+      "name": "data_leak_prevention prompt_request",
+      "layer": "Extension output",
+      "payload_record": "PromptDlpCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/DlpLogDrop"
+    },
+    {
+      "event_id": "EV-010",
+      "name": "data_leak_prevention prompt_response",
+      "layer": "Extension output",
+      "payload_record": "PromptDlpCheck",
+      "status": "Partially implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/DlpLogDrop"
+    },
+    {
+      "event_id": "EV-011",
+      "name": "copy",
+      "layer": "Extension output",
+      "payload_record": "CopyPasteCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/CopyPasteLogDrop"
+    },
+    {
+      "event_id": "EV-012",
+      "name": "paste",
+      "layer": "Extension output",
+      "payload_record": "CopyPasteCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/CopyPasteLogDrop"
+    },
+    {
+      "event_id": "EV-013",
+      "name": "upload",
+      "layer": "Extension output",
+      "payload_record": "UploadCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/UploadLogDrop"
+    },
+    {
+      "event_id": "EV-014",
+      "name": "download",
+      "layer": "Extension output",
+      "payload_record": "DownloadCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/LogDrop/DownloadLogDrop"
+    },
+    {
+      "event_id": "EV-015",
+      "name": "extension-listing discover",
+      "layer": "Extension output",
+      "payload_record": "ExtensionListingCheck batch",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/ExtensionManagement"
+    },
+    {
+      "event_id": "EV-016",
+      "name": "extension-listing install",
+      "layer": "Extension output",
+      "payload_record": "ExtensionListingCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/ExtensionManagement"
+    },
+    {
+      "event_id": "EV-017",
+      "name": "extension-listing enable",
+      "layer": "Extension output",
+      "payload_record": "ExtensionListingCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/ExtensionManagement"
+    },
+    {
+      "event_id": "EV-018",
+      "name": "extension-listing disable",
+      "layer": "Extension output",
+      "payload_record": "ExtensionListingCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/ExtensionManagement"
+    },
+    {
+      "event_id": "EV-019",
+      "name": "extension-listing uninstall",
+      "layer": "Extension output",
+      "payload_record": "ExtensionListingCheck",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/ExtensionManagement"
+    },
+    {
+      "event_id": "EV-020",
+      "name": "heartbeat",
+      "layer": "Extension output",
+      "payload_record": "HeartBeatRequestPayload",
+      "status": "Implemented",
+      "source": "Project-Vanguard/src/core/network/middleware/hearBeat.ts"
+    },
+    {
+      "event_id": "EV-021",
+      "name": "upload workflow stages",
+      "layer": "Extension diagnostic",
+      "payload_record": "UploadWorkflowEventRecord",
+      "status": "Partially implemented",
+      "source": "Project-Vanguard/src/types/diagnostic.d.ts"
+    },
+    {
+      "event_id": "EV-022",
+      "name": "ping",
+      "layer": "Native input",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-023",
+      "name": "pong",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-024",
+      "name": "action",
+      "layer": "Native input",
+      "payload_record": "Message<SystemAction>",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-025",
+      "name": "acknowledgement",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-026",
+      "name": "err_action",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-027",
+      "name": "failed_transmission",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/infra/messaging/native_messaging.rs"
+    },
+    {
+      "event_id": "EV-028",
+      "name": "clipboard_copy",
+      "layer": "Native output",
+      "payload_record": "ClipboardChangeEvent",
+      "status": "Partially implemented",
+      "source": "project-sentinel/src/handlers/clipboard_handler.rs"
+    },
+    {
+      "event_id": "EV-029",
+      "name": "clipboard_content_modified",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/clipboard_modify_handler.rs"
+    },
+    {
+      "event_id": "EV-030",
+      "name": "clipboard_content_deleted",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/clipboard_delete_handler.rs"
+    },
+    {
+      "event_id": "EV-031",
+      "name": "clipboard_content_restored",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/clipboard_restore_handler.rs"
+    },
+    {
+      "event_id": "EV-032",
+      "name": "uploaded_file_scanned",
+      "layer": "Native output",
+      "payload_record": "FileActivityResponseItem array",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_upload_handler.rs"
+    },
+    {
+      "event_id": "EV-033",
+      "name": "downloaded_file_scanned",
+      "layer": "Native output",
+      "payload_record": "FileActivityResponseItem",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_download_handler.rs; project-sentinel/src/handlers/file_upload_handler.rs"
+    },
+    {
+      "event_id": "EV-034",
+      "name": "downloaded_file_removed",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_delete_handler.rs"
+    },
+    {
+      "event_id": "EV-035",
+      "name": "downloaded_file_restored",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_restore_handler.rs"
+    },
+    {
+      "event_id": "EV-036",
+      "name": "task_heartbeat",
+      "layer": "Native output",
+      "payload_record": "TaskInfo[]",
+      "status": "Implemented",
+      "source": "project-sentinel/src/heartbeat/task_heartbeat.rs; project-sentinel/src/heartbeat/task_manager.rs; Project-Vanguard/src/core/services/uploadManager.service.ts"
+    },
+    {
+      "event_id": "EV-037",
+      "name": "SystemIdentifier",
+      "layer": "Native output",
+      "payload_record": "SystemID",
+      "status": "Partially implemented",
+      "source": "project-sentinel/src/core/utils/system_identifiers/system_id.rs"
+    },
+    {
+      "event_id": "EV-038",
+      "name": "GetToken",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/chains.json"
+    },
+    {
+      "event_id": "EV-039",
+      "name": "GetEmail",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/chains.json"
+    },
+    {
+      "event_id": "EV-040",
+      "name": "persona_updated",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/persona_handler.rs"
+    },
+    {
+      "event_id": "EV-041",
+      "name": "persona_deletion_in_progress",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/persona_delete_handler.rs"
+    },
+    {
+      "event_id": "EV-042",
+      "name": "config_updated",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/agent_configuration_update_handler.rs"
+    },
+    {
+      "event_id": "EV-043",
+      "name": "log_level_updated",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/log_update_handler.rs"
+    },
+    {
+      "event_id": "EV-044",
+      "name": "file_scan_cancelled",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Implemented",
+      "source": "project-sentinel/src/handlers/file_cancel_handler.rs"
+    },
+    {
+      "event_id": "EV-045",
+      "name": "AgentUpdateAvailable",
+      "layer": "Native output",
+      "payload_record": "Message",
+      "status": "Partially implemented",
+      "source": "project-sentinel/src/updater"
+    },
+    {
+      "event_id": "EV-046",
+      "name": "EventLogKafkaRecord publication",
+      "layer": "Backend output",
+      "payload_record": "EventLogKafkaRecord",
+      "status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay"
+    },
+    {
+      "event_id": "EV-047",
+      "name": "HeartbeatBatch publication",
+      "layer": "Backend output",
+      "payload_record": "HeartbeatBatch",
+      "status": "Implemented",
+      "source": "browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat"
+    },
+    {
+      "event_id": "EV-048",
+      "name": "SourceObservation accepted",
+      "layer": "Target",
+      "payload_record": "DeliveryEnvelope<SourceObservation>",
+      "status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts"
+    },
+    {
+      "event_id": "EV-049",
+      "name": "CanonicalActivity/ActionEvent",
+      "layer": "Target",
+      "payload_record": "Starliner contracts",
+      "status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts"
+    },
+    {
+      "event_id": "EV-050",
+      "name": "SensorHealthEvent",
+      "layer": "Target",
+      "payload_record": "Starliner contract",
+      "status": "Placeholder",
+      "source": "project-starliner-audit/starliner_contracts"
+    }
+  ]
+}

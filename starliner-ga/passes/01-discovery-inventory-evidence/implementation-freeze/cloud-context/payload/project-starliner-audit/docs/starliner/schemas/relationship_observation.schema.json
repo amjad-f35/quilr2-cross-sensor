@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "EntityType": {
+      "enum": [
+        "human_user",
+        "agent",
+        "workload",
+        "api_key",
+        "service_account",
+        "credential",
+        "llm_provider",
+        "llm_model",
+        "mcp_backend",
+        "mcp_tool",
+        "saas_app",
+        "api_endpoint",
+        "data_class",
+        "policy",
+        "integration",
+        "smart_group",
+        "tenant"
+      ],
+      "title": "EntityType",
+      "type": "string"
+    },
+    "RelationType": {
+      "enum": [
+        "member_of",
+        "owns",
+        "invoked",
+        "used",
+        "called",
+        "accessed",
+        "belongs_to",
+        "can_use",
+        "can_approve",
+        "connected_to",
+        "handles_data_class",
+        "applies_to"
+      ],
+      "title": "RelationType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "confidence": {
+      "default": 1.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "object_id": {
+      "title": "Object Id",
+      "type": "string"
+    },
+    "object_type": {
+      "$ref": "#/$defs/EntityType"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "relation": {
+      "$ref": "#/$defs/RelationType"
+    },
+    "schema_version": {
+      "default": "starliner.relationship_observation.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_event_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Event Id"
+    },
+    "subject_id": {
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "subject_type": {
+      "$ref": "#/$defs/EntityType"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "subject_type",
+    "subject_id",
+    "relation",
+    "object_type",
+    "object_id",
+    "tenant_id"
+  ],
+  "title": "RelationshipObservation",
+  "type": "object"
+}

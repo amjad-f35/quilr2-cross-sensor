@@ -1,0 +1,28 @@
+{
+  "_fixture": {
+    "id": "FX-EXP-001",
+    "evidence_label": "Proposed target expectations",
+    "runtime_observed": false,
+    "fixture_class": "expected results",
+    "source_basis": "chapters 24-30"
+  },
+  "expectations": [
+    {"fixture_id": "FX-RAW-001", "result": "parse native HookRequest; privacy-filter content before target export"},
+    {"fixture_id": "FX-RAW-002", "result": "reject safely; no raw payload logging; emit degraded/error health"},
+    {"fixture_id": "FX-RAW-003", "result": "detect canary; literal content absent from every durable ordinary output"},
+    {"fixture_id": "FX-SO-001", "result": "admit unresolved source observation; platform resolves; adapter assigns no canonical entity"},
+    {"fixture_id": "FX-SO-002", "result": "reject with explicit required-field/identity result"},
+    {"fixture_id": "FX-SO-003", "result": "one semantic record and duplicate acknowledgement"},
+    {"fixture_id": "FX-SO-004", "result": "preserve event time/source order and mark late"},
+    {"fixture_id": "FX-SO-005", "result": "accept once after offline replay and expose latency"},
+    {"fixture_id": "FX-SO-006", "result": "ordinary records contain labels/reference only; protected evidence separately authorized"},
+    {"fixture_id": "FX-SO-007", "result": "terminal version rejection without content in error"},
+    {"fixture_id": "FX-EC-001", "result": "retain all namespaces and central conflict resolution history"},
+    {"fixture_id": "FX-RA-001", "result": "preserve both source assertions and source record links"},
+    {"fixture_id": "FX-CE-001", "result": "materialize ordered separate action stages"},
+    {"fixture_id": "FX-MET-001", "result": "accept bounded metric labels only"},
+    {"fixture_id": "FX-HLT-001", "result": "degrade only affected sources; no inventory deletion"},
+    {"fixture_id": "FX-CC-001", "result": "authorize/version/expiry/idempotency check before dispatch"},
+    {"fixture_id": "FX-CR-001", "result": "success requires effect_observed; failure preserves native step classes"}
+  ]
+}

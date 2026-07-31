@@ -1,0 +1,69 @@
+schema_version: 1
+profile: browser-backend
+records:
+- record_id: NR-032
+  name: EventLogRequest
+  layer: Backend input
+  model: actionrelay/request/EventLogRequest.java
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/request/EventLogRequest.java
+- record_id: NR-033
+  name: EventLogKafkaRecord
+  layer: Backend output
+  model: actionrelay/dto/EventLogKafkaRecord.java
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/dto/EventLogKafkaRecord.java
+- record_id: NR-034
+  name: HeartbeatRequest
+  layer: Backend input
+  model: persona/heartbeat/dto/HeartbeatRequest.java
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/HeartbeatRequest.java
+- record_id: NR-035
+  name: DeviceHeartbeat
+  layer: Backend internal/output
+  model: persona/heartbeat/dto/DeviceHeartbeat.java
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/DeviceHeartbeat.java
+- record_id: NR-036
+  name: HeartbeatBatch
+  layer: Backend output
+  model: persona/heartbeat/dto/HeartbeatBatch.java
+  status: Implemented
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat/dto/HeartbeatBatch.java
+- record_id: NR-037
+  name: Transformed risk/status/action/interaction maps
+  layer: Backend legacy
+  model: UserActionService transformAndIngestEvents and YAML schemas
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- record_id: NR-053
+  name: LegacyTransformer.ai_risk_schema.yml
+  layer: Backend legacy
+  model: ai_risk_schema.yml consumed by private UserActionService transformation path
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/resources/ai_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- record_id: NR-054
+  name: LegacyTransformer.data_risk_schema.yml
+  layer: Backend legacy
+  model: data_risk_schema.yml consumed by private UserActionService transformation path
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/resources/data_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- record_id: NR-055
+  name: LegacyTransformer.identity_risk_schema.yml
+  layer: Backend legacy
+  model: identity_risk_schema.yml consumed by private UserActionService transformation path
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/resources/identity_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- record_id: NR-056
+  name: LegacyTransformer.interaction_schema.yml
+  layer: Backend legacy
+  model: interaction_schema.yml consumed by private UserActionService transformation path
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/resources/interaction_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- record_id: NR-057
+  name: LegacyTransformer.saas_risk_schema.yml
+  layer: Backend legacy
+  model: saas_risk_schema.yml consumed by private UserActionService transformation path
+  status: Dead-code candidate
+  source: browser-extension-service/src/main/resources/saas_risk_schema.yml; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java

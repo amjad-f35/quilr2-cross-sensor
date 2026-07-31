@@ -1,0 +1,6 @@
+{
+  "_fixture_status": "Proposed target fixture",
+  "relationship": "TARGETS",
+  "subject_source_id": "00000000-0000-4000-8000-000000000001",
+  "object_identifier": "openai/verified-schema-example-model"
+}

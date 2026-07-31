@@ -1,0 +1,42 @@
+schema: sensor-intelligence.coverage-profile.v1
+sensor: mcpgateway
+scope_statement: Direct MCP tools/call routed through this gateway plus selected backend/tool discovery hooks
+surfaces:
+  direct_tools_call:
+    status: partial
+    observed: [normal_return_allowed, native_input_block, native_output_block, legacy_enforce_deny, confirmation_result]
+    missing: [exception_conversion, session, progress, cancellation, effect]
+  backend_registry:
+    status: partial
+    observed: [registration, tools_update, capability_refresh]
+    missing: [startup_replay, snapshot_complete, update, delete, disable, stale]
+  onemcp:
+    status: unsupported
+    missing: [remote_dispatch, native_tools, resources, prompts, sessions]
+  workflows:
+    status: unsupported
+    missing: [agent_run_step_delegation_lineage]
+  auxiliary_servers:
+    status: unsupported
+    missing: [google_workspace, rust_slice, examples]
+health:
+  available:
+    - manifest
+    - process_counters
+    - outbox_stats
+    - delivery_health
+    - offline_mapping_selftest
+  missing:
+    - durable_sensor_health_event
+    - heartbeat
+    - per_tenant_loss
+    - sequence_gap
+    - live_ingest_probe
+    - multi_replica_topology
+certification:
+  current_pack: mcp-observe-runtime-v1
+  traces: [mcp.observe_tool_call.v1, mcp.observe_tool_blocked.v1]
+  default_ci_selected: false
+  production_ingest_certified: false
+readiness: prototype_not_release_ready
+

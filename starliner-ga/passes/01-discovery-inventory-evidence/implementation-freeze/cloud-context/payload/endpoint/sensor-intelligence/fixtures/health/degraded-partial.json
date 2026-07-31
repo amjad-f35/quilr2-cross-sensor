@@ -1,0 +1,20 @@
+{
+  "_fixture": {
+    "id": "FX-HLT-001",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "partial/degraded",
+    "source_basis": "coverage-profile.yaml and compound capability manifest"
+  },
+  "payload": {
+    "sensor_state": "degraded",
+    "components": [
+      {"id": "system_monitor.process_discovery", "state": "healthy", "coverage": "complete"},
+      {"id": "system_monitor.config_discovery", "state": "degraded", "coverage": "partial", "safe_error_class": "permission_denied"},
+      {"id": "ide_hooks", "state": "unhealthy", "coverage": "unknown", "safe_error_class": "ipc_self_test_failed"},
+      {"id": "proxy.transparent_macos", "state": "disabled", "coverage": "disabled"}
+    ]
+  },
+  "expected_product": "Preserve positive observations; suppress absence claims only for affected components/scopes."
+}
+

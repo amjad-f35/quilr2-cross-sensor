@@ -1,0 +1,77 @@
+schema: sensor-intelligence.capability-manifest.v1
+sensor:
+  slug: mcpgateway
+  name: MCP Gateway
+  type: mcp_gateway
+  source:
+    repository: quilrbusiness/quilr-llm-gateway
+    branch: add_gateway
+    path: mcpgateway
+    commit: 1b2f2b399c4ac8cacb71aa3ff434d84122d88d7a
+  adapter:
+    current_name: mcp_gateway_starliner_observe_runtime
+    current_version: 0.1.0
+    contract: starliner.sensor.v1
+    contract_commit: 860079c312c13f842b5804a590fa1d5430860286
+  evidence_status: Verified in source
+capabilities:
+  - id: backend_discovery
+    mode: observe
+    implementation_status: Implemented
+    platform_availability: Available now without sensor changes
+    surfaces: [backend_registration]
+    limitations: [no_startup_replay, no_snapshot, no_update_or_delete]
+  - id: tool_discovery
+    mode: observe
+    implementation_status: Implemented
+    platform_availability: Available now without sensor changes
+    surfaces: [backend_registration, tools_update, capability_refresh, direct_tool_call]
+    limitations: [name_only, no_snapshot, no_delete]
+  - id: direct_tools_call
+    mode: observe
+    implementation_status: Partially implemented
+    platform_availability: Available now without sensor changes
+    surfaces: [direct_mcp]
+    limitations: [normal_return_paths_only, no_exception_conversion_path, no_session_or_progress]
+  - id: onemcp_remote_and_native
+    mode: deferred
+    implementation_status: Disabled
+    platform_availability: Requires minor sensor instrumentation
+    surfaces: [onemcp]
+  - id: resources_prompts_sessions
+    mode: deferred
+    implementation_status: Disabled
+    platform_availability: Requires minor sensor instrumentation
+    surfaces: [direct_mcp, onemcp]
+  - id: durable_outbox_delivery
+    mode: observe
+    implementation_status: Implemented
+    platform_availability: Available now without sensor changes
+    surfaces: [sqlite, http_ingest]
+    limitations: [bearer_only, no_signed_receipt, no_sequence, silent_idempotency_conflict]
+  - id: legacy_pretool_policy
+    mode: compatibility
+    implementation_status: Legacy
+    platform_availability: Unresolved
+    surfaces: [direct_mcp]
+    limitations: [private_sdk, central_hot_path, raw_email_to_builder]
+  - id: commands_and_effects
+    mode: deferred
+    implementation_status: Disabled
+    platform_availability: Requires substantial sensor changes
+    surfaces: []
+privacy:
+  ordinary_payload_content: prohibited
+  actor_identity: tenant_scoped_hmac
+  secret_values: prohibited
+  terminal_payload: deleted_locally
+readiness:
+  current: prototype_not_release_ready
+  blockers:
+    - producer_created_canonical_identity
+    - incomplete_surface_coverage
+    - delivery_workload_identity_and_receipt
+    - durable_health_and_loss
+    - default_ci_certification
+    - production_topology_unverified
+

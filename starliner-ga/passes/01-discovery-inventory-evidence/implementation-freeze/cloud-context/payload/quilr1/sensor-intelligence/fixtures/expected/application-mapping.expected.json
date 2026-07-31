@@ -1,0 +1,24 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "expected_application_mapping",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "schemas/sensor-intelligence/quilr1-platform/adapter-observation-mapping.yaml",
+      "docs/sensor-intelligence/quilr1-platform/30-acceptance-scenarios.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "input": "raw/legacy-clickhouse-application-row.generated.json",
+  "expected": {
+    "raw_evidence_preserved": true,
+    "deterministic_observation_id_required": true,
+    "entity_candidate": "entity-candidates/application-candidate.proposed.json",
+    "relationship_assertion": "relationship-assertions/tenant-has-application.proposed.json",
+    "canonical_event": "canonical-event-candidates/application-row-classification.proposed.json",
+    "canonical_entity_id_minted_by_adapter": false,
+    "canonical_finding_emitted": false
+  }
+}

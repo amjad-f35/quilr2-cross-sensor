@@ -1,0 +1,4 @@
+activity_type,human,account,agent,workload,process,credential,approval,sensor,completeness
+Model request,user_email when available,gateway user/key,forwarded metadata only,not attested,not observed,Quilr key hash/provider key metadata,config/change-request where applicable,deployment identity incomplete,Partial
+Tool execution analysis,Copilot/JWT/body hint,key,Copilot context only,unresolved,not observed,path key,no generic tool approval,gateway,Partial and claims may be unverified
+Administrative configuration,session/operator identity,gateway user,not applicable,gateway,not observed,session/auth token,change-request reviewer,gateway,Stronger source attribution; external person authority absent

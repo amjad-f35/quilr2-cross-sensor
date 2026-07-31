@@ -1,0 +1,13 @@
+finding_candidate,current_evidence,admission,availability,disposition,negative_case
+Individual DLP-blocked call,Action and signal,Not a customer finding,Available now without sensor changes,Finding signal,Single expected test
+Repeated DLP-blocked activity,Grouped actions and signals,Needs owner policy threshold resolution,Derivable centrally from current output,Customer finding,Unhealthy coverage
+Output blocked after execution,Output reason plus upstream true,Needs tool risk and action semantics,Derivable centrally from current output,Finding signal or customer finding,Do not call prevention
+New MCP server,Source observation,Needs approval owner policy,Available now without sensor changes,Inventory badge or customer finding,New does not equal unmanaged
+New high-risk tool,Tool name only,Needs classification and policy,Requires minor sensor instrumentation,Inventory badge or finding,Name heuristic only
+Stale server or tool,No lifecycle,Not admissible,Requires minor sensor instrumentation,Coverage finding,Missing observation while unhealthy
+Delivery backlog,Outbox health,Needs threshold scope owner,Available through adapter mapping only,Coverage finding,Single retry
+Sensor disabled or stale,Manifest and health,Needs durable cadence and scope,Requires minor sensor instrumentation,Coverage finding,Planned maintenance
+Auth denial spike,Rejection rows,Needs baseline threshold owner,Available through adapter mapping only,Analytics or finding,Duplicate pathway
+OAuth refresh failure,Event rows,Needs correlation and threshold,Available through adapter mapping only,Operational finding,Transient single failure
+MCP bypass,None,Needs endpoint or network source,Requires an external authoritative source,Coverage finding,No gateway event alone
+Destructive tool effect,Insufficient,Not admissible,Requires substantial sensor changes,Discard with reason,Upstream called is not effect

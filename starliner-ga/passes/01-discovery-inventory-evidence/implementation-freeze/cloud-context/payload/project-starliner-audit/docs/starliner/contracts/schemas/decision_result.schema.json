@@ -1,0 +1,235 @@
+{
+  "$defs": {
+    "DecisionCache": {
+      "additionalProperties": true,
+      "properties": {
+        "cacheable": {
+          "default": true,
+          "title": "Cacheable",
+          "type": "boolean"
+        },
+        "ttl_ms": {
+          "default": 30000,
+          "title": "Ttl Ms",
+          "type": "integer"
+        }
+      },
+      "title": "DecisionCache",
+      "type": "object"
+    },
+    "DecisionPolicy": {
+      "additionalProperties": true,
+      "properties": {
+        "bundle_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bundle Version"
+        },
+        "explanation_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Explanation Code"
+        },
+        "matched_policy_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matched Policy Ids",
+          "type": "array"
+        }
+      },
+      "title": "DecisionPolicy",
+      "type": "object"
+    },
+    "DecisionType": {
+      "description": "Allowed DecisionResult decisions (RFC-0001 \u00a76).",
+      "enum": [
+        "allow",
+        "deny",
+        "warn",
+        "monitor",
+        "redact",
+        "step_up",
+        "require_human_approval",
+        "route_override",
+        "rate_limit"
+      ],
+      "title": "DecisionType",
+      "type": "string"
+    },
+    "Obligations": {
+      "additionalProperties": true,
+      "description": "DecisionResult obligations (RFC-0001 \u00a76, RFC-0007 \u00a711).",
+      "properties": {
+        "inject_user_message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inject User Message"
+        },
+        "log": {
+          "default": true,
+          "title": "Log",
+          "type": "boolean"
+        },
+        "max_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Tokens"
+        },
+        "monitor": {
+          "default": true,
+          "title": "Monitor",
+          "type": "boolean"
+        },
+        "rate_limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rate Limit"
+        },
+        "redact": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Redact",
+          "type": "array"
+        },
+        "require_human_approval": {
+          "default": false,
+          "title": "Require Human Approval",
+          "type": "boolean"
+        },
+        "route_override": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Override"
+        },
+        "step_up": {
+          "default": false,
+          "title": "Step Up",
+          "type": "boolean"
+        },
+        "warn_user": {
+          "default": false,
+          "title": "Warn User",
+          "type": "boolean"
+        }
+      },
+      "title": "Obligations",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Compact synchronous Decision Plane output (RFC-0001 \u00a76).\n\nDecisionResult is not a full flow envelope; it correlates by ``request_id``\nand ``decision_id`` only.",
+  "properties": {
+    "cache": {
+      "$ref": "#/$defs/DecisionCache"
+    },
+    "decision": {
+      "$ref": "#/$defs/DecisionType"
+    },
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "effect": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effect"
+    },
+    "fail_behavior": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fail Behavior"
+    },
+    "obligations": {
+      "$ref": "#/$defs/Obligations"
+    },
+    "policy": {
+      "$ref": "#/$defs/DecisionPolicy"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "starliner.decision_result.v1",
+      "default": "starliner.decision_result.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "request_id",
+    "decision_id",
+    "decision"
+  ],
+  "title": "DecisionResult",
+  "type": "object"
+}

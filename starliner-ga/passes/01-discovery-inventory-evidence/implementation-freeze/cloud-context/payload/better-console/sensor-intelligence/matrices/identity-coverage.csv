@@ -1,0 +1,23 @@
+identity_type,observed,resolution,gap
+tenant_id,yes where source supplies it,high within source,crosses API/store trust boundary
+subscriber_id,yes where source supplies it,high within source,optional for some sources
+user_id,yes where source supplies it,candidate,PII-linked
+email,yes where source supplies it,candidate,personal data
+session_id,yes where source supplies it,authoritative session key,credential-sensitive
+app_id,yes where source supplies it,candidate,not globally canonical
+asset_id,yes where source supplies it,derived,API path parameter
+request_id,yes where source supplies it,operational,sanitized
+correlation_id,yes where source supplies it,candidate,drill-down key
+conversation_id,yes where source supplies it,candidate,may be absent
+gateway_key_hash,yes where source supplies it,stable alias,sensitive derivative
+backend_id,yes where source supplies it,candidate,validated path segment
+tool_name,yes where source supplies it,semantic label,not unique
+device_id,yes where source supplies it,candidate,hardware/user linkage
+persona_id,yes where source supplies it,candidate,nullable
+view_id,yes where source supplies it,authoritative for document,optimistic updates
+dashboard_id,yes where source supplies it,authoritative for document,ACL protected
+run_id,yes where source supplies it,workflow identity,expires/cleanup
+topic_id,yes where source supplies it,derived stable,digest/alias rules
+evidence_ref,yes where source supplies it,transient,content excluded
+export_key,yes where source supplies it,authoritative access secret,must be redacted
+csrf_header,yes where source supplies it,mutation guard input,not secret

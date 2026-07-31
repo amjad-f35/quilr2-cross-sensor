@@ -1,0 +1,83 @@
+{
+  "additionalProperties": true,
+  "description": "A single numeric measurement without raw request or response content.",
+  "properties": {
+    "dimensions": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Dimensions",
+      "type": "object"
+    },
+    "metric_name": {
+      "title": "Metric Name",
+      "type": "string"
+    },
+    "metric_type": {
+      "enum": [
+        "counter",
+        "gauge",
+        "histogram_sample"
+      ],
+      "title": "Metric Type",
+      "type": "string"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "schema": {
+      "const": "starliner.metric_event.v1",
+      "default": "starliner.metric_event.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit"
+    },
+    "value": {
+      "title": "Value",
+      "type": "number"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "metric_name",
+    "metric_type",
+    "value"
+  ],
+  "title": "MetricEvent",
+  "type": "object"
+}

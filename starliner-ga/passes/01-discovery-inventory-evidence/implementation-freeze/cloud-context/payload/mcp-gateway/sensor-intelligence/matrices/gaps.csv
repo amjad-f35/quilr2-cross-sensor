@@ -1,0 +1,21 @@
+gap_id,gap,category,availability,priority,required_change
+GAP-001,Producer-created canonical entity,Identity,Requires minor sensor instrumentation,P0,Emit source identifiers and central binding only
+GAP-002,Contract package not default reproducible,Build,Requires minor sensor instrumentation,P0,Pin install and CI
+GAP-003,No durable health or loss event,Health,Requires minor sensor instrumentation,P0,Emit capability health
+GAP-004,Missing tenant becomes unknown,Isolation,Requires minor sensor instrumentation,P0,Reject or quarantine
+GAP-005,Bearer-only ingest and unsigned receipt,Delivery,Requires substantial sensor changes,P0,Workload identity and receipt validation
+GAP-006,Silent same-key different-body replay,Integrity,Requires minor sensor instrumentation,P0,Conflict record
+GAP-007,No registry snapshot or delete,Lifecycle,Requires minor sensor instrumentation,P1,Snapshot revision tombstone hooks
+GAP-008,Direct exception observation gap,Capture,Requires minor sensor instrumentation,P1,Schedule after exception conversion
+GAP-009,OneMCP not observed,Coverage,Requires minor sensor instrumentation,P1,Dedicated hooks
+GAP-010,Resources prompts sessions not observed,Coverage,Requires minor sensor instrumentation,P1,Typed lifecycle records
+GAP-011,No control decision attribution,Governance,Requires minor sensor instrumentation,P1,Decision and effect references
+GAP-012,No sequence or instance epoch,Ordering,Requires minor sensor instrumentation,P1,Envelope upgrade
+GAP-013,Terminal metadata unbounded,Retention,Requires minor sensor instrumentation,P1,Cleanup policy
+GAP-014,No batch byte cap,Performance,Requires minor sensor instrumentation,P1,Byte and payload limits
+GAP-015,Workflow lineage absent,Correlation,Requires minor sensor instrumentation,P2,Propagate agent run step IDs
+GAP-016,No local policy bundle PEP,Control,Requires substantial sensor changes,P2,Replace central hot path
+GAP-017,No typed command and effect channel,Control,Requires substantial sensor changes,P2,Separate command subsystem
+GAP-018,Process-local state,Scale,Requires substantial sensor changes,P3,Externalize or single-replica certify
+GAP-019,Model device bypass identity absent,External authority,Requires an external authoritative source,P3,Cross-sensor correlation
+GAP-020,Raw logs lack retention,Privacy,Requires substantial sensor changes,P1,Retention and access controls

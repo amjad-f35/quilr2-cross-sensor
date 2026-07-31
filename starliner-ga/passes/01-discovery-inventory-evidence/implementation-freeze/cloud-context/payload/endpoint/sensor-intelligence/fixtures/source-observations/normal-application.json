@@ -1,0 +1,30 @@
+{
+  "_fixture": {
+    "id": "FX-SO-001",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "normal",
+    "source_basis": "Entity::Application plus proposed unresolved SourceObservation"
+  },
+  "payload": {
+    "record_version": 1,
+    "native_record_id": "test-native-app-observation-001",
+    "sensor_instance_id": "sensor-test-001",
+    "component_id": "system_monitor.process_discovery",
+    "entity_kind_candidate": "Application",
+    "identifier_candidates": [
+      {
+        "namespace": "endpoint.application.native_uuid",
+        "value": "00000000-0000-0000-0000-000000000101"
+      }
+    ],
+    "source_attributes": {
+      "name": "Synthetic AI App",
+      "process_observed": true
+    },
+    "event_time": "2026-01-01T00:00:00Z",
+    "observed_time": "2026-01-01T00:00:01Z",
+    "coverage_id": "coverage-test-process-001"
+  }
+}
+

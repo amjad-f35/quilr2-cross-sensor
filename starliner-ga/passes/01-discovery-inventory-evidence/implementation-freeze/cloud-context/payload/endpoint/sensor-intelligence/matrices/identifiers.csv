@@ -1,0 +1,31 @@
+identifier_id,entity_type,identifier,namespace,source,stability,uniqueness,reassignable,cryptographically_verified,classification,recommended_use,evidence_status
+ID-001,Device,Persona device_id,quilr.endpoint.device.sha256.v1,generate_device_id,stable only when same successful tier,host-oriented but clone/collision properties unresolved,possibly after hardware/OS changes,No,Strong deterministic with fallback caveat,device alias with tier unknown,Verified in source
+ID-002,Device,monitor DeviceContext.device_id,platform serial raw,fetch_device_id,hardware/firmware dependent,not guaranteed globally unique,possibly firmware/vendor reuse,No,Secondary,source-specific device alias only,Verified in source
+ID-003,Device,UserDevice.id,dashboard backend device,fetch-user-details,backend lifecycle,backend-scoped,Unresolved,No,Strong source-native,backend device alias,Verified in source
+ID-004,Device,hostname,local DNS/OS,sysinfo,mutable,not unique,Yes,No,Mutable alias,display/search only,Verified in source
+ID-005,Human,Persona.id,dashboard user ID,authentication API,backend lifecycle,backend-scoped,Unresolved,No,Strong source-native,primary source user alias,Verified in source
+ID-006,Human,Persona.email,email,authentication API,mutable,commonly unique only within policy,Yes,No,Secondary,correlation/display not immutable identity,Verified in source
+ID-007,Tenant,Persona.tenant,dashboard tenant ID,authentication API,backend lifecycle,backend-scoped,Unresolved,No,Strong source-native,tenant namespace key,Verified in source
+ID-008,Subscriber,Persona.subscriber,dashboard subscriber ID,authentication API,backend lifecycle,backend-scoped,Unresolved,No,Strong source-native,subscriber alias,Verified in source
+ID-009,OS account,ProcessInfo.user,platform account or SID,OS enumerator,account lifecycle,device/domain scoped,Yes,Platform-dependent,Secondary,local execution attribution,Verified in source
+ID-010,Application installation,Entity.id,UUIDv5 URL over name/path,entity_id,stable for exact textual inputs,source key collision possible if normalization differs,Yes when name/path reused,No,Strong deterministic source key,observation id not global canonical,Verified by test
+ID-011,Application,ApplicationData.canonical_id,dashboard application ID,app-add/ingest response,backend lifecycle,backend-scoped,Unresolved,No,Strong source-native,source alias for canonical resolution,Verified in source
+ID-012,MCP server,Entity.id,UUIDv5 URL over tenant/name,mcp_server_id,stable for exact inputs,collides for same-name distinct configurations,Yes when name reused,No,Weak deterministic,observation key only with parent/transport attributes,Verified by test
+ID-013,Skill/Hook/Agent/Model/Repo/Permission/Plugin,Entity.id,UUIDv5 URL over tenant/email/name,user_scoped_entity_id,stable for exact inputs,cross-kind collision possible,Yes when name reused,No,Weak deterministic,observation key plus mandatory kind/path,Verified by test
+ID-014,Process,pid,OS process table,OS enumerator,runtime until reuse,device-local only,Yes,No,Runtime-scoped,combine with device and start_time,Verified in source
+ID-015,Process,start_time_secs,OS process table,OS enumerator,process lifetime,not unique alone,No,No,Secondary,combine with device/PID,Verified in source
+ID-016,IDE session,session_id,source hook,IDE hook payload,source-defined,source-local,Unresolved,No,Runtime-scoped,local aggregation only because activity output omits it,Verified in source
+ID-017,Hook event,no identifier,source hook,HookRequest,none,none,N/A,No,Unusable for identity,requires new event ID for deduplication,Verified in source
+ID-018,Activity turn,no identifier,activity API,hook evaluator,none,none,N/A,No,Unusable for identity,requires new event/turn ID for correlation,Verified in source
+ID-019,Proxy request,RequestContext.id,endpoint proxy timestamp-random,RequestContext::new,one request,process-local probabilistic,No,No,Strong random correlation,request/event correlation only,Verified in source
+ID-020,Network connection,ConnectionMetadata.id,macOS extension,Network Extension,connection lifetime,source-defined,Yes,Unresolved,Runtime-scoped,connection correlation,Verified in source
+ID-021,Network packet,ExtensionMessage UdpPacket.id,macOS extension,Network Extension,packet lifetime,source-defined,Yes,Unresolved,Runtime-scoped,packet correlation,Verified in source
+ID-022,Alert,SerializedAlert.id,UUIDv4,Alertable::serialize,alert lifecycle,probabilistically global,No,No,Strong random,transport idempotency/dedup key,Verified in source
+ID-023,Diagnostic,DiagnosticPayload.id,UUIDv4,DiagnosticPayload::new,event lifecycle,probabilistically global,No,No,Strong random,event correlation,Verified in source
+ID-024,Service,service name/process_id,endpoint process namespace,service definitions,configuration lifecycle,not globally unique,Yes,No,Mutable alias,qualify by sensor instance/version,Verified in source
+ID-025,DLP category,category_id,upstream detector namespace,DLP response,upstream lifecycle,upstream-scoped,Possibly,No,Strong source-native,category alias with detector/version,Verified in source
+ID-026,Policy,control slug,policy backend namespace,policy result/config,policy lifecycle,backend-scoped,Possibly,No,Strong source-native,policy alias with tenant/version,Verified in source
+ID-027,Hook file,sha256,sha256 content digest,HookInstaller,content-addressed,identical content shares ID,No,Yes for content integrity,Content-addressed,evidence digest not file identity,Verified in source
+ID-028,Executable,path,file-system namespace,OS/extension,mutable,path unique only at instant,Yes,No,Mutable alias,binary candidate attribute,Verified in source
+ID-029,macOS process,audit_token,kernel audit token,Network Extension,process/security context,device/runtime-scoped,No,Yes per source comment,Strong runtime,retain as protected attribution evidence,Verified in source
+ID-030,Repository,path/local metadata,file-system/Git,ControlledRepoData,mutable,device-local,Yes,No,Secondary,repository candidate alias with device,Verified in source

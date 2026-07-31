@@ -1,0 +1,68 @@
+{
+  "evidence_status": "Proposed manifest generated from Verified in source capability rows",
+  "sensor": {
+    "name": "Quilr LLM Gateway",
+    "type": "LLM gateway",
+    "repository": "quilrbusiness/macrodata-refinement",
+    "commit": "92b0462c583b908f8ce0cadd1bc89d2e702f5a7d"
+  },
+  "deployment_modes": [
+    "BlackSheep gateway",
+    "all-in-one deployment",
+    "worker-assisted NATS/ClickHouse deployment"
+  ],
+  "collection_modes": [
+    "observe",
+    "monitor",
+    "redact",
+    "block"
+  ],
+  "record_types": [
+    "api_request_log",
+    "axis_alert",
+    "dlp_request",
+    "dlp_result",
+    "hallucination_result",
+    "policy_decision",
+    "config_snapshot",
+    "config_change_request",
+    "provider_health_rollup",
+    "gateway_probe",
+    "redteam_run_case",
+    "intent_analysis_result",
+    "prompt_store_record",
+    "api_key_setting"
+  ],
+  "capture_points": [
+    "OpenAI-compatible HTTP ingress",
+    "Anthropic Messages ingress",
+    "AWS Bedrock native ingress",
+    "OpenAI Responses/Assistants ingress",
+    "OpenAI Realtime relay",
+    "Copilot Studio hooks",
+    "DLP NATS request/reply",
+    "Performance request lifecycle",
+    "External gateway health probes"
+  ],
+  "controls": [
+    "Observe/log",
+    "Monitor",
+    "Redact/transform",
+    "Block",
+    "Rate/concurrency limit",
+    "Model allowlist",
+    "Source-IP restriction",
+    "Config approval/rollback"
+  ],
+  "known_blind_spots": [
+    "Calls bypassing gateway; content omitted by endpoint-specific walkers",
+    "Provider-side activity outside gateway",
+    "Unsupported invoke-with-response-stream handler explicitly returns unsupported",
+    "Non-text opaque provider objects",
+    "No durable session/connection entity contract",
+    "Decoded unverified JWT claims are not authoritative identity",
+    "Timeouts/errors fail according to caller; absence is not clean content",
+    "Temporary timestamps are removed; delivery acknowledgement to Quilr 2.0 does not exist",
+    "Probe success is not complete request-path coverage"
+  ]
+}

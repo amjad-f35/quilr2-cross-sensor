@@ -1,0 +1,16 @@
+utility_id,name,path,role,state_owned,failure_behavior,evidence
+UTIL-001,ObserveConfig,starliner/config.py,Configuration parser,Immutable config,Invalid security-sensitive configuration raises,Verified in source
+UTIL-002,safe_identifier,starliner/identity.py,Identifier normalization,None,Fallback or opaque hash,Verified by test
+UTIL-003,pseudonymous_actor_id,starliner/identity.py,Actor pseudonymization,None,Null without email,Verified by test
+UTIL-004,safe_labels,starliner/payload_safety.py,Prediction reduction,None,Invalid labels dropped,Verified by test
+UTIL-005,MCPObserveMapper,starliner/mapping.py,Canonical mapper,Config reference,Model errors propagate to supervisor,Verified by test
+UTIL-006,MCPObserveRuntime,starliner/runtime.py,Scheduler and emitter,Task set counters health cache,Fail open,Verified by test
+UTIL-007,DisabledObserveRuntime,starliner/runtime.py,No-op compatibility,Reason and counters,Closes coroutine,Verified by test
+UTIL-008,StarlinerOutboxRepository,db/starliner_outbox_repository.py,Durable queue,SQLite rows,Transactional error or bounded full,Verified by test
+UTIL-009,HttpDeliveryTransport,starliner/delivery.py,HTTP batch transport,URL token timeout,Malformed response error,Verified by test
+UTIL-010,StarlinerDeliveryWorker,starliner/delivery.py,Retry and terminalization,Task event counters,Retry or terminal failure,Verified by test
+UTIL-011,_safe_observe_tools,services/registry.py,Tool privacy reducer,None,Drops non-name fields,Verified by test
+UTIL-012,_observe_completed_tool_call,services/mcp_handler.py,Result privacy reducer,None,Exception suppressed,Verified by test
+UTIL-013,DLPService,services/dlp_service.py,Native content control,None,Branch-specific,Verified in source
+UTIL-014,ToolConfirmationStore,services/tool_confirmation.py,Approval gate,Process-local pending map,Expiry or context miss,Verified by test
+UTIL-015,token saving service,services/token_saving_service.py,Output optimization,None,Per-transform fail open,Verified by test

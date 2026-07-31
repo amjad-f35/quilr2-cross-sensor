@@ -1,0 +1,70 @@
+schema_version: 1
+artifact_status: Proposed target contract
+coverage_record:
+  identity:
+    coverage_id: required
+    tenant_id: required
+    sensor_instance_id: required
+    device_id_or_candidate: required
+    component_id: required
+    capability_id: required
+  scope:
+    platform: required
+    source_name: required
+    source_version: optional
+    mode: required
+    configured_scope:
+      roots_or_profiles: privacy_filtered
+      ecosystems: optional
+      filters_ports_protocols: optional
+      application_or_ide_types: optional
+      exclusions: optional
+    blind_spots: required
+  interval:
+    attempted_at: required
+    started_at: optional
+    completed_at: optional
+    freshness_deadline: required
+    clock_offset_uncertainty_ms: optional
+  result:
+    status:
+      allowed:
+        - complete
+        - partial
+        - failed
+        - cancelled
+        - unsupported
+        - disabled
+        - unknown
+    items_examined: optional
+    bytes_examined: optional
+    actions_examined: optional
+    error_classes: safe_bounded_values_only
+    source_cursor_or_config_version: optional
+    platform_admission_state: required
+  absence_semantics:
+    usable: required_boolean
+    qualification: required
+    late_arrival_deadline: optional
+    invalidated_by:
+      - stale_health
+      - partial_or_failed_status
+      - unsupported_scope
+      - clock_uncertainty
+      - outbox_loss
+      - adapter_or_schema_rejection
+principles:
+  - completeness is always relative to declared source and configured scope
+  - positive observation and coverage are separate records
+  - unsupported and disabled are not equivalent to complete absence
+  - source outage reduces confidence and freshness but does not delete inventory
+  - self-test observations must be excluded from customer activity and findings
+current_implementation:
+  common_coverage_record: absent
+  current_inputs:
+    - component lifecycle states
+    - scan loops and logs
+    - proxy health and metrics
+    - hook integrity behavior
+    - snapshots and subsystem queues
+  evidence_status: Verified in source

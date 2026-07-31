@@ -160,6 +160,11 @@ const required = [
   'engineering-execution/CODING_AGENT_START_PROMPT.md',
   'engineering-execution/jira/die-work-program-import.csv',
   'engineering-execution/tools/validate-execution-kit.mjs',
+  'cloud-context/README.md',
+  'cloud-context/SELECTION_POLICY.md',
+  'cloud-context/CLOUD_AGENT_BOOTSTRAP.md',
+  'cloud-context/selection.json',
+  'cloud-context/manifest.json',
   'production-readiness/README.md',
   'production-readiness/00-assurance-model.md',
   'production-readiness/01-lg001-postgresql.md',
@@ -246,6 +251,8 @@ const required = [
   'tools/yaml-to-json.py',
   'tools/run-live-storage-conformance.sh',
   'tools/run-clean-room-validation.mjs',
+  'tools/build-cloud-context.mjs',
+  'tools/validate-cloud-context.mjs',
   'tools/snapshot-quilrbusiness-org.mjs',
   'tools/classify-quilrbusiness-repositories.mjs',
   'tools/snapshot-local-source-checkouts.mjs',
@@ -279,7 +286,10 @@ catch (error) {
   fail(`LG-008 authority validation failed: ${String(error.stderr || error.message).trim()}`)
 }
 
-const allFiles = walk(root)
+// Historical source-analysis fixtures in the portable payload are
+// non-normative and have their own exact digest/path/size validator.
+const cloudContextPayload = `${join(root, 'cloud-context/payload')}/`
+const allFiles = walk(root).filter(path => !path.startsWith(cloudContextPayload))
 for (const path of allFiles.filter(item => item.endsWith('.json'))) {
   try {
     const value = JSON.parse(readFileSync(path, 'utf8'))

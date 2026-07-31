@@ -1,0 +1,9 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "eventType": "mcp_tool_call",
+  "sourceId": "synthetic-call",
+  "tenantId": "tenant-example",
+  "occurredAt": "2026-07-01T00:00:00Z",
+  "status": "candidate"
+}

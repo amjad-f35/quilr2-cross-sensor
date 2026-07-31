@@ -1,0 +1,6 @@
+input,kind,revision_or_digest,scope,status
+quilr-ai-config-manager,repository,68132e67d0b494d52aac01a1ad811c03faf21550,better-console-backend plus root deployment support,verified
+sensor mission attachment,instruction,sha256:de525cd0759d2ac0c8b36bb5ba2aef17fe2ab9758a8bfd071257b89b38e7dbe0,second-pass requirements,verified
+prior Quilr1 archaeology,supporting analysis,local corpus,cross-generation comparison,verified
+Quilr2 Starliner GA,target architecture,local pinned corpus,mapping only,verified available
+design system,supporting repository,2fc373cadd43322c47d50750a946e7eb70664374,@quilrbusiness/kit 3.0.2 reconstruction,runtime verified build

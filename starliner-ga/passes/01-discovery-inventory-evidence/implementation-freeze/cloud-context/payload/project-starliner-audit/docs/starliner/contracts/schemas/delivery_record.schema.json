@@ -1,0 +1,259 @@
+{
+  "$defs": {
+    "DeliveryEnvelope": {
+      "additionalProperties": false,
+      "description": "Runtime identity and integrity metadata for one canonical record.",
+      "properties": {
+        "adapter_version": {
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "body_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Body Hash",
+          "type": "string"
+        },
+        "certification_id": {
+          "minLength": 1,
+          "title": "Certification Id",
+          "type": "string"
+        },
+        "contract_version": {
+          "const": "starliner.sensor.v1",
+          "default": "starliner.sensor.v1",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "evidence_quality": {
+          "enum": [
+            "audit_grade",
+            "operational",
+            "best_effort",
+            "debug_only",
+            "fixture"
+          ],
+          "title": "Evidence Quality",
+          "type": "string"
+        },
+        "flow_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flow Id"
+        },
+        "idempotency_key": {
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "occurred_at": {
+          "minLength": 1,
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "record_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Record Hash",
+          "type": "string"
+        },
+        "record_origin": {
+          "enum": [
+            "live_sensor",
+            "selftest",
+            "synthetic",
+            "fixture",
+            "legacy_backfill",
+            "manual_import"
+          ],
+          "title": "Record Origin",
+          "type": "string"
+        },
+        "record_type": {
+          "minLength": 1,
+          "title": "Record Type",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "runtime_instance_id": {
+          "minLength": 1,
+          "title": "Runtime Instance Id",
+          "type": "string"
+        },
+        "safe_summary": {
+          "$ref": "#/$defs/SafePayloadSummary"
+        },
+        "schema_version": {
+          "pattern": "^starliner\\..+\\.v[1-9][0-9]*$",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sensor_id": {
+          "minLength": 1,
+          "title": "Sensor Id",
+          "type": "string"
+        },
+        "span_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span Id"
+        },
+        "tenant_id": {
+          "minLength": 1,
+          "title": "Tenant Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "record_type",
+        "schema_version",
+        "sensor_id",
+        "adapter_version",
+        "certification_id",
+        "runtime_instance_id",
+        "record_origin",
+        "evidence_quality",
+        "occurred_at",
+        "idempotency_key",
+        "body_hash",
+        "record_hash"
+      ],
+      "title": "DeliveryEnvelope",
+      "type": "object"
+    },
+    "SafePayloadSummary": {
+      "additionalProperties": false,
+      "description": "Fixed safe metadata permitted alongside a canonical body.",
+      "properties": {
+        "argument_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Argument Hash"
+        },
+        "argument_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Argument Keys",
+          "type": "array"
+        },
+        "argument_size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Argument Size Bytes"
+        },
+        "data_labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Labels",
+          "type": "array"
+        },
+        "error_class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Class"
+        },
+        "result_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Hash"
+        },
+        "result_size_bytes": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Size Bytes"
+        },
+        "risk_labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risk Labels",
+          "type": "array"
+        }
+      },
+      "title": "SafePayloadSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The exact payload persisted by a sensor outbox and sent to ingest.",
+  "properties": {
+    "body": {
+      "additionalProperties": true,
+      "title": "Body",
+      "type": "object"
+    },
+    "envelope": {
+      "$ref": "#/$defs/DeliveryEnvelope"
+    }
+  },
+  "required": [
+    "envelope",
+    "body"
+  ],
+  "title": "DeliveryRecord",
+  "type": "object"
+}

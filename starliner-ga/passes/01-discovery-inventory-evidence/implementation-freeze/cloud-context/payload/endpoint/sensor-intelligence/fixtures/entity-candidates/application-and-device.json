@@ -1,0 +1,24 @@
+{
+  "_fixture": {
+    "id": "FX-EC-001",
+    "evidence_label": "Proposed target fixture from verified native identifiers",
+    "runtime_observed": false,
+    "fixture_class": "normal and identity-conflict",
+    "source_basis": "native Entity/Application and three device ID namespaces"
+  },
+  "payload": {
+    "entity_kind_candidate": "Application",
+    "application_identifiers": [
+      {"namespace": "endpoint.application.native_uuid", "value": "00000000-0000-0000-0000-000000000101"},
+      {"namespace": "endpoint.application.normalized_name", "value": "synthetic-ai-app"}
+    ],
+    "device_identifiers": [
+      {"namespace": "persona.hashed_device_id", "value": "test-device-hash-a"},
+      {"namespace": "monitor.serial_derived_id", "value": "test-device-serial-b"},
+      {"namespace": "user_device.id", "value": "test-user-device-c"}
+    ],
+    "canonical_entity": null,
+    "expected_resolution": "platform decision with merge/split/conflict history"
+  }
+}
+

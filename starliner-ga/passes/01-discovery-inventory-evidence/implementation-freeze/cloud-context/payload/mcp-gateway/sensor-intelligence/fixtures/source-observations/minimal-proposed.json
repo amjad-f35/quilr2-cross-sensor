@@ -1,0 +1,15 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "minimum central candidate before adapter enrichment"
+  },
+  "schema": "starliner.source_observation.v1",
+  "schema_version": 1,
+  "tenant_id": "tenant-fixture",
+  "sensor_id": "mcp_gateway_fixture",
+  "source_entity_type": "mcp_tool",
+  "source_external_id": "tool-minimal",
+  "observation_id": "observation:tool-minimal",
+  "observed_at": "2026-07-30T12:00:00+00:00",
+  "attributes": {}
+}

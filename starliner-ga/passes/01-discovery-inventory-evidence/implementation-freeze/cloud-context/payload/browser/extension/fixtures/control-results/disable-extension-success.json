@@ -1,0 +1,19 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Enforcement effect confirmed",
+    "evidence_status": "Proposed",
+    "expected": "accepted"
+  },
+  "record": {
+    "schema": "proposed.browser_extension.control_result.v1",
+    "tenant_id": "tenant-fixture",
+    "command_id": "cmd-001",
+    "status": "effect_confirmed",
+    "effect": {
+      "extension_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "enabled": false
+    },
+    "occurred_at": "2026-07-30T12:00:02Z"
+  }
+}

@@ -102,7 +102,20 @@ for (const item of requiredPaths) {
   if (!fs.existsSync(path.join(root, item))) fail(`missing required path: ${item}`);
 }
 
-const files = walk(root);
+// The portable cloud-context payload contains exact, non-normative copies of
+// independently validated source-analysis artifacts. Validate its content and
+// digests with the bounded pass validator; do not reinterpret historical
+// JSON/YAML/CSV conventions or intentionally unresolved local links as
+// Starliner corpus contracts.
+const cloudContextPayload = path.join(
+  root,
+  "passes",
+  "01-discovery-inventory-evidence",
+  "implementation-freeze",
+  "cloud-context",
+  "payload",
+);
+const files = walk(root).filter((file) => !file.startsWith(`${cloudContextPayload}${path.sep}`));
 const markdownFiles = files.filter((file) => file.endsWith(".md"));
 const jsonFiles = files.filter((file) => file.endsWith(".json"));
 const csvFiles = files.filter((file) => file.endsWith(".csv"));

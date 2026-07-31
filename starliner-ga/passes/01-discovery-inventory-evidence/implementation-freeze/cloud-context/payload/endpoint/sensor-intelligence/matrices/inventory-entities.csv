@@ -1,0 +1,52 @@
+object_type,directly_discovered,evidence,native_ids,attributes,lifecycle_signals,relationships,platform_availability,status
+AI Product,No,recognized names can be mapped only through catalog,none direct,application or model display metadata,none direct,mapped from application/model candidate,Derivable centrally from current output,Inference
+Application Surface,Partial,ApplicationData and proxy destination context,entity UUID and optional canonical_id,name domain path bundle process,first/last seen and proxy request time,observed on device and targeted by request,Available through adapter mapping only,Verified in source
+Tenant Application,No,backend app canonical mapping lacks tenant-app object,canonical_id only,governance and app metadata,none direct,tenant context plus app candidate,Requires an external authoritative source,Unresolved
+Application Installation,Yes,ApplicationData from process Lua/package scans,UUIDv5 name/install_path and optional canonical_id,install path executable version vendor package bundle,first/last seen rediscovery,installed/observed on device,Available through adapter mapping only,Verified in source
+Application Account,Partial,Persona or request email near application traffic,user ID/email plus app candidate,email and destination,request/activity time,user uses destination app is inferable,Derivable centrally from current output,Inference
+Enterprise Subscription,No,no subscription collector,none,none,none,none,Requires an external authoritative source,Not observable
+Human,Partial,Persona and fetch-user-details,backend user ID and email,display name job title location department,validation/refresh times,authenticated persona on device,Available through adapter mapping only,Verified in source
+Directory Account,Partial,Persona backend identity,backend user ID and email,account status roles permissions groups,last validation/account refresh,account belongs to tenant,Available through adapter mapping only,Verified in source
+SaaS Account,No,request email does not prove SaaS native account,display email only,none authoritative,request time only,candidate user uses app,Requires an external authoritative source,Unresolved
+Group,Partial,fetch-user-details groups,group display strings only,name,membership refresh,user member_of group,Available through adapter mapping only,Verified in source
+Device,Yes,ContextManager Persona and agent context,hardware-derived device ID backend device ID and hostname,OS arch username network details,startup and Persona refresh,sensor runs_on device,Available through adapter mapping only,Verified in source
+Browser Installation,No,no browser installation record,none,process/app only,none,application observed on device,Requires minor sensor instrumentation,Not observable as canonical
+Browser Profile,No,no browser profile ID,none,none,none,none,Not observable by this sensor,Not implemented
+Extension Installation,No,no browser extension inventory record,none,none,none,none,Not observable by this sensor,Not implemented
+Process,Partial,ProcessInfo snapshots,PID plus start_time only transient,name raw name path PPID user command,start and exit deltas,process executes application/binary candidate,Requires minor sensor instrumentation,Verified but lossy
+Binary,Partial,executable paths and selected hook SHA-256,path and hook digest,path name optional package metadata,process observations and hook install,binary located_on device,Available through adapter mapping only,Partial
+Agent Definition,Yes,AgentData from selected Lua collectors,user-scoped UUIDv5,name type framework path models tools MCP names,scan rediscovery,definition configured_on device,Available through adapter mapping only,Verified in source
+Agent Version,Partial,AgentData version if script supplies it,user-scoped entity ID plus free version,version and framework,scan rediscovery,version of agent definition,Available through adapter mapping only,Partial
+Agent Deployment,Partial,definition path/device context imply local deployment,definition ID plus device ID,path scope type,scan rediscovery,deployed_on device,Derivable centrally from current output,Inference
+Agent Runtime,No,no runtime instance record,none,none,none,none,Requires substantial sensor changes,Not implemented
+Agent Session,No,no agent session model; hook session is IDE session,hook session_id unsuitable,none,hook session time only,none,Requires substantial sensor changes,Not implemented
+Agent Run,No,no run ID/outcome,none,none,none,none,Requires substantial sensor changes,Not implemented
+Model Provider,Partial,ModelData provider string,user-scoped entity UUID plus name/provider,free provider metadata,scan rediscovery,agent may declare model,Available through adapter mapping only,Partial
+Model Family,Partial,ModelData model name,user-scoped UUIDv5,name/provider/config,scan rediscovery,agent declares model,Available through adapter mapping only,Partial
+Model Version,Partial,ModelData version/config when script supplies,user-scoped UUID and free version,version config path,scan rediscovery,version of model declaration,Available through adapter mapping only,Partial
+Model Deployment,No,no served deployment identity,none,none,none,none,Requires an external authoritative source,Not observable
+Model Route,No,no canonical route model,host/path only,network destination,request time,request targets endpoint,Requires substantial sensor changes,Not implemented
+MCP Client,Partial,parent application name in McpServerData,application UUID/name,client application metadata,scan rediscovery,application configures server,Derivable centrally from current output,Partial
+MCP Server,Yes,McpServerData from selected configs,tenant-scoped UUIDv5 tenant/name,name transport command args URL env names config path,scan rediscovery,configured_by application,Available through adapter mapping only,Verified in source
+MCP Server Deployment,Partial,device plus local config candidate,MCP UUID plus device ID,config path command URL transport,scan rediscovery,deployed_on device,Derivable centrally from current output,Inference
+Tool,Partial,HookData and AgentData tool names plus hook activity,user-scoped entity ID or display name,name type source,scan and hook activity,hook/tool associated with app/agent,Available through adapter mapping only,Partial
+Tool Version,No,no stable tool version/schema digest,none,none,none,none,Requires substantial sensor changes,Not implemented
+Connector,No,no canonical connector record,none,none,none,none,Requires an external authoritative source,Not observable
+Connected Account,No,no connector/account grant record,none,none,none,none,Requires an external authoritative source,Not observable
+Credential metadata,Partial,Persona token state and MCP env-var strings exist,no safe credential ID,expiry and source may exist,Persona refresh,credential used by agent is not emitted,Requires substantial sensor changes,Sensitive partial
+Data Asset,No,no general data-asset inventory,none,file/upload content only,request time only,action may target content,Requires an external authoritative source,Not observable as inventory
+File,Partial,hook files config paths upload filenames/body temp files,path/name and hook SHA-256,size MIME path placeholders,install/integrity/upload time,file used/configures/uploaded,Requires minor sensor instrumentation,Partial
+Repository,Partial,ControlledRepoData from selected Lua scripts,user-scoped UUIDv5 with unique name,name path URL branch metadata,scan rediscovery,controlled_by local tool/app,Available through adapter mapping only,Verified selected scope
+Knowledge Base,No,no knowledge-base model,none,none,none,none,Not observable by this sensor,Not implemented
+Memory Store,No,no agent memory store model,none,none,none,none,Not observable by this sensor,Not implemented
+Gateway,Partial,proxy process is an inline gateway,sensor/service identity not emitted canonically,listen ports and config,start/stop and health,intercepts device traffic,Requires minor sensor instrumentation,Implementation-only
+Sensor,Partial,agent services and version exist,package version process/service names,version OS arch configuration,start/stop/status internal,sensor runs_on device,Requires minor sensor instrumentation,Implementation-only
+Enforcement Point,Yes,monitor hook and proxy control paths,service and entity/request IDs,policy mode target result labels,state/request lifecycle,enforces or evaluates action,Available through adapter mapping only,Verified mixed maturity
+Policy,Partial,governance and proxy policy data,canonical entity ID/control slug,execution policy settings and actions,delta/refresh time,policy governs entity/request,Available through adapter mapping only,Partial
+Certification,No,no sensor certification record,none,none,none,none,Requires an external authoritative source,Not observable
+Cloud Instance,No,no cloud metadata inventory,none,none,none,none,Requires an external authoritative source,Not implemented
+Serverless Function,No,no cloud/serverless APIs,none,none,none,none,Requires an external authoritative source,Not implemented
+Container,No,no container runtime inventory,none,none,none,none,Requires an external authoritative source,Not implemented
+CI/CD Runner,No,no CI provider/runner collector,none,none,none,none,Requires an external authoritative source,Not implemented
+GitHub Repository Tree,No,no GitHub API or exhaustive local traversal,none,none,none,none,Requires an external authoritative source,Not implemented
+Agent Skill,Yes,SkillData from selected configs/Markdown,user-scoped UUIDv5,name path description source scope,scan rediscovery,skill belongs to app/agent candidate,Available through adapter mapping only,Verified selected scope

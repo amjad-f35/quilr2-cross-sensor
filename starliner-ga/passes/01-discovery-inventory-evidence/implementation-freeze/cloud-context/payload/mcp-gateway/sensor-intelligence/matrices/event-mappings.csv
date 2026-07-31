@@ -1,0 +1,11 @@
+mapping_id,native_event,target_event,availability,required_change,product_disposition
+EV-001,Direct ActionEvent,mcp.tool.called,Available now without sensor changes,Central resolution,Activity explorer
+EV-002,DLP FindingSignal,mcp.tool.blocked,Derivable centrally from current output,Finding admission,Finding signal
+EV-003,Backend SourceObservation,mcp.server.observed,Available now without sensor changes,Identity correction,Inventory list
+EV-004,Tool SourceObservation,mcp.tool.observed,Available now without sensor changes,Snapshot lifecycle,Inventory list
+EV-005,mcp_rejected_requests,mcp.request.rejected,Available through adapter mapping only,Privacy allowlist,Activity explorer
+EV-006,events auth family,identity.authentication.event,Available through adapter mapping only,Identity resolution,Activity explorer
+EV-007,events admin family,configuration.changed,Available through adapter mapping only,Safe diff version,Configuration
+EV-008,workflow run and step,agent.run_or_step,Available through adapter mapping only,Causal propagation,Activity explorer
+EV-009,OneMCP native action,mcp.tool.called,Requires minor sensor instrumentation,Dedicated hook,Activity explorer
+EV-010,Delivery health,sensor.health,Requires minor sensor instrumentation,Durable health event,Coverage and health

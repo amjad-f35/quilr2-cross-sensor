@@ -1,0 +1,104 @@
+schema_version: 1
+artifact_status: Proposed target contract grounded in verified endpoint components
+sensor:
+  sensor_type: sentinel-endpoint-agent
+  sensor_version: required
+  adapter_version: required
+  contract_version: required
+  sensor_instance_id: required
+  tenant_id: required
+  device_identifier_candidates: required
+platform_support:
+  macos:
+    status: supported_conditional
+    active_components:
+      - system_monitor
+      - ide_hooks
+      - explicit_proxy
+      - network_extension_redirector
+      - application_enforcement
+      - persona_identity
+  windows:
+    status: supported_conditional
+    active_components:
+      - system_monitor
+      - ide_hooks
+      - explicit_proxy
+      - windivert_redirector
+      - application_enforcement
+      - persona_identity
+  linux:
+    status: unsupported
+  container_kubernetes:
+    status: unsupported
+  serverless:
+    status: unsupported
+  ci_runner:
+    status: unsupported_as_authoritative_source
+    note: incidental observation is possible only on an installed supported host
+sub_sensors:
+  - id: system_monitor.process_discovery
+    current_mode: observe
+    source_scoped_completeness: true
+    durable_platform_export: false
+  - id: system_monitor.config_discovery
+    current_mode: observe
+    source_scoped_completeness: true
+    durable_platform_export: false
+  - id: system_monitor.package_discovery
+    current_mode: observe
+    source_scoped_completeness: true
+    durable_platform_export: false
+  - id: system_monitor.governance_sync
+    current_mode: configure
+    durable_platform_export: false
+  - id: ide_hooks
+    current_mode: observe
+    enforce_supported_currently: false
+    protocol_decisions: [Allow, Deny, Ask, Justify]
+    active_decision: Allow
+  - id: proxy.explicit
+    current_mode: observe_and_conditional_enforce
+  - id: proxy.transparent_macos
+    current_mode: observe_and_conditional_enforce
+  - id: proxy.transparent_windows
+    current_mode: observe_and_conditional_enforce
+  - id: proxy.dlp
+    current_mode: observe_and_conditional_enforce
+    analyzers: [heuristic, remote, feature_gated_ai]
+  - id: persona_identity
+    current_mode: context
+    authoritative_identity: false
+  - id: application_enforcement
+    current_mode: enforce_partial_effect_verification
+    platforms: [macos, windows]
+  - id: alerting
+    current_mode: subsystem_specific_export
+  - id: diagnostics
+    current_mode: best_effort_export
+  - id: delivery_adapter
+    current_mode: not_implemented
+required_registration_fields:
+  - operating_system
+  - operating_system_version
+  - component_versions
+  - enabled_sub_sensors
+  - operating_modes
+  - source_scope_descriptors
+  - configured_cadences
+  - supported_record_and_event_versions
+  - self_test_results
+  - known_blind_spots
+  - privacy_modes
+  - outbox_capabilities
+  - clock_quality
+certification_states:
+  - unknown
+  - accepted
+  - accepted_degraded
+  - rejected_unsupported
+  - rejected_incompatible
+evidence_markers:
+  current_component_inventory: Verified in source
+  common_manifest_emission: Not implemented
+

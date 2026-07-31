@@ -1,0 +1,29 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "derived relationship assertion"
+  },
+  "relationship": {
+    "tenant_id": "tenant-fixture",
+    "subject_source_ref": {
+      "type": "mcp_server_deployment",
+      "backend_id": "backend-fixture"
+    },
+    "relationship_type": "PROVIDES",
+    "object_source_ref": {
+      "type": "mcp_tool",
+      "backend_id": "backend-fixture",
+      "tool_name": "search"
+    },
+    "authority": "direct_observation",
+    "confidence": 0.9,
+    "source_observation_ids": [
+      "observation:backend-fixture",
+      "observation:tool-fixture"
+    ]
+  },
+  "expected": {
+    "requires_snapshot_lifecycle_for_completeness": true
+  }
+}
+

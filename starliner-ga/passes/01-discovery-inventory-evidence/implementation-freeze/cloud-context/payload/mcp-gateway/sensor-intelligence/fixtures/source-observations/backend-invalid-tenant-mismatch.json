@@ -1,0 +1,17 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "invalid current delivery record",
+    "source_fixture": "backend-valid-current.json"
+  },
+  "mutation": {
+    "path": "record.envelope.tenant_id",
+    "value": "different-tenant"
+  },
+  "expected": {
+    "valid": false,
+    "error": "tenant_mismatch",
+    "outbox_rows_inserted": 0
+  }
+}
+

@@ -1,0 +1,21 @@
+native_event,target_candidate,mapping,status,gap
+http_request_completion,platform.http_request_completion,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+login_success,platform.login_success,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+login_failure,platform.login_failure,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+tenant_selected,platform.tenant_selected,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+session_revoked,platform.session_revoked,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+llm_interaction,platform.llm_interaction,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+mcp_tool_call,platform.mcp_tool_call,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+mcp_rejection,platform.mcp_rejection,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+endpoint_activity,platform.endpoint_activity,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+browser_alert,platform.browser_alert,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+topic_bucket_completed,platform.topic_bucket_completed,evidence-preserving adapter mapping,adapter-only,no native Starliner emitter
+topic_bucket_failed,platform.topic_bucket_failed,evidence-preserving adapter mapping,adapter-only,no native Starliner emitter
+topic_bucket_dead_lettered,platform.topic_bucket_dead_lettered,evidence-preserving adapter mapping,adapter-only,no native Starliner emitter
+topic_lease_acquired,platform.topic_lease_acquired,evidence-preserving adapter mapping,adapter-only,no native Starliner emitter
+dashboard_generation_stage,platform.dashboard_generation_stage,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+dashboard_published,platform.dashboard_published,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+saved_view_changed,platform.saved_view_changed,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+console_assist_turn,platform.console_assist_turn,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+policy_mutation_requested,platform.policy_mutation_requested,evidence-preserving adapter mapping,proposed,no native Starliner emitter
+policy_mutation_result,platform.policy_mutation_result,evidence-preserving adapter mapping,proposed,no native Starliner emitter

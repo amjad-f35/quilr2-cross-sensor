@@ -1,0 +1,10 @@
+{
+  "_fixture_status": "Proposed target fixture",
+  "entity_type": "model_route",
+  "identifiers": [
+    {
+      "namespace": "provider.model-route",
+      "value": "openai/verified-schema-example-model"
+    }
+  ]
+}

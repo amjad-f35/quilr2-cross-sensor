@@ -1,0 +1,17 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Missing required application map",
+    "evidence_status": "Verified in source",
+    "expected": "rejected"
+  },
+  "record": {
+    "user": {
+      "username": "fixture@example.invalid"
+    },
+    "event": {
+      "name": "visit",
+      "properties": {}
+    }
+  }
+}

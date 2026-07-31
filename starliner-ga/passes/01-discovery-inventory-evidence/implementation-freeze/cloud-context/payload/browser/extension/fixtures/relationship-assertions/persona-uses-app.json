@@ -1,0 +1,29 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Persona uses application relationship",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.relationship_event.v1",
+    "schema_version": 1,
+    "tenant_id": "tenant-fixture",
+    "operation": "upsert",
+    "subject": {
+      "type": "human_user",
+      "id": "persona-fixture"
+    },
+    "relation": "uses",
+    "object": {
+      "type": "browser_app",
+      "id": "ai.example.invalid"
+    },
+    "observed_at": "2026-07-30T12:00:00Z",
+    "source_event_id": "ctx-001",
+    "confidence": 0.95,
+    "attributes": {
+      "source": "browser_extension"
+    }
+  }
+}

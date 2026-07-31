@@ -1,0 +1,62 @@
+schema_version: 1
+sensor: sentinel-endpoint-agent
+evidence_status: Verified in source
+controls:
+  kill_switch:
+    scope: [tenant, device, local_shutdown]
+    default_on_missing: enabled
+    command_id: absent
+    acknowledgement: no common durable acknowledgement
+  application_execution:
+    policies: [Allowed, Audit, Blocked, Quarantined]
+    platforms: [macos, windows]
+    action_sequence:
+      - optional_macos_apple_events_quit
+      - graceful_root_process_termination
+      - five_second_grace
+      - force_kill_survivors
+      - best_effort_notification_and_audit
+    dry_run: supported
+    caveats:
+      - Blocked and Quarantined share termination behavior
+      - no final uniform effect-observed record
+      - Windows graceful taskkill can report true on some non-success statuses
+  proxy:
+    dlp_modes: [LogOnly, Enforce]
+    policy_actions:
+      - Allow
+      - Block
+      - Ask
+      - Prompt
+      - Justify
+      - AllowOriginalPromptWithNoJustification
+      - AllowOriginalPromptWithOptionalJustification
+      - AllowOriginalPromptWithMandatoryJustification
+      - AllowPromptAfterRemovalOfSensitiveData
+    policy_timeout_ms: 100
+    timeout_or_not_ready: allow
+    adversarial_prompt: immediate_block
+    caveat: effect and remote destination outcome are not emitted as separate canonical stages
+  hook:
+    protocol_decisions: [Allow, Deny, Ask, Justify]
+    active_production_decision: Allow
+    active_detection: none
+    parse_or_ipc_failure: generally_allow
+  hook_integrity:
+    action: semantic_compare_and_restore
+    evidence: installed_path_and_sha256_plus_logs
+proposed_result_fields:
+  - command_id
+  - decision_id
+  - sensor_instance_id
+  - sensor_version
+  - policy_id
+  - policy_version
+  - target_id
+  - requested_at
+  - decided_at
+  - executed_at
+  - result_status
+  - effect_observed
+  - native_error
+  - evidence_reference

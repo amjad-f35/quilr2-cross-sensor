@@ -1,0 +1,16 @@
+interface,family,count_or_path,direction,authentication,sensor_use
+Python gateway HTTP,FastAPI,275 operations,Inbound,Route-specific,Do not scrape generally
+Workflow runner HTTP,FastAPI,25 operations,Inbound and gateway control,Internal token,Separate adapter source
+Rust API,Axum,45 operations,Inbound,Independent JWT and admin,No current sensor mapping
+FastMCP declarations,MCP,18 tools or resources,Inbound,Provider-specific,Auxiliary servers outside coverage
+Direct MCP,MCP,GET POST DELETE /{backend_id}/mcp,Bidirectional,Multi-branch MCP auth,Current Direct tools-call hook
+OneMCP,MCP,/quilrone paths,Bidirectional,OneMCP OAuth and identity,Requires dedicated hooks
+OAuth and OIDC,HTTP,Direct and OneMCP families,Bidirectional,OAuth state client PKCE,Safe event projection only
+Gateway SQLite,Database,Three files,Internal,Filesystem,Adapter source
+Runner SQLite,Database,workflow_runner.db,Internal,Filesystem,Separate adapter source
+ClickHouse,Database,Three v2 outputs and smart-group input,Bidirectional,Configured credentials,Secondary analytics
+Starliner ingest,HTTP,Configured URL,Outbound,Bearer or loopback override,Current telemetry
+Starliner operations,HTTP,Three routes,Inbound,Manifest public others admin,Health and self-test
+Process logs,Logging,stdout stderr,Outbound,Collector-defined,Operator only
+Workflow artifacts,Files,Configured directory,Internal and download,Route permissions,Metadata only
+Environment,Configuration,130 names first-pass,Inbound,Deployment authority,Safe manifest only

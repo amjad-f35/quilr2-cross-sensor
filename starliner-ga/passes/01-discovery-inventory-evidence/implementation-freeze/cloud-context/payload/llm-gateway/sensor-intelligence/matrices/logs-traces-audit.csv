@@ -1,0 +1,6 @@
+type,location,fields,destination,retention,customer_visibility,sensitivity
+Structured request log,performance_logger_async.py / llmgateway_api_request_logs,native-fields.csv,SQLite/ClickHouse,Unresolved production,analytics/activity via APIs,metadata and errors; extra_data may contain identity/observability
+Axis alert/evidence,axis_logging_utils.py,"original/final content, detections, identity, actions, latency/tokens",NATS/db writer/Axis,Unresolved,finding/evidence,High
+Application logs,Python/Rust logger calls,message-template dependent,stdout/files/deployment logging,deployment-specific,operator only,Potential content/identifier leakage requires validation
+Trace context,observability_metadata.py / request_metadata.py,traceparent/tracestate/baggage/vendor headers,extra_data/analytics,request-log retention,drill-down,correlation metadata
+Configuration audit,llmgateway_config_audit.py/config_versions.py,version/hash/actor/change/request state,SQLite/ClickHouse,Unresolved,admin audit,configuration/identity

@@ -1,0 +1,39 @@
+schema: sensor-intelligence.adapter-observation-mapping.v1
+sensor: mcpgateway
+mappings:
+  - id: backend_registration
+    source_symbol: BackendRegistry._observe_backend_registration
+    current_output: SourceObservation
+    target_object_type: mcp_server_definition
+    source_native_id: backend_id
+    operation: upsert
+    fields:
+      tenant_id: tenant_id_or_unknown
+      observed_at: mapper_clock
+      attributes.transport_type: safe_identifier_transport_type
+    drops: [backend_name, transport_url, credentials, headers]
+    platform_availability: Available now without sensor changes
+    required_change: remove_canonical_entity_and_add_source_namespace
+  - id: tool_discovery
+    source_symbol: BackendRegistry._observe_tool_discovery
+    current_output: SourceObservation
+    target_object_type: mcp_tool_definition
+    source_native_id: backend_id_plus_tool_name
+    operation: upsert
+    drops: [description, inputSchema, annotations]
+    platform_availability: Available now without sensor changes
+    required_change: snapshot_revision_delete_completeness
+  - id: direct_tool_call_sighting
+    source_symbol: MCPHandler._observe_completed_tool_call
+    current_output: SourceObservation
+    target_object_type: mcp_tool_sighting
+    source_native_id: backend_id_plus_tool_name
+    operation: upsert
+    platform_availability: Available now without sensor changes
+  - id: gateway_database_inventory
+    source_symbol: gateway_db_tables
+    current_output: none
+    target_object_type: multiple
+    platform_availability: Available through adapter mapping only
+    required_change: read_only_checkpointed_privacy_allowlisted_adapter
+

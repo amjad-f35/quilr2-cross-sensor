@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "identifiers": [
+    {
+      "identifier_id": "ID-001",
+      "name": "tenant",
+      "scope": "Tenant",
+      "stability": "Session stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Do not trust body tenant where auth context supplies it"
+    },
+    {
+      "identifier_id": "ID-002",
+      "name": "subscriber",
+      "scope": "Subscriber/customer",
+      "stability": "Session stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Canonical semantics depend on upstream identity"
+    },
+    {
+      "identifier_id": "ID-003",
+      "name": "personaId",
+      "scope": "Persona",
+      "stability": "Account stable subject to upstream lifecycle",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Preferred over email when present"
+    },
+    {
+      "identifier_id": "ID-004",
+      "name": "user email",
+      "scope": "Human/application account",
+      "stability": "Mutable",
+      "sensitivity": "Sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Weak identifier; never auto-merge across tenants"
+    },
+    {
+      "identifier_id": "ID-005",
+      "name": "device numeric ID",
+      "scope": "Device",
+      "stability": "Intended stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Type mismatch: Vanguard number, BES request string then Long"
+    },
+    {
+      "identifier_id": "ID-006",
+      "name": "hostname",
+      "scope": "Device",
+      "stability": "Mutable",
+      "sensitivity": "Sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Weak correlation only"
+    },
+    {
+      "identifier_id": "ID-007",
+      "name": "hardware serial number",
+      "scope": "Device",
+      "stability": "Usually stable",
+      "sensitivity": "Highly sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Vanguard does not populate HeartbeatRequest serialNumber"
+    },
+    {
+      "identifier_id": "ID-008",
+      "name": "SystemID.fingerprint",
+      "scope": "Device",
+      "stability": "Intended stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Requires substantial sensor changes",
+      "evidence": "Verified in source",
+      "notes": "Current builder always sets empty string"
+    },
+    {
+      "identifier_id": "ID-009",
+      "name": "SystemID.primary_identifier",
+      "scope": "Device",
+      "stability": "Intended stable",
+      "sensitivity": "Highly sensitive",
+      "availability": "Requires substantial sensor changes",
+      "evidence": "Verified in source",
+      "notes": "Current builder always sets empty string"
+    },
+    {
+      "identifier_id": "ID-010",
+      "name": "Chrome extension ID (Vanguard)",
+      "scope": "Sensor product",
+      "stability": "Build/channel stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Not a sensor-instance ID"
+    },
+    {
+      "identifier_id": "ID-011",
+      "name": "third-party Chrome extension ID",
+      "scope": "Extension product",
+      "stability": "Product stable in store/channel",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Needs browser-instance context for installation entity"
+    },
+    {
+      "identifier_id": "ID-012",
+      "name": "browser name/version",
+      "scope": "Browser product/version",
+      "stability": "Version changes",
+      "sensitivity": "Internal",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Not browser-instance identity"
+    },
+    {
+      "identifier_id": "ID-013",
+      "name": "diagnostic ExtensionMetadata.browserId",
+      "scope": "Browser instance candidate",
+      "stability": "Unresolved",
+      "sensitivity": "Pseudonymous",
+      "availability": "Unresolved",
+      "evidence": "Verified in source",
+      "notes": "Not present in ordinary event/heartbeat"
+    },
+    {
+      "identifier_id": "ID-014",
+      "name": "diagnostic ExtensionMetadata.deviceId",
+      "scope": "Device candidate",
+      "stability": "Unresolved",
+      "sensitivity": "Pseudonymous",
+      "availability": "Unresolved",
+      "evidence": "Verified in source",
+      "notes": "Needs source trace/normal telemetry"
+    },
+    {
+      "identifier_id": "ID-015",
+      "name": "requestId",
+      "scope": "Action/workflow",
+      "stability": "Workflow lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Must become explicit source event ID"
+    },
+    {
+      "identifier_id": "ID-016",
+      "name": "contextId/context_id",
+      "scope": "Browser activity/context",
+      "stability": "Context lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "BES creates new random values for related reuse records"
+    },
+    {
+      "identifier_id": "ID-017",
+      "name": "SystemEvent.id",
+      "scope": "Native event/action",
+      "stability": "Event lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Native result message ID carries it"
+    },
+    {
+      "identifier_id": "ID-018",
+      "name": "Native Message.id",
+      "scope": "Wire request/result",
+      "stability": "Message/workflow lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Output chunks preserve same ID"
+    },
+    {
+      "identifier_id": "ID-019",
+      "name": "credential fingerprint ID",
+      "scope": "Credential secret equivalence class",
+      "stability": "Changes with credential",
+      "sensitivity": "Credential",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Treat as highly sensitive pseudonymous evidence"
+    },
+    {
+      "identifier_id": "ID-020",
+      "name": "file optional id",
+      "scope": "File transfer element",
+      "stability": "Workflow lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Verified in source",
+      "notes": "Current native response omits per-element ID"
+    },
+    {
+      "identifier_id": "ID-021",
+      "name": "file path",
+      "scope": "Local file",
+      "stability": "Mutable",
+      "sensitivity": "Highly sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Do not use as canonical long-term asset ID"
+    },
+    {
+      "identifier_id": "ID-022",
+      "name": "file tuple name/size/mtime",
+      "scope": "File candidate",
+      "stability": "Mutable/ambiguous",
+      "sensitivity": "Sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "May collide and contributes to mixed-batch risk"
+    },
+    {
+      "identifier_id": "ID-023",
+      "name": "conversation_id",
+      "scope": "AI conversation",
+      "stability": "Provider-specific",
+      "sensitivity": "Sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Coverage varies; most configs inactive"
+    },
+    {
+      "identifier_id": "ID-024",
+      "name": "application domain",
+      "scope": "Application surface",
+      "stability": "Stable-ish",
+      "sensitivity": "Sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Normalize punycode/subdomain carefully"
+    },
+    {
+      "identifier_id": "ID-025",
+      "name": "application URL",
+      "scope": "Page/activity",
+      "stability": "Ephemeral",
+      "sensitivity": "Highly sensitive",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "May contain queries/tokens/content"
+    },
+    {
+      "identifier_id": "ID-026",
+      "name": "routing event UUID",
+      "scope": "Backend publication",
+      "stability": "Event lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Created server-side after source event"
+    },
+    {
+      "identifier_id": "ID-027",
+      "name": "posture_id",
+      "scope": "Policy posture",
+      "stability": "Policy lifecycle",
+      "sensitivity": "Internal",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Untyped/defaulted"
+    },
+    {
+      "identifier_id": "ID-028",
+      "name": "behaviour_id",
+      "scope": "Policy behavior",
+      "stability": "Policy lifecycle",
+      "sensitivity": "Internal",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Spelling follows source"
+    },
+    {
+      "identifier_id": "ID-029",
+      "name": "diagnostic sessionId",
+      "scope": "Diagnostic session",
+      "stability": "Session lifetime",
+      "sensitivity": "Pseudonymous",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Not normal activity ID"
+    },
+    {
+      "identifier_id": "ID-030",
+      "name": "heartbeat bucket key",
+      "scope": "Backend in-memory bucket",
+      "stability": "Window lifetime",
+      "sensitivity": "Internal",
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source",
+      "notes": "Not durable or shared across pods"
+    },
+    {
+      "identifier_id": "ID-031",
+      "name": "proposed sensor_instance_id",
+      "scope": "Sensor installation",
+      "stability": "Stable across restart, rotates on reinstall",
+      "sensitivity": "Pseudonymous",
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Proposed",
+      "notes": "Must distinguish browser profile and native host instance"
+    },
+    {
+      "identifier_id": "ID-032",
+      "name": "proposed observation_id/idempotency_key",
+      "scope": "Delivered record",
+      "stability": "Record lifetime/retry stable",
+      "sensitivity": "Pseudonymous",
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Proposed",
+      "notes": "Must be reused across retries"
+    }
+  ]
+}

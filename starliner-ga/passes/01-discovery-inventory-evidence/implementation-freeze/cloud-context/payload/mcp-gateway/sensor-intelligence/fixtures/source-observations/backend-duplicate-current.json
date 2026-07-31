@@ -1,0 +1,15 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "duplicate current delivery record",
+    "source_fixture": "backend-valid-current.json"
+  },
+  "record_reference": "backend-valid-current.json",
+  "delivery_count": 2,
+  "expected": {
+    "outbox_rows_inserted": 1,
+    "duplicate_count": 1,
+    "first_body_retained": true
+  }
+}
+

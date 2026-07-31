@@ -1,0 +1,44 @@
+schema_version: 1
+sensor: sentinel-endpoint-agent
+evidence_status: Verified in source
+metric_surfaces:
+  prometheus:
+    endpoint: GET /metrics
+    metrics:
+      - {name: proxy_info, type: gauge, labels: [version], caveat: version is hard-coded to 0.1.0}
+      - {name: proxy_requests_total, type: counter, reset: process_restart}
+      - {name: proxy_requests_failed, type: counter, reset: process_restart}
+      - {name: proxy_failure_rate, type: gauge, formula: failed_requests / total_requests}
+      - {name: proxy_health_state, type: gauge, values: {0: Healthy, 1: Degraded, 2: Unhealthy, 3: Critical}}
+      - {name: proxy_dns_failures, type: counter, reset: process_restart}
+      - {name: proxy_connection_timeouts, type: counter, reset: process_restart}
+      - {name: proxy_upstream_502, type: counter, reset: process_restart}
+      - {name: proxy_upstream_503, type: counter, reset: process_restart}
+      - {name: proxy_last_success_seconds, type: gauge}
+      - {name: proxy_restart_count, type: counter, reset: process_restart}
+      - {name: proxy_circuit_breakers_total, type: gauge}
+      - {name: proxy_circuit_breakers_open, type: gauge}
+      - {name: proxy_circuit_breakers_half_open, type: gauge}
+      - {name: proxy_circuit_breakers_closed, type: gauge}
+      - {name: proxy_process_attributions, type: gauge}
+  health_json:
+    endpoint: GET /health
+    adds:
+      - successful_requests
+      - restart_count
+      - open_hosts
+      - half_open_hosts
+      - response_timestamp
+  log_only:
+    groups:
+      - connection_pool
+      - destination_resolution
+      - dlp_config
+      - traffic_log_drops
+      - activity_queue_drops
+caveats:
+  - failure_window_secs is configured but the shown failure-rate implementation uses cumulative process-lifetime counters
+  - most counters reset on process restart
+  - local endpoints are not a current central Quilr telemetry contract
+  - scrape records do not carry tenant device or sensor-instance identity
+

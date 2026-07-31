@@ -88,7 +88,17 @@ required.forEach((item) => {
   if (!fs.existsSync(path.join(root, item))) fail(`missing required file: ${item}`);
 });
 
-const files = walk(root);
+// Exact copies in the portable cloud-context payload retain the source
+// package's historical conventions and intentionally unresolved links.
+// Their admission is governed by validate-cloud-context.mjs, not by the
+// normative DIE pass document/register rules below.
+const cloudContextPayload = path.join(
+  root,
+  "implementation-freeze",
+  "cloud-context",
+  "payload",
+);
+const files = walk(root).filter((file) => !file.startsWith(`${cloudContextPayload}${path.sep}`));
 const markdown = files.filter((file) => file.endsWith(".md"));
 const csv = files.filter((file) => file.endsWith(".csv"));
 const yaml = files.filter((file) => /\.ya?ml$/.test(file));

@@ -1,0 +1,576 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": true,
+      "properties": {
+        "boundary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Boundary"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "ActivityData": {
+      "additionalProperties": true,
+      "description": "Adapter-local data view; allows declaring whether raw payload is stored.",
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "payload_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payload Hash"
+        },
+        "payload_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payload Ref"
+        },
+        "raw_payload_stored": {
+          "default": false,
+          "title": "Raw Payload Stored",
+          "type": "boolean"
+        },
+        "sensitivity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sensitivity"
+        }
+      },
+      "title": "ActivityData",
+      "type": "object"
+    },
+    "ActivityExecution": {
+      "additionalProperties": true,
+      "properties": {
+        "degraded": {
+          "default": false,
+          "title": "Degraded",
+          "type": "boolean"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CapabilityMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "upstream_called": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upstream Called"
+        }
+      },
+      "title": "ActivityExecution",
+      "type": "object"
+    },
+    "Actor": {
+      "additionalProperties": true,
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Id"
+        },
+        "api_key_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Api Key Id"
+        },
+        "device_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Device Id"
+        },
+        "human_user_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human User Id"
+        },
+        "ip": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ip"
+        },
+        "service_account_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Account Id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type"
+        },
+        "user_email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User Email"
+        },
+        "workload_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workload Id"
+        }
+      },
+      "title": "Actor",
+      "type": "object"
+    },
+    "CapabilityMode": {
+      "description": "Declared sensor behavior for an action family (RFC-0007 \u00a77).",
+      "enum": [
+        "enforce",
+        "observe",
+        "shadow",
+        "metadata_only",
+        "deferred",
+        "unsupported"
+      ],
+      "title": "CapabilityMode",
+      "type": "string"
+    },
+    "Resource": {
+      "additionalProperties": true,
+      "properties": {
+        "app_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "App Id"
+        },
+        "attributes": {
+          "additionalProperties": true,
+          "title": "Attributes",
+          "type": "object"
+        },
+        "backend_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backend Id"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Classification"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "owner_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner Id"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "tool_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Name"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Resource",
+      "type": "object"
+    },
+    "Risk": {
+      "additionalProperties": true,
+      "properties": {
+        "context_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Context Ref"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "signals": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Signals",
+          "type": "array"
+        }
+      },
+      "title": "Risk",
+      "type": "object"
+    },
+    "Sensor": {
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Sensor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Adapter-local normalized activity (RFC-0007 \u00a79).\n\nRicher than DecisionRequest but bounded; it compiles into RFC-0001 records.\nIt is never sent wholesale to the Decision API.",
+  "properties": {
+    "action": {
+      "$ref": "#/$defs/Action"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "data": {
+      "$ref": "#/$defs/ActivityData"
+    },
+    "execution": {
+      "$ref": "#/$defs/ActivityExecution"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Span Id"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "resource": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Resource"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "risk": {
+      "$ref": "#/$defs/Risk"
+    },
+    "schema": {
+      "const": "starliner.canonical_activity.v1",
+      "default": "starliner.canonical_activity.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensor": {
+      "$ref": "#/$defs/Sensor"
+    },
+    "span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Span Id"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "request_id",
+    "flow_id",
+    "sensor",
+    "action"
+  ],
+  "title": "CanonicalActivity",
+  "type": "object"
+}

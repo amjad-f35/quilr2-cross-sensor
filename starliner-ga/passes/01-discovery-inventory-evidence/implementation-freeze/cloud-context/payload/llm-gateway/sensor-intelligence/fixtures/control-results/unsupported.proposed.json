@@ -1,0 +1,5 @@
+{
+  "_fixture_status": "Proposed target fixture",
+  "command_id": "synthetic-command-1",
+  "status": "unsupported_by_current_sensor"
+}

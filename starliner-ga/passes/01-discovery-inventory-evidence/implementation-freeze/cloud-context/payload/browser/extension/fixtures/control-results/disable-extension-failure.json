@@ -1,0 +1,17 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Enforcement failed without effect",
+    "evidence_status": "Proposed",
+    "expected": "accepted_as_failure_evidence"
+  },
+  "record": {
+    "schema": "proposed.browser_extension.control_result.v1",
+    "tenant_id": "tenant-fixture",
+    "command_id": "cmd-002",
+    "status": "failed",
+    "error_code": "chrome_management_error",
+    "effect": null,
+    "occurred_at": "2026-07-30T12:00:02Z"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_fixture": {
+    "id": "FX-RAW-002",
+    "evidence_label": "Generated invalid test input",
+    "runtime_observed": false,
+    "fixture_class": "invalid",
+    "source_basis": "HookRequest required fields"
+  },
+  "payload": {
+    "ide_type": 42,
+    "event_name": null,
+    "timestamp": "not-a-time"
+  },
+  "expected_parse": "reject"
+}
+

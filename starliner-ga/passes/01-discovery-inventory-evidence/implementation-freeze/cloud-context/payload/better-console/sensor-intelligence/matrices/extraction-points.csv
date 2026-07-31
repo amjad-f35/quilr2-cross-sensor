@@ -1,0 +1,31 @@
+source,recommended_point,why,current_reliability,status
+llm_gateway_log,ClickHouse llmgateway_logs_v3,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+mcp_tool_call,ClickHouse mcp_tool_calls_v2,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+mcp_rejected_request,ClickHouse mcp_rejected_requests_v2,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+endpoint_dlp_log,Endpoint ClickHouse endpoint_dlp_logs_v4,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+endpoint_activity,Endpoint ClickHouse endpoint_activity_log,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+endpoint_entity,Endpoint entity tables,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+browser_alert_event,Browser ClickHouse quilr_alert_events,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+browser_app_setting,Browser ClickHouse app_tenant_settings,read authoritative source/projection without coupling to UI,read-only projection,adapter decision required
+auth_principal,PostgreSQL auth schema,read authoritative source/projection without coupling to UI,read,adapter decision required
+auth_session,Redis,read authoritative source/projection without coupling to UI,read/write with TTL,adapter decision required
+console_saved_view,PostgreSQL console_saved_views,read authoritative source/projection without coupling to UI,CRUD/soft delete,adapter decision required
+saved_view_preference,PostgreSQL console_saved_view_preferences,read authoritative source/projection without coupling to UI,upsert/delete,adapter decision required
+custom_dashboard_document,PostgreSQL custom_dashboard_documents,read authoritative source/projection without coupling to UI,CRUD,adapter decision required
+custom_dashboard_run,PostgreSQL custom_dashboard_runs,read authoritative source/projection without coupling to UI,workflow updates/cleanup,adapter decision required
+console_assist_message,PostgreSQL console_assist,read authoritative source/projection without coupling to UI,append/read,adapter decision required
+topic_catalog,ClickHouse ai_activity_topic_catalog_v1,read authoritative source/projection without coupling to UI,create/insert,adapter decision required
+topic_classification,ClickHouse ai_activity_topic_classifications_v1,read authoritative source/projection without coupling to UI,create/insert,adapter decision required
+topic_runner_state,ClickHouse ai_activity_topic_runner_state_v1,read authoritative source/projection without coupling to UI,create/insert,adapter decision required
+local_mirror,SQLite LocalStore tables,read authoritative source/projection without coupling to UI,transactional replace/read,adapter decision required
+conversation_cache,SQLite,read authoritative source/projection without coupling to UI,bounded sanitized writes,adapter decision required
+internal_telemetry,SQLite internal_admin_telemetry.db,read authoritative source/projection without coupling to UI,append/read,adapter decision required
+neo4j_persona,Neo4j,read authoritative source/projection without coupling to UI,read only,adapter decision required
+neo4j_device,Neo4j,read authoritative source/projection without coupling to UI,read only,adapter decision required
+provider_configuration,PostgreSQL/external service,read authoritative source/projection without coupling to UI,read/update proxy,adapter decision required
+openapi_document,openapi/platform-admin-v2.json,read authoritative source/projection without coupling to UI,generated/committed,adapter decision required
+orval_client,frontend/src/api/generated,read authoritative source/projection without coupling to UI,generated/committed,adapter decision required
+vite_asset,frontend/dist,read authoritative source/projection without coupling to UI,generated/untracked/embedded,adapter decision required
+api_completion_event,structured stdout,read authoritative source/projection without coupling to UI,one per routed request,adapter decision required
+dashboard_alert,Slack webhook,read authoritative source/projection without coupling to UI,network emission,adapter decision required
+product_analytics_state,frontend query/Zustand/localStorage,read authoritative source/projection without coupling to UI,transient/client persistence,adapter decision required

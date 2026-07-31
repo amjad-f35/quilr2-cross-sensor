@@ -1,0 +1,20 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Minimum BES EventLogRequest fields accepted by logEventValidation",
+    "evidence_status": "Verified in source",
+    "expected": "accepted_by_validation_path"
+  },
+  "record": {
+    "user": {
+      "username": "fixture@example.invalid"
+    },
+    "event": {
+      "name": "visit",
+      "properties": {}
+    },
+    "application": {
+      "domain": "example.invalid"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+schema: sensor-intelligence.native-record-types.v1
+sensor: mcpgateway
+records:
+  - name: ToolCallResult
+    owner: gateway
+    location: mcpgateway/models.py
+    role: native_direct_tool_result
+    persisted: false
+    starliner_emitted: false
+  - name: SourceObservation
+    owner: starliner_contracts
+    contract_schema: starliner.source_observation.v1
+    producers: [backend_discovery_records, tool_discovery_records, tool_call_records]
+    persisted: true
+    platform_availability: Available now without sensor changes
+  - name: ActionEvent
+    owner: starliner_contracts
+    contract_schema: starliner.action_event.v1
+    producers: [tool_call_records]
+    persisted: true
+    platform_availability: Available now without sensor changes
+  - name: MetricEvent
+    owner: starliner_contracts
+    contract_schema: starliner.metric_event.v1
+    producers: [tool_call_records]
+    persisted: true
+    platform_availability: Available now without sensor changes
+  - name: FindingSignal
+    owner: starliner_contracts
+    contract_schema: starliner.finding_signal.v1
+    producers: [tool_call_records]
+    persisted: true
+    note: source_signal_not_customer_finding
+    platform_availability: Available now without sensor changes
+  - name: DeliveryRecord
+    owner: starliner_contracts
+    shape: [envelope, body]
+    persisted: true
+    platform_availability: Available now without sensor changes
+  - name: StarlinerOutboxRecord
+    owner: gateway
+    location: mcpgateway/db/starliner_outbox_repository.py
+    fields: [outbox_id, payload, attempt_count]
+    persisted: false
+  - name: starliner_outbox
+    owner: gateway
+    storage: sqlite
+    persisted: true
+    payload_retained: active_only
+  - name: starliner_terminal_delivery
+    owner: gateway
+    storage: sqlite
+    persisted: true
+    payload_retained: false
+  - name: SensorManifest
+    owner: starliner_contracts
+    contract_schema: starliner.sensor_manifest.v1
+    persisted: false
+  - name: RuntimeMetricsSnapshot
+    owner: gateway
+    persisted: false
+    scope: process
+  - name: DeliveryHealthSnapshot
+    owner: gateway
+    persisted: derived
+    scope: local_database
+deferred_contract_records:
+  - EntitySnapshot
+  - RelationshipEvent
+  - DecisionResult
+  - TraceSpan
+  - SensorHealthEvent
+

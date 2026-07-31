@@ -1,0 +1,3 @@
+Mapping ID,Native source,Native field/event,Target object,Target field/type,Transformation,Lossiness,Owner,Availability,Evidence
+PM-003,VisitCheck,visit,CanonicalActivity,activity_type=application_visit,Use source context_id/request time,No reliable visit event time in backend wrapper if omitted,Adapter,Available through adapter mapping only,Proposed
+PM-016,HeartBeatRequest/DeviceHeartbeat,versions/freshness,SensorHealthEvent plus Device/Browser observations,capability health and version attributes,Use server receipt and bucket times separately,agentEnabled/extensionEnabled currently dropped,Adapter,Requires minor sensor instrumentation,Proposed

@@ -1,0 +1,41 @@
+schema: starliner.sensor_manifest.v1
+schema_version: 1
+profile: browser-backend
+producer: quilrbusiness/browser-extension-service
+revision: 99e9599e1582184f5061492b430cd0b2af38d753
+evidence: SOURCE_PROVEN
+capabilities:
+- feature_id: F-009
+  name: Credential-reuse detection
+  status: Implemented
+  availability: Available through adapter mapping only
+  source: Project-Vanguard/src/core/LogDrop/AuthLogDrop/index.ts; browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/controller/UserActionController.java
+- feature_id: F-032
+  name: Browser/device/native heartbeat
+  status: Implemented
+  availability: Available through adapter mapping only
+  source: Project-Vanguard/src/core/network/middleware/hearBeat.ts; browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona
+- feature_id: F-040
+  name: Browser event validation and Kafka publication
+  status: Implemented
+  availability: Available through adapter mapping only
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay
+- feature_id: F-041
+  name: Legacy schema-based event transformation
+  status: Dead-code candidate
+  availability: Requires substantial sensor changes
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay/service/UserActionService.java
+- feature_id: F-042
+  name: Heartbeat aggregation, Kafka and graph ingestion
+  status: Implemented
+  availability: Available through adapter mapping only
+  source: browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat
+known_degraded_modes:
+- Heartbeat pre-publication buckets are process-local.
+- A false heartbeat producer result is logged but does not prevent scheduler deletion.
+- HTTP event acceptance is not an end-to-end materialization receipt.
+- The legacy transformer path has no current caller proven in the pinned source.
+- No Starliner durable outbox is implemented in the pinned service.
+certification:
+  status: not_certified
+  reason: Source dossier complete; live deployment validation remains required.

@@ -1,0 +1,25 @@
+schema_version: 1
+profile: browser-backend
+status: Proposed
+rules:
+- Mapping ID: PM-003
+  Native source: VisitCheck
+  Native field/event: visit
+  Target object: CanonicalActivity
+  Target field/type: activity_type=application_visit
+  Transformation: Use source context_id/request time
+  Lossiness: No reliable visit event time in backend wrapper if omitted
+  Owner: Adapter
+  Availability: Available through adapter mapping only
+  Evidence: Proposed
+- Mapping ID: PM-016
+  Native source: HeartBeatRequest/DeviceHeartbeat
+  Native field/event: versions/freshness
+  Target object: SensorHealthEvent plus Device/Browser observations
+  Target field/type: capability health and version attributes
+  Transformation: Use server receipt and bucket times separately
+  Lossiness: agentEnabled/extensionEnabled currently dropped
+  Owner: Adapter
+  Availability: Requires minor sensor instrumentation
+  Evidence: Proposed
+authority_rule: Authenticated UserContext is stronger than a conflicting request-body tenant/persona value.

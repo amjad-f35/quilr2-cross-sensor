@@ -1,0 +1,22 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Expired control command",
+    "evidence_status": "Proposed",
+    "expected": "rejected_expired"
+  },
+  "record": {
+    "schema": "proposed.browser_extension.control_command.v1",
+    "tenant_id": "tenant-fixture",
+    "command_id": "cmd-expired",
+    "target_sensor_instance_id": "browser-extension-instance-fixture",
+    "target_enforcement_point": "chrome.management",
+    "action": "disable_extension",
+    "arguments": {
+      "extension_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "issued_at": "2026-07-30T12:00:00Z",
+    "expires_at": "2026-07-30T11:59:00Z",
+    "signature_ref": "fixture-signature"
+  }
+}

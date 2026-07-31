@@ -1,0 +1,17 @@
+record_id,kind,source,content,structured,durable,current_destination,integrity,privacy_risk,platform_disposition,evidence_status
+LTA-001,Application log,tracing macros,startup config discovery enforcement errors,Partially per call,Deployment-dependent,stdout/file sink unresolved,No tamper evidence,Medium to high,Operator-only,Verified in source
+LTA-002,Traffic log,proxy traffic_logger,UTC method URI status,Fixed text line,Local file,configured local path,No tamper evidence,High due URI,Operator-only,Verified in source
+LTA-003,Diagnostic event,DiagnosticPayload,ID time level category component code message context,Yes,Broker only by producer,optional receiver/backend,UUID but no payload integrity,Context can be high,Operator evidence,Verified in source
+LTA-004,Service lifecycle,DiagnosticsMessage/AlertIpcMessage,process ID type time context,Yes,Broker transient,optional receiver,No tamper evidence,Medium,Coverage and health,Verified in source
+LTA-005,Service status,StatusUpdate,state heartbeat error crash,Typed in memory,No,service monitor,No tamper evidence,Stack/error can be sensitive,Operator-only,Verified in source
+LTA-006,Entity snapshot,Snapshot v1,all local entities/current governance,JSON,Local file,snapshot path,No signature/encryption shown,High metadata,Raw-only retention,Verified in source
+LTA-007,Discovery HTTP record,DiscoveredEntity,entity and user/device/tenant contexts,JSON gzip,Remote delivery not local durable,current API,Record UUID no payload signature,High metadata,Inventory evidence,Verified in source
+LTA-008,Hook activity,ActivityEntry,user/device/session/tool and timing,JSON,Bounded memory then HTTP,current activity API,No durable admission,Personal/activity metadata,Activity explorer,Verified in source
+LTA-009,DLP alert,LogPayload,prompt justification detections user device process URL,JSON,SQLite then HTTP,alert backend,UUID and DB status no content signature,Very high,Evidence drill-down,Verified in source
+LTA-010,Upload alert,UploadLogPayload,file metadata detections user device process URL,JSON,SQLite then HTTP,alert backend,UUID and DB status no content signature,Very high,Evidence drill-down,Verified in source
+LTA-011,Alert DLQ,DlqEntry,payload failure reason retry and operator acknowledgement,Typed/SQLite,SQLite,local database,No tamper evidence,Very high,Operator-only,Verified in source
+LTA-012,Hook integrity evidence,InstalledFile,path and SHA-256,Typed memory plus logs,No central durability,integrity manager,Content digest only,Path sensitive,Operator evidence,Verified in source
+LTA-013,macOS audit token,ProcessAttribution,kernel token process path and destination,Typed memory,TTL only,proxy attribution map,Kernel-provided token but no preserved envelope,High,Raw-only retention with controls,Verified in source
+LTA-014,Request profile,RequestProfile/timers,phase durations and request ID,Typed/log,No,logs,No integrity,Low to medium,Operator-only,Verified in source
+LTA-015,Distributed trace,None active,no trace/span schema,No,No,None,None,N/A,Discard with reason,Not implemented
+LTA-016,Audit ledger,None unified,mixed mutable records,No unified schema,No unified durability,multiple sinks,Not append-only/tamper-evident,High,Requires substantial sensor changes,Unresolved

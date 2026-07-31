@@ -1,0 +1,20 @@
+{
+  "_fixture": {
+    "id": "FX-SO-002",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "empty/minimal",
+    "source_basis": "minimum pre-resolution observation contract question"
+  },
+  "payload": {
+    "record_version": 1,
+    "native_record_id": "test-minimal-001",
+    "sensor_instance_id": "sensor-test-001",
+    "component_id": "system_monitor.process_discovery",
+    "identifier_candidates": [],
+    "source_attributes": {},
+    "event_time": "2026-01-01T00:00:00Z"
+  },
+  "expected_admission": "reject with explicit missing identity-candidate/source-type result; do not invent canonical entity"
+}
+

@@ -1,0 +1,9 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "envelopeVersion": "proposed-1",
+  "tenantId": "tenant-example",
+  "sourceRecordId": "synthetic-4",
+  "deliveryAttempt": 2,
+  "replayed": true
+}

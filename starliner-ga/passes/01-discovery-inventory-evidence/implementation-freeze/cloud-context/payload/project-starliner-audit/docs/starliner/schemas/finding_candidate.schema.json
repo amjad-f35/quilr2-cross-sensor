@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "FindingType": {
+      "enum": [
+        "runtime",
+        "design_time",
+        "configuration",
+        "coverage_gap",
+        "cost_anomaly",
+        "identity_risk",
+        "data_movement",
+        "policy_conflict"
+      ],
+      "title": "FindingType",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "entity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entity Refs",
+      "type": "array"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "finding_type": {
+      "$ref": "#/$defs/FindingType"
+    },
+    "flow_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Flow Id"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "recommended_action": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recommended Action"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Id"
+    },
+    "schema_version": {
+      "default": "starliner.finding_candidate.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity",
+      "default": "medium"
+    },
+    "source_event_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Event Id"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "finding_type",
+    "tenant_id",
+    "title"
+  ],
+  "title": "FindingCandidate",
+  "type": "object"
+}

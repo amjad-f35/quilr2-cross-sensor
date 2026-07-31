@@ -1,0 +1,51 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "edge_case_acceptance_oracle",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "docs/sensor-intelligence/quilr1-platform/30-acceptance-scenarios.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "cases": [
+    {
+      "fixture": "source-observations/application-source-observation.duplicate.proposed.json",
+      "expected": "same logical observation; no duplicate canonical effect"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.out-of-order.proposed.json",
+      "expected": "retain and apply declared sequence/correction rule; never silently reorder"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.late.proposed.json",
+      "expected": "retain occurred_at and observed_at; apply late-arrival policy"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.offline-buffered.proposed.json",
+      "expected": "deliver from WAL without loss after connectivity returns"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.partial.proposed.json",
+      "expected": "preserve evidence and emit only facts justified by present fields"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.unsupported-version.proposed.json",
+      "expected": "unsupported_version health; no extraction/checkpoint advancement"
+    },
+    {
+      "fixture": "source-observations/application-source-observation.invalid-missing-tenant.proposed.json",
+      "expected": "JSON Schema rejection for missing claimed_tenant_id"
+    },
+    {
+      "fixture": "raw/backend-request-sensitive.generated.json",
+      "expected": "reject or restricted-route; no ordinary log/product exposure"
+    },
+    {
+      "fixture": "raw/backend-request-redacted.generated.json",
+      "expected": "authorization value remains irrecoverably redacted in ordinary evidence"
+    }
+  ]
+}

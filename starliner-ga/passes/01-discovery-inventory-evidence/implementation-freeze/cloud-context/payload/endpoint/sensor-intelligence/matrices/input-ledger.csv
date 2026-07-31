@@ -1,0 +1,11 @@
+input,type,version_or_commit,purpose,sensor_relevance,evidence_status,analysis_status
+sentinel-endpoint-agent,primary sensor repository,a022e52bf2fff6a9445ebad96c3afeaf277e259f,"Device-local agent monitor proxy hooks UI diagnostics build/install/update and platform code",primary implementation evidence,"Verified in source",Analyzed
+endpoint-pinned-ipc,pinned runtime dependency,9ce5b25131d7de8e9dbf2b8b4c2f32939c98e46b,"Typed duplex IPC broker protocol macro and platform transports",runtime-significant local transport,"Verified in source",Analyzed
+sentinel-dashboard,related current server and UI,cd755d37c14b8b86623a15a4dbae41d33b226b2b,"Current endpoint ingest policy configuration storage and administrator UI",current consumer and migration boundary,"Verified in source",Analyzed
+ipc-event-bus-current-main,separate comparison repository,0cf45bc50e4121d6a4521c58f1fa52a97c125e19,"Current smaller Unix broadcast library",compatibility comparison only,"Verified in source",Analyzed
+repository-analysis,existing analysis corpus,"pinned to four revisions; 1265 records","Repository inventory symbols data interfaces security failures tests operations contradictions",primary index and evidence base,"Verified in source",Analyzed
+quilr2-cross-sensor,cross-sensor architecture,"local corpus completed 2026-07-28","Canonical observation identity event finding product and migration architecture",target mapping input,"Proposed",Analyzed
+endpoint-sensor-binding,target binding,current local document,"Proposed device-local Starliner runtime placement capture seams migration blockers and commands",adapter target input,"Proposed",Analyzed
+profile-endpoint-v1,target schema,1.0.0,"Proposed endpoint entity relationship activity decision effect snapshot health and gap payloads",contract mapping target,"Proposed",Analyzed
+adapter-spi-safe-facts,target adapter contract,current local document,"Source-safe facts identifiers privacy reconciliation and enforcement SPI",responsibility boundary,"Proposed",Analyzed
+starliner-wal-offline,target delivery contract,current local document,"Durable admission sequencing acknowledgement replay offline and crash recovery",outbox target,"Proposed",Analyzed

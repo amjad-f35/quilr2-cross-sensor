@@ -97,7 +97,7 @@ DIE_CLICKHOUSE_IMAGE='clickhouse/clickhouse-server@sha256:<approved-digest>' \
 
 ## Required expansion before domain implementation broadens
 
-The first storage conformance pull request must extend the PostgreSQL suite with:
+The first storage conformance work-item branch must extend the PostgreSQL suite with:
 
 - direct parent and default-child RLS reads/writes for every runtime role;
 - catalog assertions for `NOBYPASSRLS`, table ownership, grants, policies and

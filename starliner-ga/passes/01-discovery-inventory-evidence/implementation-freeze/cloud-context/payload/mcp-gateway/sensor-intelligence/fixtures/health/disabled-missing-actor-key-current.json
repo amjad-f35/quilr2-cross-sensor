@@ -1,0 +1,23 @@
+{
+  "_fixture": {
+    "classification": "Taken from repository test data",
+    "status": "current disabled health shape"
+  },
+  "manifest_subset": {
+    "runtime_status": "disabled",
+    "disabled_reason": "missing_actor_hash_key",
+    "delivery": {
+      "outbox_depth": 0,
+      "oldest_record_age_seconds": 0.0,
+      "delivery_lag_seconds": 0.0,
+      "last_success_at": null,
+      "last_error_at": null,
+      "accepted_total": 0,
+      "duplicate_total": 0,
+      "rejected_total": 0,
+      "retry_total": 0,
+      "dead_letter_total": 0
+    }
+  }
+}
+

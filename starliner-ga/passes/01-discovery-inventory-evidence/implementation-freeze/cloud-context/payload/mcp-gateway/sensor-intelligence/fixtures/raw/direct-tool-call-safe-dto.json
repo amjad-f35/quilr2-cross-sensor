@@ -1,0 +1,34 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "current safe capture DTO",
+    "evidence": "MCPObserveRuntime.observe_tool_call signature at sensor commit 1b2f2b399c4ac8cacb71aa3ff434d84122d88d7a"
+  },
+  "dto": {
+    "tenant_id": "tenant-fixture",
+    "observation_id": "0123456789abcdef0123456789abcdef",
+    "request_id": 7,
+    "backend_id": "backend-fixture",
+    "tool_name": "search",
+    "user_email": "synthetic@example.invalid",
+    "input_predictions": [
+      {
+        "id": "pii.email"
+      }
+    ],
+    "input_dlp_outcome": "monitored",
+    "output_predictions": [],
+    "output_dlp_outcome": "allowed",
+    "input_blocked": false,
+    "output_blocked": false,
+    "upstream_called": true,
+    "latency_ms": 12,
+    "response_is_error": false
+  },
+  "expected": {
+    "raw_email_retained": false,
+    "raw_arguments_present": false,
+    "record_count": 4
+  }
+}
+

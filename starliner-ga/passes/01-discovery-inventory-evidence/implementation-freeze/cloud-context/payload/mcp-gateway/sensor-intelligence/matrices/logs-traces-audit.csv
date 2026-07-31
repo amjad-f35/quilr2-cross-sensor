@@ -1,0 +1,10 @@
+surface,owner,persistence,content,risk,availability,disposition
+Python logs,Gateway,External collector,Operational text and debug,May contain identity content,Unresolved,Operator-only
+Direct debug print,MCPHandler,Console,Arguments and DLP excerpts,Sensitive,Available now without sensor changes,Discard with reason
+tool_call_logs,ToolCallLoggingService,SQLite,Full tool activity,Highly sensitive,Available through adapter mapping only,Raw-only retention
+events,EventLoggingService,SQLite,Auth admin OAuth system events,Identity and free-form data,Available through adapter mapping only,Activity explorer
+mcp_rejected_requests,Rejection repository,SQLite,Structured rejection,Identity and security,Available through adapter mapping only,Evidence drill-down
+admin_audit_logs,AdminAuditService,SQLite,Mutation and rollback,Configuration sensitive,Available through adapter mapping only,Evidence drill-down
+Starliner outbox,Observe runtime,SQLite,Safe delivery records,Operational metadata,Available now without sensor changes,Evidence drill-down
+Workflow records,Runner,SQLite and files,Run step artifact evidence,Potential content,Available through adapter mapping only,Activity explorer
+ClickHouse v2,Syncer,External ClickHouse,Normalized logs events rejections,External retention unresolved,Configured but runtime-unverified,Analytics

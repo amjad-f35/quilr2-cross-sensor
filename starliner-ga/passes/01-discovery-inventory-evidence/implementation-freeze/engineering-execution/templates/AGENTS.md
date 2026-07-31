@@ -79,8 +79,9 @@ by hand. Do not weaken or delete a test to make a candidate pass.
 ## State and commits
 
 One branch is one work item or coherent vertical increment, not one commit.
-Open one draft PR early. Commit after each verified coherent unit on the same
-branch. Use stable work IDs in branch names, commits, PRs and ledgers.
+Push after each verified coherent unit on the same branch. Do not open a pull
+request unless the user explicitly requests one. Use stable work IDs in branch
+names, commits and ledgers.
 
 Before yielding or when context may compact, update `WORK_STATE.md` with:
 

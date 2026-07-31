@@ -1,0 +1,16 @@
+activity_type,human,account,agent,workload,process,credential,approval,sensor,completeness,evidence_status
+Application discovery,Persona optional,backend account optional,none,device,PID subset,none,none,implicit monitor,Partial,Verified in source
+Package discovery,Persona context,backend account,none,device,none,none,none,implicit scanner,Partial,Verified in source
+MCP configuration discovery,Persona email,backend account,agent/application name only,device,none,env-var strings only,none,implicit Lua collector,Partial,Verified in source
+Agent definition discovery,Persona email,backend account,definition only,device,none,none,none,implicit Lua collector,Partial,Verified in source
+Hook activity,context user ID,backend account implied,agents field currently empty,IDE session,tool source process not emitted,none,no approval; Allow response,implicit hook manager,Partial and lossy,Verified in source
+Proxy HTTP request,Persona cache,backend account candidate,none,device,PID/name and stronger macOS data partly lost,authorization headers may be captured but no credential ID,user justification optional,implicit proxy,Partial,Verified in source
+DLP decision,Persona cache,backend account candidate,none,device,source process partial,none,justification optional,policy/proxy labels,Partial,Verified in source
+Upload decision,Persona cache,backend account candidate,none,device,source process partial,none,justification optional,policy/proxy labels,Partial,Verified in source
+Process termination,Persona context,backend account,none,device,target PID/name,none,none,monitor/enforcer,Partial; effect verification weak,Verified in source
+macOS extension connection,none,none,none,device/process context,PID/path/audit token,none,none,Network Extension and proxy,Strong process/network only,Verified in source
+Alert transport,user embedded in payload,account embedded,none,device,process optional,none,justification embedded,alert engine process implicit,Payload-dependent,Verified in source
+Diagnostic event,none,none,none,process,component only,none,none,component enum but no instance,Operational only,Verified in source
+Service lifecycle,none,none,none,endpoint process,service name,none,none,process_id/service,Operational only,Verified in source
+Remote SaaS action,Persona candidate,remote account unproven,agent unknown,device,process partial,credential/effective principal unknown,justification optional,proxy observes request,Incomplete,Unresolved effect
+MCP tool call,context user,account candidate,agent unknown,session only,process absent in activity,grant/credential absent,hook Allow only,hook manager,Insufficient,Not emitted as full call

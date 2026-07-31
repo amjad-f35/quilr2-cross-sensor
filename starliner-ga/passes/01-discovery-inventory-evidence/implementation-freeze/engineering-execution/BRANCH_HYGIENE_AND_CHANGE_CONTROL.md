@@ -28,7 +28,7 @@ still branches from the current protected target and returns through a PR.
 ## Concurrency and ownership
 
 - One writer per branch.
-- One draft PR per branch.
+- No pull request unless the user explicitly requests one.
 - An agent may own several branches only when they are independent and each has
   durable state.
 - A remote validator owns no implementation branch.
@@ -70,7 +70,8 @@ not consuming the old SHA. Never force-push protected or shared branches.
 
 ## PR policy
 
-Open a draft PR after the first coherent commit. The PR contains:
+When the user explicitly requests a PR, open it only after the first coherent
+verified commit. The PR contains:
 
 - work item and frozen authority commit;
 - affected modules/contracts;

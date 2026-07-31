@@ -1,0 +1,7 @@
+claim,source_a,source_b,result
+Dedicated repository root README says production LLM Gateway is in macrodata-refinement,quilr-llm-gateway@99f759d75aa8260f97db6904433c941647a755e5:README.md,macrodata-refinement@92b0462c583b908f8ce0cadd1bc89d2e702f5a7d:DataClassifier/handlers/llmgateway,"Confirmed scope; dedicated root code is related/legacy-development evidence, not primary production claim"
+Axis payload identifies product as browser.extension,DataClassifier/handlers/llmgateway/axis_logging_utils.py:axis_payload,same payload subProduct=llmgateway and producer is LLM gateway,Contradiction/misleading product classification
+A final request row represents all lifecycle stages,PerformanceLoggerAsync collapses timing/outcome,No standalone requested/decided/executed/effect records,Contradiction if treated as stage-complete telemetry
+Hallucination result proves hallucination,hallucination_check_async detector output,worker/model truth not independently verified,Detector signal only
+Provider label is stable provider identity,request_metadata.py calls it user-given name,provider type/model/base URL are separate,Contradicted; label is mutable alias
+Unknown provider-health model aliases normalize to None,DataClassifier/tests/test_provider_health_model_normalization.py:test_provider_health_model_aliases_normalize_to_known_models,Runtime at 92b0462c returned 'model-router' unchanged,Contradiction: 1 failing test; implementation and asserted contract disagree

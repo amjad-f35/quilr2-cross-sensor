@@ -1,0 +1,49 @@
+# Data Models and Storage
+
+| Record/state | Store/transport | Producer | Lifecycle | Use |
+| --- | --- | --- | --- | --- |
+| llm_gateway_log | ClickHouse llmgateway_logs_v3 | upstream LLM gateway | read-only projection | interaction/activity/evidence |
+| mcp_tool_call | ClickHouse mcp_tool_calls_v2 | MCP gateway | read-only projection | tool activity/evidence |
+| mcp_rejected_request | ClickHouse mcp_rejected_requests_v2 | MCP gateway | read-only projection | rejection evidence |
+| endpoint_dlp_log | Endpoint ClickHouse endpoint_dlp_logs_v4 | Endpoint sensor | read-only projection | DLP activity/evidence |
+| endpoint_activity | Endpoint ClickHouse endpoint_activity_log | Endpoint sensor | read-only projection | activity |
+| endpoint_entity | Endpoint entity tables | Endpoint sensor | read-only projection | inventory candidate |
+| browser_alert_event | Browser ClickHouse quilr_alert_events | Browser sensor | read-only projection | finding signal |
+| browser_app_setting | Browser ClickHouse app_tenant_settings | Browser/query services | read-only projection | configuration snapshot |
+| auth_principal | PostgreSQL auth schema | instance manager/auth | read | identity/authorization |
+| auth_session | Redis | AuthService | read/write with TTL | session state |
+| console_saved_view | PostgreSQL console_saved_views | SavedViewService | CRUD/soft delete | personal UI configuration |
+| saved_view_preference | PostgreSQL console_saved_view_preferences | SavedViewService | upsert/delete | personal default |
+| custom_dashboard_document | PostgreSQL custom_dashboard_documents | CustomDashboardService | CRUD | dashboard definition |
+| custom_dashboard_run | PostgreSQL custom_dashboard_runs | CustomDashboardService | workflow updates/cleanup | generation state |
+| console_assist_message | PostgreSQL console_assist | ConsoleAssistService | append/read | support conversation |
+| topic_catalog | ClickHouse ai_activity_topic_catalog_v1 | activity topic writer | create/insert | derived topic |
+| topic_classification | ClickHouse ai_activity_topic_classifications_v1 | activity topic writer | create/insert | derived mapping |
+| topic_runner_state | ClickHouse ai_activity_topic_runner_state_v1 | activity topic writer | create/insert | checkpoint/dead letter |
+| local_mirror | SQLite LocalStore tables | refreshers | transactional replace/read | read model/cache |
+| conversation_cache | SQLite | ConversationDetailCache | bounded sanitized writes | performance cache |
+| internal_telemetry | SQLite internal_admin_telemetry.db | API timing logger | append/read | operator diagnostics |
+| neo4j_persona | Neo4j | external deployment graph | read only | identity/deployment candidate |
+| neo4j_device | Neo4j | external deployment graph | read only | device candidate |
+| provider_configuration | PostgreSQL/external service | gateway management | read/update proxy | configuration |
+| openapi_document | openapi/platform-admin-v2.json | Utoipa exporter | generated/committed | contract |
+| orval_client | frontend/src/api/generated | Orval | generated/committed | client contract |
+| vite_asset | frontend/dist | Vite | generated/untracked/embedded | runtime UI |
+| api_completion_event | structured stdout | api_log middleware | one per routed request | operational log |
+| dashboard_alert | Slack webhook | Console Assist/dashboard alerts | network emission | operator alert |
+| product_analytics_state | frontend query/Zustand/localStorage | browser | transient/client persistence | presentation state |
+
+## Migration-owned PostgreSQL schema
+
+Five tracked SQL migrations create/update `custom_dashboard_documents`, `custom_dashboard_runs`, `console_saved_views`, `console_saved_view_preferences`, and `console_assist`. Constraints/indexes are defined in the SQL and exercised by migration-shape tests.
+
+## ClickHouse write boundary
+
+`AppState::new` creates three observed request clients with `readonly=2`. A private `clickhouse::Client` without that setting is exposed only through `topic_writer_clickhouse()` and the activity-topic persistence module. Its tested DDL contains exactly three derived tables.
+
+## Consistency
+
+- PostgreSQL service mutations use SQL transactions where the service code requires atomic document/preference changes.
+- LocalStore refresh tests verify failed replacement preserves the prior snapshot.
+- Redis leases use token ownership; release failure relies on TTL.
+- Source ClickHouse projections are read without a repository-wide transaction spanning sources. Cross-source views therefore expose readiness/coverage and cannot be interpreted as an atomic global snapshot.

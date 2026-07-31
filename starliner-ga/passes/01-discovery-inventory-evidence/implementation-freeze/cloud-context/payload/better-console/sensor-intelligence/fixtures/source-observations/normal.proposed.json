@@ -1,0 +1,10 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "envelopeVersion": "proposed-1",
+  "tenantId": "tenant-example",
+  "sourceProfile": "better-console-backend",
+  "sourceRecordType": "llm_gateway_log",
+  "observedAt": "2026-07-01T00:00:00Z",
+  "sourceRecordId": "synthetic-1"
+}

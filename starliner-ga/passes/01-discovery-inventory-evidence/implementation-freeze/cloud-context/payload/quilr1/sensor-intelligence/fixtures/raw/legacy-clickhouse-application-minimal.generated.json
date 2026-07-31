@@ -1,0 +1,18 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "generated_from_verified_source_fields",
+    "kind": "legacy_clickhouse_application_minimal_row",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/work/quilr-query-builder/src/main/java/com/quilr/qb/ch/cleanup/TenantAppCacheQueries.java"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "row": {
+    "tenant": "tenant_fixture_001",
+    "app_id": "app_fixture_001"
+  },
+  "qualification": "This is a field-presence edge case, not proof that the deployed table permits omitted columns."
+}

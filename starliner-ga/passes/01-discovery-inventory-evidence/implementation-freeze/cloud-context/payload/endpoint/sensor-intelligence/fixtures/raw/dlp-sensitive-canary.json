@@ -1,0 +1,16 @@
+{
+  "_fixture": {
+    "id": "FX-RAW-003",
+    "evidence_label": "Generated synthetic sensitive test input",
+    "runtime_observed": false,
+    "fixture_class": "sensitive",
+    "source_basis": "proxy DLP content path"
+  },
+  "payload": {
+    "content_type": "text/plain",
+    "content": "Synthetic canary only: tok_TEST_REDACT_ME",
+    "expected_data_class": "synthetic_secret_canary"
+  },
+  "constraint": "The literal content must not appear in accepted observation, event, metric, error, log, or product output."
+}
+

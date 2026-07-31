@@ -1,0 +1,59 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Sensitive prompt with raw source content",
+    "evidence_status": "Verified in source",
+    "expected": "accepted_then_redacted_by_adapter"
+  },
+  "record": {
+    "user": {
+      "username": "analyst@example.invalid",
+      "accountname": "ai-user@example.invalid",
+      "machinename": "device-42"
+    },
+    "check": {
+      "id": "CID_101",
+      "name": "data_leak_prevention",
+      "properties": {
+        "log_type": "prompt_request",
+        "context_id": "ctx-prompt-001",
+        "original_prompt": "fixture-sensitive-value",
+        "final_prompt": "[REDACTED]",
+        "user_justification": "",
+        "business_justification": "",
+        "mode": "redact",
+        "summary": "fixture",
+        "outcome": "redacted",
+        "resolution_channel": "browser",
+        "is_initial_sensitive": true,
+        "is_final_sensitive": false,
+        "alert_status": "resolved",
+        "action_taken": "redact",
+        "prompt_changed": true,
+        "detections_original": [
+          {
+            "code_name": "fixture_identifier"
+          }
+        ],
+        "detections_final": [],
+        "retry_count": 0
+      }
+    },
+    "browser": {
+      "name": "Chrome",
+      "version": "126.0",
+      "os": "MacOS",
+      "useragent": "fixture-user-agent"
+    },
+    "extension": {
+      "id": "fixture-vanguard-product-id",
+      "version": "1.2.3"
+    },
+    "application": {
+      "name": "Fixture AI App",
+      "url": "https://ai.example.invalid/chat",
+      "domain": "ai.example.invalid",
+      "authenticationtype": "CredsBased"
+    }
+  }
+}

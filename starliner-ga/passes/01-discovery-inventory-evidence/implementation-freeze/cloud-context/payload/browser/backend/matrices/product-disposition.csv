@@ -1,0 +1,11 @@
+Item ID,Item,Kind,Current evidence,Platform disposition,Customer visible,Reason,Availability,Evidence
+PD-001,Observed browser/device/sensor freshness,Capability,Heartbeat and versions,Coverage and health,Yes,Direct operational value with coverage caveats,Available through adapter mapping only,Verified in source
+PD-005,Application visits/accounts,Inventory/activity,Visit/Auth/Prompt envelopes,Entity detail; Activity explorer,Yes,Shows observed use/account context,Available through adapter mapping only,Verified in source
+PD-006,Prompt activity metadata,Activity,PromptDlpCheck,Activity explorer; Analytics,Yes,High product value with content minimization,Available through adapter mapping only,Verified in source
+PD-007,Raw prompt/AI response text,Evidence,PromptDlpCheck,Raw-only retention; Evidence drill-down,Restricted,Highly sensitive; not overview/inventory,Available through adapter mapping only,Verified in source
+PD-008,Prompt DLP detections,Detector evidence,Original/final detections,Finding signal; Evidence drill-down,Yes,Supports findings after admission,Available through adapter mapping only,Verified in source
+PD-009,Credential reuse/compromise/sharing signals,Detector evidence,AuthCheck,Finding signal; Customer finding,Yes,Defensible with explicit coverage/lifecycle rules,Available through adapter mapping only,Verified in source
+PD-010,Credential fingerprint,Identifier/evidence,AuthCheck,Raw-only retention,No,Sensitive correlation primitive,Available through adapter mapping only,Verified in source
+PD-013,Upload/download activity and safe file metadata,Activity,Upload/Download checks,Activity explorer; Entity detail; Analytics,Yes,Direct data movement evidence,Requires minor sensor instrumentation,Verified in source
+PD-016,Policy configuration,Configuration,Control/PolicyResult,Configuration,Yes,Shows intended controls,Available through adapter mapping only,Verified in source
+PD-017,Policy evaluation/action/effect,Activity/evidence,Event fields and native results,Activity explorer; Evidence drill-down,Yes,Must separate stages,Requires minor sensor instrumentation,Verified in source

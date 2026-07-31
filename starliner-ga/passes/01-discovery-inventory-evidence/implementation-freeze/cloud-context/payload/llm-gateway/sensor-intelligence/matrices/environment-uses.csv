@@ -1,0 +1,225 @@
+name,file,line,default,evidence
+CH_HOST,DataClassifier/clickhouse_client.py,50,'',Verified in source
+CH_USERNAME,DataClassifier/clickhouse_client.py,53,'',Verified in source
+CH_PASSWORD,DataClassifier/clickhouse_client.py,54,'',Verified in source
+CLICKHOUSE_ENV,DataClassifier/clickhouse_client.py,55,'prod',Verified in source
+CH_PORT,DataClassifier/clickhouse_client.py,51,'0',Verified in source
+CLICKHOUSE_MASTER_REQUEST_TIMEOUT_SECS,DataClassifier/clickhouse_client.py,136,'60',Verified in source
+CLICKHOUSE_MASTER_REQUEST_TIMEOUT_SECS,DataClassifier/clickhouse_client.py,267,'60',Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/clickhouse_client.py,40,'',Verified in source
+SERVER_NAME,DataClassifier/clickhouse_client.py,102,'',Verified in source
+DEPLOYED_FOR_TENANT_IDS,DataClassifier/deployed_tenants.py,29,'',Verified in source
+CLICKHOUSE_MASTER_MAX_SQL_BYTES,DataClassifier/handlers/clickhouse_master_rpc.py,34,'262144',Verified in source
+CLICKHOUSE_MASTER_MAX_RESULT_ROWS,DataClassifier/handlers/clickhouse_master_rpc.py,35,'50000',Verified in source
+CLICKHOUSE_MASTER_MAX_EXECUTION_TIME_SECONDS,DataClassifier/handlers/clickhouse_master_rpc.py,37,'60',Verified in source
+CLICKHOUSE_MASTER_MAX_TENANT_SYNC_IDS,DataClassifier/handlers/clickhouse_master_rpc.py,40,'1000',Verified in source
+CLICKHOUSE_MASTER_MAX_CUSTOM_CATEGORY_SYNC_ROWS,DataClassifier/handlers/clickhouse_master_rpc.py,43,'5000',Verified in source
+CLICKHOUSE_MASTER_MAX_CUSTOM_CATEGORY_WRITE_ROWS,DataClassifier/handlers/clickhouse_master_rpc.py,46,'5000',Verified in source
+CLICKHOUSE_MASTER_MAX_CUSTOM_CATEGORY_CURSOR_KEY_BYTES,DataClassifier/handlers/clickhouse_master_rpc.py,50,'65536',Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/handlers/clickhouse_master_rpc.py,629,'',Verified in source
+CLICKHOUSE_MASTER_MAX_WRITES_PER_REQUEST,DataClassifier/handlers/clickhouse_master_write.py,45,'100',Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/handlers/clickhouse_master_write.py,250,'',Verified in source
+FP_ANALYSIS_MAX_REQUESTS,DataClassifier/handlers/false_positive_analysis.py,279,'10000',Verified in source
+SELF_LEARNING_CLAUDE_MODEL,DataClassifier/handlers/false_positive_learning.py,1034,DEFAULT_CLAUDE_MODEL,Verified in source
+SELF_LEARNING_CLAUDE_MODEL,DataClassifier/handlers/false_positive_learning.py,1079,DEFAULT_CLAUDE_MODEL,Verified in source
+SELF_LEARNING_ANTHROPIC_API_KEY,DataClassifier/handlers/false_positive_learning.py,1026,No literal default,Verified in source
+ANTHROPIC_API_KEY,DataClassifier/handlers/false_positive_learning.py,1027,No literal default,Verified in source
+SELF_LEARNING_ANTHROPIC_API_KEY,DataClassifier/handlers/false_positive_learning.py,1071,No literal default,Verified in source
+ANTHROPIC_API_KEY,DataClassifier/handlers/false_positive_learning.py,1072,No literal default,Verified in source
+SELF_LEARNING_CLAUDE_TIMEOUT_SECONDS,DataClassifier/handlers/false_positive_learning.py,1036,DEFAULT_CLAUDE_TIMEOUT_SECONDS,Verified in source
+SELF_LEARNING_CLAUDE_TIMEOUT_SECONDS,DataClassifier/handlers/false_positive_learning.py,1081,DEFAULT_CLAUDE_TIMEOUT_SECONDS,Verified in source
+INTENT_ANALYSIS_MAX_CUSTOM_WINDOW_SECONDS,DataClassifier/handlers/intent_analysis.py,49,str(31 * 86400),Verified in source
+INTENT_ANALYSIS_MAX_RECORDS,DataClassifier/handlers/intent_analysis.py,241,'10000',Verified in source
+GATEWAY_AWS_BASE_ACCESS_KEY_ID,DataClassifier/handlers/llmgateway/aws_auth.py,93,No literal default,Verified in source
+GATEWAY_AWS_BASE_SECRET_ACCESS_KEY,DataClassifier/handlers/llmgateway/aws_auth.py,94,No literal default,Verified in source
+GATEWAY_AWS_BASE_SESSION_TOKEN,DataClassifier/handlers/llmgateway/aws_auth.py,105,No literal default,Verified in source
+GATEWAY_AWS_BASE_REGION,DataClassifier/handlers/llmgateway/aws_auth.py,108,'us-east-1',Verified in source
+LLMGATEWAY_PROVIDER_HEALTH_ENV_FILE,DataClassifier/handlers/llmgateway/global_provider_health.py,53,No literal default,Verified in source
+LLMGATEWAY_PROVIDER_HEALTH_CH_DATABASE,DataClassifier/handlers/llmgateway/global_provider_health.py,54,No literal default,Verified in source
+CF_ACCOUNT_ID,DataClassifier/handlers/llmgateway/guardian_agent.py,37,No literal default,Verified in source
+CF_API_KEY,DataClassifier/handlers/llmgateway/guardian_agent.py,37,No literal default,Verified in source
+CLOUDFLARE_FALLBACK_ENABLED,DataClassifier/handlers/llmgateway/guardian_agent.py,20,'true',Verified in source
+POLICY_ACTION_API_TIMEOUT_SECONDS,DataClassifier/handlers/policy_action_api.py,66,'1.5',Verified in source
+POLICY_ACTION_API_PATH,DataClassifier/handlers/policy_action_api.py,61,'/bff/policy-engine/ingest',Verified in source
+POLICY_ACTION_API_KEY,DataClassifier/handlers/policy_action_api.py,68,'',Verified in source
+POLICY_ACTION_API_URL,DataClassifier/handlers/policy_action_api.py,53,'https://preprod.quilr.ai/bff/policy-engine/ingest',Verified in source
+POLICY_ACTION_API_SYNC,DataClassifier/handlers/policy_action_api.py,71,'true',Verified in source
+STAGE2_URL,DataClassifier/handlers/stage2.py,52,No literal default,Verified in source
+STAGE2_API_TIMEOUT_SECONDS,DataClassifier/handlers/stage2.py,56,'30',Verified in source
+ENDPOINT_CONFIG_MANAGER_URL,DataClassifier/handlers/tenant_config.py,32,'',Verified in source
+LLMGATEWAY_ALERTS_EVALUATOR_ENABLED,DataClassifier/llmgateway_alert_evaluator.py,40,'',Verified in source
+LLMGATEWAY_PROVIDER_HEALTH_DB_PATH,DataClassifier/llmgateway_provider_health_monitor_store.py,51,No literal default,Verified in source
+DLP_SERVER_DATA_DIR,DataClassifier/llmgateway_provider_health_monitor_store.py,60,os.getcwd(),Verified in source
+OPENAI_API_KEY,DataClassifier/tests/e2e_guardian_preflight.py,230,No literal default,Verified in source
+OPENAI_MODEL,DataClassifier/tests/e2e_guardian_preflight.py,235,'gpt-4o-mini',Verified in source
+ANTHROPIC_API_KEY,DataClassifier/tests/e2e_guardian_preflight.py,332,No literal default,Verified in source
+ANTHROPIC_MODEL,DataClassifier/tests/e2e_guardian_preflight.py,337,'claude-haiku-4-5-20251001',Verified in source
+GEMINI_MODEL,DataClassifier/tests/e2e_guardian_preflight.py,411,'gemini-2.5-flash',Verified in source
+GEMINI_API_KEY,DataClassifier/tests/e2e_guardian_preflight.py,407,No literal default,Verified in source
+VERTEX_API_KEY,DataClassifier/tests/e2e_guardian_preflight.py,407,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,401,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,456,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,510,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,556,'https://master.internal',Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,590,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_rpc.py,827,'https://master.internal/',Verified in source
+CH_HOST,DataClassifier/tests/test_clickhouse_master_rpc.py,828,No literal default,Verified in source
+CH_PORT,DataClassifier/tests/test_clickhouse_master_rpc.py,829,No literal default,Verified in source
+CH_USERNAME,DataClassifier/tests/test_clickhouse_master_rpc.py,830,No literal default,Verified in source
+CH_PASSWORD,DataClassifier/tests/test_clickhouse_master_rpc.py,831,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_write.py,140,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,DataClassifier/tests/test_clickhouse_master_write.py,166,No literal default,Verified in source
+CF_ACCOUNT_ID,DataClassifier/tests/test_guardian_agent.py,553,'account-123',Verified in source
+CF_API_KEY,DataClassifier/tests/test_guardian_agent.py,554,'token-abc',Verified in source
+GATEWAY_HEALTH_SLACK_ALERT_COOLDOWN_SECONDS,OTHER_APPS/gateway_health/gateway_alerts.py,38,'600',Verified in source
+GATEWAY_HEALTH_SLACK_WEBHOOK_URL,OTHER_APPS/gateway_health/gateway_alerts.py,34,No literal default,Verified in source
+GATEWAY_HEALTH_SLACK_ALERTS_ENABLED,OTHER_APPS/gateway_health/gateway_alerts.py,32,'true',Verified in source
+GATEWAY_HEALTH_SLACK_LLM_503_OUTAGE_MIN_CONSECUTIVE_CYCLES,OTHER_APPS/gateway_health/rollup_server.py,24,'5',Verified in source
+GATEWAY_HEALTH_CONNECTIVITY_CORRELATION_MIN_COMPONENTS,OTHER_APPS/gateway_health/rollup_server.py,35,'3',Verified in source
+GATEWAY_HEALTH_ROLLUP_PORT,OTHER_APPS/gateway_health/rollup_server.py,374,'8099',Verified in source
+GATEWAY_HEALTH_SLACK_MIN_CONSECUTIVE_FAILURES,OTHER_APPS/gateway_health/worker.py,26,'2',Verified in source
+GATEWAY_HEALTH_SLACK_LLM_503_OUTAGE_MIN_CONSECUTIVE_CYCLES,OTHER_APPS/gateway_health/worker.py,77,'5',Verified in source
+GATEWAY_HEALTH_ANOMALY_LOG_PATH,OTHER_APPS/gateway_health/worker.py,201,No literal default,Verified in source
+GATEWAY_HEALTH_INCIDENT_LOG_PATH,OTHER_APPS/gateway_health/worker.py,205,No literal default,Verified in source
+MCP_BACKEND_USER_AGENT,OTHER_APPS/gateway_health/worker.py,288,WORKER_USER_AGENT,Verified in source
+GATEWAY_HEALTH_TIMEOUT_SECONDS,OTHER_APPS/gateway_health/worker.py,586,'10',Verified in source
+GATEWAY_BASE_URL,OTHER_APPS/gateway_health/worker.py,590,'http://127.0.0.1:8005',Verified in source
+GATEWAY_HEALTH_INTERVAL_SECONDS,OTHER_APPS/gateway_health/worker.py,683,'60',Verified in source
+MCP_BACKEND_ID,OTHER_APPS/gateway_health/worker.py,283,slug,Verified in source
+GATEWAY_HEALTH_LATENCY_SWEEP_PROBABILITY,OTHER_APPS/gateway_health/worker.py,614,'0.1',Verified in source
+CLICKHOUSE_ENV,WORKERS/custom_categories_prediction/clickhouse_client.py,140,'prod',Verified in source
+DEPLOYED_FOR_TENANT_IDS,WORKERS/custom_categories_prediction/clickhouse_client.py,67,'',Verified in source
+CUSTOM_CATEGORIES_CH_REMOTE_INSERT_BATCH_SIZE,WORKERS/custom_categories_prediction/clickhouse_client.py,71,'1000',Verified in source
+CLICKHOUSE_MASTER_REQUEST_TIMEOUT_SECS,WORKERS/custom_categories_prediction/clickhouse_client.py,266,'60',Verified in source
+CH_PORT,WORKERS/custom_categories_prediction/clickhouse_client.py,128,No literal default,Verified in source
+SERVER_NAME,WORKERS/custom_categories_prediction/clickhouse_client.py,232,'',Verified in source
+CUSTOM_CATEGORIES_MAX_CONCURRENT_MESSAGES,WORKERS/custom_categories_prediction/custom_categories_prediction_worker.py,64,'16',Verified in source
+CUSTOM_CATEGORIES_LANCE_REFRESH_INTERVAL_S,WORKERS/custom_categories_prediction/custom_categories_prediction_worker.py,68,'3.0',Verified in source
+CUSTOM_CATEGORIES_CH_PAGE_SIZE_SEMANTIC,WORKERS/custom_categories_prediction/edm_apply/clickhouse_sync.py,73,1000,Verified in source
+CUSTOM_CATEGORIES_CH_PAGE_SIZE_DEFAULT,WORKERS/custom_categories_prediction/edm_apply/clickhouse_sync.py,74,5000,Verified in source
+CUSTOM_CATEGORIES_CH_QUERY_TIMEOUT_S,WORKERS/custom_categories_prediction/edm_apply/clickhouse_sync.py,77,120,Verified in source
+CF_ACCOUNT_ID,WORKERS/custom_categories_prediction/edm_apply/cloudflare_fallback.py,23,No literal default,Verified in source
+CF_API_KEY,WORKERS/custom_categories_prediction/edm_apply/cloudflare_fallback.py,23,No literal default,Verified in source
+CLOUDFLARE_FALLBACK_ENABLED,WORKERS/custom_categories_prediction/edm_apply/cloudflare_fallback.py,16,'true',Verified in source
+CF_ACCOUNT_ID,WORKERS/custom_categories_prediction/edm_apply/stage2_breaker.py,196,No literal default,Verified in source
+CF_API_KEY,WORKERS/custom_categories_prediction/edm_apply/stage2_breaker.py,197,No literal default,Verified in source
+CUSTOM_CATEGORIES_CH_POLL_INTERVAL,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,94,30,Verified in source
+CUSTOM_CATEGORIES_CH_MAX_PAGES_PER_CYCLE,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,97,50,Verified in source
+CUSTOM_CATEGORIES_CH_OPTIMIZE_EVERY_PAGES,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,101,20,Verified in source
+CUSTOM_CATEGORIES_CH_APPLY_FAILURE_ALERT_AFTER,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,102,3,Verified in source
+CUSTOM_CATEGORIES_DATA_DIR,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,374,No literal default,Verified in source
+CUSTOM_CATEGORIES_CH_SYNC_LOCK,WORKERS/custom_categories_prediction/edm_apply/sync_loop.py,103,'1',Verified in source
+CLICKHOUSE_ENV,WORKERS/custom_categories_prediction/oneoff_delete_try_tenants_from_clickhouse.py,45,'prod',Verified in source
+CH_MUTATIONS_SYNC,WORKERS/custom_categories_prediction/oneoff_delete_try_tenants_from_clickhouse.py,46,'2',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/probe_structured_robustness.py,128,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/run_intents_on_dlp_logs.py,384,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_API_KEY,WORKERS/custom_categories_prediction/run_intents_on_dlp_logs.py,385,'',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/stage2_url.py,29,No literal default,Verified in source
+STAGE2_EXTRA_URLS,WORKERS/custom_categories_prediction/stage2_url.py,32,'',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/test_intent_evidence_in_text.py,154,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_API_KEY,WORKERS/custom_categories_prediction/test_intent_evidence_in_text.py,155,'',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/test_intent_false_positive_hunt.py,396,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_API_KEY,WORKERS/custom_categories_prediction/test_intent_false_positive_hunt.py,397,'',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/test_intent_keyword_no_value.py,603,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_API_KEY,WORKERS/custom_categories_prediction/test_intent_keyword_no_value.py,604,'',Verified in source
+STAGE2_URL,WORKERS/custom_categories_prediction/test_intent_live.py,878,DEFAULT_STAGE2_URL,Verified in source
+STAGE2_API_KEY,WORKERS/custom_categories_prediction/test_intent_live.py,883,'',Verified in source
+HALLU_DETECTION_NATS_REQUEST_SUBJECT,WORKERS/hallucination_detection_worker/hallucination_detection_worker.py,52,'dlp.req.hallucination',Verified in source
+HALLU_DETECTION_NATS_DURABLE,WORKERS/hallucination_detection_worker/hallucination_detection_worker.py,59,'hallucination_detection_worker',Verified in source
+HALLU_INFERENCE_NATS_SUBJECT,WORKERS/hallucination_detection_worker/hallucination_detection_worker.py,63,'dlp.hallucination.predict_chunk',Verified in source
+HALLU_INFERENCE_MODEL_NAME,WORKERS/hallucination_detection_worker/hallucination_detection_worker.py,88,'KRLabsOrg/lettucedect-large-modernbert-en-v1',Verified in source
+HALLU_INFERENCE_MODEL_DIR,WORKERS/hallucination_detection_worker/hallucination_detection_worker.py,87,'',Verified in source
+INTENT_ANALYSIS_MAX_RECORDS,WORKERS/intent_analysis_worker/analyzer.py,19,'10000',Verified in source
+CLICKHOUSE_ENV,WORKERS/intent_analysis_worker/ch_client.py,49,'prod',Verified in source
+DLP_SERVER_DATA_DIR,WORKERS/intent_analysis_worker/dlp_analysis.py,1050,No literal default,Verified in source
+DEEPSEEK_API_KEY,WORKERS/intent_analysis_worker/dlp_analysis.py,196,'',Verified in source
+QUILR_BASE_URL,WORKERS/intent_analysis_worker/dlp_analysis.py,231,'https://dlp-platform.quilr.ai',Verified in source
+QUILR_AUTH,WORKERS/intent_analysis_worker/dlp_analysis.py,232,'',Verified in source
+QUILR_USERNAME,WORKERS/intent_analysis_worker/dlp_analysis.py,233,'',Verified in source
+QUILR_PASSWORD,WORKERS/intent_analysis_worker/dlp_analysis.py,234,'',Verified in source
+QUILR_TENANT_ID,WORKERS/intent_analysis_worker/dlp_analysis.py,235,'',Verified in source
+CLICKHOUSE_DB,WORKERS/intent_analysis_worker/dlp_scheduler.py,585,'dlp_suggestions',Verified in source
+CLICKHOUSE_HOST,WORKERS/intent_analysis_worker/dlp_scheduler.py,134,'localhost',Verified in source
+CLICKHOUSE_USER,WORKERS/intent_analysis_worker/dlp_scheduler.py,136,'default',Verified in source
+CLICKHOUSE_PASSWORD,WORKERS/intent_analysis_worker/dlp_scheduler.py,137,'',Verified in source
+CLICKHOUSE_HOST,WORKERS/intent_analysis_worker/dlp_scheduler.py,445,'localhost',Verified in source
+CLICKHOUSE_PORT,WORKERS/intent_analysis_worker/dlp_scheduler.py,446,'9000',Verified in source
+CLICKHOUSE_DB,WORKERS/intent_analysis_worker/dlp_scheduler.py,447,'dlp_suggestions',Verified in source
+CLICKHOUSE_USER,WORKERS/intent_analysis_worker/dlp_scheduler.py,448,'default',Verified in source
+CLICKHOUSE_PORT,WORKERS/intent_analysis_worker/dlp_scheduler.py,135,'9000',Verified in source
+CLICKHOUSE_HOST,WORKERS/intent_analysis_worker/dlp_scheduler.py,600,'localhost',Verified in source
+CLICKHOUSE_PORT,WORKERS/intent_analysis_worker/dlp_scheduler.py,601,'9000',Verified in source
+CLICKHOUSE_DB,WORKERS/intent_analysis_worker/intent_analysis_handler.py,64,'dlp_suggestions',Verified in source
+CLICKHOUSE_HOST,WORKERS/intent_analysis_worker/intent_analysis_handler.py,55,'localhost',Verified in source
+CLICKHOUSE_USER,WORKERS/intent_analysis_worker/intent_analysis_handler.py,57,'default',Verified in source
+CLICKHOUSE_PASSWORD,WORKERS/intent_analysis_worker/intent_analysis_handler.py,58,'',Verified in source
+CLICKHOUSE_PORT,WORKERS/intent_analysis_worker/intent_analysis_handler.py,56,'9000',Verified in source
+INTENT_ANALYSIS_REAPER_INTERVAL_SECONDS,WORKERS/intent_analysis_worker/intent_analysis_worker.py,58,'300',Verified in source
+INTENT_ANALYSIS_STALE_JOB_SECONDS,WORKERS/intent_analysis_worker/intent_analysis_worker.py,61,'3600',Verified in source
+INTENT_ANALYSIS_JOB_TIMEOUT_SECONDS,WORKERS/intent_analysis_worker/intent_analysis_worker.py,64,str(STALE_JOB_SECONDS),Verified in source
+RED_TEAMING_ATTACKS_DATA,WORKERS/red_teaming_worker/legacy/attacks_loader.py,39,No literal default,Verified in source
+DLP_SERVER_URL,WORKERS/red_teaming_worker/legacy/guardrails.py,54,No literal default,Verified in source
+DLP_SERVER_URL,WORKERS/red_teaming_worker/red_teaming_worker.py,45,No literal default,Verified in source
+RED_TEAMING_ATTACKS_DATA,WORKERS/red_teaming_worker/red_teaming_worker.py,46,No literal default,Verified in source
+CF_ACCOUNT_ID,WORKERS/red_teaming_worker/redteaming/guardian_block.py,186,'',Verified in source
+CF_API_KEY,WORKERS/red_teaming_worker/redteaming/guardian_block.py,187,'',Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/guardian_block.py,85,'',Verified in source
+DEEPSEEK_API_KEY,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,39,No literal default,Verified in source
+DEEPSEEK_API_KEY,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,1599,DEFAULT_DEEPSEEK_API_KEY,Verified in source
+REDTEAM_ATTACKER_API_KEY,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,1606,No literal default,Verified in source
+REDTEAM_ATTACKER_BASE_URL,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,1607,No literal default,Verified in source
+REDTEAM_ATTACKER_MODEL,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,1608,No literal default,Verified in source
+REDTEAM_ATTACKER_REASONING_EFFORT,WORKERS/red_teaming_worker/redteaming/red_team_llm.py,1609,No literal default,Verified in source
+GATEWAY_AWS_BASE_ACCESS_KEY_ID,WORKERS/red_teaming_worker/redteaming/target_adapters/aws_credentials.py,38,No literal default,Verified in source
+GATEWAY_AWS_BASE_SECRET_ACCESS_KEY,WORKERS/red_teaming_worker/redteaming/target_adapters/aws_credentials.py,39,No literal default,Verified in source
+GATEWAY_AWS_BASE_SESSION_TOKEN,WORKERS/red_teaming_worker/redteaming/target_adapters/aws_credentials.py,52,No literal default,Verified in source
+GATEWAY_AWS_BASE_REGION,WORKERS/red_teaming_worker/redteaming/target_adapters/aws_credentials.py,50,'us-east-1',Verified in source
+DEEPSEEK_API_KEY,WORKERS/red_teaming_worker/redteaming/target_adapters/factory.py,39,'',Verified in source
+CF_ACCOUNT_ID,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,43,'account',Verified in source
+CF_API_KEY,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,44,'key',Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,45,No literal default,Verified in source
+CF_ACCOUNT_ID,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,76,'account',Verified in source
+CF_API_KEY,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,77,'key',Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,78,No literal default,Verified in source
+CF_ACCOUNT_ID,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,123,'account',Verified in source
+CF_API_KEY,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,124,'key',Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,125,No literal default,Verified in source
+CF_ACCOUNT_ID,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,159,'account',Verified in source
+CF_API_KEY,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,160,'key',Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,161,No literal default,Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,180,No literal default,Verified in source
+COMPLETELY_NO_GPU,WORKERS/red_teaming_worker/redteaming/tests/test_guardian_block.py,195,'true',Verified in source
+DEEPSEEK_REDTEAM_CASES,WORKERS/red_teaming_worker/redteaming/tests/test_restaurant_redteam_deepseek_flash.py,359,'3',Verified in source
+DEEPSEEK_REDTEAM_OUTPUT,WORKERS/red_teaming_worker/redteaming/tests/test_restaurant_redteam_deepseek_flash.py,363,str(tmp_path / 'restaurant_redteam_report.json'),Verified in source
+RUN_DEEPSEEK_REDTEAM,WORKERS/red_teaming_worker/redteaming/tests/test_restaurant_redteam_deepseek_flash.py,355,No literal default,Verified in source
+DEPLOYED_FOR_TENANT_IDS,deploy/allinone/bin/preflight.py,168,'',Verified in source
+QUILR_PUBLIC_KEY,deploy/allinone/bin/preflight.py,247,No literal default,Verified in source
+CLICKHOUSE_MASTER_URL,deploy/allinone/bin/preflight.py,162,'',Verified in source
+CLICKHOUSE_MASTER_URL,deploy/allinone/bin/preflight.py,234,'',Verified in source
+CLICKHOUSE_MASTER_URL,deploy/allinone/bin/preflight.py,241,'',Verified in source
+CLICKHOUSE_ENV,deploy/allinone/bin/preflight.py,133,'prod',Verified in source
+SERVER_NAME,deploy/allinone/bin/preflight.py,210,'preflight',Verified in source
+NATS_URL,deploy/allinone/bin/supervisor.py,236,'<unset>',Verified in source
+COMPLETELY_NO_GPU,deploy/allinone/bin/supervisor.py,738,False,Verified in source
+NATS_HTTP_PORT,deploy/allinone/bin/supervisor.py,184,'8222',Verified in source
+BLACKSHEEP_REPLICAS,deploy/allinone/bin/supervisor.py,286,1,Verified in source
+BLACKSHEEP_WORKERS_PER_REPLICA,deploy/allinone/bin/supervisor.py,287,2,Verified in source
+DB_BATCH_WRITER_REPLICAS,deploy/allinone/bin/supervisor.py,288,1,Verified in source
+OOB_DATA_RISK_REPLICAS,deploy/allinone/bin/supervisor.py,292,2,Verified in source
+STAGE1_OOB_DATA_RISK_REPLICAS,deploy/allinone/bin/supervisor.py,298,1,Verified in source
+OOB_EXPLOIT_REPLICAS,deploy/allinone/bin/supervisor.py,299,1,Verified in source
+CUSTOM_CATEGORIES_REPLICAS,deploy/allinone/bin/supervisor.py,300,1,Verified in source
+PROMPT_CATEGORY_REPLICAS,deploy/allinone/bin/supervisor.py,306,1,Verified in source
+RED_TEAMING_REPLICAS,deploy/allinone/bin/supervisor.py,311,1,Verified in source
+HALLU_DETECTION_REPLICAS,deploy/allinone/bin/supervisor.py,321,1,Verified in source
+HALLU_INFERENCE_REPLICAS,deploy/allinone/bin/supervisor.py,323,1,Verified in source
+TENANT_CONFIG_WATCHER_ENABLED,deploy/allinone/bin/supervisor.py,330,True,Verified in source
+LLMGATEWAY_ALERTS_EVALUATOR_ENABLED,deploy/allinone/bin/supervisor.py,338,False,Verified in source
+ENDPOINT_CONFIG_MANAGER_ENABLED,deploy/allinone/bin/supervisor.py,350,True,Verified in source
+STAGE2_ENABLED,deploy/allinone/bin/supervisor.py,353,True,Verified in source
+STAGE2_REPLICAS,deploy/allinone/bin/supervisor.py,360,1,Verified in source
+EMBEDDINGS_REPLICAS,deploy/allinone/bin/supervisor.py,361,1,Verified in source
+EMBEDDINGS_NATS_WORKER_REPLICAS,deploy/allinone/bin/supervisor.py,362,1,Verified in source
+STAGE1_OOB_DATA_RISK_REPLICAS,deploy/allinone/bin/supervisor.py,785,1,Verified in source
+LAUNCH_TRACK,deploy/allinone/bin/supervisor.py,760,'all',Verified in source
+NATS_MODE,deploy/allinone/bin/supervisor.py,799,'internal',Verified in source

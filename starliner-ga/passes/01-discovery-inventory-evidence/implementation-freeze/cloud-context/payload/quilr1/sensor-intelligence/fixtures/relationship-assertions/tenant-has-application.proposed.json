@@ -1,0 +1,31 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "relationship_assertion",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "matrices/sensor-intelligence/quilr1-platform/relationships.csv",
+      "docs/quilr2-cross-sensor/starliner-ga/protocol/01-envelope-and-record-families.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "assertion": {
+    "assertion_key": "quilr1:tenant_fixture_001:has_application:app_fixture_001",
+    "tenant_id": "tenant_fixture_001",
+    "subject": {
+      "namespace": "quilr1.tenant",
+      "source_native_id": "tenant_fixture_001"
+    },
+    "predicate": "HAS_TENANT_APPLICATION",
+    "object": {
+      "namespace": "quilr1.clickhouse.application.app_id",
+      "source_native_id": "app_fixture_001"
+    },
+    "semantic": "snapshot_assertion",
+    "authority": "source_scoped_legacy",
+    "observed_at": "2026-07-28T00:00:00.003Z",
+    "evidence_record_id": "quilr1-fixture-record-001"
+  }
+}

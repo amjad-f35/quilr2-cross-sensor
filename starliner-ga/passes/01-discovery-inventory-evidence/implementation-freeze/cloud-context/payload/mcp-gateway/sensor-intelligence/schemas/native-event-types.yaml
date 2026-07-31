@@ -1,0 +1,58 @@
+schema: sensor-intelligence.native-event-types.v1
+sensor: mcpgateway
+canonical_outputs:
+  - type: backend_source_observed
+    record: SourceObservation
+    trigger: backend_registration
+  - type: tool_source_observed
+    record: SourceObservation
+    trigger: tool_discovery_or_call
+  - type: direct_mcp_tool_call
+    record: ActionEvent
+    trigger: completed_normal_direct_tools_call_branch
+  - type: native_dlp_tool_block
+    record: FindingSignal
+    trigger: input_blocked_or_output_blocked
+gateway_event_log:
+  system: [backend_not_found, session_terminated, backend_error]
+  admin:
+    - smart_mode_policy_updated
+    - memory_feature_settings_updated
+    - memory_deleted
+    - user_created
+    - company_created
+    - backend_registered
+    - backend_status_changed
+    - backend_deleted
+    - scoped_settings_updated
+    - scoped_settings_deleted
+    - upstream_auth_updated
+    - settings_updated
+    - api_token_created
+    - api_token_revoked
+  auth: [login, entra_login, google_login, auth0_login, auth_challenge, api_token_used]
+  access: [access_denied]
+  mcp_request:
+    - tool_call
+    - mcp_method
+    - onemcp_client_negotiation
+    - onemcp_connection_prompt
+    - onemcp_tools_list
+    - onemcp_ui_resource_read
+  oauth:
+    - auth_started
+    - auth_callback
+    - token_failed
+    - token_obtained
+    - token_cleared
+    - dcr_registration
+    - token_refresh
+workflow_schedule_events:
+  - due_claimed
+  - run_skipped
+  - concurrency_blocked
+  - quota_blocked
+  - readiness_failed
+  - run_enqueued
+  - enqueue_failed
+

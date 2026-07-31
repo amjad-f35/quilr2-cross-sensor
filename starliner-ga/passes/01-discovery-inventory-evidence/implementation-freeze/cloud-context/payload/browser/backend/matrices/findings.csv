@@ -1,0 +1,2 @@
+Finding ID,Finding,Sensor-only or cross-sensor,Required fields,Required coverage,Exact logic,Dedup/lifecycle,Action,Availability,MVS,Evidence
+FN-021,Heartbeat data loss on pod restart,Operational finding,process-local bucket and pod lifecycle,BES current architecture,Potential issue: unflushed bucket disappears on process death,Operational incident lifecycle,Use durable/shared bucket/outbox,Requires substantial sensor changes,Yes blocker for evidence-grade health,Verified in source

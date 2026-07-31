@@ -1,0 +1,27 @@
+Health ID,Metric/signal,Layer,Source,Healthy condition,Degraded condition,Unavailable condition,Emission today,Target action,Evidence
+H-001,extension heartbeat freshness,Extension/backend,DeviceHeartbeat.lastAccessedTimestamp,Within configured window,Late beyond warning,No heartbeat beyond outage threshold with expected install evidence,Heartbeat graph/Kafka,SensorHealthEvent,Verified in source
+H-002,extension version convergence,Extension,extensionVersion/availableVersion,Meets required version policy,Available newer version,Unsupported/unknown version,Heartbeat,Finding/health card,Verified in source
+H-003,native connection,Extension/native,ping/pong/agentVersion,Connected and recent,Reconnects/timeouts,Expected native absent,Local state only,Emit component health,Verified in source
+H-004,native agent version,Extension/native,agentVersion,Meets required version,Outdated,Missing when expected,Heartbeat optional field,Health/finding,Verified in source
+H-005,rules freshness,Extension,rulesLastSync,Within policy threshold,Stale,Never synced/missing,Heartbeat,Health/finding,Verified in source
+H-006,relays freshness,Extension,relaysLastSync,Within threshold,Stale,Never/missing,Heartbeat,Health/finding,Verified in source
+H-007,lookups freshness,Extension,lookupsLastSync,Within threshold,Stale,Never/missing,Heartbeat,Health/finding,Verified in source
+H-008,DLP data freshness,Extension,dlpLastSync,Within threshold,Stale,Never/missing,Heartbeat,Health/finding,Verified in source
+H-009,FailedLogQueue depth,Extension,Queue state,Zero/small,Growing,Unknown after process loss,Local only,Emit MetricEvent,Verified in source
+H-010,FailedLogQueue oldest age,Extension,createdAt,Below threshold,Old backlog,Queue state lost,Local only,Emit MetricEvent,Verified in source
+H-011,browser event send success,Extension,network result,Successful/acknowledged request,Retrying,Endpoint/auth unavailable,Logs/queue,Emit health counters,Verified in source
+H-012,extension inventory batch delivery,Extension,PackageExtensionLogs.sendBatched result,Successful request,Failure,Receiving service unresolved,Boolean/log only,Durable queue and metric,Verified in source
+H-013,upload workflow completion,Extension/native,UploadWorkflowDiagnosticBatch finalState,Terminal success/intentional block,Slow/retries,Timeout/error/missing terminal,"Local batch, sender inactive",Emit workflow health,Verified in source
+H-014,native message read/write,Native,loop errors/connection flag,Valid frames/write success,Intermittent errors,Disconnected/EOF,Logs/local flag,Emit counters/state,Verified in source
+H-015,native handler timeout/error,Native,chain configs/handler result,Within chain timeout,Retry/error tolerant,Repeated failure,Logs,Emit per-chain health,Verified in source
+H-016,clipboard capability,Native,manifest/config/OS adapter,Listener enabled and adapter supported,Disabled/skipping apps,Linux unsupported,Local only,Capability health,Verified in source
+H-017,file index freshness,Native,files.last_seen/index service,Watcher active/index updated,Lag/errors,Service unavailable,SQLite/logs,Emit coverage/lag,Verified in source
+H-018,file search resolution,Native,batch results,Expected files resolved,Partial errors,Provider/index unavailable,Logs/result,Emit success/error counts,Verified in source
+H-019,heartbeat bucket durability,Backend,process-local map,Process running until flush,Backlog,Pod death loses unflushed data,Logs only,Replace with durable/shared outbox,Verified in source
+H-020,heartbeat Kafka publish,Backend,send result,All chunks true,Partial false,Producer unavailable,Logs,Do not delete failed bucket; emit metric,Verified in source
+H-021,heartbeat consumer validity,Backend,deserialize count,All valid,Some malformed,All malformed committed,Logs,Quarantine and metric,Verified in source
+H-022,Neo4j heartbeat write,Backend,write/retry/timeout,Success,Transient retries,Terminal/timeout,Logs,Metric/health,Verified in source
+H-023,adapter outbox depth,Adapter,Proposed outbox,Below threshold,Growing,Storage unavailable/corrupt,None,Required MVS metric,Proposed
+H-024,adapter delivery lag,Adapter,Proposed timestamps,Within SLO,Late,No delivery,None,Required MVS metric,Proposed
+H-025,schema compatibility,Adapter,Proposed version gate,Supported schema,Deprecated version,Unsupported/quarantined,None,Required MVS health,Proposed
+H-026,identity completeness,Adapter,Required ID validator,Complete IDs,Weak/fallback IDs,Missing/empty critical ID,None,Block/quarantine unsafe record,Proposed

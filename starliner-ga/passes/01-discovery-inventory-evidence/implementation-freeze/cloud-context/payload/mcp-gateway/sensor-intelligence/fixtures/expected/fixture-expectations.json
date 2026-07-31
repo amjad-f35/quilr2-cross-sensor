@@ -1,0 +1,21 @@
+{
+  "_fixture": {
+    "classification": "Generated from verified schemas and proposed target scenarios",
+    "status": "fixture expectation index"
+  },
+  "cases": {
+    "backend-valid-current.json": "current delivery record validates",
+    "backend-duplicate-current.json": "one active or terminal idempotency scope survives",
+    "backend-invalid-tenant-mismatch.json": "validation fails without persistence",
+    "tool-late-proposed.json": "late event is accepted without replacing higher sequence",
+    "tool-out-of-order-proposed.json": "both observations are retained and sequence five is current",
+    "sensitive-content-invalid.json": "payload-safety validation rejects banned fields",
+    "redacted-label-only-current.json": "redacted placeholders do not disclose credentials or arguments",
+    "offline-replayed-proposed.json": "coverage degrades while inventory remains",
+    "minimal-proposed.json": "partial source observation remains explicitly partial",
+    "partial-observation-proposed.json": "missing optional fields are retained as missing rather than inferred",
+    "set-tool-enabled-success-proposed.json": "success requires native effect readback",
+    "set-tool-enabled-failure-proposed.json": "failure is audited with a safe reason",
+    "unsupported-version-proposed.json": "unsupported contract or profile is explicit and not silently accepted"
+  }
+}

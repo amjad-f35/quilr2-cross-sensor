@@ -1,0 +1,21 @@
+event_family,event_type,source,storage,current_starliner_mapping,sensitivity
+Canonical,backend_source_observed,MCPObserveMapper,Outbox,SourceObservation,Low
+Canonical,tool_source_observed,MCPObserveMapper,Outbox,SourceObservation,Low
+Canonical,direct_mcp_tool_call,MCPObserveMapper,Outbox,ActionEvent,Moderate
+Canonical,native_dlp_tool_block,MCPObserveMapper,Outbox,FindingSignal,Security
+Gateway system,backend_not_found,EventLoggingService,events,None,Moderate
+Gateway system,session_terminated,EventLoggingService,events,None,Moderate
+Gateway admin,backend_registered,EventLoggingService,events,None,Moderate
+Gateway admin,backend_deleted,EventLoggingService,events,None,Moderate
+Gateway admin,settings_updated,EventLoggingService,events,None,Moderate
+Gateway auth,login,EventLoggingService,events,None,Identity
+Gateway auth,auth_challenge,EventLoggingService,events,None,Identity
+Gateway access,access_denied,EventLoggingService,events,None,Security
+Gateway MCP,tool_call,EventLoggingService,events,None,Potential content metadata
+Gateway OAuth,auth_started,EventLoggingService,events,None,Identity
+Gateway OAuth,token_refresh,EventLoggingService,events,None,Credential metadata
+Gateway OAuth,token_failed,EventLoggingService,events,None,Credential metadata
+OneMCP,onemcp_client_negotiation,Diagnostics,events,None,Client metadata
+OneMCP,onemcp_connection_prompt,Diagnostics,events,None,Auth metadata
+Workflow,run_enqueued,Scheduler,schedule events,None,Operational
+Workflow,enqueue_failed,Scheduler,schedule events,None,Operational

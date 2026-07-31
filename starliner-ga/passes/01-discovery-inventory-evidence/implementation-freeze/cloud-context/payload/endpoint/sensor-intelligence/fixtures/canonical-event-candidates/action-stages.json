@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "FX-CE-001",
+    "evidence_label": "Proposed target fixture from verified proxy/control stages",
+    "runtime_observed": false,
+    "fixture_class": "normal and partial",
+    "source_basis": "proxy request/DLP/policy/effect and application enforcement paths"
+  },
+  "payload": [
+    {"action_id": "test-action-001", "stage": "captured", "status": "succeeded"},
+    {"action_id": "test-action-001", "stage": "detected", "status": "sensitive"},
+    {"action_id": "test-action-001", "stage": "policy_decided", "status": "block"},
+    {"action_id": "test-action-001", "stage": "local_effect", "status": "blocked_response"},
+    {"action_id": "test-action-001", "stage": "upstream_effect", "status": "not_sent"}
+  ],
+  "constraint": "Stages remain separate; no single stage implies all later effects."
+}
+

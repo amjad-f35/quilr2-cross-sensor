@@ -1,0 +1,37 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "entity_candidate",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "schemas/sensor-intelligence/quilr1-platform/adapter-observation-mapping.yaml",
+      "docs/quilr2-cross-sensor/starliner-ga/protocol/01-envelope-and-record-families.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "candidate": {
+    "candidate_key": "quilr1:application:tenant_fixture_001:app_fixture_001",
+    "tenant_id": "tenant_fixture_001",
+    "entity_kind": "application",
+    "source_profile": "starliner.source.quilr1_clickhouse_application.v1",
+    "source_native_id": "app_fixture_001",
+    "aliases": [
+      {
+        "namespace": "quilr1.clickhouse.application.app_id",
+        "value": "app_fixture_001"
+      },
+      {
+        "namespace": "dns.domain",
+        "value": "fixture-ai.example.invalid"
+      }
+    ],
+    "attributes": {
+      "display_name": "Fixture Generative AI App",
+      "source_category": "Generative AI"
+    },
+    "evidence_record_id": "quilr1-fixture-record-001",
+    "canonical_entity_id": null
+  }
+}

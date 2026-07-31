@@ -1,0 +1,9 @@
+subject,mcp_gateway_contribution,other_source,correlation_key,rule
+Human,Actor pseudonym,IdP or IAM,Tenant and authoritative account,External source anchors identity
+Agent or workflow,Workflow state not emitted,LLM gateway and workload source,Run step delegation IDs,Instrumentation required
+Model,None,LLM gateway,Propagated run or correlation,Do not infer from tool name
+MCP server or tool,Registry and call source IDs,Endpoint discovery,Tenant endpoint backend tool,MCP source tuple primary
+Data class,DLP labels,LLM browser endpoint labels,Run action and time,Preserve per-stage observations
+Enforcement,Native DLP confirmation ZIA policy,Other enforcement sensors,Decision and effect IDs,Do not double count
+Cost,None,LLM gateway or billing,Run and model invocation,External authority
+Bypass,Only routed traffic,Endpoint or network source,Destination and process,Missing MCP event is not no traffic

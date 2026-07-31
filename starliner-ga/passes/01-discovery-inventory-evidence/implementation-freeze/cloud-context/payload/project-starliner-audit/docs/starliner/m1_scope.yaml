@@ -1,0 +1,6 @@
+# Stable compatibility path for agents and CI.
+# Keep the complete machine-readable scope in one place to prevent drift.
+canonical_scope_file: docs/platform-now/m1_scope.yaml
+milestone: M1
+name: Certified MCP Observe Runtime
+status: closed

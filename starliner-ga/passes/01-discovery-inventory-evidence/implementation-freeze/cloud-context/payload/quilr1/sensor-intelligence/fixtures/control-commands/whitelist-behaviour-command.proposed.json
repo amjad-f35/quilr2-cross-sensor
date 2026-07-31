@@ -1,0 +1,29 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "compatibility_control_command",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/10-api-and-interface-reference.md",
+      "quilr-platform-analysis/09-data-models-and-storage.md",
+      "docs/sensor-intelligence/quilr1-platform/16-policy-control-and-enforcement.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "command": {
+    "command_id": "quilr1-fixture-command-001",
+    "idempotency_key": "fixture-whitelist-001",
+    "tenant_id": "tenant_fixture_001",
+    "target": {
+      "source_profile": "quilr1.postgresql.tenant_app_whitelisted_behaviours",
+      "app_id": "app_fixture_001",
+      "behaviour_id": "behaviour_fixture_001"
+    },
+    "requested_operation": "upsert_whitelisted_behaviour",
+    "requested_by": "account_fixture_operator",
+    "requested_at": "2026-07-28T00:01:00Z",
+    "status": "proposed_not_executed"
+  }
+}

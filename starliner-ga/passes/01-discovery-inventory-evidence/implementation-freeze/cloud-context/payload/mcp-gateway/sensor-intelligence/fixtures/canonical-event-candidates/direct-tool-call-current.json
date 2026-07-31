@@ -1,0 +1,84 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "valid current ActionEvent delivery record"
+  },
+  "record": {
+    "body": {
+      "action": {
+        "boundary": "post_execution",
+        "operation": "tools/call",
+        "type": "mcp.tool.call"
+      },
+      "actor": {
+        "human_user_id": "actor:0123456789abcdef0123456789abcdef",
+        "type": "human_user"
+      },
+      "data": {
+        "input_labels": [
+          "pii.email"
+        ],
+        "output_labels": []
+      },
+      "decision": {
+        "matched_policy_ids": []
+      },
+      "delegation_chain": [],
+      "evidence": {
+        "extra_refs": []
+      },
+      "execution": {
+        "latency_ms": 12,
+        "status": "success",
+        "upstream_called": true
+      },
+      "flow_id": "flow:fixture",
+      "occurred_at": "2026-07-30T12:00:00+00:00",
+      "request_id": "request:fixture",
+      "resource": {
+        "attributes": {},
+        "backend_id": "backend-fixture",
+        "id": "mcp_tool:tenant-fixture:backend-fixture:search",
+        "tool_name": "search",
+        "type": "mcp_tool"
+      },
+      "schema": "starliner.action_event.v1",
+      "schema_version": 1,
+      "sensor": {
+        "id": "mcp_gateway_fixture",
+        "type": "mcp_gateway",
+        "version": "0.1.0"
+      },
+      "span_id": "span:fixture",
+      "tenant_id": "tenant-fixture",
+      "usage": {}
+    },
+    "envelope": {
+      "adapter_version": "0.1.0",
+      "body_hash": "sha256:265f0f7a05fb8b7eea6bb6ebef2514df5521a7f36704cfa6ffe7ed11285e718f",
+      "certification_id": "fixture-cert",
+      "contract_version": "starliner.sensor.v1",
+      "evidence_quality": "fixture",
+      "flow_id": "flow:fixture",
+      "idempotency_key": "idem:action-fixture",
+      "occurred_at": "2026-07-30T12:00:00+00:00",
+      "record_hash": "sha256:8c85126ba621209e443d7cb48ab885a3f8ee8ed8c45cb1f72520720687b118ad",
+      "record_origin": "fixture",
+      "record_type": "action_event",
+      "request_id": "request:fixture",
+      "runtime_instance_id": "fixture-instance",
+      "safe_summary": {
+        "argument_keys": [],
+        "data_labels": [
+          "pii.email"
+        ],
+        "risk_labels": []
+      },
+      "schema_version": "starliner.action_event.v1",
+      "sensor_id": "mcp_gateway_fixture",
+      "span_id": "span:fixture",
+      "tenant_id": "tenant-fixture"
+    }
+  }
+}
+

@@ -11,6 +11,12 @@ worktrees unless explicitly marked. On the Ubuntu server, clone this authority
 repository and authorized source repositories; do not copy a shallow analysis
 snapshot and start committing from it.
 
+Cloud and remote agents that do not have `CONSOLIDATE_ROOT` use the
+[portable cloud-agent context](../cloud-context/README.md). It carries the
+selected dossiers, matrices, schemas, fixtures and repository references
+byte-for-byte with source paths and SHA-256 digests. It is source evidence,
+not a second implementation authority.
+
 ## Normative implementation authority
 
 | Purpose | Location |
@@ -22,6 +28,7 @@ snapshot and start committing from it.
 | Coding handoff | `implementation-freeze/23-production-implementation-handoff.md` |
 | Pre-code design closure | `implementation-freeze/32-pre-code-system-design-closure.md` |
 | Execution kit | `implementation-freeze/engineering-execution/README.md` |
+| Portable source-intelligence payload | `implementation-freeze/cloud-context/README.md` |
 | Five-profile generated source authority | `implementation-freeze/lg008/` |
 | All 377 organization repositories classified | `implementation-freeze/registers/github-repository-relevance.csv` |
 | Selected immutable source/build evidence | `implementation-freeze/evidence/github/selected-revision-and-build-evidence.json` |
@@ -97,3 +104,8 @@ active work item
 ```
 
 This preserves context capacity without weakening evidence.
+
+When the full local analysis is unavailable, replace “relevant sensor dossier”
+with its path in `cloud-context/payload/`. Never compensate by recursively
+re-analyzing all organization repositories or treating the bundled dossier as
+current runtime proof.

@@ -1,0 +1,6 @@
+shared_concept,this_sensor_evidence,other_source,correlation_key,authority,duplicate_risk,conflict_handling
+AI application use,inline request with app/key/user/model,Browser/endpoint,"user email, app/domain, time, trace if propagated",Gateway strongest for routed invocation; browser/endpoint stronger for local app/device,High,Link distinct observations; do not merge product/application/account
+Model invocation,provider/model/usage/latency/outcome,Agent runtime/provider billing,trace/external request ID/time,Gateway for inline route; provider for billing; runtime for agent causality,High,Deduplicate event by request IDs where strong; retain source claims
+Tool call,tool-call text in supported OpenAI/Responses walkers,MCP Gateway/agent runtime,trace/run/tool call ID if propagated,MCP Gateway for MCP execution; LLM Gateway only sees model payload,Medium,Relate suggestion/request to execution; never infer effect
+Human identity,user_email/user_id/JWT hints,IdP/HRIS,normalized email/source user ID,IdP/HR authoritative,High,Identifier candidate only
+Sensitive data event,prompt/response detector result and action,Browser/endpoint/DLP,trace/context/time/content digest,Each source proves its observation point,High,Correlate but retain separate enforcement/evidence

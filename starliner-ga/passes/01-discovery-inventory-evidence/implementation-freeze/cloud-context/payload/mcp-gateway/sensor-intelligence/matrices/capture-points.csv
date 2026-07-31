@@ -1,0 +1,10 @@
+capture_id,surface,symbol,trigger,inputs,outputs,timing,coverage
+CS-001,Backend registry,BackendRegistry._observe_backend_registration,Successful registration,Tenant backend transport tools,SourceObservation records,Post-persistence,Partial create only
+CS-002,Tool registry,BackendRegistry.update_capabilities_tools,Successful tools overwrite,Tenant backend tool names,Tool SourceObservation,Post-persistence,No delete or completeness
+CS-003,Capability refresh,BackendRegistry.refresh_all_capabilities,Successful full refresh,Tenant backend tool names,Tool SourceObservation,Post-persistence,Resources and prompts dropped
+CS-004,Direct MCP,MCPHandler.handle_request,Normal-return tools/call,IDs email DLP flags latency,3 to 5 delivery records,Post-result,Exception gap
+CS-005,Legacy control,evaluate_starliner_mcp_pre_tool,Pre-upstream tool call,IDs email labels signals,Decision and optional event,Pre-upstream,Private SDK unresolved
+ES-001,Operations,GET /starliner/manifest,HTTP request,Config counters health,Manifest JSON,Read time,Public
+ES-002,Operations,POST /starliner/selftest,Admin request,Synthetic metadata,Check JSON,Offline,No outbox or network
+ES-003,Operations,GET /starliner/metrics,Admin request,Counters SQLite aggregates,Metrics JSON,Read time,Local instance
+TS-001,Delivery,HttpDeliveryTransport.post_records,Claimed batch,Delivery records,Per-record result,Asynchronous,External live unverified

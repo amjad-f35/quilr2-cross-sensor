@@ -1,0 +1,13 @@
+subject,relationship,object,directness,source_record,temporal,confidence,platform_availability
+Actor,CALLS,MCP tool,Direct event semantics,ActionEvent,Yes,High when actor exists,Derivable centrally from current output
+Action,TARGETS,MCP tool,Direct event semantics,ActionEvent,Yes,High,Derivable centrally from current output
+Sensor,OBSERVED,Action,Direct provenance,ActionEvent and envelope,Yes,High,Derivable centrally from current output
+Sensor,OBSERVED,MCP source candidate,Direct provenance,SourceObservation,Yes,High,Derivable centrally from current output
+MCP server,PROVIDES,MCP tool,Derived,SourceObservation and resource,Partial,Medium,Derivable centrally from current output
+Action,EXECUTED_AGAINST,MCP server,Derived,ActionEvent resource,Yes,High,Derivable centrally from current output
+MCP tool,WAS_BLOCKED_BY,Native DLP,Derived,FindingSignal,Yes,Medium,Derivable centrally from current output
+Tenant or user,OWNS_OR_CONFIGURES,Backend,Configuration,Gateway DB,Current-state,High in source,Available through adapter mapping only
+Workflow agent,ALLOWS,Tool,Configuration,Workflow tables,Versioned,High,Available through adapter mapping only
+Workflow run,PRODUCES,Artifact,Runtime,Runner tables,Yes,High,Available through adapter mapping only
+Human,LOGGED_INTO,Account,Authoritative external,IdP and OAuth,Yes,Unresolved,Requires an external authoritative source
+Device,HOSTS,Client process,External,None,Yes,Unresolved,Not observable by this sensor

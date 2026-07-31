@@ -1,0 +1,21 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Heartbeat age metric",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.metric_event.v1",
+    "schema_version": 1,
+    "tenant_id": "tenant-fixture",
+    "metric_name": "browser_extension.heartbeat_age_ms",
+    "metric_type": "gauge",
+    "value": 1200,
+    "unit": "ms",
+    "dimensions": {
+      "sensor_instance": "browser-extension-instance-fixture"
+    },
+    "occurred_at": "2026-07-30T12:00:00Z"
+  }
+}

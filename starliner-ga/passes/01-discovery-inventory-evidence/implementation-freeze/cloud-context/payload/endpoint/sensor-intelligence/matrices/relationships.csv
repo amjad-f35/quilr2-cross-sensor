@@ -1,0 +1,41 @@
+relationship_id,subject,relationship,object,direct_or_inferred,source_record,native_keys,temporal,confidence,platform_use,evidence_status
+REL-001,ProcessInstance,RUNS_ON,Device,Direct observed,ProcessInfo plus DeviceContext,PID start_time device_id,Yes high,High,Relationship view,Verified in source
+REL-002,ProcessInstance,EXECUTED_BINARY,BinaryCandidate,Direct observed,ProcessInfo,PID exe_path,Yes high,High,Inventory and entity detail,Verified in source
+REL-003,ProcessInstance,CHILD_OF,ProcessInstance,Direct observed,ProcessInfo,PID PPID start_time,Yes high,Medium because parent start identity absent,Relationship view,Verified in source but not emitted
+REL-004,OSAccount,RAN,ProcessInstance,Direct observed,ProcessInfo,user PID start_time,Yes high,Medium platform-dependent,Activity/evidence,Verified in source but not emitted
+REL-005,ApplicationInstallation,OBSERVED_ON,Device,Direct observed,Entity ApplicationData and context,entity_id device_id,First/last seen,High for local observation,Inventory list,Verified in source
+REL-006,ProcessInstance,MATCHED_APPLICATION,ApplicationInstallation,Derived locally,Correlator and ApplicationData,process name/path entity_id,At process observation,Medium configuration-dependent,Entity detail,Verified in source
+REL-007,ApplicationInstallation,HAS_CANONICAL_APP_ALIAS,ApplicationCatalogEntry,Configuration/backend mapping,ApplicationData canonical_id,entity_id canonical_id,Current state,High source-native,Canonical resolution input,Verified in source
+REL-008,ApplicationInstallation,CONFIGURES,MCPServerConfiguration,Configuration,McpServerData,parent_app entity IDs/name,At scan,Medium flattened edge,Relationship view,Verified in source
+REL-009,MCPServerConfiguration,DEPLOYED_ON,Device,Derived,McpServerData and DeviceContext,mcp entity_id device_id,At scan,Medium,Inventory/entity detail,Inference
+REL-010,AgentDefinition,CONFIGURED_ON,Device,Configuration,AgentData and DeviceContext,agent entity_id device_id,At scan,High local config,Inventory/entity detail,Verified in source
+REL-011,AgentDefinition,DECLARES_MODEL,ModelDeclaration,Configuration,AgentData model names,agent ID plus display names,At scan,Low to medium names only,Relationship candidate,Verified in source
+REL-012,AgentDefinition,DECLARES_TOOL,ToolCandidate,Configuration,AgentData tool names,agent ID plus display names,At scan,Low to medium names only,Relationship candidate,Verified in source
+REL-013,AgentDefinition,DECLARES_MCP_SERVER,MCPServerCandidate,Configuration,AgentData MCP names,agent ID plus display names,At scan,Low to medium names only,Relationship candidate,Verified in source
+REL-014,SkillConfiguration,BELONGS_TO,ApplicationOrAgentCandidate,Configuration,SkillData,parent/source/path,At scan,Medium source-specific,Relationship view,Verified in source
+REL-015,HookConfiguration,BELONGS_TO,ApplicationInstallation,Configuration,HookData and hook config,bundle/template/app name,At scan,Medium,Relationship view,Verified in source
+REL-016,PluginInstallation,OBSERVED_ON,Device,Direct observed,PluginData plus context,plugin ID device ID,At scan,High selected scope,Inventory/entity detail,Verified in source
+REL-017,RepositoryCandidate,OBSERVED_ON,Device,Direct observed,ControlledRepoData plus context,repo ID path device,At scan,High selected scope,Inventory/entity detail,Verified in source
+REL-018,PermissionDeclaration,APPLIES_TO,EntityCandidate,Configuration,PermissionData,parent/source/free fields,At scan,Low to medium,Relationship candidate,Verified in source
+REL-019,HumanAccount,AUTHENTICATED_ON,Device,Direct local state,Persona,Persona.id device_id,Last validation interval,High for agent auth only,Identity/entity detail,Verified in source
+REL-020,HumanAccount,MEMBER_OF,GroupCandidate,Backend claim,UserContext groups,user ID group string,At last refresh,Medium names only,Relationship view,Verified in source
+REL-021,HumanAccount,ASSIGNED_ROLE,RoleCandidate,Backend claim,UserProfile roles,user ID role string,At last validation,Medium to high backend claim,Entity detail,Verified in source
+REL-022,HumanAccount,HAS_PERMISSION,PermissionCandidate,Backend claim,UserProfile permissions,user ID permission string,At last validation,Medium to high backend claim,Entity detail,Verified in source
+REL-023,ProcessInstance,CONNECTED_TO,NetworkDestination,Direct observed,ConnectionMetadata/ProcessAttribution,connection ID PID source destination,Yes connection time,High macOS and conditional Windows,Activity/evidence,Verified in source
+REL-024,ProxyRequest,TARGETED,ApplicationSurface,Direct observed,RequestContext,request_id host path app details,Yes request time,High for intercepted request,Activity explorer,Verified in source
+REL-025,ProcessInstance,INITIATED,ProxyRequest,Direct observed,RequestContext source_app,PID request_id,Yes request time,Medium due PID/name reduction,Activity/evidence,Verified in source
+REL-026,HumanAccount,INITIATED,ProxyRequest,Context association,RequestContext user_details,user ID request_id,Yes request time,Medium cached Persona not remote principal,Activity/evidence,Verified in source
+REL-027,Device,ORIGINATED,ProxyRequest,Context association,Persona/agent context,device ID request_id,Yes request time,High for local endpoint,Activity/evidence,Verified in source
+REL-028,DLPDetector,DETECTED,SensitiveEntity,Direct detector result,Detection,request ID entity category,Yes request time,High for detector output not ground truth,Finding signal,Verified in source
+REL-029,SensitiveEntity,FOUND_IN,ProxyRequest,Direct detector result,DlpFinding/alert,request ID entity,Yes request time,High for reported result,Finding signal/evidence,Verified in source
+REL-030,PolicyControl,GOVERNED,ProxyRequest,Direct decision context,CheckProperties/control and policy result,control slug request ID,Yes request time,Medium action semantics vary,Finding signal/evidence,Verified in source
+REL-031,EnforcementPoint,ATTEMPTED_ACTION,ProxyRequest,Direct control path,DlpDecision and alert fields,request ID action/mode,Yes request time,Medium effect not separately observed,Activity/evidence,Verified in source
+REL-032,User,JUSTIFIED,ProxyRequest,Direct UI response,PopupResponse/alert,request ID justification,Yes response time implicit,High for supplied text,Audit/evidence,Verified in source
+REL-033,HookSession,RECEIVED,HookRequest,Direct observed,HookRequest,session_id plus event fields with no event ID,Yes source time plus local time,High locally but not emitted,Activity explorer,Verified in source
+REL-034,UserAccount,INVOKED,ToolNameCandidate,Direct name observation,ActivityEntry,user_id turn_id tool_name,Yes activity time,Medium name-only and no args/result,Activity explorer,Verified in source
+REL-035,HookEvaluator,DECIDED,HookRequest,Direct decision,HookResponse,connection-local response plus decision with no request ID,Yes request handling time,High current Allow response but weak later correlation,Activity/evidence,Verified in source
+REL-036,EntityGovernance,GOVERNS,Entity,Direct current state,GovernanceFields,entity ID policy fields,Current state,High,Configuration/entity detail,Verified in source
+REL-037,MonitorEnforcer,ATTEMPTED_TERMINATION,ProcessInstance,Direct action path,Enforcer/entity/PID,entity ID PID action result,Yes action time in logs only,Medium result/effect boundary incomplete,Audit/evidence,Verified in source
+REL-038,SensorComponent,EMITTED,DiagnosticEvent,Direct emission,DiagnosticPayload,component diagnostic UUID,Yes timestamp,High producer-only,Operator evidence,Verified in source
+REL-039,SensorInstance,RUNS_SERVICE,Service,Derived,ServiceState/StatusUpdate,service name plus missing instance ID,Current state,Medium instance ID absent,Coverage/health,Inference
+REL-040,AlertTransport,DELIVERED,BackendEndpoint,Unresolved,StoredAlert/dispatcher,alert ID status and HTTP config,Send times/retries,Unresolved without response evidence details,Operator evidence,Unresolved

@@ -1,0 +1,26 @@
+# Events and Emissions
+
+| Event | Producer | Representation | Delivery | Meaning |
+| --- | --- | --- | --- | --- |
+| http_request_completion | api_log middleware | structured tracing JSON | best effort | operator telemetry |
+| login_success | AuthService | session mutation/response | transaction + Redis | access event |
+| login_failure | AuthService | error/rate-limit state | Redis/PostgreSQL dependent | security signal |
+| tenant_selected | AuthService/routes | session mutation | Redis | context change |
+| session_revoked | AuthService | Redis delete | immediate within store result | access event |
+| llm_interaction | upstream LLM gateway | ClickHouse row read by console | source durability external | activity evidence |
+| mcp_tool_call | upstream MCP gateway | ClickHouse row read by console | source durability external | activity evidence |
+| mcp_rejection | upstream MCP gateway | ClickHouse row | source durability external | governance evidence |
+| endpoint_activity | Endpoint sensor | ClickHouse row | source durability external | activity evidence |
+| browser_alert | Browser sensor | ClickHouse row | source durability external | finding signal |
+| topic_bucket_completed | activity topic runner | RunnerState/counters/log | ClickHouse insert | pipeline health |
+| topic_bucket_failed | activity topic runner | retry state/log | 15-minute retry | pipeline health |
+| topic_bucket_dead_lettered | activity topic runner | RunnerState dead letter/log | after four attempts | operator action |
+| topic_lease_acquired | Redis lease | ephemeral leader state/log | TTL/token ownership | coordination |
+| dashboard_generation_stage | CustomDashboardService | PostgreSQL run update | transactional | workflow state |
+| dashboard_published | CustomDashboardService | document/run update | transactional | user content state |
+| saved_view_changed | SavedViewService | PostgreSQL mutation | transactional | personal configuration |
+| console_assist_turn | ConsoleAssistService | PostgreSQL append | transactional/network dependent | support history |
+| policy_mutation_requested | policy/app adapter | synchronous upstream call | no universal outbox | control attempt |
+| policy_mutation_result | policy/app adapter | HTTP result | request lifetime | control response; not universal effect proof |
+
+HTTP responses and ClickHouse query results are not emitted events merely because they are serialized. The platform emits structured request logs and external calls, writes selected product/derived state, but has no universal source-observation stream.

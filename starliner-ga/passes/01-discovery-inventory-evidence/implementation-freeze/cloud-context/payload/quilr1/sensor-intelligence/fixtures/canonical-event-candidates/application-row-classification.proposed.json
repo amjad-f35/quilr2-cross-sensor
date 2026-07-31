@@ -1,0 +1,19 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "canonical_event_candidate_disposition",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "matrices/sensor-intelligence/quilr1-platform/event-mappings.csv",
+      "docs/sensor-intelligence/quilr1-platform/12-events-and-emissions.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "input_record_id": "quilr1-fixture-record-001",
+  "disposition": "entity_snapshot_not_occurrence_event",
+  "target_record_family": "entity_snapshot",
+  "canonical_event_emitted": false,
+  "reason": "The verified application projection is current/snapshot state; repository evidence does not prove an application-created occurrence."
+}

@@ -1,0 +1,5 @@
+{
+  "_fixture_status": "Proposed target fixture; current sensor has no signed remote command channel",
+  "command_type": "policy.refresh",
+  "id": "synthetic-command-1"
+}

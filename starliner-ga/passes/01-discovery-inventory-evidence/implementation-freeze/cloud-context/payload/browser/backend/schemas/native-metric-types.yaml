@@ -1,0 +1,45 @@
+schema_version: 1
+profile: browser-backend
+metrics:
+- metric_id: M-007
+  name: heartbeat_received
+  meaning: Heartbeat HTTP requests accepted
+  dimensions: tenant, device, browser, versions
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- metric_id: M-008
+  name: heartbeat_bucket_devices
+  meaning: Distinct device+email entries in a bucket
+  dimensions: tenant, bucket
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- metric_id: M-010
+  name: heartbeat_publish_chunks
+  meaning: Number of chunks attempted per batch
+  dimensions: tenant, bucket
+  availability: Derivable centrally from current output
+  evidence: Verified in source
+- metric_id: M-011
+  name: heartbeat_publish_failures
+  meaning: StreamBridge/producers returning failure
+  dimensions: tenant, bucket, chunk
+  availability: Derivable centrally from current output
+  evidence: Verified in source
+- metric_id: M-012
+  name: heartbeat_consumer_malformed
+  meaning: Kafka heartbeat records failing JSON conversion
+  dimensions: topic
+  availability: Derivable centrally from current output
+  evidence: Verified in source
+- metric_id: M-013
+  name: heartbeat_graph_write_retries
+  meaning: Transient Neo4j write retries
+  dimensions: batch size
+  availability: Derivable centrally from current output
+  evidence: Verified in source
+- metric_id: M-014
+  name: heartbeat_graph_write_latency_ms
+  meaning: Neo4j heartbeat write duration/timeout
+  dimensions: batch size, outcome
+  availability: Available through adapter mapping only
+  evidence: Verified in source

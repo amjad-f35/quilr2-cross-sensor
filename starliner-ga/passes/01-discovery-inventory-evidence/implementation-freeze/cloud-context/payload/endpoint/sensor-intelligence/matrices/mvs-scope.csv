@@ -1,0 +1,31 @@
+mvs_id,area,item,disposition,rationale,dependency,acceptance,priority,evidence_status
+MVS-001,Contract,Pre-resolution source observation,Blocker,Endpoint cannot assign canonical identity,Starliner contract decision,Unresolved candidates admitted without local canonical invention,P0,Proposed
+MVS-002,Contract,Delivery envelope and per-record result,Blocker,Current inspected implementations disagree,Platform delivery contract,Golden wire fixtures and granular outcomes,P0,Proposed
+MVS-003,Delivery,In-flight lease recovery,Blocker,Crash must not strand records,Outbox state contract,Crash tests reclaim and redeliver idempotently,P0,Proposed
+MVS-004,Contract,Endpoint entity/action taxonomy,Blocker,Current enums omit endpoint concepts,Versioned platform ontology,All in-scope fixtures validate without semantic overloading,P0,Proposed
+MVS-005,Identity,Sensor enrollment and rotating credential,In scope,Tenant/producer binding is required,Platform enrollment,Credential-bound tenant and revocation/rotation tests,P0,Proposed
+MVS-006,Capability,Compound manifest and certification,In scope,One healthy flag hides sub-sensors,Enrollment and self-tests,Platform shows exact accepted/degraded/unsupported modes,P0,Proposed
+MVS-007,Coverage,Per-source CoverageRecord,In scope,Absence/freshness requires scope,Native scan/listener instrumentation,Complete/partial/failed/unsupported fixtures,P0,Proposed
+MVS-008,Health,Component and adapter SensorHealth,In scope,Operator and finding confidence depend on health,Self-tests/outbox metrics,Failure/recovery visible without log scraping,P0,Proposed
+MVS-009,Capture,System Monitor process observations,In scope,Core endpoint inventory capability,Stable native ID/time and capture bridge,Controlled process/replay fixtures materialize correctly,P0,Verified capability; proposed integration
+MVS-010,Capture,Lua/config native observations and relationships,In scope,Rich current discovery is lost in conversion,Capture before converter,Golden native graph parity,P0,Verified capability; proposed integration
+MVS-011,Capture,Package observations and ecosystem coverage,In scope,Useful local inventory with scoped completeness,Per-ecosystem status,Missing-tool/partial/success fixtures,P1,Verified capability; proposed integration
+MVS-012,Capture,Cursor and Claude native hook events,In scope Observe only,Current source-specific activity contribution,Native ID/privacy/IPC health,Every supported event and restart/duplicate fixture,P1,Verified capability; proposed integration
+MVS-013,Control,Hook Deny Ask Justify enforcement,Out of scope,Active evaluator always Allows,Future detector/policy/certification,Manifest remains Observe,P2,Verified not implemented
+MVS-014,Capture,Proxy request/detection/decision/effect stages,In scope selected paths,Needed for DLP/policy activity,Common action ID and privacy filter,Supported route matrix and degraded modes,P1,Verified capability; proposed instrumentation
+MVS-015,Privacy,Raw content export,Out of scope by default,High privacy/secret risk,Protected evidence policy and service,Secret/content fixtures absent from ordinary records,P0,Proposed rule
+MVS-016,Control,Application enforcement effect observation,In scope after instrumentation,Attempt alone is insufficient,Final process-tree re-enumeration,Action stages and effect pass controlled tests,P1,Verified current partial behavior
+MVS-017,Delivery,Encrypted partitioned durable outbox,In scope,Current paths are fragmented/lossy,Adapter storage and key handling,Offline/quota/corruption/restart suite,P0,Proposed
+MVS-018,Delivery,Idempotency duplicate replay late and out-of-order,In scope,Endpoint can be offline and asynchronous,Stable IDs/time/admission,All required fixture classes produce deterministic results,P0,Proposed
+MVS-019,Identity,Canonical entity assignment,Platform only,Endpoint candidates require authority,Resolution service,Merge/split and conflict history retained,P0,Proposed
+MVS-020,Product,Inventory and Entity Detail,In scope,First customer value from positive observations,Resolution/materialization/coverage,State terminology and freshness acceptance,P1,Proposed
+MVS-021,Product,Activity and control stage views,In scope,Debuggable behavior requires stage sequence,Action/decision/effect records,One action traced end to end,P1,Proposed
+MVS-022,Product,Coverage and Operator views,In scope,Unsupported/degraded/delivery must be visible,Manifest health coverage,OS/source/outbox failures displayed,P0,Proposed
+MVS-023,Findings,Positive-evidence endpoint findings,In scope limited,Some findings do not need cross-source absence,Rules/entity resolution/coverage,Dedup resolution reopen and negative cases pass,P1,Proposed
+MVS-024,Findings,LLM/MCP gateway bypass,Deferred,Requires healthy external source and correlation,Gateway sensor contracts/late window,Cross-sensor acceptance suite,P2,Proposed
+MVS-025,Platform,Linux endpoint runtime,Out of scope,No active implementation exists,Separate Linux engineering/certification,Displayed Unsupported,P2,Verified absence
+MVS-026,Platform,Cloud/serverless/CI authority,Out of scope,Endpoint lacks control-plane/job identity,Cloud/CI/runtime-native sensors,No exhaustive endpoint claim,P2,Verified absence
+MVS-027,Platform,Authoritative GitHub repository inventory,Out of scope,Local checkout is not remote authority,SCM connector,Local records remain candidates,P2,Verified limitation
+MVS-028,Metrics,Agent runs model tokens and MCP success rate,Out of scope,Native records do not observe them,Agent/gateway/MCP runtime sensors,Metrics explicitly unavailable,P2,Verified not observable
+MVS-029,Transport,Dormant DbService gRPC server,Out of scope,No active runtime and schema/code mismatch,Separate transport decision/fix,No MVS dependency on it,P2,Verified placeholder
+MVS-030,Migration,Current dashboard sync parity and rollback,In scope,Safe rollout requires comparison and fallback,Dual-write/read analysis flags,Parity report and reversible disable,P0,Proposed

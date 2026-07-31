@@ -1,0 +1,25 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Minimal safe SourceObservation",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.source_observation.v1",
+    "schema_version": 1,
+    "tenant_id": "tenant-fixture",
+    "observation_id": "obs-minimal",
+    "canonical_entity": {
+      "type": "browser_app",
+      "id": "candidate:browser-extension:aaaaaaaa"
+    },
+    "sensor_id": "browser-extension-instance-fixture",
+    "source_entity_type": "chrome_extension",
+    "source_external_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "observed_name": null,
+    "confidence": 0.5,
+    "observed_at": "2026-07-30T12:00:00Z",
+    "attributes": {}
+  }
+}

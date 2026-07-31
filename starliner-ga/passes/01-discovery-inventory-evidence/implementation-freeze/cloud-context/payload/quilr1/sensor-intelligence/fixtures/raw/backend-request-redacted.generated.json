@@ -1,0 +1,23 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "proposed_target_behavior",
+    "kind": "backend_request_redacted_record",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "docs/sensor-intelligence/quilr1-platform/25-security-privacy-and-retention.md",
+      "matrices/sensor-intelligence/quilr1-platform/native-fields.csv"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "request_context": {
+    "Authorization": "[REDACTED]",
+    "subscriberid": "subscriber_fixture_001",
+    "tenant-id": "tenant_fixture_001"
+  },
+  "redaction": {
+    "field": "Authorization",
+    "original_retained_in_unrestricted_fixture": false
+  }
+}

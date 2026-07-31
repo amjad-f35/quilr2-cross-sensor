@@ -1,0 +1,9 @@
+activity_type,human,account,agent,workload,process,credential,approval,sensor,completeness
+Direct tool call,Pseudonym,Absent,Absent,Absent,Gateway type,Absent,Absent,ID version runtime,Partial
+Native DLP block,Pseudonym,Absent,Absent,Absent,Gateway type,Absent,DLP implied,ID version runtime,Partial
+Legacy policy deny,Pseudonym,Absent,Absent,Absent,Gateway type,Absent,Decision dropped,ID version runtime,Partial
+Backend registration,Absent,Owner not mapped,Absent,Absent,Gateway type,Absent,Admin not mapped,Sensor ID,Low
+Tool discovery,Absent,Absent,Absent,Absent,Gateway type,Absent,Absent,Sensor ID,Low
+Workflow execution,Available in state,Available in state,Workflow agent,Worker ID,Runner,Delegation token,Version and readiness,Not observed,Adapter-only
+OAuth event,Email in event,OAuth state,Absent,Absent,Gateway,Credential metadata,Absent,No Starliner source,Adapter-only
+OneMCP session,Email in handler,OAuth or user,Client heuristic,Absent,Gateway,Auth mode,Confirmation possible,No Starliner source,Incomplete

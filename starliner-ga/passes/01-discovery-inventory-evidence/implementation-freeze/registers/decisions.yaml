@@ -605,3 +605,7 @@ decisions:
     area: role_artifact_and_compatibility
     decision: one repository and signed platform-release manifest bind independently built role image digests SBOMs provenance contract ranges and generated clients; roles can canary and rollback independently only within declared N/N-1 protocol work-contract and database-schema compatibility
     status: frozen
+  - id: DIE-EVIDENCE-012
+    area: portable_source_context
+    decision: cloud and remote implementation agents receive a content-addressed size-bounded non-normative selection of the sensor legacy-platform and starting-code analyses; executable freeze contracts and generated LG-008 authority retain precedence and raw repositories are inspected only for the exact pinned implementation seam
+    status: frozen

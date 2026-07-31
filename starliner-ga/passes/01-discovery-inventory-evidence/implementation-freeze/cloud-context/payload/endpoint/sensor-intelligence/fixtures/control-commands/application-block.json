@@ -1,0 +1,22 @@
+{
+  "_fixture": {
+    "id": "FX-CC-001",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "normal and duplicate-command capable",
+    "source_basis": "control-capabilities.yaml proposed result fields"
+  },
+  "payload": {
+    "command_id": "test-command-001",
+    "tenant_id": "tenant-test",
+    "sensor_instance_id": "sensor-test-001",
+    "target_alias": "endpoint.application.native_uuid:00000000-0000-0000-0000-000000000101",
+    "operation": "terminate_application_process_tree",
+    "policy_id": "policy-test-001",
+    "policy_version": "1",
+    "requested_at": "2026-01-01T00:00:00Z",
+    "expires_at": "2026-01-01T00:05:00Z",
+    "idempotency_key": "test-command-001"
+  }
+}
+

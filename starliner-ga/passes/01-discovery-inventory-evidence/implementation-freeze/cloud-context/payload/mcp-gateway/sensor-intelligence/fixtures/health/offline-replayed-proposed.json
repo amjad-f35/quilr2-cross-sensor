@@ -1,0 +1,24 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "offline and replayed health transition"
+  },
+  "transitions": [
+    {
+      "status": "degraded_delivery",
+      "reason_code": "ingest_unreachable",
+      "outbox_depth": 12
+    },
+    {
+      "status": "healthy",
+      "reason_code": "delivery_recovered",
+      "outbox_depth": 0,
+      "replayed_records": 12
+    }
+  ],
+  "expected": {
+    "inventory_deleted_during_outage": false,
+    "coverage_lowered_during_outage": true
+  }
+}
+

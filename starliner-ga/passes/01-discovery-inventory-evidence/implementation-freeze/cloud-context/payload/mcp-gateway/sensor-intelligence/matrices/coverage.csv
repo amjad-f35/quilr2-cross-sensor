@@ -1,0 +1,11 @@
+surface,status,observed,missing,certification
+Backend registry,Partial,Registration and selected tool refresh,Snapshot update delete stale,Hook tests
+Direct tools call,Partial,Normal-return results and DLP block,Exception conversion session progress cancel,Two M1 traces
+Direct resources,Unsupported,None,List read subscribe lifecycle,Deferred
+Direct prompts,Unsupported,None,List get lifecycle,Deferred
+Initialize capabilities,Unsupported,Cached state only,Negotiation change event,Deferred
+OneMCP,Unsupported,None,Remote native resource prompt session,Deferred
+Workflows,Unsupported,Source state only,Agent run step lineage,Not covered
+Delivery,Partial,Local outbox retry terminal,Live authenticated ingest receipt,Fake transport tests
+Health,Partial,Routes counters SQLite aggregates,Durable heartbeat and per-tenant loss,Self-test only
+Multi-replica,Unsupported,None,Externalized state and certification,None

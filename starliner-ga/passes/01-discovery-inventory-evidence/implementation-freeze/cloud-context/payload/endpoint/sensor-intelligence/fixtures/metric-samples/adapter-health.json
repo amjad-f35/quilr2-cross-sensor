@@ -1,0 +1,16 @@
+{
+  "_fixture": {
+    "id": "FX-MET-001",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "normal operational metric",
+    "source_basis": "health-metrics.csv"
+  },
+  "payload": [
+    {"metric": "outbox_records_depth", "value": 12, "labels": {"partition": "system_monitor"}},
+    {"metric": "outbox_oldest_record_age_seconds", "value": 42, "labels": {"partition": "system_monitor"}},
+    {"metric": "delivery_terminal_reject_total", "value": 1, "labels": {"error_class": "unsupported_version"}}
+  ],
+  "constraint": "Metric labels contain no path, prompt, body, email, token, native error text, or unbounded record ID."
+}
+

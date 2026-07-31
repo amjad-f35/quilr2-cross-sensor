@@ -1,0 +1,108 @@
+{
+  "schema": "starliner.sensor_manifest.v1",
+  "analysis_evidence": "Proposed",
+  "sensor": "browser-extension",
+  "sensor_id": "browser-extension-compound",
+  "sensor_version": "pinned-multi-repo",
+  "product": {
+    "repo": "quilrbusiness/Project-Vanguard + project-sentinel + browser-extension-service",
+    "ref": "pinned commits",
+    "commit": "fc09f3a20e3e129b02f69f5045965e8fa694c022|88ae4e3b2d531e3b285bb5a42f6ccb76568414f9|99e9599e1582184f5061492b430cd0b2af38d753"
+  },
+  "adapter": {
+    "name": "browser-extension-starliner-adapter",
+    "version": "0.1.0-proposed"
+  },
+  "contract": {
+    "name": "starliner.sensor.v1",
+    "schema_version": 1
+  },
+  "capabilities": {
+    "f_001": "observe",
+    "f_002": "observe",
+    "f_003": "observe",
+    "f_004": "observe",
+    "f_005": "observe",
+    "f_006": "observe",
+    "f_007": "observe",
+    "f_008": "observe",
+    "f_009": "observe",
+    "f_010": "observe",
+    "f_011": "observe",
+    "f_012": "observe",
+    "f_013": "observe",
+    "f_014": "observe",
+    "f_016": "observe",
+    "f_017": "observe",
+    "f_018": "observe",
+    "f_019": "observe",
+    "f_020": "enforce",
+    "f_021": "observe",
+    "f_022": "observe",
+    "f_023": "enforce",
+    "f_024": "observe",
+    "f_025": "observe",
+    "f_026": "observe",
+    "f_027": "observe",
+    "f_028": "observe",
+    "f_029": "enforce",
+    "f_030": "observe",
+    "f_031": "observe",
+    "f_032": "observe",
+    "f_033": "observe",
+    "f_034": "observe",
+    "f_035": "observe",
+    "f_036": "observe",
+    "f_037": "observe",
+    "f_038": "observe",
+    "f_039": "observe",
+    "f_040": "observe",
+    "f_042": "observe",
+    "mcp_discovery": "unsupported",
+    "cloud_instance_discovery": "unsupported",
+    "serverless_discovery": "unsupported",
+    "cicd_runner_discovery": "unsupported",
+    "repository_skill_discovery": "unsupported",
+    "grpc_transport": "unsupported"
+  },
+  "sub_sensors": {
+    "vanguard_browser": {
+      "status": "loaded",
+      "capabilities": {
+        "browser_activity": "observe",
+        "prompt_dlp": "enforce",
+        "browser_extension_inventory": "observe",
+        "file_transfer": "enforce"
+      }
+    },
+    "sentinel_native": {
+      "status": "conditional",
+      "capabilities": {
+        "windows_clipboard": "enforce",
+        "macos_clipboard": "enforce",
+        "linux_clipboard": "unsupported",
+        "file_scan": "enforce",
+        "device_identity": "deferred"
+      }
+    },
+    "browser_extension_service": {
+      "status": "loaded",
+      "capabilities": {
+        "event_ingress": "observe",
+        "heartbeat": "observe",
+        "durable_starliner_delivery": "unsupported"
+      }
+    }
+  },
+  "known_degraded_modes": [
+    "SystemID strong fields are empty",
+    "extension inventory receiver implementation is unresolved",
+    "browser failed-log retry is not a durable outbox",
+    "heartbeat pre-publish cache is process-local",
+    "most AI interceptor response configs are inactive"
+  ],
+  "certification": {
+    "status": "not_certified",
+    "test_pack": "browser-extension-sensor-intelligence fixtures"
+  }
+}

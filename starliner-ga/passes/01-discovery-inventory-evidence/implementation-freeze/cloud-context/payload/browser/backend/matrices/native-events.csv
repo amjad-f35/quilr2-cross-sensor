@@ -1,0 +1,3 @@
+Event ID,Layer,Native event name,Trigger,Payload record,Producer,Consumer,Delivery/ack semantics,Implementation status,Evidence,Source
+EV-046,Backend output,EventLogKafkaRecord publication,ingestRiskEvents,EventLogKafkaRecord,UserActionService/QuilrProducerService,Kafka/pipeline,HTTP response may precede callback delivery,Implemented,Verified in source,browser-extension-service/src/main/java/io/quilr/browserextensionservice/actionrelay
+EV-047,Backend output,HeartbeatBatch publication,Expired bucket flush,HeartbeatBatch,HeartbeatKafkaProducer,Kafka consumer,Bucket deleted after producer call; false result is logged but not thrown,Implemented,Verified in source,browser-extension-service/src/main/java/io/quilr/browserextensionservice/persona/heartbeat

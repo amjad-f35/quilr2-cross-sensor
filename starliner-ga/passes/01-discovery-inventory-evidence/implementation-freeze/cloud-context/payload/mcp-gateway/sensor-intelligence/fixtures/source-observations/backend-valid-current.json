@@ -1,0 +1,51 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "valid current delivery record",
+    "generator": "starliner_contracts.build_delivery_record using the local compatible descendant of pinned commit 860079c312c13f842b5804a590fa1d5430860286"
+  },
+  "record": {
+    "body": {
+      "attributes": {
+        "transport_type": "http"
+      },
+      "canonical_entity": {
+        "id": "mcp_backend:tenant-fixture:backend-fixture",
+        "type": "mcp_backend"
+      },
+      "confidence": 1.0,
+      "observation_id": "observation:backend-fixture",
+      "observed_at": "2026-07-30T12:00:00+00:00",
+      "schema": "starliner.source_observation.v1",
+      "schema_version": 1,
+      "sensor_id": "mcp_gateway_fixture",
+      "source_entity_type": "mcp_backend",
+      "source_external_id": "backend-fixture",
+      "tenant_id": "tenant-fixture"
+    },
+    "envelope": {
+      "adapter_version": "0.1.0",
+      "body_hash": "sha256:ae1711790dda8337051580670f1ba51e6da3179cb9ce3b7fce97de1c25737290",
+      "certification_id": "fixture-cert",
+      "contract_version": "starliner.sensor.v1",
+      "evidence_quality": "fixture",
+      "idempotency_key": "idem:backend-fixture",
+      "occurred_at": "2026-07-30T12:00:00+00:00",
+      "record_hash": "sha256:30f38e5aaea25552ceffb6787fadde79889f160622fe9694805811df66c9a64d",
+      "record_origin": "fixture",
+      "record_type": "source_observation",
+      "runtime_instance_id": "fixture-instance",
+      "safe_summary": {
+        "argument_keys": [],
+        "data_labels": [
+          "pii.email"
+        ],
+        "risk_labels": []
+      },
+      "schema_version": "starliner.source_observation.v1",
+      "sensor_id": "mcp_gateway_fixture",
+      "tenant_id": "tenant-fixture"
+    }
+  }
+}
+

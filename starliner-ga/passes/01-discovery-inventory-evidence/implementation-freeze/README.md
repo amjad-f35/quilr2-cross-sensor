@@ -95,6 +95,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Agentic engineering execution system](34-agentic-engineering-execution-system.md) | Durable agent state, Cursor rules/skills, branch/PR hygiene, exact-SHA local/remote workflow, Jira import and coding-agent prompt |
 | [Nuxt and shadcn-vue UI engineering constitution](35-nuxt-shadcn-ui-engineering-constitution.md) | Native Nuxt/Vue composition, source-owned shadcn/Reka primitives, token/variant styling, data boundary, accessibility and UI architecture gates |
 | [Engineering execution kit](engineering-execution/README.md) | Ready-to-install repository instructions, state/topology/ledger templates, repository map and live branch-disposition baseline |
+| [Portable cloud-agent source context](cloud-context/README.md) | Content-addressed 11.55 MB selection of sensor, legacy-platform and Starliner analysis needed for source-aware implementation without the 28 GB local corpus |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |
@@ -137,6 +138,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Production source reachability](registers/production-source-reachability.csv) | Verified producer-to-relay/consumer/store/API edges and explicit unproven edges |
 | [Implementation validation](tools/validate-freeze.mjs) | Structural and cross-reference checks |
 | [Clean-room validation](tools/run-clean-room-validation.mjs) | One-command intrinsic or source-backed validation with retained evidence |
+| [Cloud-context builder and validator](tools/build-cloud-context.mjs) | Deterministic local extraction plus intrinsic digest, size, path, type and secret checks for the portable source-intelligence payload |
 | [Schema contract tests](tools/test-schema-contracts.py) | Draft 2020-12 meta-validation and positive/negative fixtures for every source profile and core wire contract |
 | [PostgreSQL DDL parse test](tools/test-postgres-ddl.py) | PostgreSQL grammar parse for the core and role/grant migrations; real database execution remains mandatory |
 | [OpenAPI contract test](tools/test-openapi-contracts.py) | Independent OpenAPI 3.1 validation, including local schema references |

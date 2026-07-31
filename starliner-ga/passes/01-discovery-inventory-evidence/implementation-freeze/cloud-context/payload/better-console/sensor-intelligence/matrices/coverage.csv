@@ -1,0 +1,18 @@
+subject,count_or_ratio,status,evidence
+tracked files,1707/1707,complete,git tree inventory with blobs and classifications
+supporting root deployment files,8/8,complete,hashed and reviewed
+Rust files,469/469,complete,lexically indexed; zero read/scan failures
+Rust declarations,7583,complete index,generated symbol reference; lexical limits documented
+TS/JS family files,1128/1128,complete,TypeScript compiler parse; zero diagnostics
+TS/JS declarations,27725,complete index,generated symbol reference
+generated files,689,classified,Orval client/model output plus lockfile
+vendored files,0,complete,none identified
+OpenAPI v2 operations,214,complete,checked-in specification
+canonical route rows,209,complete at documented path-family row level,source wiring cross-checked
+OpenAPI schema fields,2748,complete for checked-in v2 contract,recursive property expansion
+environment variables,130,complete for .env.example,consumer/default behavior traced in config.rs symbol index
+Rust tests,927 discovered; 897 passed; 30 ignored live,complete available environment,real embedded SPA assets
+frontend tests,76 files; 537 passed,complete,Node 24.18.1
+frontend E2E,not run,unresolved,Playwright browser/install not provisioned; repository has fixtures
+live stores,0 connected,unresolved external,.env absent; no credentials
+container image,not built,unresolved external,Docker unavailable

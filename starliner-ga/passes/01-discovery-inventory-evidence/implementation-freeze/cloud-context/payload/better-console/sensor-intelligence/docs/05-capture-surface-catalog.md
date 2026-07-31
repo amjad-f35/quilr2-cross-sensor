@@ -1,0 +1,36 @@
+# Capture and Extraction Surfaces
+
+| capture_point | source | mechanism | data_class | boundary | status |
+| --- | --- | --- | --- | --- | --- |
+| llm_gateway_log | ClickHouse llmgateway_logs_v3 | query/read/write as documented | interaction/activity/evidence | source/platform | read-only projection |
+| mcp_tool_call | ClickHouse mcp_tool_calls_v2 | query/read/write as documented | tool activity/evidence | source/platform | read-only projection |
+| mcp_rejected_request | ClickHouse mcp_rejected_requests_v2 | query/read/write as documented | rejection evidence | source/platform | read-only projection |
+| endpoint_dlp_log | Endpoint ClickHouse endpoint_dlp_logs_v4 | query/read/write as documented | DLP activity/evidence | source/platform | read-only projection |
+| endpoint_activity | Endpoint ClickHouse endpoint_activity_log | query/read/write as documented | activity | source/platform | read-only projection |
+| endpoint_entity | Endpoint entity tables | query/read/write as documented | inventory candidate | source/platform | read-only projection |
+| browser_alert_event | Browser ClickHouse quilr_alert_events | query/read/write as documented | finding signal | source/platform | read-only projection |
+| browser_app_setting | Browser ClickHouse app_tenant_settings | query/read/write as documented | configuration snapshot | source/platform | read-only projection |
+| auth_principal | PostgreSQL auth schema | query/read/write as documented | identity/authorization | source/platform | read |
+| auth_session | Redis | query/read/write as documented | session state | source/platform | read/write with TTL |
+| console_saved_view | PostgreSQL console_saved_views | query/read/write as documented | personal UI configuration | source/platform | CRUD/soft delete |
+| saved_view_preference | PostgreSQL console_saved_view_preferences | query/read/write as documented | personal default | source/platform | upsert/delete |
+| custom_dashboard_document | PostgreSQL custom_dashboard_documents | query/read/write as documented | dashboard definition | source/platform | CRUD |
+| custom_dashboard_run | PostgreSQL custom_dashboard_runs | query/read/write as documented | generation state | source/platform | workflow updates/cleanup |
+| console_assist_message | PostgreSQL console_assist | query/read/write as documented | support conversation | source/platform | append/read |
+| topic_catalog | ClickHouse ai_activity_topic_catalog_v1 | query/read/write as documented | derived topic | source/platform | create/insert |
+| topic_classification | ClickHouse ai_activity_topic_classifications_v1 | query/read/write as documented | derived mapping | source/platform | create/insert |
+| topic_runner_state | ClickHouse ai_activity_topic_runner_state_v1 | query/read/write as documented | checkpoint/dead letter | source/platform | create/insert |
+| local_mirror | SQLite LocalStore tables | query/read/write as documented | read model/cache | source/platform | transactional replace/read |
+| conversation_cache | SQLite | query/read/write as documented | performance cache | source/platform | bounded sanitized writes |
+| internal_telemetry | SQLite internal_admin_telemetry.db | query/read/write as documented | operator diagnostics | source/platform | append/read |
+| neo4j_persona | Neo4j | query/read/write as documented | identity/deployment candidate | source/platform | read only |
+| neo4j_device | Neo4j | query/read/write as documented | device candidate | source/platform | read only |
+| provider_configuration | PostgreSQL/external service | query/read/write as documented | configuration | source/platform | read/update proxy |
+| openapi_document | openapi/platform-admin-v2.json | query/read/write as documented | contract | source/platform | generated/committed |
+| orval_client | frontend/src/api/generated | query/read/write as documented | client contract | source/platform | generated/committed |
+| vite_asset | frontend/dist | query/read/write as documented | runtime UI | source/platform | generated/untracked/embedded |
+| api_completion_event | structured stdout | query/read/write as documented | operational log | source/platform | one per routed request |
+| dashboard_alert | Slack webhook | query/read/write as documented | operator alert | source/platform | network emission |
+| product_analytics_state | frontend query/Zustand/localStorage | query/read/write as documented | presentation state | source/platform | transient/client persistence |
+
+**Mandatory distinction:** these are platform read/extraction points. The native sensors capture most underlying events; this service captures its own API telemetry, user documents, local caches, and derived topic state.

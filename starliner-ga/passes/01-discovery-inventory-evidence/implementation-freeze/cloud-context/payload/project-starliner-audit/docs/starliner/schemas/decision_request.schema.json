@@ -1,0 +1,550 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": true,
+      "properties": {
+        "intent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Actor": {
+      "additionalProperties": true,
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Id"
+        },
+        "api_key_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Api Key Id"
+        },
+        "human_user_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human User Id"
+        },
+        "ip": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ip"
+        },
+        "service_account_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Account Id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "user_agent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User Agent"
+        },
+        "workload_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workload Id"
+        }
+      },
+      "title": "Actor",
+      "type": "object"
+    },
+    "DataContext": {
+      "additionalProperties": true,
+      "properties": {
+        "classifications": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Classifications",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "payload_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payload Ref"
+        },
+        "sensitivity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sensitivity"
+        },
+        "size_bytes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size Bytes"
+        }
+      },
+      "title": "DataContext",
+      "type": "object"
+    },
+    "DelegationLink": {
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "DelegationLink",
+      "type": "object"
+    },
+    "PolicyContext": {
+      "additionalProperties": true,
+      "properties": {
+        "mode": {
+          "default": "shadow",
+          "title": "Mode",
+          "type": "string"
+        },
+        "policy_context_version": {
+          "default": "unknown",
+          "title": "Policy Context Version",
+          "type": "string"
+        },
+        "relationship_context_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relationship Context Ref"
+        }
+      },
+      "title": "PolicyContext",
+      "type": "object"
+    },
+    "Resource": {
+      "additionalProperties": true,
+      "properties": {
+        "app_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "App Id"
+        },
+        "attributes": {
+          "additionalProperties": true,
+          "title": "Attributes",
+          "type": "object"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Resource",
+      "type": "object"
+    },
+    "Risk": {
+      "additionalProperties": true,
+      "properties": {
+        "risk_context_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risk Context Ref"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "signals": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Signals",
+          "type": "array"
+        }
+      },
+      "title": "Risk",
+      "type": "object"
+    },
+    "Sensor": {
+      "additionalProperties": true,
+      "properties": {
+        "instance_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Instance Id"
+        },
+        "service": {
+          "title": "Service",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SensorType"
+        },
+        "version": {
+          "default": "unknown",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "service"
+      ],
+      "title": "Sensor",
+      "type": "object"
+    },
+    "SensorType": {
+      "description": "Sensor surface emitting Starliner records.",
+      "enum": [
+        "llm_gateway",
+        "mcp_gateway",
+        "endpoint_agent",
+        "browser_extension",
+        "copilot_studio",
+        "saas_connector",
+        "cicd_sensor"
+      ],
+      "title": "SensorType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "action": {
+      "$ref": "#/$defs/Action"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "data": {
+      "$ref": "#/$defs/DataContext"
+    },
+    "delegation_chain": {
+      "items": {
+        "$ref": "#/$defs/DelegationLink"
+      },
+      "title": "Delegation Chain",
+      "type": "array"
+    },
+    "environment": {
+      "default": "local",
+      "title": "Environment",
+      "type": "string"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Span Id"
+    },
+    "policy_context": {
+      "$ref": "#/$defs/PolicyContext"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "resource": {
+      "$ref": "#/$defs/Resource"
+    },
+    "risk": {
+      "$ref": "#/$defs/Risk"
+    },
+    "schema_version": {
+      "default": "starliner.decision_request.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sensor": {
+      "$ref": "#/$defs/Sensor"
+    },
+    "source_repo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Repo"
+    },
+    "source_service": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Service"
+    },
+    "span_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Span Id"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "request_id",
+    "flow_id",
+    "sensor",
+    "action",
+    "resource"
+  ],
+  "title": "DecisionRequest",
+  "type": "object"
+}

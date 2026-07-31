@@ -1,0 +1,61 @@
+lineage_id,original_field,capture_point,intermediate_field,transformation,final_emitted_field,information_lost,current_destination,evidence_status
+FL-001,OS pid,process enumerator,ProcessInfo.pid,copied,entity_context.pid,process-instance namespace and PID reuse semantics,discovery HTTP,Verified in source
+FL-002,OS process name,process enumerator,ProcessInfo.name,normalized basename and Windows lowercase/exe removal,Entity.name and ApplicationData.process_name,original casing/path distinction partly lost,discovery HTTP,Verified in source
+FL-003,OS raw process name,process enumerator,ProcessInfo.raw_process_name,copied,ApplicationData.raw_process_name,None where enumerator supplies value,discovery HTTP,Verified in source
+FL-004,OS executable path,process enumerator,ProcessInfo.exe_path,optional copied,ApplicationData.exe_path,access failures collapse to absence,discovery HTTP,Verified in source
+FL-005,OS PPID,process enumerator,ProcessInfo.ppid,dropped before ApplicationData,None,parent-child relationship,none,Verified in source
+FL-006,OS process start time,process enumerator,ProcessInfo.start_time_secs,used for diff then dropped,None,stable process-instance identity,none,Verified in source
+FL-007,OS user,process enumerator,ProcessInfo.user,dropped before ApplicationData,None,local account attribution,none,Verified in source
+FL-008,OS command arguments,process enumerator,ProcessInfo.cmd_line,copied,Application entity_context.cmd_line,argument provenance/quoting semantics,discovery HTTP,Verified in source
+FL-009,process exit,snapshot diff,exited ProcessInfo,correlator handles internally,None,explicit backend stop/tombstone event,none,Verified in source
+FL-010,Lua node ID,Lua collector,script node.id,kind-specific deterministic-ID conversion,DiscoveredEntity.id,raw script namespace and collisions possible,discovery HTTP,Verified in source
+FL-011,Lua relationships,Lua collector,script graph edges,not represented by entity converter,None,edge type/time/provenance,none,Verified in source
+FL-012,Lua script errors,Lua runtime,script result errors,logged/skipped,None,structured error and affected-scope record,logs only,Verified in source
+FL-013,Lua event outputs,Lua runtime,script events,not mapped by entity converter,None,event semantics and timing,none,Verified in source
+FL-014,entity name,collector/correlator,Entity.name,warn then current-wire truncation,DiscoveredEntity.name,tail content and original length unless logs retained,discovery HTTP,Verified in source
+FL-015,entity kind,publisher,Entity.kind,kind label plus JSON context,entity_type and entity_context,strong typed schema at wire,discovery HTTP,Verified in source
+FL-016,entity discovered time,Entity::new,Entity.discovered_at,RFC3339,discovered_at,subsecond precision depends serializer but retained,discovery HTTP,Verified in source
+FL-017,entity local sync flag,EntityStore,Entity.synced_to_backend,used to select pending then omitted,None,local delivery state,local snapshot only,Verified in source
+FL-018,entity backend sync time,ingest handler,Entity.backend_sync_at,persisted locally then omitted,None,backend acceptance time,local snapshot only,Verified in source
+FL-019,backend ingest setting,current API,IngestSettings,enum/string mapping,SyncGovernance fields,response version/order/ETag,local store and later discovery HTTP,Verified in source
+FL-020,hook session ID,IDE hook,HookRequest.session_id,used only as local TurnState map key,None in ActivityEntry,session and per-turn correlation are lost from emitted activity,local IPC/memory only,Verified in source
+FL-021,hook source timestamp,IDE hook,HookRequest.timestamp,discarded and replaced by local now,ActivityEntry.timestamp,source event time and clock relation,activity HTTP,Verified in source
+FL-022,hook tool name,IDE hook,HookRequest.tool_name,copied,ActivityEntry.tool_name,None when producer omitted,activity HTTP,Verified in source
+FL-023,hook tool input,IDE hook,HookRequest.tool_input,not copied to activity,None,tool arguments and target resource,none,Verified in source
+FL-024,hook command,IDE hook,HookRequest.command,not copied to activity,None,requested command content,none,Verified in source
+FL-025,hook decision,HookEvaluator,Decision,current evaluator constant Allow,HookResponse.decision,no execution/effect observation,local IPC,Verified in source
+FL-026,hook activity,HookEvaluator,ActivityEntry,queue then max-100 JSON batch,activity API row,dropped-on-full and dropped-after-two-failures records have no tombstone,activity HTTP,Verified in source
+FL-027,TLS SNI,TLS handshake,SniHost and RequestContext host,priority over URI/Host,map.endpoint.host,source choice provenance not emitted,request memory/alerts,Verified in source
+FL-028,HTTP query,request URI,query_params,URL decode and repeated values to arrays,RequestContext map,pairs without equals and exact encoding lost,request memory,Verified in source
+FL-029,HTTP headers,HeaderMap,request_state.headers,non-UTF8 Debug formatting and object collapse,RequestContext map,duplicate values/order/raw bytes,request memory,Verified in source
+FL-030,request body,Hyper Incoming,BodyCaptureMeta,buffer/preview/temp file and cap,extracted content or alert prompt,unextracted portions and error/timeout become empty,request memory/temp/alert,Verified in source
+FL-031,macOS process path,Network Extension,ConnectionMetadata.process.path then ProcessAttribution.process_path,set_source_app keeps only PID/name,None,path-level attribution in request alert,TTL memory only,Verified in source
+FL-032,macOS audit token,Network Extension,ProcessAttribution.audit_token,not copied to RequestContext,None,kernel-backed attribution evidence,TTL memory only,Verified in source
+FL-033,Persona email,authentication/IPC,Persona.email,copied,RequestContext.user_details.email and alert user.accountname,candidate source/confidence not carried,request/alert,Verified in source
+FL-034,Persona access token,authentication/vault,Persona.access_token,excluded from sync and request projection,None,credential intentionally not emitted,vault only,Verified in source
+FL-035,DLP config request_path,backend/file config,DlpPatternHelper.request_path,case-insensitive regex compilation,DlpPattern.regex,original invalid configs rejected; source string not in struct,process memory,Verified in source
+FL-036,unknown DLP transform,backend/file config,TransformOp deserializer,warn then substitute JsonParse,TransformOp::JsonParse,intended operation and no-op semantics lost,process memory/log,Verified in source
+FL-037,extracted DLP field,request content,extractions[name],ordered transforms/selectors,RequestContext map and analyzer input,failed selector detail usually not emitted,request memory,Verified in source
+FL-038,detected entity,DLP analyzer,templating Detection.entity,HashSet dedup and conversions,alert detection entity/attribute,occurrence position and count generally lost,local UI/alert,Verified in source
+FL-039,detection snippet,DLP analyzer,Detection.snippet,copied then may be budget-reduced,alert attribute snippet,full surrounding context and reduction details,local UI/alert,Verified in source
+FL-040,original prompt,DLP extraction,CheckProperties.original_prompt,IPC-budget truncation possible,alert JSON original_prompt,tail content when reduced,alert broker/SQLite/HTTP,Verified in source
+FL-041,final prompt,DLP action,CheckProperties.final_prompt,IPC-budget truncation possible,alert JSON final_prompt,tail content when reduced,alert broker/SQLite/HTTP,Verified in source
+FL-042,user justification,templating UI,PopupResponse.justification,copied,alert user_justification,UI interaction trail and rejected options,alert broker/SQLite/HTTP,Verified in source
+FL-043,policy action,policy engine,DlpAction/PolicyDecision,mapped to mode/action/outcome,alert check properties,no independently observed remote effect,alert broker/SQLite/HTTP,Verified in source
+FL-044,uploaded filename,multipart parser,UploadedFileMeta.name,copied,UploadFileInfo.name,client-side absolute path absent,alert broker/SQLite/HTTP,Verified in source
+FL-045,uploaded file bytes,body extraction,analyze_bytes,analyzed for detections,UploadFileInfo detection and size,raw bytes not included in upload alert,alert metadata only,Verified in source
+FL-046,file path,upload constructor,UploadFileInfo.path,placeholder None unless later helper,None in common path,source disk location,alert JSON omitted,Verified in source
+FL-047,file label,upload constructor,UploadFileInfo.label,placeholder empty unless later helper,None in common path,sensitivity label,alert JSON omitted,Verified in source
+FL-048,alert payload,LogPayload/UploadLogPayload,SerializedAlert.bytes,JSON or {} on serialization failure,AlertIpcPayload.bytes,typed schema becomes opaque and failure can look like valid empty object,broker,Verified in source
+FL-049,alert IPC payload,broker,AlertIpcPayload,owned strings then StoredAlert columns,SQLite alerts row,in-memory static lifetime semantics and original sender context,SQLite,Verified in source
+FL-050,failed alert,dispatcher,StoredAlert status/retry,quarantine or DLQ conversion,QuarantinedAlert/DlqEntry,per-attempt transport trace not retained in shown records,SQLite,Verified in source
+FL-051,diagnostic caller context,macro/caller,DiagnosticPayload.context,arbitrary JSON,DiagnosticsMessage.payload,no schema-specific privacy guarantees,broker,Verified in source
+FL-052,diagnostic message,component,DiagnosticsMessage,broker serialization,optional receiver storage,the default service graph has no receiver so delivery unresolved,broker/optional backend,Verified in source
+FL-053,HTTP traffic outcome,proxy response,LogEvent,formatted text line,method URI status timestamp,structured schema and central delivery,local file,Verified in source
+FL-054,proxy request counters,request handlers,HealthMonitor atomics,snapshot and derived rate,GET health JSON,no tenant/sensor identity or interval start,local health endpoint,Verified in source
+FL-055,connection pool atomics,accept loop,ConnectionPoolSnapshot,integer calculations,structured log fields,raw wait distribution and percentiles,logs only,Verified in source
+FL-056,destination resolution counters,resolver,MetricsSnapshot,atomic snapshot,debug/log use,no central delivery and no interval identity,memory/log,Verified in source
+FL-057,extension UDP payload,Network Extension,ExtensionMessage.udp_packet.payload,base64 JSON frame,proxy UDP processing,packet content not a platform event,Unix socket/request path,Verified in source
+FL-058,service state,service wrapper,StatusUpdate.StateChange,internal channel,service monitor state,no durable sequence/history,memory only,Verified in source
+FL-059,service crash stack,service wrapper,StatusUpdate.Crash.stack_trace,monitor consumes but pattern ignores stack in shown handler,None,stack details not persisted/emitted by this path,memory/log,Verified in source
+FL-060,tenant/device enabled flags,fetch-user-details,UserContext/UserDevice defaults,missing defaults true,kill-switch broker state,absence is indistinguishable from explicit enabled in projection,memory broker,Verified in source

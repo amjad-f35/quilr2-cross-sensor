@@ -1,0 +1,34 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "ID-based expected association for reordered mixed file results",
+    "evidence_status": "Proposed",
+    "expected": "matches_after_sensor_fix"
+  },
+  "record": {
+    "inputs": [
+      {
+        "file_id": "file-a",
+        "name": "a.pdf"
+      },
+      {
+        "file_id": "file-b",
+        "name": "b.txt"
+      }
+    ],
+    "results_received_order": [
+      {
+        "file_id": "file-b",
+        "status": "error"
+      },
+      {
+        "file_id": "file-a",
+        "status": "sensitive"
+      }
+    ],
+    "expected_by_id": {
+      "file-a": "sensitive",
+      "file-b": "error"
+    }
+  }
+}

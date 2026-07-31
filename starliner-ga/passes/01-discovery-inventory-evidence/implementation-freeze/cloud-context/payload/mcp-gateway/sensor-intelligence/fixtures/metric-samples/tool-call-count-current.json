@@ -1,0 +1,46 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "valid current MetricEvent delivery record"
+  },
+  "record": {
+    "body": {
+      "dimensions": {
+        "backend_id": "backend-fixture",
+        "status": "success",
+        "tool_name": "search"
+      },
+      "metric_name": "mcp.tool.calls",
+      "metric_type": "counter",
+      "occurred_at": "2026-07-30T12:00:00+00:00",
+      "schema": "starliner.metric_event.v1",
+      "schema_version": 1,
+      "tenant_id": "tenant-fixture",
+      "value": 1.0
+    },
+    "envelope": {
+      "adapter_version": "0.1.0",
+      "body_hash": "sha256:8f93be3d3f0e23123ba80bfb20ad511ff5017893cd317ecc23c4cf504477952f",
+      "certification_id": "fixture-cert",
+      "contract_version": "starliner.sensor.v1",
+      "evidence_quality": "fixture",
+      "idempotency_key": "idem:metric-fixture",
+      "occurred_at": "2026-07-30T12:00:00+00:00",
+      "record_hash": "sha256:56c070976f95ef1c1fa147f6ed8399be31c7638562d2b8007c07ed01b4832231",
+      "record_origin": "fixture",
+      "record_type": "metric_event",
+      "runtime_instance_id": "fixture-instance",
+      "safe_summary": {
+        "argument_keys": [],
+        "data_labels": [
+          "pii.email"
+        ],
+        "risk_labels": []
+      },
+      "schema_version": "starliner.metric_event.v1",
+      "sensor_id": "mcp_gateway_fixture",
+      "tenant_id": "tenant-fixture"
+    }
+  }
+}
+

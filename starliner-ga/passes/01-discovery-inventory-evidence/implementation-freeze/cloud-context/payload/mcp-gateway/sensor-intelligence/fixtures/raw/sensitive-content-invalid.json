@@ -1,0 +1,22 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "invalid sensitive-content fixture",
+    "purpose": "Payload-safety negative case; all values are synthetic"
+  },
+  "record": {
+    "tenant_id": "tenant-fixture",
+    "tool_arguments": {
+      "authorization": "Bearer synthetic-not-a-real-secret"
+    },
+    "user_email": "synthetic@example.invalid"
+  },
+  "expected": {
+    "accepted": false,
+    "violations": [
+      "banned_payload_key:tool_arguments",
+      "banned_payload_key:authorization"
+    ]
+  }
+}
+

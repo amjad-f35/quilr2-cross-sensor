@@ -1,0 +1,38 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "late source observation",
+    "schema": "docs/quilr2-cross-sensor/schemas/source-observation.schema.json"
+  },
+  "observation": {
+    "observation_id": "mcp-observation-late-1",
+    "tenant_id": "tenant-fixture",
+    "source_sensor_id": "mcp-gateway-instance-1",
+    "source_sensor_type": "mcp_gateway",
+    "source_sensor_version": "0.2.0-proposed",
+    "source_native_id": "backend-fixture:search",
+    "source_object_type": "mcp_tool_definition",
+    "entity_kind_hint": "mcp_tool",
+    "observed_at": "2026-07-29T12:00:00Z",
+    "ingested_at": "2026-07-30T12:00:00Z",
+    "collection_method": "push",
+    "collection_scope": "backend:backend-fixture",
+    "native_identifiers": {
+      "backend_id": "backend-fixture",
+      "tool_name": "search"
+    },
+    "native_attributes": {},
+    "confidence": 1.0,
+    "raw_payload_reference": "evidence://tenant-fixture/mcp-observation-late-1",
+    "schema_version": "quilr.source-observation.v1",
+    "ingestion_version": "mcp-adapter-proposed-0.2.0",
+    "operation": "upsert",
+    "sequence": 4
+  },
+  "expected": {
+    "accepted": true,
+    "event_time_reprocessed": true,
+    "newer_sequence_overwritten": false
+  }
+}
+

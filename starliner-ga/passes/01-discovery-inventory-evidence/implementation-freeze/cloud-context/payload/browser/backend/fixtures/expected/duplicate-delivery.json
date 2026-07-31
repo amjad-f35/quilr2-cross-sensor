@@ -1,0 +1,14 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Duplicate delivery outcome",
+    "evidence_status": "Proposed",
+    "expected": "matches"
+  },
+  "record": {
+    "first": "accepted",
+    "replay": "duplicate",
+    "materialized_records": 1,
+    "idempotency_key": "idem:fixture-stable"
+  }
+}

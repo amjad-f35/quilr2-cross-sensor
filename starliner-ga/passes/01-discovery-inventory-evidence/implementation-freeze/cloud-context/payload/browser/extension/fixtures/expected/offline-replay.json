@@ -1,0 +1,15 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Offline queue and replay expectations",
+    "evidence_status": "Proposed",
+    "expected": "matches"
+  },
+  "record": {
+    "queued_before_restart": 3,
+    "queued_after_restart": 3,
+    "accepted": 3,
+    "duplicates": 0,
+    "lost": 0
+  }
+}

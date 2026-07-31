@@ -1,0 +1,73 @@
+{
+  "protocol_version": "starliner.protocol.v1",
+  "record_id": "quilr1-fixture-record-005",
+  "record_type": "source_observation",
+  "schema_version": "starliner.source_observation.v1",
+  "source_profile": "starliner.source.quilr1_clickhouse_application.v1",
+  "source_profile_version": "0.1.0-proposed",
+  "claimed_tenant_id": "tenant_fixture_001",
+  "source_definition_id": "quilr1-clickhouse-application",
+  "source_installation_id": "quilr1-fixture-installation",
+  "runtime_instance_id": "quilr1-fixture-runtime",
+  "claimed_producer_identity": "synthetic://quilr1-adapter-fixture",
+  "adapter_id": "quilr1-platform-adapter",
+  "adapter_version": "0.1.0-proposed",
+  "claimed_certification_id": "not-certified-fixture",
+  "operation": "upsert",
+  "source_native_id": "tenant_fixture_001:app_fixture_partial",
+  "source_revision": "partial-fixture",
+  "supersedes_record_id": null,
+  "occurred_at": "2026-07-28T00:00:00.003Z",
+  "observed_at": "2026-07-28T00:00:00.003Z",
+  "enqueued_at": "2026-07-28T00:00:00.010Z",
+  "clock": {
+    "quality": "unknown",
+    "offset_ms": null,
+    "uncertainty_ms": null,
+    "boot_epoch_id": null,
+    "monotonic_ns": null
+  },
+  "sequence": {
+    "stream_id": "quilr1-fixture-application-stream",
+    "epoch": "fixture-epoch-001",
+    "number": "3",
+    "previous_record_hash": "sha256:96079e3547e050f71b177dadd1bc1ac107584cf4280e508087bc76f8342f523d"
+  },
+  "correlation": {
+    "traceparent": null,
+    "tracestate": null,
+    "observation_id": "quilr1-fixture-observation-005",
+    "session_id": null,
+    "request_id": null,
+    "run_id": "quilr1-fixture-extraction-run-001",
+    "step_id": null,
+    "action_id": null,
+    "decision_id": null,
+    "command_id": null,
+    "reconciliation_run_id": "quilr1-fixture-reconciliation-001",
+    "trail_id": null
+  },
+  "privacy": {
+    "collection_policy_id": "quilr1-fixture-policy",
+    "collection_policy_version": "0.1-proposed",
+    "highest_classification": "enterprise_identifier",
+    "content_reference_count": 0,
+    "capture_summary": {
+      "enterprise_identifier": 4,
+      "structural": 2
+    }
+  },
+  "idempotency_key": "quilr1:application:tenant_fixture_001:app_fixture_partial",
+  "body_hash": "sha256:9a89ed690c765a690386dca84fd407739ace0e4ae88a06830d529861c7e1f5c5",
+  "record_hash": "sha256:317d5b5894ab150c0ca409c8b8d9398051fd60bac2a4d041ccaf54030b9968f6",
+  "signature": null,
+  "body": {
+    "source_object_type": "legacy_application_row",
+    "source_table_profile": "clickhouse.application_projection.unresolved_version",
+    "schema_fingerprint": "unresolved-live-schema",
+    "row": {
+      "tenant": "tenant_fixture_001",
+      "app_id": "app_fixture_partial"
+    }
+  }
+}

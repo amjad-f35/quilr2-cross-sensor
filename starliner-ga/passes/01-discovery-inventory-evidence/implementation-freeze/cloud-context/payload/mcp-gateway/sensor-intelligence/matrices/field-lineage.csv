@@ -1,0 +1,21 @@
+lineage_id,source_field,transform,target_field,loss,availability
+LIN-001,tenant_id,Null to literal unknown,body and envelope tenant_id,Missing-tenant source lost,Available now without sensor changes
+LIN-002,user_email,Trim lowercase tenant-keyed HMAC,actor.human_user_id,Raw identity removed,Available now without sensor changes
+LIN-003,backend_id,safe_identifier,source and resource backend ID,Original may normalize or become opaque,Available now without sensor changes
+LIN-004,tool_name,safe_identifier,source observed name and resource tool,Original may normalize or become opaque,Available now without sensor changes
+LIN-005,observation_id,Stable hash with tenant,request flow span IDs,Original UUID unrecoverable,Available now without sensor changes
+LIN-006,input_predictions,Select and validate labels,data.input_labels,Prediction scores and values dropped,Available now without sensor changes
+LIN-007,output_predictions,Select and validate labels,data.output_labels,Prediction scores and values dropped,Available now without sensor changes
+LIN-008,input_blocked or output_blocked,Boolean precedence,execution.status blocked,Error distinction subordinated,Available now without sensor changes
+LIN-009,response_is_error,Applied if not blocked,execution.status error,Error code absent,Available now without sensor changes
+LIN-010,upstream_called,Bool and boundary mapping,execution.upstream_called and action.boundary,No phase detail,Available now without sensor changes
+LIN-011,latency_ms,Clamp nonnegative,execution and metric value,No phase breakdown,Available now without sensor changes
+LIN-012,canonical body,Canonical JSON SHA-256,envelope.body_hash,None,Available now without sensor changes
+LIN-013,envelope plus body,Canonical JSON SHA-256,envelope.record_hash,None,Available now without sensor changes
+LIN-014,DeliveryRecord,JSON serialization,starliner_outbox.payload_json,No body loss while active,Available now without sensor changes
+LIN-015,terminal outcome,Metadata projection,starliner_terminal_delivery,Payload deleted,Available now without sensor changes
+LIN-016,backend_name,Explicit runtime discard,None,Complete loss,Discard with reason
+LIN-017,tool schema,_safe_observe_tools drop,None,Complete loss,Available through adapter mapping only
+LIN-018,arguments and result,Not passed to mapper,None,Intentional privacy loss,Discard with reason
+LIN-019,legacy decision details,Not passed to observe mapper,None,Decision attribution lost,Requires minor sensor instrumentation
+LIN-020,registry delete,No observe hook,None,Lifecycle lost,Requires minor sensor instrumentation

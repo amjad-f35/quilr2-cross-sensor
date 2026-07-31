@@ -1,0 +1,35 @@
+schema: sensor-intelligence.adapter-event-mapping.v1
+sensor: mcpgateway
+mappings:
+  - id: direct_tool_call
+    source_symbol: MCPHandler._observe_completed_tool_call
+    current_output: ActionEvent
+    target_event_type: mcp.tool.called
+    actors: [actor_pseudonym]
+    entities: [mcp_server_source, mcp_tool_source]
+    outcome_fields: [status, upstream_called, latency_ms]
+    governance_fields: [input_labels, output_labels, input_blocked, output_blocked]
+    platform_availability: Available now without sensor changes
+    limitations: [direct_only, exception_gap, no_agent_workload_account, no_policy_version]
+  - id: native_dlp_block
+    source_symbol: MCPObserveMapper.tool_call_records
+    current_output: FindingSignal
+    target_event_type: mcp.tool.blocked
+    platform_availability: Derivable centrally from current output
+    limitation: finding_signal_not_customer_finding
+  - id: structured_rejection
+    source_symbol: mcp_rejected_requests
+    current_output: none
+    target_event_type: mcp.request.rejected
+    platform_availability: Available through adapter mapping only
+  - id: gateway_event_log
+    source_symbol: events
+    current_output: none
+    target_event_type: source_specific
+    platform_availability: Available through adapter mapping only
+  - id: onemcp_action
+    source_symbol: OneMCPHandler
+    current_output: none
+    target_event_type: mcp.tool.called
+    platform_availability: Requires minor sensor instrumentation
+

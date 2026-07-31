@@ -96,6 +96,11 @@ execute(
   },
 )
 execute(
+  'portable cloud-agent source context',
+  'node',
+  [join(toolDir, 'validate-cloud-context.mjs')],
+)
+execute(
   'agentic engineering execution kit',
   'node',
   [join(freezeRoot, 'engineering-execution/tools/validate-execution-kit.mjs')],
@@ -133,7 +138,18 @@ execute(
     join(toolDir, 'run-local-clickhouse-conformance.sh'),
   ],
 )
-execute('Git whitespace check', 'git', ['diff', '--check', 'HEAD'])
+execute(
+  'Git whitespace check outside byte-exact source evidence',
+  'git',
+  [
+    'diff',
+    '--check',
+    'HEAD',
+    '--',
+    '.',
+    ':(exclude)starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/cloud-context/payload/**',
+  ],
+)
 
 if (mode === 'source') {
   execute(

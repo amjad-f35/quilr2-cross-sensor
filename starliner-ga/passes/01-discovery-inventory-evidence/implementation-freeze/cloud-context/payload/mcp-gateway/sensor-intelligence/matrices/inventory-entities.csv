@@ -1,0 +1,15 @@
+entity_type,native_source,current_output,authority,platform_availability,product_disposition
+MCP server,backends and registration,SourceObservation,Source observation,Available now without sensor changes,Inventory list; Entity detail
+MCP tool,capabilities and calls,SourceObservation,Source observation,Available now without sensor changes,Inventory list; Entity detail
+Sensor instance,ObserveConfig and manifest,Manifest and envelope,Deployment claim,Available now without sensor changes,Coverage and health
+Tenant,claims and companies,Tenant field only,External or gateway authority,Requires an external authoritative source,Inventory list
+Human user,claims users logs,Actor pseudonym only,External IAM,Requires an external authoritative source,Entity detail
+MCP resource,capabilities cache,None,Source configuration,Available through adapter mapping only,Inventory list
+MCP prompt,capabilities cache,None,Source configuration,Available through adapter mapping only,Inventory list
+MCP client or custom agent,custom_agents and diagnostics,None,Heuristic or configuration,Available through adapter mapping only,Entity detail
+Workflow agent,workflow tables,None,Gateway control plane,Available through adapter mapping only,Inventory list
+Workflow run or step,runner database,None,Runner execution,Available through adapter mapping only,Activity explorer
+Workflow artifact,runner database and files,None,Runner execution,Available through adapter mapping only,Entity detail
+Credential metadata,auth tables,None,Gateway auth subsystem,Available through adapter mapping only,Configuration
+Model or provider,No reliable Direct source,None,External LLM source,Not observable by this sensor,Analytics
+Device or process,None,None,External endpoint source,Not observable by this sensor,Inventory list

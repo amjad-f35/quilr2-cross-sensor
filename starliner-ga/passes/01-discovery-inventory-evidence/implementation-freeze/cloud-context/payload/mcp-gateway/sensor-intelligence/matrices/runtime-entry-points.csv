@@ -1,0 +1,14 @@
+entry_id,entry_point,invocation,process,sensor_relevance,status
+EP-001,gateway.py::app,uvicorn gateway:app,Gateway,Hosts observe runtime and hooks,Implemented
+EP-002,gateway.py::__main__,python gateway.py,Gateway,Same runtime,Implemented
+EP-003,workflow_runner.app::app,uvicorn workflow_runner.app:app,Runner API,Unmapped workflow source,Implemented
+EP-004,workflow_runner.worker::main,python -m workflow_runner.worker,Runner worker,Unmapped execution source,Implemented
+EP-005,workflow_runner.retention_worker::main,python module,Retention worker,Artifact retention,Implemented
+EP-006,workflow_scheduler.worker::main,python module,Scheduler,Unmapped schedule events,Implemented
+EP-007,clickhouse_sync_utils.syncer::main,CLI,Syncer,Secondary extraction path,Implemented
+EP-008,google_workspace.server::mcp,FastMCP server,Google MCP,Outside current observe coverage,Implemented
+EP-009,mcpgateway-rs::main,cargo run or binary,Rust API,No Starliner mapping,Partially implemented
+EP-010,probe_remote_mcp_servers::main,CLI,Research tool,No runtime sensor mapping,Experimental
+EP-011,probe_lazy_auth::main,CLI,Research tool,No runtime sensor mapping,Experimental
+EP-012,run_dev.sh,Shell launcher,Development,Known no-reload failure,Partially implemented
+EP-013,Jenkinsfile,Jenkins,CI,No scoped test stage,Configured but runtime-unverified

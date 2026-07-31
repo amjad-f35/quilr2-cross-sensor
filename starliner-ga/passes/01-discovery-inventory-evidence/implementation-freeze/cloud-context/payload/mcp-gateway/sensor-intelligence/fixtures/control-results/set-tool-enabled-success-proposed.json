@@ -1,0 +1,21 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "enforcement success result; not implemented"
+  },
+  "result": {
+    "command_id": "command-fixture-1",
+    "status": "succeeded",
+    "native_readback": {
+      "backend_id": "backend-fixture",
+      "tool_name": "search",
+      "enabled": false
+    },
+    "effect_observed": true
+  },
+  "expected": {
+    "command_receipt_only_is_insufficient": true,
+    "native_effect_required": true
+  }
+}
+

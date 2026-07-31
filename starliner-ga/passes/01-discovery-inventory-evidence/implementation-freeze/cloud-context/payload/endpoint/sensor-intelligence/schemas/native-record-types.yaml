@@ -1,0 +1,82 @@
+schema_version: "1.0"
+sensor: endpoint
+source_revision: a022e52bf2fff6a9445ebad96c3afeaf277e259f
+evidence_status: Verified in source
+scope_note: >-
+  Native endpoint records. Presence here does not imply durable export or
+  inclusion in the proposed Starliner endpoint profile.
+records:
+  - {id: R-001, name: "platform::process_info::ProcessInfo", class: observation, status: active_internal}
+  - {id: R-002, name: "process start/exit delta", class: derived_observation, status: active_transient}
+  - {id: R-003, name: "entity::Entity", class: observation_current_state, status: active}
+  - {id: R-004, name: ApplicationData, class: observation_derived, status: active}
+  - {id: R-005, name: McpServerData, class: observation_candidate, status: conditional_active}
+  - {id: R-006, name: HookData, class: observation_candidate, status: conditional_active}
+  - {id: R-007, name: SkillData, class: observation_candidate, status: conditional_active}
+  - {id: R-008, name: AgentData, class: observation_candidate, status: conditional_active}
+  - {id: R-009, name: ModelData, class: observation_candidate, status: conditional_active}
+  - {id: R-010, name: ControlledRepoData, class: observation_candidate, status: conditional_active}
+  - {id: R-011, name: PermissionData, class: observation_candidate, status: conditional_active}
+  - {id: R-012, name: PluginData, class: observation_candidate, status: conditional_active}
+  - {id: R-013, name: GovernanceFields, class: control_current_state, status: active_mixed_ownership}
+  - {id: R-014, name: "monitor::DeviceContext", class: context, status: active}
+  - {id: R-015, name: "monitor::UserContext", class: sensitive_context, status: active}
+  - {id: R-016, name: "monitor::TenantContext", class: context, status: active}
+  - {id: R-017, name: "snapshot::Snapshot", class: persistence, status: active}
+  - {id: R-018, name: "store::ChangeEvent", class: internal_event, status: active_transient}
+  - {id: R-019, name: DiscoveredEntity, class: current_outbound_wire, status: active_lossy}
+  - {id: R-020, name: SyncTenantContext, class: wire_context, status: active}
+  - {id: R-021, name: SyncGovernance, class: wire_control_state, status: active}
+  - {id: R-022, name: SyncDeviceContext, class: wire_context, status: active}
+  - {id: R-023, name: SyncUserContext, class: wire_context, status: active}
+  - {id: R-024, name: ActivityEntry, class: derived_observation, status: active_best_effort}
+  - {id: R-025, name: HookRequest, class: observation_transport, status: conditional_active}
+  - {id: R-026, name: "HookResponse/DetectionInfo", class: control_result, status: active_placeholder_decision}
+  - {id: R-027, name: "IngestResponse/IngestMapping", class: control_ack_input, status: active}
+  - {id: R-028, name: IngestSettings, class: control_input, status: active}
+  - {id: R-029, name: "AppAddEnvelope/AppResolution", class: identity_control_input, status: active}
+  - {id: R-030, name: "DeltaResponse/DeltaSetting", class: control_input, status: active}
+  - {id: R-031, name: "ProcessMapApiResponse graph", class: configuration_input, status: active}
+  - {id: R-032, name: InstalledFile, class: internal_control_result, status: conditional_active}
+  - {id: R-033, name: MonitoredFile, class: internal_state, status: conditional_active}
+  - {id: R-034, name: "proxy::RequestContext", class: derived_observation_state, status: active_dynamic_schema}
+  - {id: R-035, name: "ClientConnMeta/RequestId/SniHost", class: context, status: active}
+  - {id: R-036, name: "proxy::ProcessAttribution", class: observation_attribution, status: conditional_active}
+  - {id: R-037, name: BodyCaptureMeta, class: internal_observation_state, status: conditional_active}
+  - {id: R-038, name: "DlpPattern/DlpField/ExtractStage", class: configuration_input, status: conditional_active}
+  - {id: R-039, name: "templating::Detection", class: derived_observation, status: conditional_active}
+  - {id: R-040, name: DlpFinding, class: derived_observation, status: conditional_active}
+  - {id: R-041, name: DlpDecision, class: control_result, status: conditional_active}
+  - {id: R-042, name: PopupRequest, class: local_control_request, status: conditional_active}
+  - {id: R-043, name: PopupResponse, class: local_user_control_result, status: conditional_active}
+  - {id: R-044, name: LogPayload, class: evidence_outbound_alert, status: active_selected_paths}
+  - {id: R-045, name: UploadLogPayload, class: evidence_outbound_alert, status: active_selected_paths}
+  - {id: R-046, name: SerializedAlert, class: transport_envelope, status: active}
+  - {id: R-047, name: "AlertIpcPayload/AlertIpcMessage", class: local_transport_envelope, status: active}
+  - {id: R-048, name: StoredAlert, class: persistence, status: active}
+  - {id: R-049, name: QuarantinedAlert, class: persistence_failure, status: active_path}
+  - {id: R-050, name: DlqEntry, class: persistence_failure, status: active_path}
+  - {id: R-051, name: DiagnosticPayload, class: operational_evidence, status: active_producer}
+  - {id: R-052, name: ServiceLifecycleEvent, class: operational_event, status: partial_active_variants}
+  - {id: R-053, name: DiagnosticsMessage, class: transport_envelope, status: active_partial_variants}
+  - {id: R-054, name: "traffic::LogEvent", class: operational_observation, status: conditional_local}
+  - {id: R-055, name: "proxy::HealthMetrics/HealthResponse", class: operational_state, status: active_unless_disabled}
+  - {id: R-056, name: ConnectionPoolSnapshot, class: operational_metric, status: active}
+  - {id: R-057, name: CircuitBreakerMetrics, class: operational_state, status: conditional}
+  - {id: R-058, name: "destination::MetricsSnapshot", class: operational_metric, status: conditional_active}
+  - {id: R-059, name: ConnectionMetadata, class: observation_transport, status: conditional_macos}
+  - {id: R-060, name: ExtensionMessage, class: local_transport_event, status: conditional_macos}
+  - {id: R-061, name: ProxyMessage, class: local_control_ack, status: conditional_macos}
+  - {id: R-062, name: "UdpFlowKey/UdpFlowInfo", class: internal_observation_state, status: conditional_windows}
+  - {id: R-063, name: Persona, class: sensitive_identity_current_state, status: active}
+  - {id: R-064, name: EmailCandidate, class: sensitive_observation_candidate, status: conditional_private}
+  - {id: R-065, name: "Persona UserContext/UserDevice", class: control_identity_input, status: active}
+  - {id: R-066, name: "ServiceState/StatusUpdate", class: operational_state_event, status: active}
+not_current_native_records:
+  - endpoint.gap
+  - unified_sensor_health
+  - durable_outbox_envelope
+  - durable_admission_receipt
+  - complete_snapshot_boundaries
+  - generic_file_operation
+  - native_effect_verification

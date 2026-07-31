@@ -1,0 +1,143 @@
+schema_version: 1
+profile: browser-backend
+identifiers:
+- identifier_id: ID-001
+  name: tenant
+  scope: Tenant
+  stability: Session stable
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-002
+  name: subscriber
+  scope: Subscriber/customer
+  stability: Session stable
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-003
+  name: personaId
+  scope: Persona
+  stability: Account stable subject to upstream lifecycle
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-004
+  name: user email
+  scope: Human/application account
+  stability: Mutable
+  sensitivity: Sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-005
+  name: device numeric ID
+  scope: Device
+  stability: Intended stable
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-006
+  name: hostname
+  scope: Device
+  stability: Mutable
+  sensitivity: Sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-007
+  name: hardware serial number
+  scope: Device
+  stability: Usually stable
+  sensitivity: Highly sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-010
+  name: Chrome extension ID (Vanguard)
+  scope: Sensor product
+  stability: Build/channel stable
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-012
+  name: browser name/version
+  scope: Browser product/version
+  stability: Version changes
+  sensitivity: Internal
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-016
+  name: contextId/context_id
+  scope: Browser activity/context
+  stability: Context lifetime
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-019
+  name: credential fingerprint ID
+  scope: Credential secret equivalence class
+  stability: Changes with credential
+  sensitivity: Credential
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-020
+  name: file optional id
+  scope: File transfer element
+  stability: Workflow lifetime
+  sensitivity: Pseudonymous
+  availability: Requires minor sensor instrumentation
+  evidence: Verified in source
+- identifier_id: ID-021
+  name: file path
+  scope: Local file
+  stability: Mutable
+  sensitivity: Highly sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-023
+  name: conversation_id
+  scope: AI conversation
+  stability: Provider-specific
+  sensitivity: Sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-024
+  name: application domain
+  scope: Application surface
+  stability: Stable-ish
+  sensitivity: Sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-025
+  name: application URL
+  scope: Page/activity
+  stability: Ephemeral
+  sensitivity: Highly sensitive
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-026
+  name: routing event UUID
+  scope: Backend publication
+  stability: Event lifetime
+  sensitivity: Pseudonymous
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-027
+  name: posture_id
+  scope: Policy posture
+  stability: Policy lifecycle
+  sensitivity: Internal
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-028
+  name: behaviour_id
+  scope: Policy behavior
+  stability: Policy lifecycle
+  sensitivity: Internal
+  availability: Available through adapter mapping only
+  evidence: Verified in source
+- identifier_id: ID-030
+  name: heartbeat bucket key
+  scope: Backend in-memory bucket
+  stability: Window lifetime
+  sensitivity: Internal
+  availability: Available through adapter mapping only
+  evidence: Verified in source

@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "metrics": [
+    {
+      "metric_id": "M-001",
+      "name": "browser_event_send_attempts",
+      "classification": "Current log-derived",
+      "meaning": "Count of PackageLog send calls",
+      "dimensions": [
+        "event name",
+        "endpoint"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-002",
+      "name": "browser_event_send_failures",
+      "classification": "Current queue-derived",
+      "meaning": "Count of individual send failures enqueued",
+      "dimensions": [
+        "event type"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-003",
+      "name": "failed_log_queue_depth",
+      "classification": "Current local state",
+      "meaning": "Number of queued failed individual events",
+      "dimensions": [
+        "event type"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-004",
+      "name": "failed_log_retry_count",
+      "classification": "Current field",
+      "meaning": "Retry attempts on an event",
+      "dimensions": [
+        "event type"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-005",
+      "name": "failed_log_age_ms",
+      "classification": "Derived from current fields",
+      "meaning": "Time since failed entry creation",
+      "dimensions": [
+        "event type"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-006",
+      "name": "failed_log_terminal_drops",
+      "classification": "Current log-derived",
+      "meaning": "Events removed after retry/age limits",
+      "dimensions": [
+        "event type",
+        "reason"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-007",
+      "name": "heartbeat_received",
+      "classification": "Current backend observable",
+      "meaning": "Heartbeat HTTP requests accepted",
+      "dimensions": [
+        "tenant",
+        "device",
+        "browser",
+        "versions"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-008",
+      "name": "heartbeat_bucket_devices",
+      "classification": "Current log/payload",
+      "meaning": "Distinct device+email entries in a bucket",
+      "dimensions": [
+        "tenant",
+        "bucket"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-009",
+      "name": "heartbeat_bucket_age_ms",
+      "classification": "Derived",
+      "meaning": "Current time minus bucketEpoch",
+      "dimensions": [
+        "tenant"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-010",
+      "name": "heartbeat_publish_chunks",
+      "classification": "Current log-derived",
+      "meaning": "Number of chunks attempted per batch",
+      "dimensions": [
+        "tenant",
+        "bucket"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-011",
+      "name": "heartbeat_publish_failures",
+      "classification": "Current log-derived",
+      "meaning": "StreamBridge/producers returning failure",
+      "dimensions": [
+        "tenant",
+        "bucket",
+        "chunk"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-012",
+      "name": "heartbeat_consumer_malformed",
+      "classification": "Current log-derived",
+      "meaning": "Kafka heartbeat records failing JSON conversion",
+      "dimensions": [
+        "topic"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-013",
+      "name": "heartbeat_graph_write_retries",
+      "classification": "Current log-derived",
+      "meaning": "Transient Neo4j write retries",
+      "dimensions": [
+        "batch size"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-014",
+      "name": "heartbeat_graph_write_latency_ms",
+      "classification": "Current measurable/loggable",
+      "meaning": "Neo4j heartbeat write duration/timeout",
+      "dimensions": [
+        "batch size",
+        "outcome"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-015",
+      "name": "extension_inventory_count",
+      "classification": "Derived from current batch",
+      "meaning": "Number of discovered third-party extensions per observed profile",
+      "dimensions": [
+        "tenant",
+        "device/profile",
+        "enabled"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-016",
+      "name": "extension_enabled_ratio",
+      "classification": "Derived",
+      "meaning": "Enabled discovered extensions / all discovered extensions",
+      "dimensions": [
+        "tenant",
+        "browser profile"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-017",
+      "name": "extension_permission_risk_count",
+      "classification": "Derived",
+      "meaning": "Extensions meeting centrally defined risky permission rule",
+      "dimensions": [
+        "permission",
+        "installType"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-018",
+      "name": "auth_events",
+      "classification": "Derived from current events",
+      "meaning": "Login/signup event count",
+      "dimensions": [
+        "application",
+        "account label",
+        "type"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-019",
+      "name": "credential_reuse_positive",
+      "classification": "Derived from current field",
+      "meaning": "Auth events with credential_reused.status true",
+      "dimensions": [
+        "application",
+        "tenant"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-020",
+      "name": "compromised_password_positive",
+      "classification": "Derived from current field",
+      "meaning": "Auth events with compromised_password.status true",
+      "dimensions": [
+        "application",
+        "tenant"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-021",
+      "name": "prompt_events",
+      "classification": "Derived from current events",
+      "meaning": "Prompt request/response counts",
+      "dimensions": [
+        "application",
+        "log_type",
+        "account"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-022",
+      "name": "prompt_sensitive_rate",
+      "classification": "Derived",
+      "meaning": "Sensitive prompt requests / prompt requests with detector result",
+      "dimensions": [
+        "application",
+        "policy"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-023",
+      "name": "prompt_redaction_effectiveness",
+      "classification": "Derived",
+      "meaning": "Initially sensitive prompts that become non-sensitive",
+      "dimensions": [
+        "application",
+        "control"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-024",
+      "name": "clipboard_events",
+      "classification": "Derived",
+      "meaning": "Browser/native clipboard event count",
+      "dimensions": [
+        "source/destination/content type"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-025",
+      "name": "upload_events",
+      "classification": "Derived",
+      "meaning": "Browser upload activity count",
+      "dimensions": [
+        "application",
+        "policy outcome"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-026",
+      "name": "upload_files",
+      "classification": "Derived",
+      "meaning": "Total file elements in UploadCheck",
+      "dimensions": [
+        "application",
+        "MIME/kind/label"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-027",
+      "name": "upload_scan_duration_ms",
+      "classification": "Partially current",
+      "meaning": "Duration inferred from upload workflow batch",
+      "dimensions": [
+        "final state",
+        "app"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-028",
+      "name": "upload_stage_timeouts",
+      "classification": "Current local/log-derived",
+      "meaning": "Stage heartbeat timeout count",
+      "dimensions": [
+        "stage",
+        "inferred failure"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-029",
+      "name": "native_message_read_latency_us",
+      "classification": "Current log-derived",
+      "meaning": "Time to read one native message",
+      "dimensions": [
+        "message type"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-030",
+      "name": "native_handler_latency_ms",
+      "classification": "Current potential/log-derived",
+      "meaning": "Handler/chain cycle time",
+      "dimensions": [
+        "chain/handler/outcome"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-031",
+      "name": "clipboard_extraction_attempts",
+      "classification": "Current config/runtime diagnostic",
+      "meaning": "Attempts to extract clipboard content",
+      "dimensions": [
+        "OS",
+        "content format",
+        "source app"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-032",
+      "name": "clipboard_content_bytes",
+      "classification": "Current field",
+      "meaning": "Extracted clipboard size",
+      "dimensions": [
+        "content type",
+        "source app"
+      ],
+      "availability": "Available through adapter mapping only",
+      "evidence": "Verified in source"
+    },
+    {
+      "metric_id": "M-033",
+      "name": "file_search_resolution_success",
+      "classification": "Derived from current results",
+      "meaning": "Upload metadata requests resolving a FilePath",
+      "dimensions": [
+        "provider",
+        "OS"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-034",
+      "name": "file_scan_dlp_matches",
+      "classification": "Derived",
+      "meaning": "Detection objects returned per scanned file",
+      "dimensions": [
+        "file kind",
+        "label",
+        "app"
+      ],
+      "availability": "Derivable centrally from current output",
+      "evidence": "Inference"
+    },
+    {
+      "metric_id": "M-035",
+      "name": "sensor_coverage_state",
+      "classification": "Proposed",
+      "meaning": "Per capability/environment coverage state",
+      "dimensions": [
+        "tenant",
+        "sensor instance",
+        "capability",
+        "environment"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Proposed"
+    },
+    {
+      "metric_id": "M-036",
+      "name": "adapter_outbox_depth",
+      "classification": "Proposed",
+      "meaning": "Pending/in-flight durable records",
+      "dimensions": [
+        "record type",
+        "sensor instance"
+      ],
+      "availability": "Requires substantial sensor changes",
+      "evidence": "Proposed"
+    },
+    {
+      "metric_id": "M-037",
+      "name": "adapter_delivery_lag_ms",
+      "classification": "Proposed",
+      "meaning": "Accepted time minus source occurred time",
+      "dimensions": [
+        "record type",
+        "tenant"
+      ],
+      "availability": "Requires substantial sensor changes",
+      "evidence": "Proposed"
+    },
+    {
+      "metric_id": "M-038",
+      "name": "adapter_duplicate_rate",
+      "classification": "Proposed",
+      "meaning": "Duplicate acknowledgements / delivered attempts",
+      "dimensions": [
+        "record type"
+      ],
+      "availability": "Requires substantial sensor changes",
+      "evidence": "Proposed"
+    },
+    {
+      "metric_id": "M-039",
+      "name": "unsupported_schema_records",
+      "classification": "Proposed",
+      "meaning": "Records rejected/quarantined for unknown native schema",
+      "dimensions": [
+        "record type",
+        "native version"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Proposed"
+    },
+    {
+      "metric_id": "M-040",
+      "name": "event_identity_completeness",
+      "classification": "Proposed",
+      "meaning": "Records with tenant, sensor instance, source ID and required entity identifiers",
+      "dimensions": [
+        "record type"
+      ],
+      "availability": "Requires minor sensor instrumentation",
+      "evidence": "Proposed"
+    }
+  ]
+}

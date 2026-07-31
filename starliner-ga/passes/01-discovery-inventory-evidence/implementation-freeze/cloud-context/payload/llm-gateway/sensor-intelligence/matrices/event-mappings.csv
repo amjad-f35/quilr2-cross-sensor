@@ -1,0 +1,15 @@
+native_event,canonical_event,mapping_status,required_change,evidence
+gateway.request.observed,gateway.request.observed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway handler
+gateway.request.blocked,gateway.request.blocked,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway handler
+gateway.request.redacted,gateway.request.redacted,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway handler
+gateway.upstream.requested,gateway.upstream.requested,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,provider handler
+gateway.response.received,gateway.response.received,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,provider handler
+gateway.response.blocked,gateway.response.blocked,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway handler
+gateway.response.redacted,gateway.response.redacted,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway handler
+gateway.request.failed,gateway.request.failed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,handler/logger
+gateway.guardrail.detected,gateway.guardrail.detected,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,DLP worker/gateway
+gateway.hallucination.detected,gateway.hallucination.detected,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,hallucination worker
+gateway.config.changed,gateway.config.changed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,config audit
+gateway.config.change_request.reviewed,gateway.config.change_request.reviewed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,admin handler
+gateway.health.probed,gateway.health.probed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,gateway health worker
+gateway.redteam.case.completed,gateway.redteam.case.completed,Proposed from verified native trigger,Adapter mapping; standalone stage events may require instrumentation,redteam worker

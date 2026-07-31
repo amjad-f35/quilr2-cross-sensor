@@ -1,0 +1,22 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Signed command shape to disable extension",
+    "evidence_status": "Proposed",
+    "expected": "accepted_for_execution"
+  },
+  "record": {
+    "schema": "proposed.browser_extension.control_command.v1",
+    "tenant_id": "tenant-fixture",
+    "command_id": "cmd-001",
+    "target_sensor_instance_id": "browser-extension-instance-fixture",
+    "target_enforcement_point": "chrome.management",
+    "action": "disable_extension",
+    "arguments": {
+      "extension_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "issued_at": "2026-07-30T12:00:00Z",
+    "expires_at": "2026-07-30T12:05:00Z",
+    "signature_ref": "fixture-signature"
+  }
+}

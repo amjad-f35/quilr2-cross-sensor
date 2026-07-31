@@ -1,0 +1,48 @@
+schema: sensor-intelligence.control-capabilities.v1
+sensor: mcpgateway
+native_controls:
+  - id: tool_enable_disable
+    implementation_status: Implemented
+    effect: prevent_disabled_tool_call
+    current_starliner_command: false
+  - id: tool_confirmation
+    implementation_status: Implemented
+    state: process_local
+    ttl_seconds: 600
+    current_starliner_command: false
+  - id: native_dlp
+    implementation_status: Implemented
+    actions: [monitor, redact, block]
+    current_starliner_command: false
+  - id: zia_url_policy
+    implementation_status: Configured but runtime-unverified
+    current_starliner_command: false
+  - id: legacy_starliner_policy
+    implementation_status: Legacy
+    modes: [shadow, enforce]
+    failure_when_sdk_missing: proceed
+    current_starliner_command: false
+  - id: workflow_quota_readiness_allowlist
+    implementation_status: Implemented
+    current_starliner_command: false
+proposed_commands:
+  - id: set_tool_enabled
+    platform_availability: Available through adapter mapping only
+    target: native_settings_service
+  - id: set_dlp_action
+    platform_availability: Available through adapter mapping only
+    target: scoped_settings_service
+  - id: require_confirmation
+    platform_availability: Available through adapter mapping only
+    target: tool_settings
+  - id: pause_workflow_schedule
+    platform_availability: Available through adapter mapping only
+    target: workflow_service
+  - id: outbox_replay
+    platform_availability: Requires minor sensor instrumentation
+    target: starliner_outbox_operator_api
+channel_separation:
+  telemetry: outbox_http_ingest
+  command: not_implemented
+  legacy_decision: separate_private_sdk
+

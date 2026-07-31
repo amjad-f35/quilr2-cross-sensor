@@ -1,0 +1,159 @@
+schema_version: "endpoint.adapter-event-mapping.v1"
+status: Proposed
+evidence:
+  native_events: matrices/sensor-intelligence/endpoint-sensor/native-events.csv
+  source_status: Verified in source
+  target_status: Proposed
+event_identity:
+  native_event_id_present: false_for_many_current_paths
+  generated_rule: >-
+    HMAC tenant ingestion key over sensor instance component instance native
+    event family component sequence occurred time and versioned discriminator.
+  warning: "Payload hash alone cannot distinguish repeated legitimate actions."
+mappings:
+  - native_event: process.started
+    native_event_id: EV-001
+    target_contract: ActionEvent
+    target_action: process.observed_started
+    occurred_at_source: ProcessInfo.start_time_secs
+    availability: Requires minor sensor instrumentation
+    limitation: "Polling discovers a start after it occurred."
+  - native_event: process.exited
+    native_event_id: EV-002
+    target_contract: ActionEvent
+    target_action: process.observed_exited
+    occurred_at_source: scan observation time
+    availability: Requires minor sensor instrumentation
+    limitation: "Exit time is observation time; ordinary exit does not remove Application."
+  - native_event: entity.added
+    native_event_id: EV-003
+    target_contract: SourceObservation
+    target_action: inventory.observation_created
+    availability: Available through adapter mapping only
+    limitation: "ChangeEvent carries only UUID and is lossy under broadcast lag."
+  - native_event: entity.rediscovered
+    native_event_id: EV-004
+    target_contract: SourceObservation
+    target_action: inventory.observation_refreshed
+    availability: Available through adapter mapping only
+    limitation: "Emitted only for blocked/quarantined rediscovery path."
+  - native_event: entity.governance_updated
+    native_event_id: EV-005
+    target_contract: ActionEvent
+    target_action: policy.state_changed
+    availability: Requires minor sensor instrumentation
+    limitation: "UUID-only event; governance source/version must be attached."
+  - native_event: entity.removed
+    native_event_id: EV-006
+    target_contract: SourceObservation
+    target_operation: tombstone
+    availability: Requires substantial sensor changes
+    limitation: "Ordinary absence and process exit are not removal evidence."
+  - native_event: hook.request
+    native_event_id: EV-010
+    target_contract: ActionEvent
+    target_action: ide.action_requested
+    request_id: generated
+    flow_id_source: HookRequest.session_id
+    availability: Requires minor sensor instrumentation
+    protected_fields:
+      - prompt
+      - command
+      - tool_input
+  - native_event: hook.decision
+    native_event_id: EV-011
+    target_contract: DecisionResult
+    target_action: ide.action_decided
+    availability: Available through adapter mapping only
+    limitation: "Production evaluator returns Allow with empty detections."
+  - native_event: hook.activity
+    native_event_id: EV-012
+    target_contract: ActionEvent
+    target_action: ide.prompt_turn_observed
+    availability: Available through adapter mapping only
+    limitation: "ActivityEntry loses session ID and event-level detail."
+  - native_event: proxy.request_observed
+    native_event_id: EV-015
+    target_contract: ActionEvent
+    target_action: network.application_request
+    availability: Requires minor sensor instrumentation
+    limitation: "Only intercepted traffic is in scope."
+  - native_event: proxy.response_observed
+    native_event_id: EV-016
+    target_contract: ActionEvent
+    target_action: network.application_response
+    availability: Requires minor sensor instrumentation
+    limitation: "Transport response is not business outcome."
+  - native_event: dlp.detection
+    native_event_id: EV-017
+    target_contract: FindingSignal
+    target_signal: endpoint.dlp.detected
+    target_abi_status: signal_type_extension_required
+    availability: Requires substantial sensor changes
+    protected_fields:
+      - entity
+      - snippet
+      - matched_text
+  - native_event: dlp.decision
+    native_event_id: EV-018
+    target_contract: DecisionResult
+    target_action: endpoint.dlp.decided
+    availability: Requires minor sensor instrumentation
+    limitation: "Decision is separate from observed transport effect."
+  - native_event: justification.requested
+    native_event_id: EV-019
+    target_contract: ActionEvent
+    target_action: approval.requested
+    availability: Requires minor sensor instrumentation
+  - native_event: justification.responded
+    native_event_id: EV-020
+    target_contract: ActionEvent
+    target_action: approval.responded
+    availability: Requires minor sensor instrumentation
+    limitation: "Default timeout/cancel value must not be labeled user-approved."
+  - native_event: alert.stored
+    native_event_id: EV-026
+    target_contract: SensorHealthEvent
+    target_action: telemetry.admitted_alert_queue
+    availability: Available through adapter mapping only
+    limitation: "Alert-specific local admission is not common Starliner admission."
+  - native_event: alert.sent
+    native_event_id: EV-028
+    target_contract: SensorHealthEvent
+    target_action: telemetry.alert_delivery_succeeded
+    availability: Available through adapter mapping only
+  - native_event: service.state_change
+    native_event_id: EV-034
+    target_contract: SensorHealthEvent
+    target_action: sensor.component_state_changed
+    availability: Requires minor sensor instrumentation
+  - native_event: extension.tcp_redirect
+    native_event_id: EV-038
+    target_contract: ActionEvent
+    target_action: network.connection_intercepted
+    availability: Requires minor sensor instrumentation
+    platform: macOS
+  - native_event: extension.backpressure
+    native_event_id: EV-043
+    target_contract: SensorHealthEvent
+    target_action: sensor.capture_backpressure
+    availability: Requires minor sensor instrumentation
+    platform: macOS
+  - native_event: proxy.health_snapshot
+    native_event_id: EV-045
+    target_contract: SensorHealthEvent
+    target_action: sensor.health_sample
+    availability: Available through adapter mapping only
+    limitation: "Current failure counters are cumulative rather than configured-window values."
+  - native_event: snapshot.written
+    native_event_id: EV-047
+    target_contract: SensorHealthEvent
+    target_action: sensor.inventory_snapshot_written
+    availability: Requires minor sensor instrumentation
+ordering:
+  global_order: unsupported
+  component_order: proposed_component_sequence
+  late_events: accepted
+  out_of_order_events: accepted
+  correction: append_new_record_with_original_reference
+

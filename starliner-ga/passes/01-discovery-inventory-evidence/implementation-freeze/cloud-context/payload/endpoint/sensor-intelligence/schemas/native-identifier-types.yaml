@@ -1,0 +1,76 @@
+schema_version: 1
+evidence_status: Verified in source
+sensor: sentinel-endpoint-agent
+identifiers:
+  - name: persona_device_id
+    entity: device
+    native_type: String
+    namespace: quilr.endpoint.device.sha256.v1
+    algorithm: SHA-256 over first successful hardware UUID / motherboard serial / OS machine GUID / MAC+hostname / synthetic fallback
+    caveat: output does not carry selected tier; synthetic fallback is not stable
+  - name: monitor_device_id
+    entity: device
+    native_type: String
+    namespace: platform_serial_raw
+    algorithm: macOS IOPlatformSerialNumber or Windows BIOS serial fallback chain
+    caveat: distinct from persona_device_id and empty on failure
+  - name: backend_device_id
+    entity: device
+    native_type: Option<String>
+    namespace: dashboard_device
+    algorithm: backend assigned; number or string normalized to string
+  - name: persona_user_id
+    entity: human_or_account
+    native_type: String
+    namespace: dashboard_user
+    algorithm: backend assigned
+  - name: application_entity_id
+    entity: application_installation_observation
+    native_type: UUID
+    namespace: uuid_v5_url
+    algorithm: UUIDv5(NAMESPACE_URL, app_name + ':' + install_path) or UUIDv5(NAMESPACE_URL, 'process:' + app_name)
+  - name: mcp_server_entity_id
+    entity: mcp_server_configuration_observation
+    native_type: UUID
+    namespace: uuid_v5_url
+    algorithm: UUIDv5(NAMESPACE_URL, tenant_id + ':' + name)
+    caveat: parent application and transport omitted
+  - name: user_scoped_entity_id
+    entity: skill_hook_agent_model_repo_permission_or_plugin_observation
+    native_type: UUID
+    namespace: uuid_v5_url
+    algorithm: UUIDv5(NAMESPACE_URL, tenant_id + ':' + email + ':' + entity_name)
+    caveat: entity kind omitted; cross-kind collisions possible
+  - name: backend_application_id
+    entity: application
+    native_type: Option<String>
+    namespace: dashboard_application
+    algorithm: backend assigned through app-add or ingest mapping
+  - name: process_pid
+    entity: process
+    native_type: u32
+    namespace: device_os_process_table
+    caveat: recyclable; combine with device and start_time_secs
+  - name: proxy_request_id
+    entity: proxy_request
+    native_type: String
+    namespace: endpoint_proxy_request
+    algorithm: epoch milliseconds + random u64 hex
+  - name: alert_id
+    entity: alert_transport
+    native_type: UUID
+    namespace: uuid_v4
+  - name: diagnostic_id
+    entity: diagnostic_event
+    native_type: UUID
+    namespace: uuid_v4
+  - name: hook_file_sha256
+    entity: hook_file_content
+    native_type: bytes32
+    namespace: sha256
+    caveat: content identity rather than file identity
+  - name: macos_audit_token
+    entity: process_security_context
+    native_type: Option<Vec<u8>>
+    namespace: macos_kernel_audit_token
+    caveat: captured by extension but dropped before RequestContext source_app

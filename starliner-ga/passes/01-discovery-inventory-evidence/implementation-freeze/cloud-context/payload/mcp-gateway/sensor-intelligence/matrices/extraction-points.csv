@@ -1,0 +1,9 @@
+extraction_id,point,data,method,priority,availability,risk
+EXT-001,BackendRegistry registration hook,Backend and tools,Typed in-process DTO,P0,Available now without sensor changes,No lifecycle completeness
+EXT-002,BackendRegistry tool hook,Tool names,Typed in-process DTO,P0,Available now without sensor changes,No snapshot or delete
+EXT-003,MCPHandler result hook,Direct call outcome,Typed in-process DTO,P0,Available now without sensor changes,Exception gap
+EXT-004,Starliner outbox,Already mapped records,Validated SQLite boundary,P0,Available now without sensor changes,Too late for richer fields
+EXT-005,events and rejections,Auth admin control failure,Read-only checkpoint adapter,P2,Available through adapter mapping only,Privacy
+EXT-006,tool_call_logs,Richer tool activity,Read-only checkpoint adapter,P2,Available through adapter mapping only,High sensitivity and double count
+EXT-007,Workflow runner repository,Run step artifact,Separate adapter or API,P2,Available through adapter mapping only,Cross-process correlation
+EXT-008,OneMCP lifecycle,Remote native session behavior,New typed hooks,P1,Requires minor sensor instrumentation,Process-local state

@@ -1,0 +1,15 @@
+native_source,current_record,target_contract,availability,required_change
+Backend registration,SourceObservation,MCP server source observation,Available now without sensor changes,Remove canonical entity and add source namespace
+Tool discovery,SourceObservation,MCP tool source observation,Available now without sensor changes,Snapshot and delete lifecycle
+Tool call sighting,SourceObservation,MCP tool last-seen source observation,Available now without sensor changes,Identity correction
+Direct call,ActionEvent,Canonical mcp.tool.called candidate,Available now without sensor changes,Central resolution and coverage
+DLP block,FindingSignal,Finding signal and governance event,Derivable centrally from current output,Central admission
+Call count,MetricEvent,Canonical metric sample,Available now without sensor changes,Resolved dimensions
+Latency,MetricEvent,Canonical metric sample,Available now without sensor changes,Clarify full gateway latency
+Gateway events,SQLite event,Canonical auth admin control event,Available through adapter mapping only,Privacy mapper
+Rejected requests,SQLite rejection,Canonical request rejection event,Available through adapter mapping only,Privacy mapper
+Tool logs,SQLite log,Rich activity evidence,Available through adapter mapping only,Safe projection and dedup
+Workflow state,Runner and gateway rows,Agent run step events,Available through adapter mapping only,Causal propagation
+OneMCP activity,None,MCP action event,Requires minor sensor instrumentation,Dedicated hook
+Delivery health,Route and SQLite,SensorHealthEvent,Requires minor sensor instrumentation,Durable health
+Commands,None,Command and effect contracts,Requires substantial sensor changes,Control channel

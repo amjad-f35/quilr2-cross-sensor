@@ -1,0 +1,14 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Native upload action message",
+    "evidence_status": "Verified in source",
+    "expected": "acknowledged_then_processed"
+  },
+  "record": {
+    "id": "msg-upload-001",
+    "type": "action",
+    "timestamp": 1753876800000,
+    "data": "{\"system_event\": {\"id\": \"upload-flow-001\", \"event_type\": \"FileActivity\", \"event_name\": \"Upload\", \"timestamp\": 1753876800000, \"source_service\": \"Extension\", \"data\": {\"Json\": {\"files\": [{\"name\": \"report.pdf\", \"size\": 1024, \"last_modified\": 1753876000}]}}, \"priority\": \"High\"}, \"action_source\": \"Extension\", \"timestamp\": 1753876800000, \"behavior\": \"file_scan\", \"action\": \"Scan\", \"do_acknowledge\": true, \"data\": null}"
+  }
+}

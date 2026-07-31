@@ -1,0 +1,22 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "generated_from_verified_formula_no_result_value",
+    "kind": "legacy_metric_definition",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/work/quilr-query-builder/src/main/java/com/quilr/qb/executive/ExecutiveDashboardRow4Queries.java",
+      "matrices/sensor-intelligence/quilr1-platform/metrics.csv"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "metric": {
+    "name": "Executive homegrown apps",
+    "formula": "count(DISTINCT app_id) where app_category = 'Generative AI' and relevant source filters apply",
+    "unit": "applications",
+    "result": null,
+    "result_status": "not_measured_by_fixture",
+    "canonical_status": "legacy_metric_evidence_only"
+  }
+}

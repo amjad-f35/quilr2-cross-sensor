@@ -1,0 +1,14 @@
+entity_type,identifier,namespace,source,stability,uniqueness,reassignable,verified,recommended_use
+Tenant,tenant_id,Gateway or platform,Claims and state,Expected stable,Expected tenant-global,Unresolved,Branch-dependent,Tenant scope
+Human,actor HMAC,Sensor tenant key,Mapper,Key-epoch stable,Probabilistic,Yes on key or email change,Keyed derivation,Secondary correlation
+Backend,backend_id,Gateway tenant,Registry,Row-lifetime stable,Tenant-scoped,Possible on recreation,No,Strong source identity
+Tool,backend plus tool name,Gateway backend,Capabilities,Name-lifetime stable,Backend-scoped,Yes on rename,No,Strong source tuple
+Request,JSON-RPC id,Client session,Client,Reusable,Not global,Yes,No,Response correlation only
+Dispatch,observation UUID,Gateway,Handler,Immutable,Random global,No,No,Evidence correlation seed
+Action,derived request flow span,Sensor tenant,Mapper,Deterministic,Probabilistic,No,Content derived,Event correlation
+Observation,stable observation ID,Sensor tenant,Mapper,Deterministic,Probabilistic,No,No,Source record identity
+Delivery,idempotency key,Tenant sensor type,Mapper,Deterministic,Scoped unique,No,No,Replay identity
+Body,body hash,Contract,Canonical JSON,Content addressed,Cryptographic,No,Digest verified,Integrity
+Record,record hash,Contract,Envelope and body,Content addressed,Cryptographic,No,Digest verified,Integrity
+Outbox,outbox ID,Local SQLite,Database,Row lifetime,Database-local,No,No,Operator internal
+Receipt,evidence ID,Central ingest,Remote response,Unresolved,Unresolved,Unresolved,No local signature,Receipt correlation

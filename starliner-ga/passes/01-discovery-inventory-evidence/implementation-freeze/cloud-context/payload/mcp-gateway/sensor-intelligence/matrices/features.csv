@@ -1,0 +1,19 @@
+feature_id,feature,entry_point,status,evidence,platform_availability,limitation
+CAP-OBS-001,Observe runtime construction,starliner/runtime.py::create_observe_runtime,Implemented,Verified in source,Available now without sensor changes,Optional contract dependency
+CAP-OBS-002,Runtime lifecycle,gateway.py::lifespan,Implemented,Verified by test,Available now without sensor changes,No durable startup health event
+CAP-OBS-003,Backend discovery,BackendRegistry._observe_backend_registration,Partially implemented,Verified by test,Available now without sensor changes,Registration only
+CAP-OBS-004,Tool discovery,BackendRegistry._observe_tool_discovery,Partially implemented,Verified by test,Available now without sensor changes,Name only and no delete
+CAP-OBS-005,Direct tool-call observation,MCPHandler.handle_request,Partially implemented,Verified by test,Available now without sensor changes,Normal-return Direct paths only
+CAP-OBS-006,Safe label extraction,starliner.payload_safety.safe_labels,Implemented,Verified by test,Available now without sensor changes,Labels only
+CAP-OBS-007,Actor pseudonym,starliner.identity.pseudonymous_actor_id,Implemented,Verified by test,Available now without sensor changes,No key epoch
+CAP-OBS-008,Durable outbox,StarlinerOutboxRepository.enqueue_many,Implemented,Verified by test,Available now without sensor changes,Silent conflicting replay
+CAP-OBS-009,HTTP delivery,StarlinerDeliveryWorker,Configured but runtime-unverified,Verified by test,Available now without sensor changes,Fake transport only
+CAP-OBS-010,Manifest and self-test,routes/starliner.py,Implemented,Verified by test,Available now without sensor changes,Self-test does not touch network
+CAP-CTL-001,Native DLP,DLPService,Implemented,Verified by test,Available now without sensor changes,Detector ABI partly external
+CAP-CTL-002,Tool confirmation,ToolConfirmationStore,Implemented,Verified by test,Available through adapter mapping only,Process-local and pre-DLP echo
+CAP-CTL-003,Legacy Starliner policy,evaluate_starliner_mcp_pre_tool,Legacy,Verified by test,Unresolved,Private SDK
+CAP-GAP-001,OneMCP observation,OneMCPHandler,Disabled,Verified in source,Requires minor sensor instrumentation,No dedicated observe hook
+CAP-GAP-002,Resource prompt session observation,MCPHandler,Disabled,Verified in source,Requires minor sensor instrumentation,Deferred
+CAP-GAP-003,Relationship event,MCPObserveMapper,Disabled,Verified in source,Requires minor sensor instrumentation,Manifest deferred
+CAP-GAP-004,Sensor health event,MCPObserveRuntime,Disabled,Verified in source,Requires minor sensor instrumentation,Route-only health
+CAP-GAP-005,Commands and effects,None,Disabled,Verified in source,Requires substantial sensor changes,No control channel

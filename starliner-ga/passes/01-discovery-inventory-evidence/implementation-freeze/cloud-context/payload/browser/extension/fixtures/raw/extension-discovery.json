@@ -1,0 +1,29 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Chrome extension discovery check",
+    "evidence_status": "Verified in source",
+    "expected": "accepted"
+  },
+  "record": {
+    "id": "CID_16",
+    "name": "extension-listing",
+    "properties": {
+      "event_type": "discover",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "name": "Fixture Extension",
+      "version": "2.0.0",
+      "enabled": true,
+      "installType": "normal",
+      "permissions": [
+        "storage"
+      ],
+      "hostPermissions": [
+        "https://example.invalid/*"
+      ],
+      "warning_messages": [
+        "Read and change your data on example.invalid"
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+detector,location,input,logic,output,confidence,availability,customer_control
+Native DLP,services/dlp_service.py,Arguments or output text,External processor plus category actions,Allowed monitored redacted blocked,External semantics unresolved,Available now without sensor changes,Scoped DLP settings
+Token-shaped identifier,starliner/identity.py,Identifier string,Prefix JWT dense token patterns,Opaque ID,Deterministic match not secret certainty,Available now without sensor changes,None
+Secret-like label,starliner/payload_safety.py,Prediction label,Regex plus secret scan,Kept or dropped,Deterministic filter,Available now without sensor changes,None
+Response error,services/mcp_handler.py,JSON-RPC response,Top-level error or result isError,Boolean,High for conventional shape,Available now without sensor changes,None
+ZIA URL policy,services/mcp_handler_zia.py,URL domain and identity,Remote check plus overrides,Allowed or filtered,Remote semantics unresolved,Requires minor sensor instrumentation,ZIA and scoped policy
+Smart group,utils/smart_groups.py,User and tenant,ClickHouse or snapshot lookup,Group list,Freshness-dependent,Available through adapter mapping only,Group policy
+OneMCP rich client,services/onemcp_diagnostics.py,Capabilities and header presence,Profile and behavior classification,Diagnostic event,Heuristic,Available through adapter mapping only,None
+Client agent classification,routes/mcp.py,User-Agent and custom agent,Keyword match,Agent keyword display,Heuristic,Available through adapter mapping only,Client policy
+Token-saving transform,services/token_saving_service.py,Text content,Format replacers and tokenizer,Saved token estimate,Estimator not billing,Available through adapter mapping only,Token-saving settings

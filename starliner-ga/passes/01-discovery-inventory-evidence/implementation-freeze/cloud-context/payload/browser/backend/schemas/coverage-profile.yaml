@@ -1,0 +1,24 @@
+schema_version: 1
+profile: browser-backend
+producer: browser-extension-service
+revision: 99e9599e1582184f5061492b430cd0b2af38d753
+coverage:
+- Coverage ID: CV-011
+  Environment/surface: Browser backend ingress
+  Capability: Event acceptance
+  Supported code path: BES HTTP
+  Coverage class: Direct when request reaches service
+  Known blind spots: Network failure, auth, validation, missing extension-log-service
+  Negative-event semantics: No backend record may be upstream delivery failure
+  Availability: Available through adapter mapping only
+  Evidence: Verified in source
+- Coverage ID: CV-012
+  Environment/surface: Backend heartbeat
+  Capability: Health aggregation
+  Supported code path: Process-local bucket/Kafka/Neo4j
+  Coverage class: Partial durability
+  Known blind spots: Pod restart, multi-pod fragmentation, false send deletion
+  Negative-event semantics: Missing graph update does not prove sensor offline
+  Availability: Requires substantial sensor changes
+  Evidence: Verified in source
+negative_semantics: Absence of a backend record proves neither absence of an upstream event nor sensor inactivity.

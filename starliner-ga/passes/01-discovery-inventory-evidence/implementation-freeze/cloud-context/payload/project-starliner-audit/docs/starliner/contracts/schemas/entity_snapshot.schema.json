@@ -1,0 +1,166 @@
+{
+  "$defs": {
+    "Entity": {
+      "additionalProperties": true,
+      "properties": {
+        "first_seen_at": {
+          "title": "First Seen At",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "last_seen_at": {
+          "title": "Last Seen At",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "owner_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner Id"
+        },
+        "risk_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Risk Score"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status"
+        },
+        "type": {
+          "$ref": "#/$defs/EntityKind"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "EntityKind": {
+      "description": "Entity types (RFC-0001 \u00a78).",
+      "enum": [
+        "human_user",
+        "agent",
+        "workload",
+        "api_key",
+        "llm_api_key",
+        "service_account",
+        "tenant",
+        "llm_gateway_app",
+        "llm_provider",
+        "llm_model",
+        "policy_config",
+        "smart_group",
+        "prompt_store_object",
+        "mcp_backend",
+        "mcp_tool",
+        "mcp_native_tool",
+        "saas_app",
+        "api_endpoint",
+        "browser_app",
+        "file",
+        "dataset",
+        "repo",
+        "cicd_job",
+        "endpoint_process",
+        "endpoint_device",
+        "workstation",
+        "policy",
+        "data_class",
+        "integration"
+      ],
+      "title": "EntityKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "attributes": {
+      "additionalProperties": true,
+      "title": "Attributes",
+      "type": "object"
+    },
+    "entity": {
+      "$ref": "#/$defs/Entity"
+    },
+    "schema": {
+      "const": "starliner.entity_snapshot.v1",
+      "default": "starliner.entity_snapshot.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "entity"
+  ],
+  "title": "EntitySnapshot",
+  "type": "object"
+}

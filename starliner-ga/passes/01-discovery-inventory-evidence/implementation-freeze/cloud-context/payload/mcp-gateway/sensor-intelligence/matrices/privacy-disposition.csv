@@ -1,0 +1,17 @@
+data_class,native_field,current_handling,target_disposition,retention,reason
+Tenant identity,tenant_id,Retained,Entity detail,Contract-defined,Isolation and routing
+Backend identity,backend_id,Safe normalized,Inventory list,Contract-defined,Source identity
+Tool identity,tool_name,Safe normalized,Inventory list,Contract-defined,Source identity
+Human email,user_email,HMAC then dropped,Discard with reason,None in ordinary telemetry,PII
+Actor pseudonym,human_user_id,Retained,Activity explorer,Contract-defined,Privacy correlation
+Arguments,params.arguments,Not passed,Discard with reason,None in ordinary telemetry,Sensitive content
+Results,response content,Not passed,Discard with reason,None in ordinary telemetry,Sensitive content
+DLP labels,prediction label,Allowlisted,Finding signal,Analytical retention,Classification
+DLP entity values,sensitive_entities,Not passed,Discard with reason,None,Highly sensitive
+Headers,request headers,Not passed,Discard with reason,None,Credentials and fingerprinting
+Tokens and secrets,auth fields,Prohibited,Discard with reason,None,Credential material
+Latency and status,execution fields,Retained,Analytics,Analytical retention,Operational
+Body and record hashes,Envelope,Retained,Evidence drill-down,Evidence retention,Integrity
+Active delivery wrapper,payload_json,Retained until terminal,Raw-only retention,Until terminal,Delivery replay
+Terminal metadata,terminal table,Retained,Operator-only,No cleanup found,Receipt and health
+Tool logs,raw log columns,Separate SQLite,Raw-only retention,Unresolved,High sensitivity

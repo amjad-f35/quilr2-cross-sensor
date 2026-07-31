@@ -1,0 +1,27 @@
+{
+  "_fixture": {
+    "id": "FX-SO-003",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "duplicate",
+    "source_basis": "proposed deterministic native record ID/idempotency"
+  },
+  "payloads": [
+    {
+      "native_record_id": "test-duplicate-001",
+      "sensor_instance_id": "sensor-test-001",
+      "component_id": "system_monitor.package_discovery",
+      "event_time": "2026-01-01T00:00:00Z",
+      "source_attributes": {"package": "synthetic-ai-package", "version": "1.0.0"}
+    },
+    {
+      "native_record_id": "test-duplicate-001",
+      "sensor_instance_id": "sensor-test-001",
+      "component_id": "system_monitor.package_discovery",
+      "event_time": "2026-01-01T00:00:00Z",
+      "source_attributes": {"package": "synthetic-ai-package", "version": "1.0.0"}
+    }
+  ],
+  "expected_admission": "one semantic record; duplicate acknowledgement for the second delivery"
+}
+

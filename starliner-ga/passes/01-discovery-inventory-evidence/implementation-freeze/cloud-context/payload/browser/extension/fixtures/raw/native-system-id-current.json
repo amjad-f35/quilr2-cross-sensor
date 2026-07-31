@@ -1,0 +1,24 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Generated from a verified schema",
+    "purpose": "Current SystemID empty-strong-field behavior",
+    "evidence_status": "Verified in source",
+    "expected": "quarantine_identity"
+  },
+  "record": {
+    "fingerprint": "",
+    "primary_identifier": "",
+    "hostname": null,
+    "username": null,
+    "email": null,
+    "os_type": null,
+    "extra_data": {
+      "agent_version": "0.8.0",
+      "serial_number": "FIXTURE-SERIAL",
+      "hostname": "fixture-host",
+      "os_type": "MacOS"
+    },
+    "first_stored_at": 1753876800000,
+    "last_validated_at": 1753876800000
+  }
+}

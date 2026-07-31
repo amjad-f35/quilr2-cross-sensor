@@ -1,0 +1,15 @@
+Identity class,Observed,Identifier quality,Attribution path,Coverage conditions,Failure/ambiguity,Platform availability,Evidence
+Tenant,Yes,Strong when taken from verified UserContext,JWT/security context to BES records,Authenticated backend request,Private decoder and upstream issuer not in repos,Available through adapter mapping only,Verified in source
+Subscriber,Yes,Strong within upstream auth system,UserContext to event/DLP,Authenticated backend request,Semantics external,Available through adapter mapping only,Verified in source
+Human persona,Yes,personaId strong; email weak,UserContext and persona services,Authenticated/enrolled user,Shared/mutable email and missing persona in pre-enrollment,Available through adapter mapping only,Verified in source
+Application account,Partial,Email/account name weak; provider IDs generally absent,DOM/network account extractors to application envelope,Site/parser active and logged in,Most response/account configs inactive; guest use,Available through adapter mapping only,Verified in source
+Device,Partial,Numeric device ID useful; hostname/serial weak/sensitive,Heartbeat and native system identifier,Enrolled device and heartbeat,Strong SystemID fields empty,Requires substantial sensor changes,Verified in source
+Browser product,Yes,Product/version only,Runtime browser info to envelope/heartbeat,Extension running,No stable profile/install identity,Available through adapter mapping only,Verified in source
+Browser profile/installation,No reliable normal-telemetry identity,Diagnostic-only IDs unresolved,No consistent emitted path,N/A,Product extension ID is not installation ID,Requires minor sensor instrumentation,Verified in source
+Vanguard instance,Partial,Product ID plus device context,Envelope/heartbeat,Device known,Reinstall/profile multiplicity unresolved,Requires minor sensor instrumentation,Verified in source
+Sentinel instance,Partial,Agent version and native connection only,Native ping/system identifier,Native host installed and connected,Strong ID fields empty; multiple native installs unresolved,Requires substantial sensor changes,Verified in source
+Third-party extension product,Yes,Chrome extension ID strong for product,chrome.management,Management permission/browser support,Installation instance needs browser profile context,Available through adapter mapping only,Verified in source
+AI conversation,Partial,Provider-native ID where parser active,Interceptor artifacts,Supported app/path,Coverage varies and configs inactive,Available through adapter mapping only,Verified in source
+MCP server/tool/backend,No,None,None,None,No discovery code,Not observable by this sensor,Verified in source
+Cloud/serverless/CI workload,No,None,None,None,No relevant control-plane integrations,Not observable by this sensor,Verified in source
+Agent definition/runtime,No,None,None,None,AI page use is not agent-runtime proof,Not observable by this sensor,Verified in source

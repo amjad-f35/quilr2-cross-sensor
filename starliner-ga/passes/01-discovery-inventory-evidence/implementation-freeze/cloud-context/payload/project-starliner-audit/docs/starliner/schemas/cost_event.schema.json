@@ -1,0 +1,65 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "dimensions": {
+      "additionalProperties": true,
+      "title": "Dimensions",
+      "type": "object"
+    },
+    "estimated_cost_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Cost Usd"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "meter": {
+      "title": "Meter",
+      "type": "string"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "quantity": {
+      "title": "Quantity",
+      "type": "number"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": "starliner.cost_event.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "unit": {
+      "default": "count",
+      "title": "Unit",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "request_id",
+    "flow_id",
+    "meter",
+    "quantity"
+  ],
+  "title": "CostEvent",
+  "type": "object"
+}

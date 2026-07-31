@@ -1,0 +1,148 @@
+{
+  "procedures": [
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:50d09f6b-3a1c-5eaf-851c-888e6e2d2636",
+      "question": "Effective production routes/configuration",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "deployment manifests and live safe route listing",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "llm_gateway_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:0ece21c3-8ef6-5d48-a8e7-5376e68cd48c",
+      "question": "Provider/NATS/ClickHouse/Axis behavior",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "authorized non-production integration environment",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "quality_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:61e3fe2f-fe09-519e-97cb-6e6622659311",
+      "question": "Starliner sidecar ABI and durability",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "release-selected Starliner build plus crash/replay test",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "edge_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:df031cfc-5611-5805-a9f6-abadef82815e",
+      "question": "Protocol parity across 252 routes",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "transport conformance suite per advertised route",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "llm_gateway_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:ded5cdec-e820-5966-995e-1a1c2c90b960",
+      "question": "Production secret rotation and tenant isolation",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "security architecture and non-production isolation assessment",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "security_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:d770dd0d-dde5-5980-a525-3c17674356fb",
+      "question": "Provider account/model registry authority",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "provider connector/model registry",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "connector_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:48c16ec8-a234-5a77-9a66-c73c5e897cfa",
+      "question": "Authoritative human/workload identity",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "IdP/agent runtime attestation",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "data_identity_lead"
+    },
+    {
+      "validation_procedure_id": "urn:quilr:lg008:validation-procedure:bf1841e6-aa62-5e8e-920c-4d73e356f97f",
+      "question": "Frozen artifact immutable revision/sign-off",
+      "authorization_state": "OWNER_APPROVAL_AND_NON_PRODUCTION_ENDPOINT_REQUIRED",
+      "environment": "Authorized isolated non-production environment",
+      "safe_fixture": "Sanitized tenant/provider fixtures; no customer data or real secrets",
+      "exact_future_command": "NOT_AVAILABLE_UNTIL_OWNER_SUPPLIES_APPROVED_ENDPOINT_AUTH_AND_DEPLOYMENT_COMMAND",
+      "steps": [
+        "Owner records approved environment, role, endpoint, revision, and credential type without credential values.",
+        "Operator runs the owner-approved conformance command using sanitized fixtures.",
+        "Operator retains command, stdout, stderr, versions, start/end timestamps, fixture digest, and exit code.",
+        "Reviewer hashes artifacts, checks schema/privacy constraints, and links evidence IDs to the affected assertion."
+      ],
+      "expected_evidence": "signed release manifest",
+      "success_criteria": "Artifact retained, schema-valid, no secret/customer content, contract assertion reproduced",
+      "failure_criteria": "Missing artifact, contract mismatch, unsafe target or incomplete coverage",
+      "owner": "program_lead"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+scope_item,decision,current_status,required_before_acceptance,deferred
+Source server observation,Include,Partially implemented,Identity correction and lifecycle,No
+Source tool observation,Include,Partially implemented,Snapshot and delete semantics,No
+Direct tool ActionEvent,Include,Partially implemented,Exception closure and coverage label,No
+Call and latency metrics,Include,Implemented,Coverage and resolved dimensions,No
+DLP block signal,Include,Implemented,Central finding admission,No
+Sensor health event,Include,Disabled,Durable capability health,No
+Delivery receipt metadata,Include,Partially implemented,Workload identity signed receipt,No
+OneMCP coverage,Defer only with explicit gap,Disabled,Not required for Direct-only release,Yes
+Resources prompts sessions,Defer only with explicit gap,Disabled,Not required for Direct-only release,Yes
+RelationshipEvent,Central derivation first,Disabled,Source lifecycle and resolver,Yes
+Customer finding,Limited,Not sensor-owned,Central owner policy dedup close reopen,No
+Commands,Defer,Disabled,Separate authenticated channel,Yes
+Legacy enforcement,Compatibility only,Legacy,Migration plan and private ABI,Yes
+Raw content evidence,Defer,Disabled,Protected store privacy contract,Yes
+Multi-replica,Defer or prohibit,Unsupported,Certified externalized state,Yes

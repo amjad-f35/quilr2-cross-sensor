@@ -1,0 +1,158 @@
+{
+  "identifiers": [
+    {
+      "entity_type": "Gateway request",
+      "identifier": "request_id",
+      "namespace": "llmgateway.request",
+      "source": "UUID generated in PerformanceLoggerAsync",
+      "stability": "request-scoped",
+      "uniqueness": "Strong deterministic within producer",
+      "reassignable": "No",
+      "cryptographically_verified": "No",
+      "recommended_use": "Idempotency/event correlation candidate"
+    },
+    {
+      "entity_type": "Guardrail context",
+      "identifier": "context_id",
+      "namespace": "axis.context",
+      "source": "generated or supplied",
+      "stability": "conversation/request correlation",
+      "uniqueness": "Secondary",
+      "reassignable": "Possible",
+      "cryptographically_verified": "No",
+      "recommended_use": "Link prompt/response evidence only"
+    },
+    {
+      "entity_type": "Tenant",
+      "identifier": "tenant_id/tenant",
+      "namespace": "quilr.tenant",
+      "source": "API key/database/context",
+      "stability": "configured",
+      "uniqueness": "Secondary until authenticated ingest",
+      "reassignable": "Possible",
+      "cryptographically_verified": "No",
+      "recommended_use": "Tenant partition after transport authentication"
+    },
+    {
+      "entity_type": "Subscriber",
+      "identifier": "subscriber",
+      "namespace": "axis.subscriber",
+      "source": "database lookup",
+      "stability": "configured",
+      "uniqueness": "Secondary",
+      "reassignable": "Possible",
+      "cryptographically_verified": "No",
+      "recommended_use": "Source-native attribute"
+    },
+    {
+      "entity_type": "Gateway key",
+      "identifier": "api_key_hash",
+      "namespace": "quilr.gateway-key-hash",
+      "source": "SHA-256 of Quilr key",
+      "stability": "key lifetime",
+      "uniqueness": "Content-derived credential fingerprint",
+      "reassignable": "No",
+      "cryptographically_verified": "No",
+      "recommended_use": "Key candidate; never expose raw key"
+    },
+    {
+      "entity_type": "User",
+      "identifier": "user_email",
+      "namespace": "email",
+      "source": "request context/JWT/body/key binding",
+      "stability": "mutable",
+      "uniqueness": "Weak/secondary",
+      "reassignable": "Yes",
+      "cryptographically_verified": "Usually no",
+      "recommended_use": "Identifier candidate requiring IdP correlation"
+    },
+    {
+      "entity_type": "User",
+      "identifier": "user_id",
+      "namespace": "gateway.user",
+      "source": "gateway user database",
+      "stability": "database lifetime",
+      "uniqueness": "Source-native strong",
+      "reassignable": "Unresolved",
+      "cryptographically_verified": "No",
+      "recommended_use": "Source identifier candidate"
+    },
+    {
+      "entity_type": "Provider",
+      "identifier": "provider",
+      "namespace": "llm.provider-type",
+      "source": "routing resolution",
+      "stability": "stable enum-ish string",
+      "uniqueness": "Secondary",
+      "reassignable": "Yes",
+      "cryptographically_verified": "No",
+      "recommended_use": "Provider type claim"
+    },
+    {
+      "entity_type": "Provider configuration",
+      "identifier": "provider_label",
+      "namespace": "gateway.provider-label",
+      "source": "administrator label",
+      "stability": "mutable",
+      "uniqueness": "Display/mutable alias",
+      "reassignable": "Yes",
+      "cryptographically_verified": "No",
+      "recommended_use": "Never canonical identity alone"
+    },
+    {
+      "entity_type": "Model invocation",
+      "identifier": "model_name/model/deployment",
+      "namespace": "provider.model-route",
+      "source": "request/routing",
+      "stability": "mutable/provider-specific",
+      "uniqueness": "Secondary",
+      "reassignable": "Yes",
+      "cryptographically_verified": "No",
+      "recommended_use": "Model route/version candidate; exact provider account absent"
+    },
+    {
+      "entity_type": "Agent run",
+      "identifier": "agent_run_id",
+      "namespace": "otel.agent-run",
+      "source": "forwarded observability metadata",
+      "stability": "caller-scoped",
+      "uniqueness": "Unverified external identifier",
+      "reassignable": "Possible",
+      "cryptographically_verified": "No",
+      "recommended_use": "Link only; gateway does not assert canonical agent identity"
+    },
+    {
+      "entity_type": "Trace",
+      "identifier": "trace_id",
+      "namespace": "w3c.trace",
+      "source": "traceparent/metadata",
+      "stability": "trace-scoped",
+      "uniqueness": "Strong if well-formed; source not verified",
+      "reassignable": "No",
+      "cryptographically_verified": "No",
+      "recommended_use": "Causal correlation candidate"
+    },
+    {
+      "entity_type": "Conversation",
+      "identifier": "conversation_id/session_id",
+      "namespace": "caller.conversation",
+      "source": "headers/metadata/baggage",
+      "stability": "caller-scoped",
+      "uniqueness": "Secondary",
+      "reassignable": "Possible",
+      "cryptographically_verified": "No",
+      "recommended_use": "Activity grouping"
+    },
+    {
+      "entity_type": "Provider response",
+      "identifier": "external_request_id",
+      "namespace": "provider.request",
+      "source": "upstream headers/metadata",
+      "stability": "request-scoped",
+      "uniqueness": "Strong within provider namespace",
+      "reassignable": "No",
+      "cryptographically_verified": "No",
+      "recommended_use": "Provider evidence correlation"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "_fixture": {
+    "id": "FX-RA-001",
+    "evidence_label": "Proposed target fixture from verified Lua/native record families",
+    "runtime_observed": false,
+    "fixture_class": "normal",
+    "source_basis": "Agent/McpServer/Skill/Permission native relationships"
+  },
+  "payload": [
+    {
+      "assertion_id": "test-rel-001",
+      "subject_alias": "agent:test-agent",
+      "predicate": "configures",
+      "object_alias": "mcp:test-server",
+      "source_record_id": "test-native-config-001"
+    },
+    {
+      "assertion_id": "test-rel-002",
+      "subject_alias": "agent:test-agent",
+      "predicate": "uses",
+      "object_alias": "skill:test-skill",
+      "source_record_id": "test-native-config-001"
+    }
+  ]
+}
+

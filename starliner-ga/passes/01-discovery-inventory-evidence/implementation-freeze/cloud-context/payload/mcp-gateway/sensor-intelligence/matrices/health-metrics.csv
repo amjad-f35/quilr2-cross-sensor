@@ -1,0 +1,16 @@
+metric,source,persistent,scope,meaning,product_disposition
+runtime_status,Manifest,No,Instance,Active or disabled,Coverage and health
+disabled_reason,Manifest,No,Instance,Configuration or dependency degradation,Coverage and health
+delivery_capability,Manifest,No,Instance,Ready deferred auth or deferred,Coverage and health
+background.dropped,Runtime counter,No,Process,Observation queue saturation,Operator-only
+background.failed,Runtime counter,No,Process,Observation task failures,Operator-only
+outbox_dropped,Runtime counter,No,Process,Outbox capacity loss,Operator-only
+outbox_depth,SQLite aggregate,Derived,Local DB,Active delivery records,Coverage and health
+oldest_record_age_seconds,SQLite aggregate,Derived,Local DB,Backlog age,Coverage and health
+delivery_lag_seconds,SQLite aggregate,Derived,Local DB,Delivery lag,Coverage and health
+last_success_at,Terminal table,Yes,Local DB,Latest success,Coverage and health
+last_error_at,Active or terminal state,Yes,Local DB,Latest delivery error,Coverage and health
+accepted_total,Terminal table,Yes,Local DB,Accepted records,Operator-only
+rejected_total,Terminal table,Yes,Local DB,Rejected records,Operator-only
+dead_letter_total,Terminal table,Yes,Local DB,Terminal failures,Coverage and health
+selftest_status,Runtime selftest,No,Instance,Mapper and wrapper validation,Coverage and health

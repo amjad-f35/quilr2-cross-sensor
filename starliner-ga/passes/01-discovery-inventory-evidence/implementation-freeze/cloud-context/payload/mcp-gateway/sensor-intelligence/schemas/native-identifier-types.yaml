@@ -1,0 +1,62 @@
+schema: sensor-intelligence.native-identifier-types.v1
+sensor: mcpgateway
+identifiers:
+  - name: tenant_id
+    class: Strong deterministic
+    scope: platform_tenant
+    source: auth_and_gateway_state
+    caveat: authority_varies_by_auth_branch
+  - name: actor_pseudonym
+    format: actor:<32-hex>
+    class: Secondary
+    scope: tenant_and_hash_key
+    source: HMAC-SHA256
+    caveat: no_key_epoch
+  - name: backend_id
+    class: Strong deterministic
+    scope: tenant_and_sensor
+    source: backend_registry
+  - name: backend_tool_tuple
+    class: Strong deterministic
+    scope: backend
+    source: backend_id_and_tool_name
+  - name: jsonrpc_request_id
+    class: Runtime-scoped
+    scope: client_session
+    recommended_use: response_correlation_only
+  - name: observation_dispatch_id
+    class: Strong deterministic
+    source: gateway_uuid4_hex
+    scope: normal_direct_dispatch
+  - name: derived_request_flow_span
+    class: Strong deterministic
+    source: sha256_tenant_and_dispatch
+    scope: sensor_evidence
+  - name: idempotency_key
+    class: Strong deterministic
+    source: mapper_stable_id
+    scope: tenant_sensor_record_type
+  - name: body_hash
+    class: Content-addressed
+    format: sha256:<64-hex>
+  - name: record_hash
+    class: Content-addressed
+    format: sha256:<64-hex>
+  - name: outbox_id
+    class: Runtime-scoped
+    scope: local_sqlite
+  - name: evidence_id
+    class: Secondary
+    source: central_ingest_response
+    scope: unresolved
+  - name: runtime_instance_id
+    class: Mutable alias
+    source: deployment_configuration
+    caveat: uniqueness_not_enforced
+prohibited_as_canonical_authority:
+  - locally_minted_mcp_backend_entity_id
+  - locally_minted_mcp_tool_entity_id
+  - tool_name_without_backend
+  - backend_display_name
+  - user_agent
+

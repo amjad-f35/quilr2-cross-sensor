@@ -1,0 +1,15 @@
+datum,availability,disposition,customer_question,caveat
+MCP server candidate,Available now without sensor changes,Inventory list; Entity detail,What servers are registered or seen,No delete completeness
+MCP tool candidate,Available now without sensor changes,Inventory list; Entity detail; Relationship view,What tools are provided or used,Name only
+Direct tool call,Available now without sensor changes,Activity explorer; Evidence drill-down,Who called what and what happened,Actor partial and Direct only
+DLP block,Available now without sensor changes,Finding signal; Activity explorer,Was risky data blocked,Not automatically a finding
+Call volume,Available now without sensor changes,Overview; Analytics,How much observed activity occurred,Needs coverage denominator
+Latency,Available now without sensor changes,Analytics,Which tools are slow,Full gateway latency
+Delivery health,Available through adapter mapping only,Coverage and health; Operator-only,Is evidence flowing,Local aggregate
+Manifest,Available now without sensor changes,Coverage and health; Evidence drill-down,What is supported,Configured is not runtime proof
+Structured rejection,Available through adapter mapping only,Activity explorer; Evidence drill-down,Why was access denied,Privacy allowlist
+Settings,Available through adapter mapping only,Configuration,What controls apply,Current state not event-time
+OneMCP activity,Requires minor sensor instrumentation,Activity explorer,What aggregate activity occurred,No current full coverage
+Human account,Requires an external authoritative source,Inventory list; Relationship view,Who is the verified person,Actor HMAC is not authority
+Model and cost,Not observable by this sensor,Analytics,Which model and cost,Use LLM or billing source
+Raw arguments results tokens,Unresolved,Raw-only retention; Discard with reason,What exact content moved,Protected evidence only

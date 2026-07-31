@@ -1,0 +1,19 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Weak device candidate demonstrating no auto-merge",
+    "evidence_status": "Proposed",
+    "expected": "candidate_requires_resolution"
+  },
+  "record": {
+    "type": "workstation",
+    "source_external_id": "device-42",
+    "identifiers": [
+      {
+        "type": "hostname",
+        "value": "fixture-host",
+        "quality": "weak"
+      }
+    ]
+  }
+}

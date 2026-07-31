@@ -1,0 +1,47 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Safe canonical browser visit",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.canonical_activity.v1",
+    "tenant_id": "tenant-fixture",
+    "request_id": "ctx-001",
+    "flow_id": "ctx-001",
+    "occurred_at": "2026-07-30T12:00:00Z",
+    "sensor": {
+      "type": "browser",
+      "id": "browser-extension-instance-fixture",
+      "version": "1.2.3"
+    },
+    "actor": {
+      "type": "human_user",
+      "human_user_id": "persona-fixture",
+      "device_id": "device-42"
+    },
+    "action": {
+      "type": "browser_activity",
+      "operation": "visit",
+      "boundary": "browser"
+    },
+    "resource": {
+      "type": "browser_app",
+      "id": "ai.example.invalid",
+      "provider": "web"
+    },
+    "data": {
+      "direction": "input",
+      "labels": [],
+      "raw_payload_stored": false
+    },
+    "risk": {
+      "signals": []
+    },
+    "execution": {
+      "mode": "observe",
+      "degraded": false
+    }
+  }
+}

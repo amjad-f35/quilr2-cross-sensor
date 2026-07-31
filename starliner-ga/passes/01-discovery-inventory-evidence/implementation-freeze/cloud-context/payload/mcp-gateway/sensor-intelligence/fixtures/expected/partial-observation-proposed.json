@@ -1,0 +1,21 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "partial observation acceptance scenario"
+  },
+  "input": "source-observations/minimal-proposed.json",
+  "expected": {
+    "accepted": true,
+    "completeness": "partial",
+    "missing_optional_fields": [
+      "canonical_entity",
+      "attributes.backend_id",
+      "attributes.description"
+    ],
+    "must_not_infer": [
+      "backend_id",
+      "display_name",
+      "canonical_entity"
+    ]
+  }
+}

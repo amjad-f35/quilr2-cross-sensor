@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "EntityRef": {
+      "additionalProperties": true,
+      "description": "A ``{type, id}`` reference used by findings/relationships.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "A sensor signal; grouped Findings remain a downstream materializer concern.",
+  "properties": {
+    "actor_entity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EntityRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "attributes": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "items": {
+              "maxLength": 128,
+              "type": "string"
+            },
+            "maxItems": 32,
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Attributes",
+      "type": "object"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "primary_entity": {
+      "$ref": "#/$defs/EntityRef"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "starliner.finding_signal.v1",
+      "default": "starliner.finding_signal.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "severity_hint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Severity"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "signal_id": {
+      "title": "Signal Id",
+      "type": "string"
+    },
+    "signal_type": {
+      "enum": [
+        "mcp_tool_blocked",
+        "mcp_backend_unowned",
+        "new_mcp_backend_seen",
+        "new_high_risk_tool_seen",
+        "sensor_degraded",
+        "llm_dlp_monitored",
+        "llm_dlp_redacted",
+        "llm_dlp_blocked",
+        "llm_guardian_warned",
+        "llm_guardian_blocked",
+        "llm_response_dlp_monitored",
+        "llm_response_dlp_redacted",
+        "llm_response_dlp_blocked"
+      ],
+      "title": "Signal Type",
+      "type": "string"
+    },
+    "source_event_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Event Id"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "signal_id",
+    "signal_type",
+    "primary_entity"
+  ],
+  "title": "FindingSignal",
+  "type": "object"
+}

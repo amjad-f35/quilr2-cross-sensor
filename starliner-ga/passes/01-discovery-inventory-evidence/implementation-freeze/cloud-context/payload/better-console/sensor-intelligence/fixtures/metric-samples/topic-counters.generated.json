@@ -1,0 +1,10 @@
+{
+  "fixtureProvenance": "generated from verified repository contract",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "metric": "topic_buckets_completed",
+  "value": 4,
+  "dimensions": {
+    "tenantId": "tenant-example"
+  },
+  "source": "RunnerState"
+}

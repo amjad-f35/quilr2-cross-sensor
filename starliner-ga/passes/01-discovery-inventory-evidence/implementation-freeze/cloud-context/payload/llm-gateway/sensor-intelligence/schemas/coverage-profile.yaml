@@ -1,0 +1,160 @@
+{
+  "status": "Proposed from verified capture paths",
+  "coverage": [
+    {
+      "capability": "OpenAI-compatible HTTP ingress",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "valid Quilr key and optional JWT/source policy",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Calls bypassing gateway; content omitted by endpoint-specific walkers"
+    },
+    {
+      "capability": "Anthropic Messages ingress",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "valid Quilr key",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Provider-side activity outside gateway"
+    },
+    {
+      "capability": "AWS Bedrock native ingress",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "configured base AWS identity or Quilr auth",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Unsupported invoke-with-response-stream handler explicitly returns unsupported"
+    },
+    {
+      "capability": "OpenAI Responses/Assistants ingress",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "valid Quilr key",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Non-text opaque provider objects"
+    },
+    {
+      "capability": "OpenAI Realtime relay",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "key in supported header/query/subprotocol form",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "No durable session/connection entity contract"
+    },
+    {
+      "capability": "Copilot Studio hooks",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "path key; JWT is decoded without verification for identity hints",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Decoded unverified JWT claims are not authoritative identity"
+    },
+    {
+      "capability": "DLP NATS request/reply",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "NATS connectivity",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Timeouts/errors fail according to caller; absence is not clean content"
+    },
+    {
+      "capability": "Performance request lifecycle",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "database writer available",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Temporary timestamps are removed; delivery acknowledgement to Quilr 2.0 does not exist"
+    },
+    {
+      "capability": "External gateway health probes",
+      "environment": "Configured gateway deployment",
+      "version_requirement": "92b0462c583b",
+      "permission": "network access",
+      "observe": "Yes within stated scope",
+      "enforce": "Protocol/path dependent",
+      "evidence_quality": "Source verified; runtime verification separate",
+      "known_gaps": "Probe success is not complete request-path coverage"
+    }
+  ],
+  "health": [
+    {
+      "metric": "heartbeat_age",
+      "definition": "time since sensor health record",
+      "source": "Proposed adapter health",
+      "classification": "Customer coverage",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "metric": "source_freshness",
+      "definition": "time since last accepted gateway observation",
+      "source": "Current request log max timestamp",
+      "classification": "Customer coverage",
+      "availability": "Derivable centrally from current output"
+    },
+    {
+      "metric": "outbox_depth",
+      "definition": "unacknowledged local records",
+      "source": "Proposed Starliner outbox",
+      "classification": "Administrator health",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "metric": "oldest_undelivered_age",
+      "definition": "age of oldest unacknowledged record",
+      "source": "Proposed Starliner outbox",
+      "classification": "Customer coverage",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "metric": "delivery_retry_count",
+      "definition": "delivery attempts/retries",
+      "source": "Proposed Starliner publisher",
+      "classification": "Operator metric",
+      "availability": "Requires substantial sensor changes"
+    },
+    {
+      "metric": "capture_errors",
+      "definition": "request logging/detector instrumentation failures",
+      "source": "Existing logs; no stable aggregate",
+      "classification": "Administrator health",
+      "availability": "Requires minor sensor instrumentation"
+    },
+    {
+      "metric": "policy_age",
+      "definition": "age of current config/policy version",
+      "source": "config snapshot/watcher",
+      "classification": "Customer coverage",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "metric": "provider_probe_state",
+      "definition": "latest external probe/rollup",
+      "source": "gateway_health",
+      "classification": "Administrator health",
+      "availability": "Available through adapter mapping only"
+    },
+    {
+      "metric": "enforcement_readiness",
+      "definition": "auth, DLP, policy and inline hook self-test",
+      "source": "No complete self-test",
+      "classification": "Customer coverage",
+      "availability": "Requires substantial sensor changes"
+    }
+  ]
+}

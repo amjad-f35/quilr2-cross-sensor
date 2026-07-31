@@ -1,0 +1,23 @@
+{
+  "_fixture": {
+    "classification": "Proposed target fixture",
+    "status": "central identity candidate"
+  },
+  "candidate": {
+    "tenant_id": "tenant-fixture",
+    "entity_kind_hint": "mcp_server_deployment",
+    "source_sensor_id": "mcp-gateway-instance-1",
+    "native_identifiers": {
+      "backend_id": "backend-fixture"
+    },
+    "normalized_identifiers": {
+      "transport_type": "http"
+    },
+    "canonical_entity_id": null
+  },
+  "expected": {
+    "central_resolution_required": true,
+    "producer_assigns_canonical_id": false
+  }
+}
+

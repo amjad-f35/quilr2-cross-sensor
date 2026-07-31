@@ -1,0 +1,22 @@
+{
+  "fixture_metadata": {
+    "origin_classification": "Proposed target fixture",
+    "purpose": "Partial batch delivery degradation",
+    "evidence_status": "Proposed",
+    "expected": "contract_valid"
+  },
+  "record": {
+    "schema": "starliner.sensor_health_event.v1",
+    "tenant_id": "tenant-fixture",
+    "sensor": {
+      "type": "browser",
+      "id": "browser-extension-instance-fixture"
+    },
+    "status": "degraded",
+    "reason_code": "partial_batch_acceptance",
+    "contract_version": "starliner.sensor.v1",
+    "capability": "starliner_delivery",
+    "occurred_at": "2026-07-30T12:00:00Z",
+    "request_id": "batch-001"
+  }
+}

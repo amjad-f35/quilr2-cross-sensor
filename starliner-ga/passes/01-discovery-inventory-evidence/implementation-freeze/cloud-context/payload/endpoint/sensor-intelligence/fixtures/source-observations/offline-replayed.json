@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "FX-SO-005",
+    "evidence_label": "Proposed target fixture",
+    "runtime_observed": false,
+    "fixture_class": "offline/replayed",
+    "source_basis": "proposed durable outbox"
+  },
+  "payload": {
+    "native_record_id": "test-offline-001",
+    "event_time": "2026-01-01T00:00:00Z",
+    "append_time": "2026-01-01T00:00:01Z",
+    "delivery_attempt_time": "2026-01-02T00:00:00Z",
+    "replayed": true,
+    "delivery_attempt": 4
+  },
+  "expected_admission": "accept once; preserve event and append time; expose delivery latency"
+}
+

@@ -1,0 +1,235 @@
+{
+  "$defs": {
+    "AdapterRef": {
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "AdapterRef",
+      "type": "object"
+    },
+    "AssertionResult": {
+      "additionalProperties": true,
+      "properties": {
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/TestResult",
+          "default": "passed"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "AssertionResult",
+      "type": "object"
+    },
+    "CapabilityMode": {
+      "description": "Declared sensor behavior for an action family (RFC-0007 \u00a77).",
+      "enum": [
+        "enforce",
+        "observe",
+        "shadow",
+        "metadata_only",
+        "deferred",
+        "unsupported"
+      ],
+      "title": "CapabilityMode",
+      "type": "string"
+    },
+    "ContractTestCase": {
+      "additionalProperties": true,
+      "properties": {
+        "assertion_details": {
+          "items": {
+            "$ref": "#/$defs/AssertionResult"
+          },
+          "title": "Assertion Details",
+          "type": "array"
+        },
+        "assertions": {
+          "default": 0,
+          "title": "Assertions",
+          "type": "integer"
+        },
+        "capability": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capability"
+        },
+        "capability_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CapabilityMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/TestResult",
+          "default": "passed"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trace Id"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ContractTestCase",
+      "type": "object"
+    },
+    "ProductRef": {
+      "additionalProperties": true,
+      "properties": {
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "repo": {
+          "title": "Repo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "ref",
+        "commit"
+      ],
+      "title": "ProductRef",
+      "type": "object"
+    },
+    "TestResult": {
+      "description": "ContractTestResult outcomes (RFC-0007 \u00a713).",
+      "enum": [
+        "passed",
+        "failed",
+        "skipped",
+        "blocked",
+        "degraded"
+      ],
+      "title": "TestResult",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Machine-readable certification result (RFC-0007 \u00a713).",
+  "properties": {
+    "adapter": {
+      "$ref": "#/$defs/AdapterRef"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/ContractTestCase"
+      },
+      "title": "Cases",
+      "type": "array"
+    },
+    "contract_version": {
+      "default": "starliner.sensor.v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "ended_at": {
+      "title": "Ended At",
+      "type": "string"
+    },
+    "product": {
+      "$ref": "#/$defs/ProductRef"
+    },
+    "result": {
+      "$ref": "#/$defs/TestResult",
+      "default": "passed"
+    },
+    "schema": {
+      "const": "starliner.contract_test_result.v1",
+      "default": "starliner.contract_test_result.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensor": {
+      "title": "Sensor",
+      "type": "string"
+    },
+    "started_at": {
+      "title": "Started At",
+      "type": "string"
+    },
+    "test_pack": {
+      "title": "Test Pack",
+      "type": "string"
+    },
+    "test_pack_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Test Pack Hash"
+    }
+  },
+  "required": [
+    "sensor",
+    "product",
+    "adapter",
+    "test_pack"
+  ],
+  "title": "ContractTestResult",
+  "type": "object"
+}

@@ -1,0 +1,6 @@
+{
+  "_fixture_status": "Proposed target fixture",
+  "check": "source_freshness",
+  "state": "healthy",
+  "observed_at": "2026-07-30T00:00:00"
+}

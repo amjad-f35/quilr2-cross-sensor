@@ -1,0 +1,5 @@
+input,type,version_commit,purpose,sensor_relevance,status
+macrodata-refinement,Primary production repository,92b0462c583b908f8ce0cadd1bc89d2e702f5a7d,"LLM/DLP gateway, workers, state and deployment",Primary,Read and fully indexed
+quilr-llm-gateway,Related repository,99f759d75aa8260f97db6904433c941647a755e5,Legacy/development root and separate MCP Gateway,Related; README redirects production LLM scope,Commit/inventory verified; MCP is separate sensor
+repository-analysis,Generated first-pass evidence,92b0462c583b908f8ce0cadd1bc89d2e702f5a7d,Files/symbols/routes/config/DDL/subjects/tests,Evidence base,Regenerated at primary pin
+Quilr 2.0 cross-sensor corpus,Architecture/contracts,workspace state,Target contracts and Starliner boundary,Target design only,Read as proposal; not current sensor behavior

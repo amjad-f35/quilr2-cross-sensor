@@ -1,0 +1,25 @@
+{
+  "_fixture": {
+    "id": "FX-SO-006",
+    "evidence_label": "Proposed redacted target fixture",
+    "runtime_observed": false,
+    "fixture_class": "sensitive and redacted",
+    "source_basis": "privacy-disposition.csv protected evidence design"
+  },
+  "payload": {
+    "native_record_id": "test-redacted-001",
+    "component_id": "proxy.dlp",
+    "source_attributes": {
+      "data_classes": ["synthetic_secret_canary"],
+      "content_redacted": true,
+      "content_digest": "tenant-scoped-test-digest-not-a-real-hash"
+    },
+    "evidence_reference": {
+      "evidence_id": "evidence-test-001",
+      "access_class": "privileged",
+      "retention_class": "short",
+      "raw_content_in_observation": false
+    }
+  }
+}
+

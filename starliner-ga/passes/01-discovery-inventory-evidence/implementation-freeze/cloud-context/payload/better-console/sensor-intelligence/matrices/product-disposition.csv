@@ -1,0 +1,31 @@
+feature_id,customer_default,operator_only,drilldown,action,disposition
+session-authentication,yes,no,src/auth.rs; src/auth/,context-specific,ship with coverage
+tenant-selection,yes,no,src/routes/platform_admin_v2.rs,context-specific,ship with coverage
+platform-authorization,yes,no,src/authz.rs,context-specific,ship with coverage
+llm-log-analytics,yes,no,src/routes/admin_logs.rs; src/analytics/admin_logs.rs,context-specific,ship with coverage
+mcp-log-analytics,yes,no,src/mcpgateway/; src/routes/mcpgateway.rs,context-specific,ship with coverage
+endpoint-analytics,yes,no,src/endpointagent/; src/console/conversations/endpoint/,context-specific,ship with coverage
+browser-analytics,yes,no,src/browser_extension/,context-specific,ship with coverage
+unified-inventory,yes,no,src/console/inventory/,context-specific,ship with coverage
+unified-users,yes,no,src/console/users/; src/query_language.rs,context-specific,ship with coverage
+overview-dashboards,yes,no,src/console/overview/,context-specific,ship with coverage
+conversation-explorer,yes,no,src/console/conversations/,context-specific,ship with coverage
+activity-topics,yes,yes,src/activity_topics/,context-specific,ship with coverage
+custom-dashboards,yes,no,src/custom_dashboards/,context-specific,ship with coverage
+saved-views,yes,no,src/saved_views.rs,context-specific,ship with coverage
+console-assist,yes,no,src/console_assist/,context-specific,ship with coverage
+policy-management,yes,no,src/policy_management/,context-specific,ship with coverage
+detection-models,yes,no,src/detection_models/,context-specific,ship with coverage
+gateway-management,yes,no,src/gateway_management/,context-specific,ship with coverage
+browser-app-management,yes,no,src/apps_management/,context-specific,ship with coverage
+platform-access,yes,no,src/platform_admin_v2/platform_access.rs,context-specific,ship with coverage
+audit-log-view,yes,no,src/console/audit_logs.rs,context-specific,ship with coverage
+internal-admin,no,yes,src/internal_admin/,context-specific,ship with coverage
+embedded-spa,yes,no,build.rs; src/spa.rs,context-specific,ship with coverage
+export-surfaces,yes,no,src/routes/admin_export.rs; src/routes/mcpgateway_export.rs,context-specific,ship with coverage
+conversation-detail-cache,yes,no,src/conversation_detail_cache.rs,context-specific,ship with coverage
+geoip-annotation,yes,no,src/state.rs::geo_annotation,context-specific,ship with coverage
+inventory-icon-proxy,yes,no,src/inventory_icons.rs,context-specific,ship with coverage
+model-pricing,yes,no,src/model_pricing.rs,context-specific,ship with coverage
+api-completion-telemetry,no,yes,src/api_log.rs,context-specific,ship with coverage
+openapi-client-generation,no,yes,src/bin/export_platform_openapi.rs; frontend/orval.config.ts,context-specific,ship with coverage

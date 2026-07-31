@@ -1,0 +1,12 @@
+{
+  "_fixture": {
+    "classification": "Generated from a verified schema",
+    "status": "redacted safe-label DTO"
+  },
+  "transport_type": "http",
+  "transport_label": "https://***:8443/***",
+  "authentication_type": "authorization",
+  "access_policy_type": "public",
+  "credentials": "[REDACTED]",
+  "tool_arguments": "[REDACTED]"
+}

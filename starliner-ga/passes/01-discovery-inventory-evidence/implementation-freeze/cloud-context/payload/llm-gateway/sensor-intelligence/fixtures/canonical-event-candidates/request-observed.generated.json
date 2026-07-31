@@ -1,0 +1,6 @@
+{
+  "_fixture_status": "Proposed target fixture",
+  "event_type": "gateway.request.observed",
+  "source_event_id": "00000000-0000-4000-8000-000000000001",
+  "occurred_at": "2026-07-30T00:00:00"
+}

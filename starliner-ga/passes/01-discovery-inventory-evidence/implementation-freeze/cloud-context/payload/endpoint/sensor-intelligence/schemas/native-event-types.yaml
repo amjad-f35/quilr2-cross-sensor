@@ -1,0 +1,76 @@
+schema_version: 1
+sensor: sentinel-endpoint-agent
+evidence_status: Verified in source
+event_families:
+  process_delta:
+    current_delivery: in_memory
+    events: [process.started, process.exited]
+    durable: false
+  entity_change:
+    current_delivery: tokio_broadcast
+    events: [entity.added, entity.rediscovered, entity.governance_updated, entity.removed]
+    durable: false
+    caveat: lagging receivers can lose events
+  discovery_sync:
+    current_delivery: gzip_json_http
+    events: [discovery.ingest_batch, discovery.ingest_response, governance.delta_response]
+    durable: false
+  hook:
+    current_delivery: local_ipc_and_json_http
+    events: [hook.request, hook.decision, hook.activity]
+    durable: false
+    caveat: activity queue and failed batches are dropped
+  proxy_dlp:
+    current_delivery: request_memory_local_ui_and_alert_pipeline
+    events:
+      - proxy.request_observed
+      - proxy.response_observed
+      - dlp.detection
+      - dlp.decision
+      - justification.requested
+      - justification.responded
+  alert:
+    current_delivery: broker_then_sqlite_then_http
+    events:
+      - alert.ipc_alert
+      - alert.ipc_batch
+      - alert.lifecycle
+      - alert.stored
+      - alert.retry
+      - alert.sent
+      - alert.failed
+    durable: true
+    caveat: durability is alert-specific and not a common sensor outbox
+  diagnostics:
+    current_delivery: broker_to_optional_receiver
+    events: [diagnostic.event, diagnostic.batch, diagnostic.lifecycle]
+    caveat: batch producer absent and receiver not in default service graph
+  service_status:
+    current_delivery: process_local_mpsc
+    events: [service.state_change, service.heartbeat, service.error, service.crash]
+    durable: false
+  macos_extension:
+    current_delivery: length_prefixed_json_unix_socket
+    inbound:
+      - extension.tcp_redirect
+      - extension.udp_packet
+      - extension.connection_close
+      - extension.heartbeat
+      - extension.ping
+    outbound:
+      - extension.ack
+      - extension.udp_response
+      - extension.heartbeat_ack
+      - extension.close_request
+      - extension.config_update
+      - extension.pong
+      - extension.backpressure
+      - extension.shutdown
+  operational:
+    current_delivery: local_file_or_http
+    events: [traffic.log, proxy.health_snapshot, proxy.metrics_snapshot, snapshot.written]
+unsupported_current_protocols:
+  - grpc
+  - kafka
+  - nats
+  - opentelemetry_export

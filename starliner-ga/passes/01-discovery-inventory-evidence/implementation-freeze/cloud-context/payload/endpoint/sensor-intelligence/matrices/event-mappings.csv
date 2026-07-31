@@ -1,0 +1,21 @@
+mapping_id,native_event,canonical_event,availability,required_additions,semantic_limit,evidence_status
+EM-001,process.started,process.observed_started,Requires minor sensor instrumentation,sensor instance device ID process start and event ID,current ProcessInfo is not emitted,Proposed
+EM-002,process.exited,process.observed_exited,Requires minor sensor instrumentation,same identity and event time,current exit remains internal,Proposed
+EM-003,entity.added,inventory.observation_created,Available through adapter mapping only,source scope collector ID and event envelope,broadcast is not durable,Proposed
+EM-004,entity.rediscovered,inventory.observation_refreshed,Available through adapter mapping only,source scope and complete field refresh,current upsert can retain stale kind fields,Proposed
+EM-005,entity.removed,inventory.observation_tombstoned,Requires substantial sensor changes,source-complete scan boundary and durable tombstone,ordinary absence/exit cannot mean delete,Proposed
+EM-006,hook.request,action.requested,Requires minor sensor instrumentation,durable event ID source time and safe argument disposition,request alone proves no execution,Proposed
+EM-007,hook.decision,action.decided,Available through adapter mapping only,policy/decision provenance,current decision always Allow,Proposed
+EM-008,hook.activity,action.observed_partial,Available through adapter mapping only,delivery durability and source timestamp,no args result/effect,Proposed
+EM-009,proxy.request_observed,network_or_application_action.observed,Requires minor sensor instrumentation,stable event envelope process path and coverage,selected traffic only,Proposed
+EM-010,dlp.detection,security.detector_result,Available through adapter mapping only,detector ID/version confidence and truncation metadata,detector result is not finding,Proposed
+EM-011,dlp.decision,policy.decision,Available through adapter mapping only,policy version decision ID and failure mode,does not prove effect,Proposed
+EM-012,justification.requested,approval.requested,Available through adapter mapping only,actor/sensor identity and event time,local UI only,Proposed
+EM-013,justification.responded,approval.responded,Available through adapter mapping only,user/account identity and explicit outcome,timeout/default must remain distinct,Proposed
+EM-014,alert.stored,telemetry.admitted_local,Available through adapter mapping only,outbox namespace and admission receipt,current storage is alert-specific,Proposed
+EM-015,alert.sent,telemetry.delivery_succeeded,Available through adapter mapping only,HTTP response/remote receipt details,batch success scope must be explicit,Proposed
+EM-016,diagnostic.event,sensor.diagnostic,Requires minor sensor instrumentation,active receiver durable route and sensor instance,default graph lacks receiver,Proposed
+EM-017,service.heartbeat,sensor.component_heartbeat,Requires minor sensor instrumentation,durable export and instance/version/current config,process-local only,Proposed
+EM-018,extension.tcp_redirect,network.connection_observed,Requires minor sensor instrumentation,privacy filter durable path and sensor instance,macOS conditional only,Proposed
+EM-019,extension.backpressure,capture.backpressure,Requires minor sensor instrumentation,durable export threshold/context,local control only,Proposed
+EM-020,proxy.health_snapshot,sensor.health_sample,Available through adapter mapping only,supported scrape/push boundary and sensor identity,local poll endpoint only,Proposed

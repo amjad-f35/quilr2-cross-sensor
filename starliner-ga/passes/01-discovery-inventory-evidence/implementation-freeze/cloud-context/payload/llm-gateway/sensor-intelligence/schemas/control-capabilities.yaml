@@ -1,0 +1,93 @@
+{
+  "evidence_status": "Verified in source",
+  "controls": [
+    {
+      "control_capability": "Observe/log",
+      "enforcement_point": "all gateway handlers",
+      "pre_post_action": "post and pre",
+      "inputs": "request/response metadata",
+      "decision_source": "local instrumentation",
+      "result": "records evidence",
+      "failure_mode": "persistence failure may lose telemetry",
+      "bypass_conditions": "traffic bypasses gateway",
+      "effect_verification": "No external effect verification"
+    },
+    {
+      "control_capability": "Monitor",
+      "enforcement_point": "DLP processing",
+      "pre_post_action": "pre/post",
+      "inputs": "predictions + category mode",
+      "decision_source": "local config/policy",
+      "result": "request continues with signal",
+      "failure_mode": "detector failure may fail open by path",
+      "bypass_conditions": "uncovered content/path",
+      "effect_verification": "Response status only"
+    },
+    {
+      "control_capability": "Redact/transform",
+      "enforcement_point": "gateway request/response body",
+      "pre_post_action": "pre upstream/post upstream",
+      "inputs": "entity matches/actions",
+      "decision_source": "local config/policy",
+      "result": "modified payload/response",
+      "failure_mode": "format-specific replacement limits",
+      "bypass_conditions": "unsupported body fields",
+      "effect_verification": "Final text recorded in Axis on logged paths"
+    },
+    {
+      "control_capability": "Block",
+      "enforcement_point": "gateway inline request/response",
+      "pre_post_action": "pre or post",
+      "inputs": "detector/policy result",
+      "decision_source": "local config/policy",
+      "result": "HTTP/stream error instead of normal result",
+      "failure_mode": "fail behavior is handler-specific",
+      "bypass_conditions": "direct provider access",
+      "effect_verification": "Effect is gateway response; provider side effect may already exist for post-response block"
+    },
+    {
+      "control_capability": "Rate/concurrency limit",
+      "enforcement_point": "gateway ingress",
+      "pre_post_action": "pre upstream",
+      "inputs": "key counters and settings",
+      "decision_source": "local DB/config",
+      "result": "429",
+      "failure_mode": "state/store availability semantics vary",
+      "bypass_conditions": "multi-replica consistency unresolved",
+      "effect_verification": "Gateway response observed"
+    },
+    {
+      "control_capability": "Model allowlist",
+      "enforcement_point": "gateway routing",
+      "pre_post_action": "pre upstream",
+      "inputs": "requested/resolved model",
+      "decision_source": "API key settings",
+      "result": "reject or route",
+      "failure_mode": "config lookup failure",
+      "bypass_conditions": "alternate route/bypass",
+      "effect_verification": "Gateway response observed"
+    },
+    {
+      "control_capability": "Source-IP restriction",
+      "enforcement_point": "gateway ingress",
+      "pre_post_action": "pre upstream",
+      "inputs": "source IP and allowlist",
+      "decision_source": "key settings",
+      "result": "403 or continue",
+      "failure_mode": "proxy header trust must be deployed correctly",
+      "bypass_conditions": "direct/bad proxy path",
+      "effect_verification": "Gateway response observed"
+    },
+    {
+      "control_capability": "Config approval/rollback",
+      "enforcement_point": "administration API",
+      "pre_post_action": "pre configuration effect",
+      "inputs": "change request/version",
+      "decision_source": "RBAC/session",
+      "result": "config mutation",
+      "failure_mode": "partial sync/notification failure possible",
+      "bypass_conditions": "direct DB modification",
+      "effect_verification": "Snapshot/audit evidence"
+    }
+  ]
+}

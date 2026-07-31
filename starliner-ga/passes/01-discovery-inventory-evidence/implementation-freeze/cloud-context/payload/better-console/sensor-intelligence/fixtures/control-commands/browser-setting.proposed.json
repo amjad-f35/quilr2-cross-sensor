@@ -1,0 +1,9 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "commandType": "browser_setting_update",
+  "tenantId": "tenant-example",
+  "targetId": "synthetic-app",
+  "field": "criticality",
+  "value": "critical"
+}

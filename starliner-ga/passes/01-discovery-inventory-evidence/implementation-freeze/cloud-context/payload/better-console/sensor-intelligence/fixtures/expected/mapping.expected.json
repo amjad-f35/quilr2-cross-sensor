@@ -1,0 +1,11 @@
+{
+  "fixtureProvenance": "proposed target fixture",
+  "repositoryRevision": "68132e67d0b494d52aac01a1ad811c03faf21550",
+  "input": "llm_gateway_log",
+  "expectedTarget": "interaction evidence",
+  "assertions": [
+    "tenant remains scoped",
+    "source record remains addressable",
+    "no canonical identity merge in adapter"
+  ]
+}

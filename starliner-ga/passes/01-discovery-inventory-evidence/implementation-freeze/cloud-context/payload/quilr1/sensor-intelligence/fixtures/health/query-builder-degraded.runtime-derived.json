@@ -1,0 +1,24 @@
+{
+  "fixture_metadata": {
+    "provenance": "synthetic_generated_example",
+    "status": "derived_from_recorded_runtime_probe",
+    "kind": "runtime_health_observation",
+    "generated_at": "2026-07-30T00:00:00Z",
+    "contains_live_customer_data": false,
+    "evidence": [
+      "quilr-platform-analysis/22-dynamic-verification.md"
+    ],
+    "qualification": "Values are synthetic. Field names and classifications come from the cited repository evidence; this file is not a captured Quilr 1 payload."
+  },
+  "observed_state": {
+    "environment": "isolated_development_harness",
+    "relational_dependency": "H2_launch_substitute",
+    "clickhouse": "unavailable",
+    "neo4j": "unavailable",
+    "query_builder_health_http_status": 200,
+    "query_builder_health_body": "RUNNING",
+    "actuator_health_http_status": 503,
+    "actuator_health_status": "DOWN"
+  },
+  "required_interpretation": "process_ready does not imply source capabilities healthy"
+}

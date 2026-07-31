@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "EntityRef": {
+      "additionalProperties": true,
+      "description": "A ``{type, id}`` reference used by findings/relationships.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "description": "A sensor sighting of a canonical entity without source payload retention.",
+  "properties": {
+    "attributes": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Attributes",
+      "type": "object"
+    },
+    "canonical_entity": {
+      "$ref": "#/$defs/EntityRef"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "observation_id": {
+      "title": "Observation Id",
+      "type": "string"
+    },
+    "observed_at": {
+      "title": "Observed At",
+      "type": "string"
+    },
+    "observed_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Observed Name"
+    },
+    "schema": {
+      "const": "starliner.source_observation.v1",
+      "default": "starliner.source_observation.v1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "sensor_id": {
+      "title": "Sensor Id",
+      "type": "string"
+    },
+    "source_entity_type": {
+      "title": "Source Entity Type",
+      "type": "string"
+    },
+    "source_external_id": {
+      "title": "Source External Id",
+      "type": "string"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "observation_id",
+    "canonical_entity",
+    "sensor_id",
+    "source_entity_type",
+    "source_external_id"
+  ],
+  "title": "SourceObservation",
+  "type": "object"
+}

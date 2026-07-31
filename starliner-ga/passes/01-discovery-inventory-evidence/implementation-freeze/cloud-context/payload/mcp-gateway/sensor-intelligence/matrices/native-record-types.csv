@@ -1,0 +1,14 @@
+record_id,name,owner,producer,persisted,platform_availability,status
+REC-001,ToolCallResult,Gateway,MCPHandler,No,Available through adapter mapping only,Implemented
+REC-002,SourceObservation,Starliner contract,MCPObserveMapper,Yes,Available now without sensor changes,Implemented
+REC-003,ActionEvent,Starliner contract,MCPObserveMapper,Yes,Available now without sensor changes,Implemented
+REC-004,MetricEvent,Starliner contract,MCPObserveMapper,Yes,Available now without sensor changes,Implemented
+REC-005,FindingSignal,Starliner contract,MCPObserveMapper,Yes,Available now without sensor changes,Implemented
+REC-006,DeliveryRecord,Starliner contract,build_delivery_record,Yes,Available now without sensor changes,Implemented
+REC-007,StarlinerOutboxRecord,Gateway,claim_due,No,Internal implementation only,Implemented
+REC-008,starliner_outbox row,Gateway,Outbox repository,Yes,Operator-only,Implemented
+REC-009,starliner_terminal_delivery row,Gateway,Outbox repository,Yes,Operator-only,Implemented
+REC-010,SensorManifest,Starliner contract,build_sensor_manifest,No,Available now without sensor changes,Implemented
+REC-011,Runtime metrics snapshot,Gateway,Runtime and worker,No,Available through adapter mapping only,Implemented
+REC-012,SensorHealthEvent,Starliner contract,None,No,Requires minor sensor instrumentation,Disabled
+REC-013,RelationshipEvent,Starliner contract,None,No,Requires minor sensor instrumentation,Disabled
