@@ -35,6 +35,21 @@ policy/findings/orchestration in later governed passes
 No connector gets its own canonical inventory, graph, identity service,
 authorization model or frontend truth.
 
+## Source acquisition framework
+
+There are two producer paths, not one generic collector:
+
+| Path | Durability boundary | Ordering/checkpoint | Admission identity |
+|---|---|---|---|
+| Owned runtime sensor | profile privacy filter followed by a local Starliner WAL/outbox | producer epoch, sequence and partial receipt state | enrolled sensor installation/runtime |
+| Remote system connector | durable webhook inbox or poll/CDC page ledger followed by a connector outbox | webhook delivery ID or source cursor/watermark plus reconciliation snapshot | enrolled connector instance and role-scoped workload identity |
+
+Both paths produce the same small envelope and exact registered typed profile.
+Both receive per-record admission receipts. Both converge at immutable evidence,
+normalization and central identity resolution. A connector inbox is not an edge
+device WAL, and a successful API poll or webhook receipt is not yet central
+evidence admission.
+
 ## Role taxonomy
 
 An integration is classified by behavior and authority, not vendor.
@@ -165,6 +180,21 @@ Every future connector profile provides:
 - permission/credential scope;
 - rate/cardinality/resource limits;
 - positive, negative, replay, scale and source-version certification packs.
+
+Every connector instance additionally declares:
+
+- acquisition mode: webhook, full poll, incremental cursor, CDC or supported
+  combinations;
+- source tenant/account/region and native identity namespaces;
+- object, event and relationship types plus field-level authority;
+- snapshot completeness, delta, deletion, tombstone and disconnect behavior;
+- OAuth/workload identity, secret reference, scopes and credential rotation;
+- rate limits, pagination, retry, cursor reset and source-version behavior;
+- health, freshness, sampling, loss, retention and expected-population
+  coverage;
+- inbound evidence, outbound control/response/export roles and their separate
+  credentials;
+- exact certification fixtures, sandbox requirements and support matrix.
 
 Wire schemas validate profile identifier shape. Enrollment and admission then
 require the exact profile/version/schema digest in the release-managed

@@ -61,7 +61,43 @@ These are release-test loads, not a promise that one database node carries them.
 | API | yes | request/query class | concurrency, DB pool, query time |
 | maintenance/export | yes with fenced jobs | job/tenant | job age, object/DB I/O |
 
-Scaling adds replicas of the same release digest with a role flag. A role does not own private truth. Partition ownership is leased/fenced; rescheduling is safe.
+Scaling adds replicas within a role artifact digest. Roles are independently
+built and canary-deployed from one signed platform-release manifest; the
+manifest declares the compatible role digests and N/N-1 protocol, work-contract
+and database-schema ranges. A role does not own private truth. Partition
+ownership is leased/fenced; rescheduling is safe.
+
+## Workload isolation lanes
+
+Low-volume enterprise truth must not wait behind high-volume activity. The
+shared durable work table preserves one transaction/idempotency model, while
+`partition_key` has the frozen routing form:
+
+```text
+lane:<control|inventory|activity|bulk>:<stable-partition>
+```
+
+The lane is centrally derived, never accepted from a sensor:
+
+- `control`: producer health/gaps, identity commands and other bounded
+  control-plane work;
+- `inventory`: entity claims, identity, relationships, coverage,
+  reconciliation and any mixed normalization bundle;
+- `activity`: an activity-only normalization bundle/candidate and its
+  append-oriented activity projection;
+- `bulk`: replay, backfill, rebuild, export and maintenance.
+
+If one normalization run contains activity plus any entity claim, relationship,
+coverage or reconciliation output, it stays one atomic run in the `inventory`
+lane. It is never split merely for throughput. Pure activity uses independent
+normalizer/truth/projector replica pools, database connection budgets,
+concurrency caps, autoscaling signals and oldest-work SLOs. Lane borrowing is
+bounded and cannot exhaust the inventory/control reserve.
+
+Activity remains evidence-backed canonical truth, but its physical path is
+append-oriented: immutable candidates and versions, time partitions, per-
+activity aggregate locks, batched outbox publication and batched ClickHouse
+projection. There is no tenant-global or platform-global activity lock.
 
 ## PostgreSQL coordination limits
 

@@ -112,6 +112,29 @@ Email, display name, hostname, URL, origin, process name, tool name and model la
 9. Persist the complete decision and input claims.
 10. Materialize only after the decision commits.
 
+## Resolver framework and type modules
+
+There is one resolver framework, not one universal matching algorithm. The
+framework owns tenant boundaries, candidate bounds, locking, deterministic
+decision persistence, ambiguity, conflicts, merge/split/alias history, replay
+and audit. It dispatches through a versioned registry keyed by canonical entity
+type to type-specific resolver modules:
+
+- people, directory accounts and service principals;
+- devices, browser installations and endpoint installations;
+- application products, surfaces, deployments and accounts;
+- agent definitions and deployments;
+- model products, versions, deployments and routes;
+- MCP server products/deployments, tools, resources and prompts;
+- workloads, sessions, resources, repositories and artifacts.
+
+Each module declares its accepted source types, exact/composite keys, negative
+constraints, authoritative connector assertions, candidate-query bounds,
+authority-policy version, resolver name/version/rules digest and positive,
+negative, ambiguity, merge, split and replay fixtures. A missing module yields
+`no_match`/unsupported coverage; it never falls through to fuzzy global
+matching. Cross-type binding requires an explicit compatibility rule.
+
 ## Automatic versus reviewed resolution
 
 Automatic binding is allowed only when:

@@ -135,6 +135,8 @@ const required = [
   '29-lg008-saturation-and-readiness.md',
   '30-production-architecture-and-runtime-revalidation.md',
   '31-external-readiness-audit-reconciliation.md',
+  '32-pre-code-system-design-closure.md',
+  '33-enterprise-connector-platform-direction.md',
   'production-readiness/README.md',
   'production-readiness/00-assurance-model.md',
   'production-readiness/01-lg001-postgresql.md',
@@ -1030,9 +1032,68 @@ if (decisions) {
       fail(`duplicate decision ID: ${decision.id}`)
     ids.add(decision.id)
   }
+  for (const requiredId of [
+    'DIE-ACQUISITION-001',
+    'DIE-SCALING-001',
+    'DIE-RESOLVER-001',
+    'DIE-RELEASE-001',
+  ]) {
+    if (!ids.has(requiredId))
+      fail(`decision register omits architectural amendment ${requiredId}`)
+  }
   if (ids.size < 40)
     fail(`decision register is unexpectedly small: ${ids.size}`)
   notes.push(`${ids.size} frozen decisions`)
+}
+
+const systemArchitecture = requireFile('01-system-architecture.md')
+for (const fragment of [
+  '## Source acquisition framework',
+  'durable connector inbox + cursor/snapshot ledger',
+  'signed platform-release manifest',
+  'N/N-1 rolling window',
+]) {
+  if (!systemArchitecture.includes(fragment))
+    fail(`system architecture omits frozen acquisition/release fragment: ${fragment}`)
+}
+const performanceArchitecture = requireFile('10-performance-reliability-and-operations.md')
+for (const fragment of [
+  '## Workload isolation lanes',
+  'lane:<control|inventory|activity|bulk>:<stable-partition>',
+  'mixed normalization bundle',
+  'There is no tenant-global or platform-global activity lock.',
+]) {
+  if (!performanceArchitecture.includes(fragment))
+    fail(`performance architecture omits frozen workload-lane fragment: ${fragment}`)
+}
+if (performanceArchitecture.includes('Scaling adds replicas of the same release digest with a role flag.'))
+  fail('performance architecture retains superseded lockstep role-artifact topology')
+const workerArchitecture = requireFile('04-workers-transactions-and-replay.md')
+for (const fragment of [
+  'lane:<control|inventory|activity|bulk>:',
+  'startup self-test refuses an unrecognized or overlapping assignment',
+  'An activity-only normalization run uses the `activity` lane.',
+]) {
+  if (!workerArchitecture.includes(fragment))
+    fail(`worker architecture omits frozen workload-lane fragment: ${fragment}`)
+}
+const identityArchitecture = requireFile('05-identity-and-canonicalization.md')
+for (const fragment of [
+  '## Resolver framework and type modules',
+  'versioned registry keyed by canonical entity',
+  'never falls through to fuzzy global',
+]) {
+  if (!identityArchitecture.includes(fragment))
+    fail(`identity architecture omits frozen type-resolver fragment: ${fragment}`)
+}
+const connectorArchitecture = requireFile('33-enterprise-connector-platform-direction.md')
+for (const fragment of [
+  '## Source acquisition framework',
+  'durable webhook inbox or poll/CDC page ledger',
+  'Every connector instance additionally declares:',
+]) {
+  if (!connectorArchitecture.includes(fragment))
+    fail(`connector architecture omits frozen extension-contract fragment: ${fragment}`)
 }
 
 const predicates = yaml.get(join(root, 'ontology/predicates.yaml'))

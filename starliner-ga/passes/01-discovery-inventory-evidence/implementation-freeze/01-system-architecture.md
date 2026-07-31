@@ -121,9 +121,47 @@ Arrows between central roles represent durable PostgreSQL handoffs, not synchron
 
 Every role except the web application is built from `project-starliner`. `die-web` remains in `quilr-platform-nuxt`.
 
+The repository and semantic release authority are shared; deployment artifacts
+are not forced to be one lockstep binary. Each role has its own immutable image
+digest, SBOM, provenance, compatibility manifest, certification and rollback.
+A signed platform-release manifest pins the exact compatible set of role,
+schema, profile and generated-client digests. Mixed role versions are permitted
+only across the declared N/N-1 rolling window, and each role may canary and
+rollback independently.
+
 Producer bootstrap is not an undefined external dependency. The maintenance artifact exposes a non-public `producer apply/revoke/certify` command over the same typed Go use cases. It accepts an authenticated, signed, revisioned manifest; validates tenant scope, workload subject, artifact/contract/profile/test-pack digests, capability modes and expected-population bindings; then mutates `die_control`, appends audit and enqueues the producer projection in one transaction. Every active capability gets at least a producer-scoped population of one; an approved deployment or authoritative connector may bind a larger typed population. It runs with the short-lived `die_control_admin` database role. Ingest, API and continuously running maintenance replicas never have that credential. A future shared/dedicated/BYOC control plane may call the use case through a private transport, but may not redefine its transaction.
 
 The tenant-root scope has an equally explicit one-time path: `maintenance tenant bootstrap` consumes the signed `tenant-bootstrap-manifest`, creates exactly one tenant scope, its depth-zero closure row, authorization revision `1`, bootstrap ledger entry, audit head/event and idempotent result in one serializable transaction under the short-lived `die_authz_admin` role. An identical retry is a no-op; any different root/revision for that tenant is rejected. The public admin API cannot create, reparent or delete a tenant root.
+
+## Source acquisition framework
+
+Owned sensors and remote enterprise systems have different durability
+boundaries but converge before truth-building:
+
+```text
+owned/native source
+→ thin adapter
+→ pre-WAL privacy gate
+→ Starliner edge WAL/outbox
+→ authenticated admission
+
+remote enterprise source
+→ webhook receiver / poller / CDC reader
+→ durable connector inbox + cursor/snapshot ledger
+→ typed connector adapter + connector outbox
+→ authenticated admission
+
+both
+→ immutable evidence
+→ registered profile normalizer
+→ central resolver and canonical ledgers
+```
+
+A webhook acknowledgement requires durable inbox commit. A polling cursor may
+advance only after its page is durably represented and its resulting records
+have admission receipts. Neither path writes normalized or canonical tables
+directly. The complete future extension contract is
+[Enterprise Connector and Integration Platform Direction](33-enterprise-connector-platform-direction.md).
 
 ## Logical module boundaries
 

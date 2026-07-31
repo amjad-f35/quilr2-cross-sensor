@@ -60,6 +60,13 @@ execution that leaves work leased/retryable, aborts. Long work renews before
 one-third of the lease remains. Work units are bounded so ordinary records
 finish inside one lease.
 
+`partition_key` begins with the centrally assigned
+`lane:<control|inventory|activity|bulk>:` prefix. A deployment receives only
+the exact lane/partition keys in its signed runtime configuration, and its
+startup self-test refuses an unrecognized or overlapping assignment. This is a
+resource-isolation boundary, not a new truth authority: every lane retains the
+same fenced work, execution and idempotency contract.
+
 Worker discovery is cell-scoped. A tenant has one cell assignment and each
 independent workload login has its own `tenant_cell_principal` row declaring
 the one group role it actually holds. The login can list only tenants assigned
@@ -95,10 +102,19 @@ execution required by the terminal-state invariant.
 ## Partitioning and ordering
 
 - ingestion scales by producer;
-- normalization partitions by `(tenant_id, source_profile, source_object_hash)`;
-- truth partitions by `(tenant_id, canonical_or_source_aggregate_hash)`;
+- normalization partitions by
+  `(lane, tenant_id, source_profile, source_object_hash)`;
+- truth partitions by
+  `(lane, tenant_id, canonical_or_source_aggregate_hash)`;
 - projection partitions by `(tenant_id, aggregate_id_hash)`;
 - exports partition by tenant and job.
+
+An activity-only normalization run uses the `activity` lane. Any run also
+containing entity claims, relationships, coverage or reconciliation uses
+`inventory` and remains one atomic transaction. Replay/backfill uses `bulk`;
+health/gap and identity-command work use `control`. Lane choice is recomputed
+from admitted evidence and normalized outputs and is never copied from a
+producer field.
 
 Within an aggregate, the truth worker takes a transaction-scoped advisory lock derived from tenant plus aggregate UUID and rechecks current version. This protects concurrent claims that resolve to the same entity.
 

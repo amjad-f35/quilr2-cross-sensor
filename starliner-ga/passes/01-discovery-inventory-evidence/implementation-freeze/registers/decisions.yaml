@@ -585,3 +585,19 @@ decisions:
     area: external_security_authority
     decision: third-party findings severity risk policy posture and attack-path values remain versioned source-native claims until separately accepted Quilr intelligence policy and precedence authorities consume them
     status: frozen
+  - id: DIE-ACQUISITION-001
+    area: source_acquisition_framework
+    decision: owned sensors use adapter privacy gate and Starliner edge WAL while remote sources use webhook poller or CDC capture with a durable connector inbox cursor snapshot ledger and connector outbox; both converge only at authenticated admission immutable evidence normalization and central identity
+    status: frozen
+  - id: DIE-SCALING-001
+    area: workload_isolation_lanes
+    decision: control and inventory truth activity-only processing and bulk replay use separately budgeted partition-key lanes; lane classification is central mixed normalization bundles remain atomic in inventory and activity has no tenant-global or platform-global serialization lock
+    status: frozen
+  - id: DIE-RESOLVER-001
+    area: resolver_framework
+    decision: one central deterministic resolver framework dispatches through a versioned canonical-entity-type registry to type-specific resolver modules with exact keys negative constraints authority rules bounds digests and fixtures; missing modules never fall through to global fuzzy matching
+    status: frozen
+  - id: DIE-RELEASE-001
+    area: role_artifact_and_compatibility
+    decision: one repository and signed platform-release manifest bind independently built role image digests SBOMs provenance contract ranges and generated clients; roles can canary and rollback independently only within declared N/N-1 protocol work-contract and database-schema compatibility
+    status: frozen
