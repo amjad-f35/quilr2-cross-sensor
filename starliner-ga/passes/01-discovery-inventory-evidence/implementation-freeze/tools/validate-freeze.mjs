@@ -138,6 +138,7 @@ const required = [
   '32-pre-code-system-design-closure.md',
   '33-enterprise-connector-platform-direction.md',
   '34-agentic-engineering-execution-system.md',
+  '35-nuxt-shadcn-ui-engineering-constitution.md',
   'engineering-execution/README.md',
   'engineering-execution/templates/AGENTS.md',
   'engineering-execution/templates/WORK_STATE.md',
@@ -148,6 +149,7 @@ const required = [
   'engineering-execution/templates/WORK_ITEMS.csv.template',
   'engineering-execution/cursor/rules/00-die-authority.mdc',
   'engineering-execution/cursor/rules/10-die-development-loop.mdc',
+  'engineering-execution/cursor/rules/20-nuxt-shadcn-ui.mdc',
   'engineering-execution/cursor/skills/test-driven-development/SKILL.md',
   'engineering-execution/cursor/skills/remote-sha-validation/SKILL.md',
   'engineering-execution/SOURCE_CONTEXT_AND_REPOSITORY_MAP.md',
@@ -1136,6 +1138,18 @@ for (const fragment of [
 ]) {
   if (!engineeringExecution.includes(fragment))
     fail(`agentic engineering system omits durable-execution fragment: ${fragment}`)
+}
+const uiEngineering = requireFile('35-nuxt-shadcn-ui-engineering-constitution.md')
+for (const fragment of [
+  'Meaning of “native Nuxt/Vue/shadcn”',
+  'Product/domain components are required and permitted',
+  'a new wrapper design system over shadcn-vue',
+  'page or product component',
+  'UI-GATE-001..010',
+  'Preserve the 117-path dirty baseline',
+]) {
+  if (!uiEngineering.includes(fragment))
+    fail(`Nuxt/shadcn UI constitution omits frozen fragment: ${fragment}`)
 }
 
 const predicates = yaml.get(join(root, 'ontology/predicates.yaml'))

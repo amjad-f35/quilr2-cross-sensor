@@ -78,7 +78,10 @@ Exit: tenant/field/export/API contract and security suites pass.
 
 Replace fixtures through `DieRepository`; implement overview, inventories,
 detail, graph, activity/evidence and progressive disclosure using only frozen
-DTOs.
+DTOs. Continue the existing shell through native Nuxt/Vue composition and its
+checked-in shadcn-vue/Reka primitives, semantic tokens and typed variants under
+`35-nuxt-shadcn-ui-engineering-constitution.md`; do not introduce a parallel
+wrapper design system or alternate component framework.
 
 Exit: `LG004-*` and `UI-GATE-001..010` pass.
 

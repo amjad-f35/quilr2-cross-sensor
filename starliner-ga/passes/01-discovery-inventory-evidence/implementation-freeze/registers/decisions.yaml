@@ -341,6 +341,10 @@ decisions:
     area: ui
     decision: unknown gap and unsupported coverage cannot render as an empty authoritative result
     status: frozen
+  - id: DIE-UI-005
+    area: ui
+    decision: customer screens use native Nuxt and Vue composition plus the checked-in shadcn-vue and Reka primitives; product components may compose those primitives but a second generic wrapper design system alternate component framework and repeated arbitrary per-page visual policy are prohibited
+    status: frozen
   - id: DIE-OPS-001
     area: reliability
     decision: accepted evidence durability tenant isolation deterministic replay and stable semantics precede optimization

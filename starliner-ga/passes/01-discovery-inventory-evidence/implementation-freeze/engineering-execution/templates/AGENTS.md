@@ -28,6 +28,24 @@ otherwise.
 Migration, policy, findings/intelligence, cost/value and deployment-model
 portfolio are outside this pass.
 
+## Customer UI
+
+When this repository is `quilr-platform-nuxt`, also read the installed
+Nuxt/shadcn-vue UI constitution and UI Cursor rule. Continue the existing shell
+with native Vue SFCs, Nuxt pages/layouts/composables and the checked-in
+shadcn-vue/Reka primitives in `app/components/ui`.
+
+Product components compose those primitives. Do not create a second generic
+wrapper design system, clone existing Button/Dialog/Table/etc., add another
+component framework or embed a separate dashboard. Tailwind remains the
+shadcn-vue styling engine; put shared visual policy into semantic CSS
+variables, owned primitives and typed CVA variants instead of repeated
+arbitrary page classes.
+
+UI remote data flows only through typed query composables, `DieRepository` and
+the generated `/die/v1` client. UI code never joins sensors or invents
+canonical identity, relationships, authorization, coverage or evidence.
+
 ## Resume protocol
 
 At the beginning of every session, after compaction and before modifying code:

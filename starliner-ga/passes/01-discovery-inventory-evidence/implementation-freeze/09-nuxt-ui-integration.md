@@ -13,6 +13,15 @@ The existing application at `/Users/t4ctic4l/STAR-PLATFORM/quilr-platform-nuxt` 
 
 The shell and visual components are reusable. Fixture data, local canonical-ID construction, risk fields and persona-based access are not backend contracts.
 
+The implementation rules for extending that shell are frozen in
+[Nuxt and shadcn-vue UI engineering constitution](35-nuxt-shadcn-ui-engineering-constitution.md).
+The UI is built with native Nuxt/Vue composition and the checked-in
+shadcn-vue/Reka primitives. Product components may compose those primitives,
+but agents may not hide them behind a second generic wrapper design system,
+clone common primitives or scatter repeated arbitrary visual policy across
+pages. Tailwind remains the styling engine used by shadcn-vue; shared styling
+belongs in semantic CSS variables, owned primitive source and typed variants.
+
 The independent review inspected Git revision
 `8c745c88e56cb6fc88a022415a596b5d436a5264` on `main` with a dirty worktree and
 made no mutation there. `app/lib/api/readModels.js` explicitly calls itself a

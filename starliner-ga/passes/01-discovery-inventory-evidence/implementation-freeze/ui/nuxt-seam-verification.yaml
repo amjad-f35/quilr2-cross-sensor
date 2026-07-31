@@ -26,6 +26,13 @@ source_evidence:
     evidence:
       - "Nuxt 4, Vue 3, TypeScript and shadcn-vue dependencies are present"
       - "no generated DIE OpenAPI client or OpenAPI response validator dependency is present"
+  component_system:
+    path: app/components/ui
+    status: source_owned_shadcn_vue_reka
+    evidence:
+      - "components.json selects the shadcn-vue new-york style, CSS variables and the @/components/ui alias"
+      - "the repository owns editable Vue primitive source under app/components/ui"
+      - "Tailwind CSS, Reka UI, class-variance-authority, TanStack Vue Table, Unovis/Vue and Vue Flow are installed"
 
 readiness:
   shell_and_components: reusable
@@ -57,3 +64,16 @@ required_transition_gates:
     assertion: Verify field_redactions never reveal withheld values and dynamic attribute maps render only API-returned keys.
   - id: UI-GATE-010
     assertion: Run unit, typecheck, lint, component, accessibility and authenticated browser E2E gates against the generated client.
+
+implementation_constitution:
+  authority: 35-nuxt-shadcn-ui-engineering-constitution.md
+  required:
+    - native Nuxt pages layouts composables and Vue single-file components
+    - checked-in shadcn-vue and Reka primitives under app/components/ui
+    - semantic CSS variables and typed component variants
+    - product components that compose rather than clone common primitives
+  prohibited:
+    - second generic wrapper design system over shadcn-vue
+    - alternate component framework embedded dashboard or microfrontend
+    - repeated arbitrary per-page visual policy
+    - direct transport calls sensor joins or canonical truth derivation in UI code

@@ -87,5 +87,6 @@ The complete protocol is
 - [Branch hygiene and change control](BRANCH_HYGIENE_AND_CHANGE_CONTROL.md)
 - [Two-agent development and remote validation](TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md)
 - [Coding-agent launch prompt](CODING_AGENT_START_PROMPT.md)
+- [Nuxt/shadcn-vue Cursor rule](cursor/rules/20-nuxt-shadcn-ui.mdc)
 - [Jira import](jira/die-work-program-import.csv)
 - [Execution-kit validator](tools/validate-execution-kit.mjs)

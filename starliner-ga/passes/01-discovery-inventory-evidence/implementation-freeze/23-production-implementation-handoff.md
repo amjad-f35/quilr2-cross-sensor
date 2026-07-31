@@ -127,7 +127,12 @@ modified by this review.
 The shell and shadcn-vue components are reusable. Its fixture repository is not
 the production data layer. `ui/nuxt-seam-verification.yaml` is the exact
 transition checklist and `ui/screen-api-matrix.csv` is the screen/operation
-contract.
+contract. `35-nuxt-shadcn-ui-engineering-constitution.md` is the UI
+implementation authority: extend the shell through native Nuxt/Vue SFCs and
+the checked-in shadcn-vue/Reka primitives, shared semantic tokens and typed
+variants. Product components may compose primitives; a second wrapper design
+system, cloned common primitives, alternate UI framework and arbitrary
+per-page utility policy are prohibited.
 
 ## Readiness at handoff
 

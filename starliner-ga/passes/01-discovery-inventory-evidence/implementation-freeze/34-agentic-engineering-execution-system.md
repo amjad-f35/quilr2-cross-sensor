@@ -49,6 +49,7 @@ checked-in repository-root files are:
 AGENTS.md
 .cursor/rules/00-die-authority.mdc
 .cursor/rules/10-die-development-loop.mdc
+.cursor/rules/20-nuxt-shadcn-ui.mdc
 .cursor/skills/test-driven-development/SKILL.md
 .cursor/skills/remote-sha-validation/SKILL.md
 docs/engineering/WORK_STATE.md
@@ -68,3 +69,9 @@ policy, findings/intelligence, deployment-model portfolio and unrelated legacy
 cleanup remain outside the pass. Repository hygiene may disposition old work,
 but must not silently delete unique commits or turn legacy code into target
 authority.
+
+For the customer UI repository, the installed instructions additionally bind
+[the Nuxt/shadcn-vue constitution](35-nuxt-shadcn-ui-engineering-constitution.md).
+This prevents a long-running agent from replacing the existing source-owned
+component system, creating browser-side product truth or losing the UI/data
+boundary after context compaction.

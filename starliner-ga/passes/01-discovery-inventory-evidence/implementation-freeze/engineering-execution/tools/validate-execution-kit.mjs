@@ -94,6 +94,8 @@ requireFragments('templates/AGENTS.md', [
   'One branch is one work item',
   'remote validation agent fetches an exact pushed SHA',
   'Raise a focused ADR',
+  'native Vue SFCs',
+  'clone existing Button/Dialog/Table',
 ])
 requireFragments('templates/WORK_STATE.md', [
   'Architecture authority commit',
@@ -132,9 +134,13 @@ requireFragments('BRANCH_AND_PR_BASELINE.md', [
   'No GitHub refs were modified',
 ])
 requireFragments('CODING_AGENT_START_PROMPT.md', [
-  'complete bounded Discovery',
-  'Work from fresh current repository checkouts',
-  'Continue through the complete E2E',
+  'complete bounded',
+  'Work only from fresh/current Git checkouts',
+  'complete selected-source system end to end',
+  'First action: establish an executable program',
+  'Do not return merely with another plan',
+  'UI implementation law',
+  '/Users/t4ctic4l/STAR-PLATFORM/quilr-platform-nuxt',
 ])
 requireFragments('cursor/rules/00-die-authority.mdc', [
   'alwaysApply: true',
@@ -143,6 +149,12 @@ requireFragments('cursor/rules/00-die-authority.mdc', [
 requireFragments('cursor/rules/10-die-development-loop.mdc', [
   'alwaysApply: true',
   'One branch represents one stable work item',
+])
+requireFragments('cursor/rules/20-nuxt-shadcn-ui.mdc', [
+  'alwaysApply: false',
+  'native Nuxt/Vue SFCs',
+  'second generic',
+  'generated `/die/v1` client',
 ])
 requireFragments('cursor/skills/test-driven-development/SKILL.md', [
   'name: test-driven-development',
@@ -233,5 +245,5 @@ if (errors.length) {
 console.log(
   `DIE engineering execution kit validation passed: `
   + `${jiraIds.size} Jira items; ${ledgerHeaders.size} ledger contracts; `
-  + `${branchKeys.size} branch/PR dispositions; 2 Cursor rules; 2 Cursor skills.`,
+  + `${branchKeys.size} branch/PR dispositions; 3 Cursor rules; 2 Cursor skills.`,
 )

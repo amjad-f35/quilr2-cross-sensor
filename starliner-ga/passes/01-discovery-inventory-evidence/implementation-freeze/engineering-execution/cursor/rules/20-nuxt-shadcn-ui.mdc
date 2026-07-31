@@ -1,0 +1,28 @@
+---
+description: Apply the frozen native Nuxt Vue shadcn-vue UI architecture
+globs:
+  - "app/**/*.vue"
+  - "app/**/*.ts"
+  - "app/**/*.css"
+  - "nuxt.config.ts"
+  - "components.json"
+alwaysApply: false
+---
+
+- Read the installed UI constitution before planning or changing UI code.
+- Build with native Nuxt/Vue SFCs and the checked-in shadcn-vue/Reka
+  primitives under `app/components/ui`.
+- Product components compose primitives; do not create a second generic
+  wrapper design system or clone existing primitives.
+- Tailwind is part of shadcn-vue. Use semantic tokens, existing primitive
+  styles and typed CVA variants; avoid repeated arbitrary utility class policy.
+- Route remote data through typed composables, `DieRepository` and the
+  generated `/die/v1` client. Never hand-edit generated DTOs.
+- Preserve unknown, partial, unsupported, stale, unauthorized and redacted
+  states exactly.
+- Do not join sensors, infer canonical identity or calculate product truth in
+  the browser.
+- Use TanStack Vue Table, Unovis/Vue and Vue Flow only for their frozen,
+  bounded roles and provide accessible alternatives.
+- Run component, contract, accessibility, authorization-state, typecheck,
+  lint, production-build and fixture-reachability gates as applicable.

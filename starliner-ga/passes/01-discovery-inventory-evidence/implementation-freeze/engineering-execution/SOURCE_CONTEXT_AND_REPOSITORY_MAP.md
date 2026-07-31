@@ -43,7 +43,7 @@ semantic authority.
 | Endpoint sensor | [quilrbusiness/sentinel-endpoint-agent](https://github.com/quilrbusiness/sentinel-endpoint-agent) | `a022e52bf2fff6a9445ebad96c3afeaf277e259f` | Add adapter and Starliner WAL at frozen seams; retain local enforcement/state, no central truth |
 | LLM Gateway producer | [quilrbusiness/macrodata-refinement](https://github.com/quilrbusiness/macrodata-refinement) | `dev_main@92b0462c583b908f8ce0cadd1bc89d2e702f5a7d` | Current product code is authority for native capture; old open Starliner PRs are prototypes requiring disposition |
 | MCP Gateway producer | [quilrbusiness/quilr-llm-gateway](https://github.com/quilrbusiness/quilr-llm-gateway) | `add_gateway@99f759d75aa8260f97db6904433c941647a755e5` | Existing merged MCP adapter/observe code is retain/refactor evidence, not target contract authority |
-| Customer UI | [amjad-f35/quilr-platform-nuxt](https://github.com/amjad-f35/quilr-platform-nuxt) | local `main@8c745c88e56cb6fc88a022415a596b5d436a5264` plus uncommitted UI work | Checkpoint and clean before implementation; retain shell/shadcn, replace fixture repository through generated DIE client |
+| Customer UI | [amjad-f35/quilr-platform-nuxt](https://github.com/amjad-f35/quilr-platform-nuxt) | local `main@8c745c88e56cb6fc88a022415a596b5d436a5264` plus 117 dirty paths | Checkpoint and clean before implementation; retain native Nuxt/Vue and source-owned shadcn-vue/Reka system under `35-nuxt-shadcn-ui-engineering-constitution.md`; replace fixture repository through generated DIE client |
 
 Sensor placement and emitted profile kinds are frozen in
 `implementation-freeze/14-sensor-adapter-bindings.md`. Field-level truth is in
