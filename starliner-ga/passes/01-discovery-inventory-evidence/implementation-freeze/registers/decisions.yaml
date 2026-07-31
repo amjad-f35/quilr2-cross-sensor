@@ -75,7 +75,7 @@ decisions:
     status: frozen
   - id: DIE-DATA-002
     area: storage
-    decision: S3-compatible object storage is authority for immutable admitted evidence bytes and export objects
+    decision: a deployment-certified EvidenceObjectStoreV1 adapter is authority for immutable admitted evidence bytes and export objects; AWS S3 Versioning plus Object Lock is the reference conformance profile and provider-shaped API compatibility alone is insufficient
     status: frozen
   - id: DIE-DATA-003
     area: storage
@@ -91,7 +91,7 @@ decisions:
     status: frozen
   - id: DIE-DATA-006
     area: storage
-    decision: content addressing deduplicates immutable object bytes but never collapses distinct evidence identities
+    decision: evidence-scoped content addressing provides integrity and retry idempotency but never performs cross-record byte deduplication or collapses distinct evidence identities
     status: frozen
   - id: DIE-DATA-007
     area: storage
@@ -560,4 +560,12 @@ decisions:
   - id: DIE-STORAGE-014
     area: count_widths
     decision: source-declared snapshot and product aggregate counts use JavaScript-safe bounded bigint while intentionally small protocol counters and ordinals use integer only with exact physical caps
+    status: frozen
+  - id: DIE-EVIDENCE-010
+    area: erasure_linearization
+    decision: sealed-to-executing is the irreversible database commit before external erasure; execution disposition appends and receipts share one transaction-scoped evidence lifecycle lock so a pre-execution hold wins and a post-execution hold is rejected as too late
+    status: frozen
+  - id: DIE-EVIDENCE-011
+    area: evidence_object_identity
+    decision: every evidence identity owns exactly one tenant-unique evidence-scoped object key containing its evidence ID and content digest; two evidence identities never share physical bytes
     status: frozen

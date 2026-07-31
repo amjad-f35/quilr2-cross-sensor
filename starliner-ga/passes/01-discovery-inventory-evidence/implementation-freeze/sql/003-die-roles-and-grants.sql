@@ -33,6 +33,9 @@ REVOKE ALL ON ALL TABLES IN SCHEMA die_control, die_evidence, die_pipeline,
   FROM PUBLIC;
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA die_pipeline, die_outbox FROM PUBLIC;
 REVOKE ALL ON FUNCTION die_authz.current_tenant_id() FROM PUBLIC;
+REVOKE ALL ON FUNCTION die_authz.jsonb_object_key_count(jsonb) FROM PUBLIC;
+REVOKE ALL ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
+  FROM PUBLIC;
 
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_outbox,
   die_authz, die_audit
@@ -202,7 +205,8 @@ GRANT SELECT, INSERT ON die_pipeline.stage_execution TO die_maintenance;
 GRANT INSERT ON die_evidence.evidence_disposition TO die_maintenance;
 GRANT INSERT ON die_evidence.erasure_plan, die_evidence.erasure_target,
   die_evidence.erasure_receipt TO die_maintenance;
-GRANT UPDATE (state, sealed_at) ON die_evidence.erasure_plan
+GRANT UPDATE (state, sealed_at, execution_id, execution_started_at)
+  ON die_evidence.erasure_plan
   TO die_maintenance;
 GRANT INSERT ON die_outbox.canonical_change TO die_maintenance;
 GRANT INSERT ON die_read.export_job TO die_maintenance;
@@ -226,6 +230,12 @@ ALTER ROLE die_control_admin NOBYPASSRLS;
 ALTER ROLE die_authz_admin NOBYPASSRLS;
 
 GRANT EXECUTE ON FUNCTION die_authz.current_tenant_id()
+  TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
+     die_maintenance, die_control_admin, die_authz_admin;
+GRANT EXECUTE ON FUNCTION die_authz.jsonb_object_key_count(jsonb)
+  TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
+     die_maintenance, die_control_admin, die_authz_admin;
+GRANT EXECUTE ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
      die_maintenance, die_control_admin, die_authz_admin;
 

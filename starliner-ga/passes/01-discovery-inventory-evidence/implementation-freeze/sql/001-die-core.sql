@@ -14,6 +14,20 @@ CREATE SCHEMA IF NOT EXISTS die_read;
 CREATE SCHEMA IF NOT EXISTS die_authz;
 CREATE SCHEMA IF NOT EXISTS die_audit;
 
+-- PostgreSQL provides jsonb_array_length but no jsonb_object_length. Keep the
+-- bounded-object invariant in SQL with one immutable, data-independent helper.
+CREATE OR REPLACE FUNCTION die_authz.jsonb_object_key_count(value jsonb)
+RETURNS integer
+LANGUAGE sql
+IMMUTABLE
+STRICT
+PARALLEL SAFE
+SET search_path = pg_catalog
+AS $$
+  SELECT count(*)::integer
+  FROM jsonb_object_keys(value)
+$$;
+
 CREATE OR REPLACE FUNCTION die_authz.current_tenant_id()
 RETURNS text
 LANGUAGE sql
@@ -259,7 +273,11 @@ CREATE TABLE IF NOT EXISTS die_evidence.producer_sequence (
   UNIQUE (tenant_id, evidence_id),
   UNIQUE (tenant_id, producer_id, producer_epoch, sequence_no, record_id, evidence_id, content_sha256),
   FOREIGN KEY (tenant_id, producer_id)
-    REFERENCES die_control.producer(tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id),
+  CHECK (
+    record_id::text ~
+      '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+  )
 );
 
 CREATE TABLE IF NOT EXISTS die_evidence.evidence_record (
@@ -301,6 +319,7 @@ CREATE TABLE IF NOT EXISTS die_evidence.evidence_record (
   PRIMARY KEY (tenant_id, evidence_id),
   UNIQUE (tenant_id, evidence_id, producer_id),
   UNIQUE (tenant_id, evidence_id, producer_id, source_profile, profile_version),
+  UNIQUE (tenant_id, object_key),
   FOREIGN KEY (tenant_id, producer_id, producer_epoch, sequence_no, record_id, evidence_id, content_sha256)
     REFERENCES die_evidence.producer_sequence(tenant_id, producer_id, producer_epoch, sequence_no, record_id, evidence_id, content_sha256),
   FOREIGN KEY (tenant_id, producer_id, installation_id, source_profile)
@@ -341,18 +360,38 @@ CREATE TABLE IF NOT EXISTS die_evidence.erasure_plan (
     CHECK (target_manifest_digest ~ '^sha256:[0-9a-f]{64}$'),
   planner_artifact_digest text NOT NULL
     CHECK (planner_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
-  state text NOT NULL CHECK (state IN ('building','sealed')),
+  state text NOT NULL CHECK (state IN ('building','sealed','executing')),
   created_at timestamptz NOT NULL,
   sealed_at timestamptz,
+  execution_id uuid,
+  execution_started_at timestamptz,
   PRIMARY KEY (tenant_id, erasure_plan_id),
   UNIQUE (tenant_id, evidence_id, source_disposition_revision),
+  UNIQUE (tenant_id, execution_id),
   FOREIGN KEY (tenant_id, evidence_id, source_disposition_revision)
     REFERENCES die_evidence.evidence_disposition(tenant_id, evidence_id, revision),
   CHECK (
-    (state = 'building' AND sealed_at IS NULL)
-    OR (state = 'sealed' AND sealed_at IS NOT NULL)
+    (
+      state = 'building'
+      AND sealed_at IS NULL
+      AND execution_id IS NULL
+      AND execution_started_at IS NULL
+    )
+    OR (
+      state = 'sealed'
+      AND sealed_at IS NOT NULL
+      AND execution_id IS NULL
+      AND execution_started_at IS NULL
+    )
+    OR (
+      state = 'executing'
+      AND sealed_at IS NOT NULL
+      AND execution_id IS NOT NULL
+      AND execution_started_at IS NOT NULL
+    )
   ),
-  CHECK (sealed_at IS NULL OR sealed_at >= created_at)
+  CHECK (sealed_at IS NULL OR sealed_at >= created_at),
+  CHECK (execution_started_at IS NULL OR execution_started_at >= sealed_at)
 );
 
 CREATE TABLE IF NOT EXISTS die_evidence.erasure_target (
@@ -1835,7 +1874,7 @@ CREATE TABLE IF NOT EXISTS die_outbox.canonical_change (
     OR causation_evidence_id IS NOT NULL
   ),
   CHECK (jsonb_typeof(payload) = 'object'),
-  CHECK (jsonb_object_length(payload) <= 32),
+  CHECK (die_authz.jsonb_object_key_count(payload) <= 32),
   CHECK (pg_column_size(payload) <= 65536)
 );
 
@@ -2342,6 +2381,7 @@ CREATE TABLE IF NOT EXISTS die_audit.audit_event (
   authorization_revision bigint CHECK (authorization_revision IS NULL OR authorization_revision BETWEEN 1 AND 9007199254740991),
   safe_details jsonb NOT NULL DEFAULT '{}'::jsonb,
   previous_hash text,
+  hash_format text NOT NULL DEFAULT 'die.audit.pg-jsonb-utc.v1',
   event_hash text NOT NULL,
   PRIMARY KEY (tenant_id, audit_id),
   UNIQUE (tenant_id, audit_shard, audit_sequence),
@@ -2352,6 +2392,7 @@ CREATE TABLE IF NOT EXISTS die_audit.audit_event (
   CHECK (jsonb_typeof(safe_details) = 'object'),
   CHECK (pg_column_size(safe_details) <= 32768),
   CHECK (previous_hash IS NULL OR previous_hash ~ '^sha256:[0-9a-f]{64}$'),
+  CHECK (hash_format = 'die.audit.pg-jsonb-utc.v1'),
   CHECK (event_hash ~ '^sha256:[0-9a-f]{64}$')
 );
 
@@ -2397,8 +2438,6 @@ CREATE INDEX IF NOT EXISTS idx_expected_population_scope
   ON die_control.expected_population_version(tenant_id, business_scope_id, environment, lifecycle, population_id, revision DESC);
 CREATE INDEX IF NOT EXISTS idx_evidence_received
   ON die_evidence.evidence_record(tenant_id, received_at DESC, evidence_id);
-CREATE INDEX IF NOT EXISTS idx_evidence_object
-  ON die_evidence.evidence_record(tenant_id, object_key, evidence_id);
 CREATE INDEX IF NOT EXISTS idx_evidence_source_object
   ON die_evidence.evidence_record(tenant_id, producer_id, source_profile, source_namespace, source_object_type, source_object_id, observed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_evidence_correlation
@@ -2862,12 +2901,29 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1
     FROM die_control.expected_population population
+    JOIN die_control.expected_population_version committed_version
+      ON committed_version.tenant_id = population.tenant_id
+     AND committed_version.population_id = population.population_id
+     AND committed_version.revision = NEW.revision
     WHERE population.tenant_id = NEW.tenant_id
       AND population.population_id = NEW.population_id
-      AND population.current_revision = NEW.revision
-      AND population.lifecycle = NEW.lifecycle
+      AND population.current_revision >= NEW.revision
+      AND committed_version.lifecycle = NEW.lifecycle
+      AND (
+        (
+          population.current_revision = NEW.revision
+          AND population.lifecycle = committed_version.lifecycle
+          AND committed_version.system_to IS NULL
+        )
+        OR
+        (
+          population.current_revision > NEW.revision
+          AND committed_version.system_to IS NOT NULL
+          AND committed_version.valid_to IS NOT NULL
+        )
+      )
   ) THEN
-    RAISE EXCEPTION 'expected population version is not the matching committed head';
+    RAISE EXCEPTION 'expected population version is neither the current head nor committed closed history';
   END IF;
   RETURN NULL;
 END;
@@ -2964,9 +3020,15 @@ DECLARE
   actual_target_count bigint;
   actual_object_target_count bigint;
   actual_manifest_digest text;
+  latest_disposition_revision bigint;
+  latest_disposition_state text;
+  latest_legal_hold boolean;
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    IF NEW.state <> 'building' OR NEW.sealed_at IS NOT NULL THEN
+    IF NEW.state <> 'building'
+      OR NEW.sealed_at IS NOT NULL
+      OR NEW.execution_id IS NOT NULL
+      OR NEW.execution_started_at IS NOT NULL THEN
       RAISE EXCEPTION 'evidence erasure plan must start building and unsealed';
     END IF;
     IF NOT EXISTS (
@@ -2985,42 +3047,78 @@ BEGIN
   IF TG_OP = 'DELETE' THEN
     RAISE EXCEPTION 'evidence erasure plans cannot be deleted';
   END IF;
-  IF (to_jsonb(OLD) - ARRAY['state','sealed_at'])
-    IS DISTINCT FROM
-     (to_jsonb(NEW) - ARRAY['state','sealed_at'])
-    OR OLD.state <> 'building'
-    OR NEW.state <> 'sealed'
-    OR NEW.sealed_at IS NULL THEN
-    RAISE EXCEPTION 'evidence erasure plan may only transition once from building to sealed';
+
+  IF OLD.state = 'building' AND NEW.state = 'sealed' THEN
+    IF (to_jsonb(OLD) - ARRAY['state','sealed_at'])
+      IS DISTINCT FROM
+       (to_jsonb(NEW) - ARRAY['state','sealed_at'])
+      OR NEW.sealed_at IS NULL THEN
+      RAISE EXCEPTION 'erasure plan seal may change only state and sealed_at';
+    END IF;
+
+    SELECT count(*),
+           count(*) FILTER (WHERE target_kind = 'object_bytes'),
+           'sha256:' || encode(
+             digest(
+               string_agg(
+                 int4send(target_ordinal)
+                   || int8send(octet_length(target_kind)::bigint)
+                   || convert_to(target_kind, 'UTF8')
+                   || int8send(octet_length(target_locator_digest)::bigint)
+                   || convert_to(target_locator_digest, 'UTF8'),
+                 ''::bytea
+                 ORDER BY target_ordinal
+               ),
+               'sha256'
+             ),
+             'hex'
+           )
+      INTO actual_target_count, actual_object_target_count, actual_manifest_digest
+      FROM die_evidence.erasure_target
+      WHERE tenant_id = NEW.tenant_id
+        AND erasure_plan_id = NEW.erasure_plan_id;
+    IF actual_target_count <> NEW.target_count
+      OR actual_object_target_count <> 1
+      OR actual_manifest_digest IS DISTINCT FROM NEW.target_manifest_digest THEN
+      RAISE EXCEPTION 'evidence erasure target manifest is incomplete or has a digest mismatch';
+    END IF;
+    RETURN NEW;
   END IF;
 
-  SELECT count(*),
-         count(*) FILTER (WHERE target_kind = 'object_bytes'),
-         'sha256:' || encode(
-           digest(
-             string_agg(
-               int4send(target_ordinal)
-                 || int8send(octet_length(target_kind)::bigint)
-                 || convert_to(target_kind, 'UTF8')
-                 || int8send(octet_length(target_locator_digest)::bigint)
-                 || convert_to(target_locator_digest, 'UTF8'),
-               ''::bytea
-               ORDER BY target_ordinal
-             ),
-             'sha256'
-           ),
-           'hex'
-         )
-    INTO actual_target_count, actual_object_target_count, actual_manifest_digest
-    FROM die_evidence.erasure_target
-    WHERE tenant_id = NEW.tenant_id
-      AND erasure_plan_id = NEW.erasure_plan_id;
-  IF actual_target_count <> NEW.target_count
-    OR actual_object_target_count < 1
-    OR actual_manifest_digest IS DISTINCT FROM NEW.target_manifest_digest THEN
-    RAISE EXCEPTION 'evidence erasure target manifest is incomplete or has a digest mismatch';
+  IF OLD.state = 'sealed' AND NEW.state = 'executing' THEN
+    IF (to_jsonb(OLD) - ARRAY['state','execution_id','execution_started_at'])
+      IS DISTINCT FROM
+       (to_jsonb(NEW) - ARRAY['state','execution_id','execution_started_at'])
+      OR NEW.execution_id IS NULL
+      OR NEW.execution_started_at IS NULL THEN
+      RAISE EXCEPTION 'erasure execution commit may change only state, execution ID and start time';
+    END IF;
+    PERFORM pg_advisory_xact_lock(
+      hashtextextended(
+        NEW.tenant_id || E'\x1f' || NEW.evidence_id::text,
+        0
+      )
+    );
+    SELECT disposition.revision, disposition.state, disposition.legal_hold
+      INTO STRICT latest_disposition_revision, latest_disposition_state,
+        latest_legal_hold
+      FROM die_evidence.evidence_disposition disposition
+      WHERE disposition.tenant_id = NEW.tenant_id
+        AND disposition.evidence_id = NEW.evidence_id
+      ORDER BY disposition.revision DESC
+      LIMIT 1;
+    IF latest_disposition_revision <> NEW.source_disposition_revision
+      OR latest_disposition_state <> 'deletion_pending'
+      OR latest_legal_hold THEN
+      RAISE EXCEPTION 'erasure execution requires the exact latest unheld deletion-pending revision';
+    END IF;
+    RETURN NEW;
   END IF;
-  RETURN NEW;
+
+  RAISE EXCEPTION 'invalid erasure plan transition % to %', OLD.state, NEW.state;
+EXCEPTION
+  WHEN no_data_found THEN
+    RAISE EXCEPTION 'erasure execution requires a current evidence disposition';
 END;
 $$;
 
@@ -3061,6 +3159,17 @@ BEGIN
   IF TG_OP <> 'INSERT' THEN
     RAISE EXCEPTION 'evidence erasure receipts are immutable';
   END IF;
+  SELECT plan.evidence_id
+    INTO STRICT plan_evidence_id
+    FROM die_evidence.erasure_plan plan
+    WHERE plan.tenant_id = NEW.tenant_id
+      AND plan.erasure_plan_id = NEW.erasure_plan_id;
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended(
+      NEW.tenant_id || E'\x1f' || plan_evidence_id::text,
+      0
+    )
+  );
   SELECT plan.created_at, plan.evidence_id, plan.source_disposition_revision,
          target.target_kind
     INTO STRICT plan_created_at, plan_evidence_id, plan_source_revision,
@@ -3071,7 +3180,7 @@ BEGIN
      AND target.erasure_plan_id = plan.erasure_plan_id
     WHERE plan.tenant_id = NEW.tenant_id
       AND plan.erasure_plan_id = NEW.erasure_plan_id
-      AND plan.state = 'sealed'
+      AND plan.state = 'executing'
       AND target.target_id = NEW.target_id
     FOR SHARE OF plan;
   IF NEW.completed_at < plan_created_at THEN
@@ -3084,8 +3193,7 @@ BEGIN
     WHERE disposition.tenant_id = NEW.tenant_id
       AND disposition.evidence_id = plan_evidence_id
     ORDER BY disposition.revision DESC
-    LIMIT 1
-    FOR UPDATE;
+    LIMIT 1;
   IF latest_legal_hold
     OR (
       selected_target_kind = 'object_bytes'
@@ -3106,7 +3214,7 @@ BEGIN
   RETURN NEW;
 EXCEPTION
   WHEN no_data_found THEN
-    RAISE EXCEPTION 'evidence erasure receipt requires an exact target in a sealed plan';
+    RAISE EXCEPTION 'evidence erasure receipt requires an exact target in an executing plan';
 END;
 $$;
 
@@ -3129,7 +3237,7 @@ BEGIN
     WHERE tenant_id = requested_tenant_id
       AND evidence_id = requested_evidence_id
       AND source_disposition_revision = requested_source_revision
-      AND state = 'sealed'
+      AND state = 'executing'
     FOR SHARE;
 
   SELECT count(*)
@@ -3150,7 +3258,7 @@ BEGIN
   END IF;
 EXCEPTION
   WHEN no_data_found THEN
-    RAISE EXCEPTION 'sealed evidence erasure plan is missing for the deletion-pending revision';
+    RAISE EXCEPTION 'executing evidence erasure plan is missing for the deletion-pending revision';
 END;
 $$;
 
@@ -3161,14 +3269,19 @@ AS $$
 DECLARE
   prior die_evidence.evidence_disposition%ROWTYPE;
 BEGIN
+  PERFORM pg_advisory_xact_lock(
+    hashtextextended(
+      NEW.tenant_id || E'\x1f' || NEW.evidence_id::text,
+      0
+    )
+  );
   SELECT *
     INTO prior
     FROM die_evidence.evidence_disposition
     WHERE tenant_id = NEW.tenant_id
       AND evidence_id = NEW.evidence_id
     ORDER BY revision DESC
-    LIMIT 1
-    FOR UPDATE;
+    LIMIT 1;
 
   IF NOT FOUND THEN
     IF NEW.revision <> 1
@@ -3204,6 +3317,18 @@ BEGIN
     OR (prior.state = 'object_deleted' AND NEW.state = 'deleted')
   ) THEN
     RAISE EXCEPTION 'invalid evidence disposition transition % to %', prior.state, NEW.state;
+  END IF;
+  IF prior.state = 'deletion_pending'
+    AND NEW.state IN ('held','tombstoned')
+    AND EXISTS (
+      SELECT 1
+      FROM die_evidence.erasure_plan plan
+      WHERE plan.tenant_id = NEW.tenant_id
+        AND plan.evidence_id = NEW.evidence_id
+        AND plan.source_disposition_revision = prior.revision
+        AND plan.state = 'executing'
+    ) THEN
+    RAISE EXCEPTION 'legal hold or deletion cancellation is too late after erasure execution commit';
   END IF;
   IF (NEW.state = 'held') IS DISTINCT FROM NEW.legal_hold THEN
     RAISE EXCEPTION 'held state and legal_hold must agree';
@@ -3513,26 +3638,34 @@ DECLARE
   immutable_new jsonb;
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    IF TG_TABLE_NAME = 'mutation_preview'
-      AND (NEW.status <> 'active' OR NEW.consumed_at IS NOT NULL OR NEW.consumed_by IS NOT NULL) THEN
-      RAISE EXCEPTION 'mutation previews must be created active and unconsumed';
-    ELSIF TG_TABLE_NAME = 'api_idempotency'
-      AND (NEW.state <> 'in_progress' OR NEW.response_status IS NOT NULL
+    -- Keep table selection in an outer PL/pgSQL branch. A single boolean
+    -- expression such as TG_TABLE_NAME = 'x' AND NEW.x_only_column ... still
+    -- attempts to bind x_only_column against rows from other trigger tables.
+    IF TG_TABLE_NAME = 'mutation_preview' THEN
+      IF NEW.status <> 'active' OR NEW.consumed_at IS NOT NULL OR NEW.consumed_by IS NOT NULL THEN
+        RAISE EXCEPTION 'mutation previews must be created active and unconsumed';
+      END IF;
+    ELSIF TG_TABLE_NAME = 'api_idempotency' THEN
+      IF NEW.state <> 'in_progress' OR NEW.response_status IS NOT NULL
         OR NEW.response_json IS NOT NULL OR NEW.resource_id IS NOT NULL
-        OR NEW.completed_at IS NOT NULL) THEN
-      RAISE EXCEPTION 'idempotency records must be created in progress without a response';
-    ELSIF TG_TABLE_NAME = 'evidence_access_grant'
-      AND (NEW.state <> 'active' OR NEW.consumed_at IS NOT NULL) THEN
-      RAISE EXCEPTION 'evidence access grants must be created active and unconsumed';
-    ELSIF TG_TABLE_NAME = 'identity_command'
-      AND (NEW.status <> 'queued' OR NEW.result_json IS NOT NULL
-        OR NEW.reason_code IS NOT NULL OR NEW.completed_at IS NOT NULL) THEN
-      RAISE EXCEPTION 'identity commands must be created queued without a result';
-    ELSIF TG_TABLE_NAME = 'export_job'
-      AND (NEW.status <> 'queued' OR NEW.object_key IS NOT NULL
+        OR NEW.completed_at IS NOT NULL THEN
+        RAISE EXCEPTION 'idempotency records must be created in progress without a response';
+      END IF;
+    ELSIF TG_TABLE_NAME = 'evidence_access_grant' THEN
+      IF NEW.state <> 'active' OR NEW.consumed_at IS NOT NULL THEN
+        RAISE EXCEPTION 'evidence access grants must be created active and unconsumed';
+      END IF;
+    ELSIF TG_TABLE_NAME = 'identity_command' THEN
+      IF NEW.status <> 'queued' OR NEW.result_json IS NOT NULL
+        OR NEW.reason_code IS NOT NULL OR NEW.completed_at IS NOT NULL THEN
+        RAISE EXCEPTION 'identity commands must be created queued without a result';
+      END IF;
+    ELSIF TG_TABLE_NAME = 'export_job' THEN
+      IF NEW.status <> 'queued' OR NEW.object_key IS NOT NULL
         OR NEW.file_sha256 IS NOT NULL OR NEW.expires_at IS NOT NULL
-        OR NEW.completed_at IS NOT NULL) THEN
-      RAISE EXCEPTION 'export jobs must be created queued without output metadata';
+        OR NEW.completed_at IS NOT NULL THEN
+        RAISE EXCEPTION 'export jobs must be created queued without output metadata';
+      END IF;
     END IF;
     IF TG_TABLE_NAME = 'export_job' THEN
       PERFORM 1
@@ -3822,12 +3955,12 @@ BEGIN
     IF NEW.status = 'quarantined' AND OLD.attempt_count < OLD.max_attempts THEN
       RAISE EXCEPTION 'an expired lease with attempts remaining must be retried';
     END IF;
-    IF NEW.last_error_code IS DISTINCT FROM
+    IF NEW.last_error_code IS DISTINCT FROM (
       CASE NEW.status
         WHEN 'retry' THEN 'lease_expired'
         ELSE 'lease_expired_attempts_exhausted'
       END
-      OR NEW.last_error_at IS NULL THEN
+    ) OR NEW.last_error_at IS NULL THEN
       RAISE EXCEPTION 'expired lease recovery requires the exact safe error code and time';
     END IF;
   ELSIF NOT die_pipeline.runtime_stage_allowed(NEW.stage, 'handle') THEN
@@ -4701,6 +4834,53 @@ BEGIN
 END;
 $$;
 
+-- The hash format is explicit and session-independent. In particular,
+-- timestamptz-to-JSON output otherwise changes with the connection TimeZone,
+-- which would make later verification disagree with insertion.
+CREATE OR REPLACE FUNCTION die_audit.compute_audit_event_hash(
+  audit_row die_audit.audit_event
+)
+RETURNS text
+LANGUAGE sql
+STABLE
+SET search_path = pg_catalog
+AS $$
+  SELECT 'sha256:' || encode(
+    public.digest(
+      convert_to(
+        jsonb_build_object(
+          'hash_format', audit_row.hash_format,
+          'tenant_id', audit_row.tenant_id,
+          'audit_id', audit_row.audit_id::text,
+          'audit_shard', audit_row.audit_shard,
+          'audit_sequence', audit_row.audit_sequence,
+          'occurred_at_utc',
+            to_char(
+              audit_row.occurred_at AT TIME ZONE 'UTC',
+              'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'
+            ),
+          'actor_type', audit_row.actor_type,
+          'actor_id', audit_row.actor_id,
+          'actor_session_id', audit_row.actor_session_id,
+          'action', audit_row.action,
+          'resource_type', audit_row.resource_type,
+          'resource_id', audit_row.resource_id,
+          'business_scope_id', audit_row.business_scope_id::text,
+          'outcome', audit_row.outcome,
+          'reason_code', audit_row.reason_code,
+          'request_id', audit_row.request_id,
+          'authorization_revision', audit_row.authorization_revision,
+          'safe_details', audit_row.safe_details,
+          'previous_hash', audit_row.previous_hash
+        )::text,
+        'UTF8'
+      ),
+      'sha256'
+    ),
+    'hex'
+  )
+$$;
+
 CREATE OR REPLACE FUNCTION die_audit.enforce_audit_event_insert()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -4720,13 +4900,10 @@ BEGIN
     OR NEW.previous_hash IS DISTINCT FROM head_hash THEN
     RAISE EXCEPTION 'audit event does not append to the locked shard head';
   END IF;
-  computed_hash := 'sha256:' || encode(
-    digest(
-      convert_to((to_jsonb(NEW) - 'event_hash')::text, 'UTF8'),
-      'sha256'
-    ),
-    'hex'
-  );
+  IF NEW.hash_format <> 'die.audit.pg-jsonb-utc.v1' THEN
+    RAISE EXCEPTION 'unsupported audit hash format';
+  END IF;
+  computed_hash := die_audit.compute_audit_event_hash(NEW);
   NEW.event_hash := computed_hash;
   RETURN NEW;
 EXCEPTION

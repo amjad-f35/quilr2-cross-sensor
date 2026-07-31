@@ -1,3 +1,6 @@
+SET async_insert = 0;
+SET wait_for_async_insert = 1;
+
 INSERT INTO die.activity_versions_v1
 (
   tenant_id, activity_id, canonical_version, occurred_at, ingested_at, family,

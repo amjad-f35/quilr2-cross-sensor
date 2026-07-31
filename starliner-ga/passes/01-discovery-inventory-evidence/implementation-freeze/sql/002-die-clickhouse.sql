@@ -1,3 +1,10 @@
+-- ClickHouse 26.3 LTS enables asynchronous inserts by default. The initial
+-- projector and conformance profile use explicit synchronous batched inserts;
+-- enabling async insertion later requires its own deduplication/MV/failure
+-- certification and cannot silently change acknowledgement semantics.
+SET async_insert = 0;
+SET wait_for_async_insert = 1;
+
 CREATE DATABASE IF NOT EXISTS die;
 
 CREATE TABLE IF NOT EXISTS die.activity_versions_v1
@@ -209,32 +216,37 @@ SETTINGS index_granularity = 8192;
 
 CREATE VIEW IF NOT EXISTS die.evidence_search_current_v1 AS
 SELECT
-    tenant_id,
-    projection_generation,
-    evidence_id,
-    argMax(received_at, tuple(canonical_watermark, row_digest)) AS received_at,
-    argMax(occurred_at, tuple(canonical_watermark, row_digest)) AS occurred_at,
-    argMax(toString(source_profile), tuple(canonical_watermark, row_digest)) AS source_profile,
-    argMax(toString(record_type), tuple(canonical_watermark, row_digest)) AS record_type,
-    argMax(producer_id, tuple(canonical_watermark, row_digest)) AS producer_id,
-    argMax(business_scope_id, tuple(canonical_watermark, row_digest)) AS business_scope_id,
-    argMax(toString(environment), tuple(canonical_watermark, row_digest)) AS environment,
-    argMax(toString(sensitivity), tuple(canonical_watermark, row_digest)) AS sensitivity,
-    argMax(toString(source_object_type), tuple(canonical_watermark, row_digest)) AS source_object_type,
-    argMax(source_namespace, tuple(canonical_watermark, row_digest)) AS source_namespace,
-    argMax(source_object_token, tuple(canonical_watermark, row_digest)) AS source_object_token,
-    argMax(toString(capture_state), tuple(canonical_watermark, row_digest)) AS capture_state,
-    argMax(toString(evidence_quality), tuple(canonical_watermark, row_digest)) AS evidence_quality,
-    argMax(toString(trust_state), tuple(canonical_watermark, row_digest)) AS trust_state,
-    argMax(toString(disposition_state), tuple(canonical_watermark, row_digest)) AS disposition_state,
-    argMax(correlation_tokens, tuple(canonical_watermark, row_digest)) AS correlation_tokens,
-    argMax(canonical_entity_ids, tuple(canonical_watermark, row_digest)) AS canonical_entity_ids,
-    argMax(canonical_activity_ids, tuple(canonical_watermark, row_digest)) AS canonical_activity_ids,
-    argMax(normalization_version, tuple(canonical_watermark, row_digest)) AS normalization_version,
-    max(canonical_watermark) AS canonical_watermark
-FROM die.evidence_search_v1
-GROUP BY tenant_id, projection_generation, evidence_id
-HAVING disposition_state NOT IN ('object_deleted', 'deleted');
+    *
+FROM
+(
+    SELECT
+        source.tenant_id AS tenant_id,
+        source.projection_generation AS projection_generation,
+        source.evidence_id AS evidence_id,
+        argMax(source.received_at, tuple(source.canonical_watermark, source.row_digest)) AS received_at,
+        argMax(source.occurred_at, tuple(source.canonical_watermark, source.row_digest)) AS occurred_at,
+        argMax(toString(source.source_profile), tuple(source.canonical_watermark, source.row_digest)) AS source_profile,
+        argMax(toString(source.record_type), tuple(source.canonical_watermark, source.row_digest)) AS record_type,
+        argMax(source.producer_id, tuple(source.canonical_watermark, source.row_digest)) AS producer_id,
+        argMax(source.business_scope_id, tuple(source.canonical_watermark, source.row_digest)) AS business_scope_id,
+        argMax(toString(source.environment), tuple(source.canonical_watermark, source.row_digest)) AS environment,
+        argMax(toString(source.sensitivity), tuple(source.canonical_watermark, source.row_digest)) AS sensitivity,
+        argMax(toString(source.source_object_type), tuple(source.canonical_watermark, source.row_digest)) AS source_object_type,
+        argMax(source.source_namespace, tuple(source.canonical_watermark, source.row_digest)) AS source_namespace,
+        argMax(source.source_object_token, tuple(source.canonical_watermark, source.row_digest)) AS source_object_token,
+        argMax(toString(source.capture_state), tuple(source.canonical_watermark, source.row_digest)) AS capture_state,
+        argMax(toString(source.evidence_quality), tuple(source.canonical_watermark, source.row_digest)) AS evidence_quality,
+        argMax(toString(source.trust_state), tuple(source.canonical_watermark, source.row_digest)) AS trust_state,
+        argMax(toString(source.disposition_state), tuple(source.canonical_watermark, source.row_digest)) AS disposition_state,
+        argMax(source.correlation_tokens, tuple(source.canonical_watermark, source.row_digest)) AS correlation_tokens,
+        argMax(source.canonical_entity_ids, tuple(source.canonical_watermark, source.row_digest)) AS canonical_entity_ids,
+        argMax(source.canonical_activity_ids, tuple(source.canonical_watermark, source.row_digest)) AS canonical_activity_ids,
+        argMax(source.normalization_version, tuple(source.canonical_watermark, source.row_digest)) AS normalization_version,
+        max(source.canonical_watermark) AS canonical_watermark
+    FROM die.evidence_search_v1 AS source
+    GROUP BY source.tenant_id, source.projection_generation, source.evidence_id
+)
+WHERE disposition_state NOT IN ('object_deleted', 'deleted');
 
 ALTER TABLE die.activity_versions_v1
   ADD INDEX IF NOT EXISTS idx_actor actor_entity_id TYPE bloom_filter(0.01) GRANULARITY 4;

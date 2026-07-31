@@ -97,12 +97,18 @@
     "signature": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["protected", "signature"],
+      "required": ["format", "algorithm", "key_id", "value"],
       "properties": {
-        "protected": { "type": "string", "minLength": 1, "maxLength": 2048 },
-        "signature": { "type": "string", "minLength": 1, "maxLength": 2048 }
+        "format": { "const": "jws-detached-jcs" },
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "key_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+\\.\\.[A-Za-z0-9_-]+$",
+          "maxLength": 4096
+        }
       },
-      "description": "Detached JWS over RFC 8785 canonical JSON excluding this signature property; ES256 is mandatory and EdDSA may be certified outside FIPS profiles."
+      "description": "The common V1 detached compact JWS object over RFC 8785 canonical JSON excluding this signature property. External algorithm/key_id must exactly match the protected header."
     }
   }
 }

@@ -5,7 +5,7 @@
 The pass uses exactly three state technologies:
 
 1. PostgreSQL for admission metadata, work coordination, normalization, identity, canonical truth, authorization, audit and ordinary product read models;
-2. S3-compatible object storage for immutable admitted evidence bytes and asynchronous export artifacts;
+2. a certified object-store adapter for immutable admitted evidence bytes and asynchronous export artifacts;
 3. ClickHouse for rebuildable high-cardinality activity/evidence search.
 
 Redis, Neo4j, Kafka and a search engine are not required. Adding one requires measured evidence and cannot change authority.
@@ -36,13 +36,54 @@ migration for every later change.
 
 ## Immutable evidence
 
-The canonical bytes received after decompression and validation are serialized deterministically and stored under:
+Each admitted record is stored as the UTF-8 RFC 8785 serialization of the exact
+`{"envelope": <without content_sha256>, "payload": <typed payload>}` object
+defined by the protocol. The resulting SHA-256 is stored under:
 
 ```text
-tenants/{tenant_id}/evidence/sha256/{first_two_hex}/{remaining_hex}
+tenants/{tenant_id}/evidence/{evidence_id}/sha256/{first_two_hex}/{remaining_hex}
 ```
 
-Object creation uses conditional create. Existing same-hash content is success-equivalent. Object metadata contains only tenant, digest, size, media type, encryption context and creation time.
+Object creation uses conditional create. An existing object is
+success-equivalent only for retry of the same producer/epoch/sequence/record
+delivery identity and exact digest. `evidence_record` makes
+`(tenant_id, object_key)` unique: two distinct evidence identities cannot share
+one physical body because legal hold, retention and erasure are evidence-scoped.
+Object metadata contains only tenant, digest, size, media type, encryption
+context and creation time.
+
+### Object-store capability contract
+
+The central implementation depends on `EvidenceObjectStoreV1`, not on a
+provider SDK outside its infrastructure adapter. A GA adapter must implement
+and certify these exact capabilities:
+
+- conditional create of one evidence-scoped key from a bounded streaming body;
+- opaque immutable provider version token returned by put and required by
+  every later head, read, hold and delete operation;
+- strong read-after-write `HEAD`/`GET` for the created version;
+- byte-count and application SHA-256 verification independent of ETag;
+- provider encryption context and tenant/cell key binding;
+- legal-hold apply/read/release for the exact version;
+- idempotent exact-version delete with absence verification;
+- range streaming for authorized evidence redemption;
+- immutable retention mode, access/audit logs and version enumeration;
+- list-by-evidence prefix for orphan and negative-erasure verification.
+
+The evidence prefix has no autonomous provider lifecycle deletion. All expiry
+and deletion is initiated by the retention worker after PostgreSQL commits the
+fenced erasure state. Provider retention and legal hold are defense in depth,
+not an independent state machine that can race the evidence ledger. ETags,
+provider timestamps and list ordering are never treated as content identity or
+canonical truth.
+
+The first production deployment must bind this port to one named
+provider/version and pass `LG-003`. AWS S3 Object Versioning + Object Lock is
+the reference conformance profile; an S3-compatible, Azure Blob or other
+adapter is admissible only after the same capability and failure/race suite
+passes. This keeps the bounded domain design frozen without pretending that a
+deployment/provider decision or live provider behavior has already been
+proven.
 
 Admission algorithm:
 
@@ -209,14 +250,22 @@ Retention values remain configured policy, but mechanisms are frozen:
   including object bytes, ClickHouse evidence rows, ClickHouse activity
   evidence references and any cache/export copies known to placement history;
 - the target list is length-prefixed, ordered, digested and sealed before any
-  receipt. No target can be appended after sealing;
+  provider action or receipt. No target can be appended after sealing, and
+  exactly one `object_bytes` target is required for each evidence record;
+- `sealed → executing` is the irreversible database linearization point. The
+  transition and every disposition append take the same transaction-scoped
+  evidence lifecycle lock. It succeeds only while the exact latest disposition
+  remains unheld `deletion_pending`; provider workers may act only after that
+  transaction commits;
 - provider deletion receipts are required before `object_deleted`; receipts
   for every sealed target are required before terminal `deleted`;
 - an object receipt is accepted only while the exact source revision remains
   unheld `deletion_pending`; non-object receipts are accepted only at the
-  immediately following unheld `object_deleted` revision. Receipt insertion
-  row-locks the latest disposition so a concurrent hold wins or is ordered
-  after the receipted action rather than being silently bypassed;
+  immediately following unheld `object_deleted` revision. Receipt insertion,
+  disposition append and execution commit share the lifecycle lock. A legal
+  hold committed before execution wins and prevents execution; a request after
+  execution is explicitly rejected as too late rather than falsely reported as
+  a successful hold;
 - retention writes immutable tombstones and audit;
 - ClickHouse first suppresses `object_deleted`/`deleted` from current search,
   then performs physical evidence-row deletion and activity-reference scrubbing
@@ -243,4 +292,8 @@ create generation
 
 No in-place truncate-and-rebuild serves customer traffic.
 
-Content addressing deduplicates immutable object bytes but not evidence identities: multiple distinct records may reference the same `(tenant, object_key)`. Evidence metadata therefore indexes object key without making it unique.
+Evidence-scoped content addressing provides integrity and retry idempotency; it is not
+cross-record storage deduplication. A duplicate delivery resolves to the
+original evidence identity. A distinct admitted record receives a distinct
+object key even if its safe product meaning is equivalent. This keeps
+per-record legal hold, deletion proof and restore behavior unambiguous.

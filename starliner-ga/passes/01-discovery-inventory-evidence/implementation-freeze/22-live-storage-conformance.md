@@ -8,14 +8,22 @@ and their complete output and image digests are retained.
 
 The initial conformance matrix uses:
 
-- PostgreSQL `17.5` Alpine image
-  `postgres:17.5-alpine3.20`;
-- ClickHouse `25.3.6.56` Alpine image
-  `clickhouse/clickhouse-server:25.3.6.56-alpine`.
+- PostgreSQL `17.10` Alpine image
+  `postgres:17.10-alpine3.24`;
+- ClickHouse `26.3.17.56` LTS image
+  `clickhouse/clickhouse-server:26.3.17.56`.
 
 Before CI adoption, resolve and commit each pulled image's immutable repository
 digest. A tag-only successful run is useful evidence but is not the final
 supply-chain pin.
+
+The version policy is major/LTS-line plus current supported patch, not a
+permanent stale patch. PostgreSQL remains on major 17 and must advance to the
+current 17.x security/bug-fix release after the same suite passes. ClickHouse
+remains on the current 26.3 LTS patch line until a later LTS upgrade is
+qualified. The initial projector uses synchronous batched inserts
+(`async_insert=0`) so the 26.3 default change cannot alter acknowledgement,
+deduplication or materialized-view behavior implicitly.
 
 ## One-command execution
 
@@ -80,8 +88,10 @@ DIE_CLICKHOUSE_IMAGE='clickhouse/clickhouse-server@sha256:<approved-digest>' \
 - a later `deleted` evidence disposition removes the record from the current
   search view.
 - an erasure plan cannot seal with a wrong count/digest or without an object
-  target, targets cannot be appended after seal, `object_deleted` requires all
-  object receipts, and terminal `deleted` requires every target receipt;
+  target, targets cannot be appended after seal, execution cannot start after a
+  winning legal hold, a hold cannot be reported after execution commits,
+  `object_deleted` requires all object receipts, and terminal `deleted` requires
+  every target receipt;
 - ClickHouse physical deletion and activity evidence-reference scrubbing wait
   for completed mutations and negative scans before their receipt is inserted.
 
@@ -133,25 +143,33 @@ The ClickHouse suite must add:
 
 ## Object storage gate
 
-The selected S3-compatible provider must run a separate test pack:
+The deployment-selected `EvidenceObjectStoreV1` adapter must run a separate
+test pack. AWS S3 Object Versioning + Object Lock is the reference profile; a
+different provider must satisfy the same assertions rather than merely expose
+an S3-shaped API.
 
-1. conditionally put content-addressed immutable bytes;
+1. conditionally put evidence-scoped content-addressed immutable bytes;
 2. retry the same digest and reject different bytes at the same key;
 3. fail the PostgreSQL transaction after put and prove delayed orphan cleanup;
 4. commit metadata and simulate temporary object unavailability without
    acknowledging missing evidence;
-5. race legal-hold acquisition against lifecycle/delete;
-6. require `deletion_pending` before provider deletion;
-7. persist provider version/delete evidence before `object_deleted`;
-8. prove restore/retention behavior and signed backup-manifest consistency.
-9. seed object, ClickHouse, cache, export and historical pre-cell-move
+5. prove the evidence prefix has no autonomous lifecycle deletion;
+6. race legal-hold append against the shared lifecycle lock and
+   `sealed → executing` transition in both orders;
+7. prove no provider call starts before the committed `executing` state and an
+   attempted hold after that point returns the explicit too-late result;
+8. persist exact provider version/delete evidence before `object_deleted`;
+9. prove restore/retention behavior and signed backup-manifest consistency;
+10. seed object, ClickHouse, cache, export and historical pre-cell-move
    placements; prove the planner's ordered target manifest matches the
    authoritative placement inventory exactly before sealing.
-10. show that omission of any placement target fails certification even when
+11. show that omission of any placement target fails certification even when
     every declared target has a receipt.
 
-Provider, account, versioning, object-lock mode and credentials are unresolved
-live inputs. No provider behavior is claimed from the SQL state machine alone.
+Deployment provider, account, exact version/feature set, retention mode, keys
+and credentials remain unresolved live inputs. The provider-neutral port and
+reference profile are frozen; no provider behavior is claimed from the SQL
+state machine alone.
 
 ## Evidence record
 

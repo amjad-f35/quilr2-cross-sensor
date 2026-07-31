@@ -133,7 +133,7 @@ contracts
 ├── typed source profiles
 ├── normalized observation
 ├── canonical/read DTOs
-└── generated Go/Python/TypeScript SDKs
+└── generated Go/Java/Python/TypeScript/Rust wire SDKs
 
 platform core
 ├── admission
@@ -219,7 +219,7 @@ Full deployment-model selection is outside this pass. Tenant correctness is not:
 - central implementation: Go;
 - contracts: JSON Schema 2020-12 plus OpenAPI 3.1;
 - canonical store/work coordination: PostgreSQL;
-- immutable evidence body: S3-compatible object API;
+- immutable evidence body: certified `EvidenceObjectStoreV1` adapter;
 - activity/evidence search: ClickHouse;
 - product UI: existing Nuxt 4 + Vue + shadcn-vue;
 - telemetry: OpenTelemetry;

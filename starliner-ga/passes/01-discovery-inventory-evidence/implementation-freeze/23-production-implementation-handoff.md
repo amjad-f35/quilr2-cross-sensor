@@ -72,7 +72,8 @@ schema-wide writer credential.
 
 ## Build and gate order
 
-1. Make the live storage harness pass unchanged on pinned engine digests.
+1. Extend the passing exact-version local storage smoke into the digest-pinned,
+   multi-session/server-mode `LG-001` and `LG-002` conformance suites.
 2. Generate protocol/OpenAPI clients and shared JCS/JWS/safe-integer vectors.
 3. Implement signed tenant bootstrap and producer enrollment/certification.
 4. Implement ingest admission, object storage and exact receipts.
@@ -134,12 +135,18 @@ contract.
   later source or runtime contradictions reopen only affected contracts.
 - Executable static contracts: corrected and subject to two clean validator
   passes.
-- PostgreSQL/ClickHouse runtime: blocked until `LG-001`/`LG-002` pass.
+- Target-engine local smoke: PostgreSQL 17.10 passes the complete current DDL,
+  roles and conformance transaction with checksums; ClickHouse 26.3.17.56 LTS
+  passes DDL/materialized-view/tie/deletion smoke. Expanded contention,
+  server-mode lifecycle, load, recovery and immutable CI evidence remain
+  blocked until `LG-001`/`LG-002` pass.
 - Object retention and erasure-target completeness, sensor certification,
   cross-language crypto and live Nuxt: blocked until their applicable
   `LG-003` through `LG-007` gates pass.
 - Migration, deployment portfolio, policy engine, findings/intelligence and
   cost/value: intentionally outside this bounded pass.
 
-Start with the live conformance gate. Do not start by rebuilding a query-builder
-or wiring the Nuxt fixtures to ad hoc endpoints.
+Production engineering is authorized to begin from this handoff. Start with
+the expanded live conformance and generated contract foundations, then follow
+the dependency order above. Do not start by rebuilding a query-builder or
+wiring the Nuxt fixtures to ad hoc endpoints.

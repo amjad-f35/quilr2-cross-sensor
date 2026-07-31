@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "schemas"
 UUID_1 = "11111111-1111-4111-8111-111111111111"
 UUID_2 = "22222222-2222-4222-8222-222222222222"
-UUID_3 = "33333333-3333-4333-8333-333333333333"
+UUID_3 = "33333333-3333-7333-8333-333333333333"
 NOW = "2026-07-29T12:00:00Z"
 LATER = "2026-07-29T13:00:00Z"
 DIGEST = "sha256:" + ("a" * 64)
@@ -196,7 +196,7 @@ def run() -> None:
         "record_origin": "live_sensor",
         "evidence_quality": "audit_grade",
         "privacy": {"policy_version": "1", "capture_state": "complete"},
-        "idempotency_key": "record-1",
+        "idempotency_key": f"v1:{UUID_1}:{UUID_2}:1",
         "content_sha256": DIGEST,
     }
     batch = {"api_version": "starliner.ingest.v1", "batch_id": "batch-1", "records": [{"envelope": envelope, "payload": PROFILE_CASES["profile-endpoint-v1.schema.json"][0]}]}
@@ -222,10 +222,22 @@ def run() -> None:
         "profiles": [{"profile": "endpoint", "profile_version": "1.0.0", "schema_ref": "endpoint/1.0.0", "schema_sha256": DIGEST, "capabilities": ["inventory"]}],
         "privacy": {"policy_version": "1", "policy_sha256": DIGEST, "policy_ref": "privacy/1"},
         "trust": {"certification_id": UUID_1, "artifact_digest": DIGEST, "contract_digest": DIGEST},
-        "signature": {"protected": "e30", "signature": "c2ln"},
+        "signature": SIGNATURE,
     }
     accept("edge-configuration.schema.json", configuration, "minimal configuration")
     positive_count += 1
+
+    legacy_configuration_signature = copy.deepcopy(configuration)
+    legacy_configuration_signature["signature"] = {
+        "protected": "e30",
+        "signature": "c2ln",
+    }
+    reject(
+        "edge-configuration.schema.json",
+        legacy_configuration_signature,
+        "configuration using a second detached-JWS representation",
+    )
+    negative_count += 1
 
     receipt = {
         "api_version": "starliner.ingest.v1",
@@ -451,6 +463,26 @@ def run() -> None:
     unsafe_sequence = copy.deepcopy(batch)
     unsafe_sequence["records"][0]["envelope"]["sequence"] = 9007199254740992
     reject("delivery-batch.schema.json", unsafe_sequence, "sequence beyond cross-language safe integer")
+    negative_count += 1
+
+    non_uuid7_record = copy.deepcopy(batch)
+    non_uuid7_record["records"][0]["envelope"]["record_id"] = UUID_1
+    reject(
+        "delivery-batch.schema.json",
+        non_uuid7_record,
+        "non-UUIDv7 durable record identity",
+    )
+    negative_count += 1
+
+    malformed_record_idempotency = copy.deepcopy(batch)
+    malformed_record_idempotency["records"][0]["envelope"][
+        "idempotency_key"
+    ] = "record-1"
+    reject(
+        "delivery-batch.schema.json",
+        malformed_record_idempotency,
+        "record idempotency key without producer/epoch/sequence shape",
+    )
     negative_count += 1
 
     unsafe_extension_number = copy.deepcopy(batch)

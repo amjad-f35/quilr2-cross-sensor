@@ -1,7 +1,7 @@
 # Discovery, Inventory, Activity & Evidence — Evidence-Gated Engineering Freeze
 
-**Status:** source-complete, statically validated freeze; P0 live storage gates
-still open
+**Status:** source-complete architecture and semantic freeze; exact target-engine
+local smoke validated; expanded production acceptance gates remain open
 
 **Scope:** end-to-end Discovery, Inventory/Catalog, Activity/Observability and
 Evidence design from Browser, Endpoint, LLM Gateway, MCP Gateway and Browser
@@ -28,7 +28,7 @@ runtime-proven contradiction reopens only the affected contracts under
 
 The target is:
 
-> A modular Go platform core in `quilrbusiness/project-starliner`, deployed as independently scalable roles from one versioned codebase and one release digest; generated contracts for Go, Python and TypeScript; existing sensor repositories with thin source adapters and durable local delivery; authoritative PostgreSQL canonical state; immutable object evidence; ClickHouse activity search; authorized APIs; and the existing Nuxt/shadcn application as the customer UI.
+> A modular Go platform core in `quilrbusiness/project-starliner`, deployed as independently scalable roles from one versioned codebase and one release digest; generated wire contracts for Go, Java, Python, TypeScript and Rust plus generated Go/TypeScript product clients; existing sensor repositories with thin source adapters and durable local delivery; authoritative PostgreSQL canonical state; immutable object evidence; ClickHouse activity search; authorized APIs; and the existing Nuxt/shadcn application as the customer UI.
 
 This is neither a single-process monolith nor independently owned microservices. It is a **modular monolith in source and authority, with role-separated distributed execution**.
 
@@ -88,6 +88,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Quilr organization source reconciliation](27-quilrbusiness-org-source-reconciliation.md) | Authenticated 377-repository inventory, current producer cutoffs, recovered dependencies/consumers, Browser/MCP deltas and corrected LG-008 responsibility |
 | [LG-008 five-profile static authority](28-lg008-five-profile-static-authority.md) | Completed Browser/Backend/Endpoint/LLM/MCP semantic reconciliation and exact assurance boundary |
 | [LG-008 saturation and readiness](29-lg008-saturation-and-readiness.md) | Two-pass zero-drift closure and remaining independent live gates |
+| [Production architecture and runtime revalidation](30-production-architecture-and-runtime-revalidation.md) | Final sensor-to-UI structural verdict, target-engine runtime evidence, bounded implementation authorization and exact remaining acceptance gates |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |
 | [Architecture decisions](registers/decisions.yaml) | Machine-readable binding decisions |
 | [Module disposition](registers/module-disposition.csv) | Existing and target module classification |
@@ -132,6 +133,8 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [PostgreSQL DDL parse test](tools/test-postgres-ddl.py) | PostgreSQL grammar parse for the core and role/grant migrations; real database execution remains mandatory |
 | [OpenAPI contract test](tools/test-openapi-contracts.py) | Independent OpenAPI 3.1 validation, including local schema references |
 | [Live storage runner](tools/run-live-storage-conformance.sh) | Pinned PostgreSQL/ClickHouse DDL and behavioral conformance entry point |
+| [Local PostgreSQL runner](tools/run-local-postgres-conformance.sh) | Disposable native PostgreSQL execution for exact target/compatibility prechecks; it does not replace retained container-digest evidence |
+| [Local ClickHouse runner](tools/run-local-clickhouse-conformance.sh) | Disposable exact-engine DDL/current-view smoke execution; extended lifecycle, mutation and capacity gates remain mandatory |
 | [Organization snapshot tool](tools/snapshot-quilrbusiness-org.mjs) | Repeatable authenticated GitHub repository inventory |
 | [Repository classifier](tools/classify-quilrbusiness-repositories.mjs) | Deterministic triage plus evidence-based manual source/dependency/consumer classes |
 | [Selected source/build snapshot](tools/snapshot-selected-github-revisions.mjs) | Pinned checkout and GitHub Actions evidence for selected repositories |
@@ -186,10 +189,11 @@ Then, on a host with Docker:
 ./starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/run-live-storage-conformance.sh
 ```
 
-The package becomes structurally eligible for acceptance only when the static
-checks pass. Passing static checks freezes the target; it does not claim that
-production software, database behavior or sensor adapters have been
-implemented. Broad implementation requires the PostgreSQL/ClickHouse live gates
-in [live conformance](22-live-storage-conformance.md); GA additionally requires
-the remaining `LG-*` evidence in the
+Passing the static suite, two zero-drift source regenerations and exact
+PostgreSQL/ClickHouse target-engine smoke makes this package the implementation
+authority for the bounded pass. It does not claim that production software,
+provider behavior or native adapters have already been implemented. Engineering
+may implement the full pass behind these contracts. Production acceptance and
+customer claims remain gated by the expanded `LG-*` evidence in
+[live conformance](22-live-storage-conformance.md) and the
 [defect ledger](registers/defect-closure-ledger.csv).

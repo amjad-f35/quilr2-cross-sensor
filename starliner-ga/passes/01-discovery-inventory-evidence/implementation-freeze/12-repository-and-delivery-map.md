@@ -206,8 +206,10 @@ Source authority:
 Generation produces:
 
 - Go validation/domain transport types;
+- Java source-profile records and validators;
 - Python edge SDK models;
-- TypeScript product client/DTOs;
+- TypeScript source-profile models and product client/DTOs;
+- Rust source-profile records and validators;
 - schema registry bundle and digests;
 - docs/reference tables.
 
@@ -297,7 +299,8 @@ The existing shadcn-vue primitives and shell are reused. `app/lib/api/readModels
 
 Required repository-wide lanes:
 
-1. formatting/lint/static analysis for all Go/Python/TypeScript owned code;
+1. formatting/lint/static analysis for all Go/Java/Python/TypeScript/Rust owned
+   code on the selected producer/platform path;
 2. dependency/import architecture rules;
 3. contract generation and compatibility;
 4. unit/property/fuzz;

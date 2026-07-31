@@ -5,7 +5,7 @@ resolved_by_this_freeze:
   - parent_id: DIE-NI-002
     resolution: "Audited project-starliner main at b747393468045425b3f07a24775dcbc93d380cb5 and froze target repository/module disposition."
   - parent_id: DIE-NI-009
-    resolution: "Froze common envelope, five typed profiles, receipts, normalized schema, product OpenAPI and generated Go/Python/TypeScript ownership."
+    resolution: "Froze common envelope, five typed profiles, receipts, normalized schema, product OpenAPI, generated Go/Java/Python/TypeScript/Rust wire ownership and generated Go/TypeScript product clients."
   - parent_id: DIE-NI-010
     resolution: "Provided PostgreSQL authority schema, indexes, RLS, versioning and transaction ownership baseline."
   - parent_id: DIE-NI-012

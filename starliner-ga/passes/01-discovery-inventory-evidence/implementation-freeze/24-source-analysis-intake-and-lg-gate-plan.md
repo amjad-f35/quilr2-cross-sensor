@@ -183,7 +183,8 @@ The exact evidence needed for every live gate is in
 - `LG-004` needs the live API/client implementation and a writable exact Nuxt
   worktree.
 - `LG-005` needs implemented adapters plus real native test environments.
-- `LG-006` needs four language implementations against one shared vector
+- `LG-006` needs all five selected-path language implementations—Go, Java,
+  Python, TypeScript and Rust—against one shared vector
   corpus; the current Python tests are useful but insufficient.
 - `LG-007` needs an authoritative deployment/placement inventory and live
   erasure environment.

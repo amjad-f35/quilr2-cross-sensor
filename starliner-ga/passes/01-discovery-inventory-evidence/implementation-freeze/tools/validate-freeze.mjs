@@ -135,6 +135,7 @@ const required = [
   '27-quilrbusiness-org-source-reconciliation.md',
   '28-lg008-five-profile-static-authority.md',
   '29-lg008-saturation-and-readiness.md',
+  '30-production-architecture-and-runtime-revalidation.md',
   'authz/model.yaml',
   'authz/api-field-policy.yaml',
   'ontology/entity-types.yaml',
@@ -1717,8 +1718,8 @@ for (const foreignKey of foreignKeys) {
 }
 if (!requireFile('04-workers-transactions-and-replay.md').includes('FOR UPDATE SKIP LOCKED'))
   fail('worker specification lacks the fenced SKIP LOCKED claim transaction')
-if (/UNIQUE\s*\(\s*tenant_id\s*,\s*object_key\s*\)/i.test(postgres))
-  fail('evidence object key is incorrectly unique; distinct evidence records may share content bytes')
+if (!/UNIQUE\s*\(\s*tenant_id\s*,\s*object_key\s*\)/i.test(postgres))
+  fail('evidence object key must be unique per tenant so evidence-scoped hold and erasure cannot affect another record')
 if (/\buuid\s*\[\s*\]/i.test(postgres))
   fail('authoritative PostgreSQL DDL uses UUID arrays instead of foreign-keyed provenance link ledgers')
 const globalControlMetadataTables = new Set([
@@ -1777,12 +1778,13 @@ for (const fragment of [
   'source_object_token',
   'correlation_tokens',
   'Tuple(UInt64, FixedString(64))',
-  'tuple(canonical_watermark, row_digest)',
+  'tuple(source.canonical_watermark, source.row_digest)',
   'disposition_state',
-  "HAVING disposition_state NOT IN ('object_deleted', 'deleted')",
+  "WHERE disposition_state NOT IN ('object_deleted', 'deleted')",
   'ENGINE = MergeTree',
   'bounded_evidence_correlation',
   "CAST(correlation_tokens, 'Map(String, String)')",
+  'SET async_insert = 0',
 ]) {
   if (!clickhouse.includes(fragment))
     fail(`ClickHouse DDL lacks hardened projection fragment ${fragment}`)
@@ -1827,8 +1829,8 @@ if ((statSync(liveRunnerPath).mode & 0o111) === 0)
   fail('live storage conformance runner is not executable')
 const liveRunner = requireFile('tools/run-live-storage-conformance.sh')
 for (const fragment of [
-  'postgres:17.5-alpine3.20',
-  'clickhouse/clickhouse-server:25.3.6.56-alpine',
+  'postgres:17.10-alpine3.24',
+  'clickhouse/clickhouse-server:26.3.17.56',
   'docker image inspect',
   'tools/live/postgres-conformance.sql',
   'tools/live/clickhouse-conformance.sql',

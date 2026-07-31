@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-DIE_POSTGRES_IMAGE="${DIE_POSTGRES_IMAGE:-postgres:17.5-alpine3.20}"
-DIE_CLICKHOUSE_IMAGE="${DIE_CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:25.3.6.56-alpine}"
+DIE_POSTGRES_IMAGE="${DIE_POSTGRES_IMAGE:-postgres:17.10-alpine3.24}"
+DIE_CLICKHOUSE_IMAGE="${DIE_CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:26.3.17.56}"
 DIE_PG_CONTAINER="die-postgres-conformance"
 DIE_CH_CONTAINER="die-clickhouse-conformance"
 DIE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
@@ -21,6 +21,7 @@ docker image inspect "$DIE_CLICKHOUSE_IMAGE" --format '{{json .RepoDigests}}'
 docker run --rm --name "$DIE_PG_CONTAINER" \
   -e POSTGRES_PASSWORD=die-conformance \
   -e POSTGRES_DB=die_conformance \
+  -e POSTGRES_INITDB_ARGS=--data-checksums \
   -d "$DIE_POSTGRES_IMAGE"
 
 until docker exec "$DIE_PG_CONTAINER" pg_isready -U postgres -d die_conformance >/dev/null 2>&1; do

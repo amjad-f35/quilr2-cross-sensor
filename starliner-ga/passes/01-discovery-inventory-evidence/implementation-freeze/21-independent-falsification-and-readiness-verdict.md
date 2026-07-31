@@ -11,15 +11,16 @@ The prior claim that there were no remaining blockers was too strong.
 
 The corrected corpus is now a coherent implementation authority for this bounded
 pass, and an engineer does not need to invent the architectural boundaries or
-domain semantics. It is **not yet authorized for unrestricted production
-implementation or GA claims**, because the real PostgreSQL, ClickHouse,
-object-store, sensor-certification, cross-language cryptographic and live Nuxt
-gates have not run in this workspace.
+domain semantics. The current baseline also executes on PostgreSQL `17.10`, and
+the DDL/current-view smoke executes on ClickHouse `26.3.17.56` LTS. Production
+engineering may therefore implement the complete bounded pass behind the frozen
+contracts.
 
-Implementation may begin with the conformance harness and modules in
-`23-production-implementation-handoff.md`. Domain implementation expands only
-after `LG-001` and `LG-002` pass. A failing live gate reopens the freeze; it is
-not waived as an implementation detail.
+This is not a GA or runtime-certification claim. Expanded database behavior,
+object-store lifecycle, native adapter output, cross-language cryptography,
+live Nuxt/API behavior and complete erasure still require `LG-001..007`. A
+failing gate reopens the affected contract and blocks its production
+acceptance; it is not waived as an implementation detail.
 
 ## What this pass re-derived
 
@@ -212,12 +213,13 @@ The final static suite passed and was then repeated without source changes:
 
 | Check | Result |
 |---|---|
-| implementation freeze | PASS — 139 decisions, 45 OpenAPI operations, 5 profiles, 47 profile-kind, 44 profile-entity, 75 product-field, 54 relationship and 42 UI-lineage rules; 87 ledger rows; 111 package files; embedded five-profile authority validation |
+| implementation freeze | PASS — 141 decisions, 45 OpenAPI operations, 5 profiles, 47 profile-kind, 44 profile-entity, 75 product-field, 54 relationship and 42 UI-lineage rules; 103 ledger rows; 116 package files; embedded five-profile authority validation |
 | LG-008 saturation | PASS — two complete deterministic regenerations; 5 admissions, 148 records, 1,837 native fields, 422 access recipes, 931 target traces and 140 classified delta files; zero drift |
-| Draft 2020-12 schemas | PASS — 13 meta-schemas, 63 accepted and 35 rejected fixtures |
+| Draft 2020-12 schemas | PASS — 13 meta-schemas, 63 accepted and 38 rejected fixtures |
 | OpenAPI/YAML | PASS — duplicate-key rejection across 14 normative YAML documents and validation of both OpenAPI 3.1 specifications |
-| PostgreSQL grammar/dependency checks | PASS — 659 core, 111 role/grant and 121 live-conformance statements; 891 total |
-| outer DIE pass | PASS — 90 normative requirements, 9 migration requirements, 16 pass decisions, 3 migration decisions, 25 inputs, 24 risks, 43 Markdown documents, 14 CSV and 17 YAML registers |
+| PostgreSQL grammar/dependency checks | PASS — 660 core, 115 role/grant and 144 live-conformance statements; 919 total |
+| exact target-engine local execution | PASS — PostgreSQL 17.10 complete current baseline/roles/conformance transaction; ClickHouse 26.3.17.56 LTS DDL/materialized-view/tie/deletion smoke |
+| outer DIE pass | PASS — 90 normative requirements, 9 migration requirements, 16 pass decisions, 3 migration decisions, 25 inputs, 24 risks, 54 Markdown documents, 27 CSV and 17 YAML registers |
 | live runner shell syntax | PASS |
 
 The OpenAPI environment emitted an `urllib3` LibreSSL compatibility warning;
@@ -234,31 +236,44 @@ freeze and outer DIE pass link checks themselves passed.
 | Gate | Severity | What remains | Development effect |
 |---|---:|---|---|
 | `FP-014` | P1 | replace the fixture-only Nuxt repository, colon-delimited IDs and invented risk/finding/policy/spend fields through the frozen `DieRepository` seam | blocks production UI implementation; verified by `LG-004` |
-| `LG-001` | P0 | execute DDL, triggers, RLS, grants, role inheritance, locking and concurrency on PostgreSQL 17.5 | blocks broad domain implementation beyond the conformance harness |
-| `LG-002` | P0 | execute ClickHouse 25.3 DDL, aggregate-state typing, deterministic current views and physical lifecycle behavior | blocks broad domain implementation and projection claims |
+| `LG-001` | P0 | extend the passing PostgreSQL 17.10 smoke into digest-pinned, multi-session contention, crash/failover and full negative conformance | blocks production acceptance of authoritative PostgreSQL behavior; does not block contract-conformant implementation |
+| `LG-002` | P0 | extend the passing ClickHouse 26.3.17.56 LTS DDL/current-view smoke into server-mode mutation, lifecycle, load, query-plan and crash/recovery conformance | blocks production acceptance of projections and physical lifecycle; does not block contract-conformant implementation |
 | `LG-003` | P0 | provider-specific object versioning, lock, legal-hold, delete and restore races | blocks evidence-retention/erasure GA |
 | `LG-004` | P1 | generated TypeScript client and `UI-GATE-001..010` against the live Nuxt repository/API | blocks live customer UI readiness |
 | `LG-005` | P0 | native capture-to-profile golden certification for all five profiles | blocks advertising or shipping registered sensor claims |
-| `LG-006` | P0 | shared JCS/JWS/digest/nonce vectors in Go, Java, Python and TypeScript | blocks cross-language trust and GA |
+| `LG-006` | P0 | shared JCS/JWS/digest/nonce vectors in Go, Java, Python, TypeScript and Rust | blocks cross-language trust and GA |
 | `LG-007` | P0 | compare sealed erasure targets with authoritative current/historical physical placements | blocks complete deletion claims |
 
 `LG-008` is no longer open. Its five admissions, 1,837 field dispositions, 422
 access recipes, 931 target traces, delta reconciliation and two zero-drift
 passes are retained in [the generated authority](lg008/README.md).
 
-## Evidence that was not available
+## Evidence that was and was not available
 
-No `postgres`, `psql`, `clickhouse`, `clickhouse-local` or `docker` executable
-was available in this workspace. Therefore this review did **not** execute:
+PostgreSQL `16.14` and then the current target `17.10` became available after
+the original review. The complete current baseline, roles/grants and
+conformance transaction executed successfully in disposable local clusters
+after the revalidation corrections,
+including catalog RLS/grant checks, role isolation, temporal heads, worker
+fencing, projection generation, timezone-stable audit hashing and the
+erasure/legal-hold ordering smoke cases. The target run used data checksums.
+This is direct target-version smoke evidence, but it is not the remaining
+multi-session/crash/failover gate and no immutable container image digest was
+involved.
 
-- PostgreSQL extensions, DDL, triggers, exclusions, grants or RLS against a
-  server;
-- ClickHouse DDL, constraint failures, materialized view merges or lifecycle
-  queries;
+The SHA-256-verified official ClickHouse `26.3.17.56` macOS ARM64 binary was
+also executed. DDL/materialized-view creation, deterministic activity
+tie-breaking and deleted-evidence suppression pass after correcting `FP-069`.
+No container runtime or server cluster was available. Therefore this review
+still did **not** execute:
+
+- the full PostgreSQL multi-session contention/crash/failover expansion;
+- ClickHouse server-mode physical mutations, negative scans, generation/load
+  tests, capacity/query plans or crash recovery;
 - object-store versioning/legal-hold/delete races;
 - native sensor capture-to-profile golden packs;
 - a generated TypeScript client against a live DIE API;
-- shared JCS/JWS vectors across Go, Java, Python and TypeScript.
+- shared JCS/JWS vectors across Go, Java, Python, TypeScript and Rust.
 - authoritative erasure-plan target enumeration across current and historical
   object, ClickHouse, cache, export and prior-cell placements.
 
@@ -268,7 +283,8 @@ recorded in
 They supplied the static reconciliation inputs; they do not convert the
 missing executions above into runtime evidence.
 
-Those are `LG-001` through `LG-007`, not assumptions. Exact storage commands
+Those are `LG-001` through `LG-007`, not assumptions. The target-engine local
+results narrow but do not close `LG-001`/`LG-002`. Exact storage commands
 and assertions are frozen in `22-live-storage-conformance.md`; the native
 source-closure protocol is frozen in
 `16-sensor-capability-and-field-traceability.md`.
@@ -279,16 +295,17 @@ The bounded architecture and semantics are frozen enough to prevent a coding
 agent from inventing the spine, identity authority, relationship meaning,
 storage authority, authorization order or UI data model.
 
-The production build gate is:
+The implementation authorization is:
 
 ```text
 static suite passes
-AND PostgreSQL live conformance passes
-AND ClickHouse live conformance passes
+AND five-profile authority regenerates with zero drift
+AND exact target-engine DDL/current smoke passes
 AND implementation follows the handoff stop conditions
 ```
 
+Production acceptance requires expanded PostgreSQL and ClickHouse conformance.
 GA additionally requires the object-store, erasure-placement, sensor, crypto
-and Nuxt live gates.
-Until those results exist, the bounded assurance is **corrected and statically
-validated freeze candidate with explicit P0 live-validation blockers**.
+and Nuxt live gates. Until those results exist, the bounded assurance is
+**implementation-ready architecture and semantic authority with explicit
+runtime/provider release blockers**.

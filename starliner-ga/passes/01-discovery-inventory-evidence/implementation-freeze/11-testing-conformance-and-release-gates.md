@@ -28,7 +28,7 @@ Mock-only demonstrations do not satisfy a gate. Tests use production code, real 
 | golden profile corpus | sensor-native input to exact profile/envelope and normalized output |
 | property/fuzz | parser bounds, determinism, idempotency, ordering, merge/split invariants, cursor/filter safety |
 | component | one deployable role with real direct dependencies |
-| integration | PostgreSQL + S3-compatible store + ClickHouse transaction/retry/rebuild behavior |
+| integration | PostgreSQL + certified `EvidenceObjectStoreV1` adapter + ClickHouse transaction/retry/rebuild behavior |
 | end-to-end | certified producer through customer UI/API |
 | fault/chaos | kill, delay, duplicate, reorder, corrupt, partition, failover and saturation |
 | security | authn/authz/RLS/tenant/evidence/secret/supply-chain tests |
@@ -72,7 +72,8 @@ CI must:
 
 1. parse and validate all JSON Schema Draft 2020-12 artifacts;
 2. validate OpenAPI 3.1;
-3. regenerate Go/Python/TypeScript bindings and require a clean diff;
+3. regenerate Go/Java/Python/TypeScript/Rust wire bindings plus declared
+   Go/TypeScript product clients and require a clean diff;
 4. compare schemas/OpenAPI to the previous release;
 5. reject breaking v1 changes unless a declared major-version process is used;
 6. validate all examples against exact schemas;

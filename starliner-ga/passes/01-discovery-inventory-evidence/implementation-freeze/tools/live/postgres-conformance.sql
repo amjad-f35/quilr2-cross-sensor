@@ -2,6 +2,74 @@
 
 BEGIN;
 
+-- Catalog-level security invariants must hold before behavioral fixtures run.
+DO $$
+DECLARE
+  violation text;
+BEGIN
+  SELECT string_agg(format('%I.%I', namespace.nspname, relation.relname), ', ' ORDER BY namespace.nspname, relation.relname)
+    INTO violation
+    FROM pg_class relation
+    JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+    WHERE namespace.nspname LIKE 'die\_%' ESCAPE '\'
+      AND relation.relkind IN ('r', 'p')
+      AND (
+        NOT relation.relrowsecurity
+        OR NOT relation.relforcerowsecurity
+        OR NOT EXISTS (
+          SELECT 1
+          FROM pg_policy policy
+          WHERE policy.polrelid = relation.oid
+        )
+      );
+  IF violation IS NOT NULL THEN
+    RAISE EXCEPTION 'DIE tables missing ENABLE/FORCE RLS or a fail-closed policy: %', violation;
+  END IF;
+
+  SELECT string_agg(role.rolname, ', ' ORDER BY role.rolname)
+    INTO violation
+    FROM pg_roles role
+    WHERE role.rolname IN (
+      'die_ingest','die_normalizer','die_truth','die_projector',
+      'die_api','die_maintenance','die_control_admin','die_authz_admin'
+    )
+      AND (role.rolsuper OR role.rolbypassrls OR role.rolcanlogin);
+  IF violation IS NOT NULL THEN
+    RAISE EXCEPTION 'DIE group role is privileged or login-enabled: %', violation;
+  END IF;
+
+  SELECT string_agg(format('%I.%I', namespace.nspname, relation.relname), ', ' ORDER BY namespace.nspname, relation.relname)
+    INTO violation
+    FROM pg_class relation
+    JOIN pg_namespace namespace ON namespace.oid = relation.relnamespace
+    JOIN pg_roles owner_role ON owner_role.oid = relation.relowner
+    WHERE namespace.nspname LIKE 'die\_%' ESCAPE '\'
+      AND owner_role.rolname IN (
+        'die_ingest','die_normalizer','die_truth','die_projector',
+        'die_api','die_maintenance','die_control_admin','die_authz_admin'
+      );
+  IF violation IS NOT NULL THEN
+    RAISE EXCEPTION 'runtime role owns a DIE relation: %', violation;
+  END IF;
+
+  IF has_function_privilege(
+    'public',
+    'die_authz.current_tenant_id()',
+    'EXECUTE'
+  ) OR has_function_privilege(
+    'public',
+    'die_authz.jsonb_object_key_count(jsonb)',
+    'EXECUTE'
+  ) OR has_function_privilege(
+    'public',
+    'die_audit.compute_audit_event_hash(die_audit.audit_event)',
+    'EXECUTE'
+  ) THEN
+    RAISE EXCEPTION 'PUBLIC retained execution on a DIE security/helper function';
+  END IF;
+END
+$$;
+
 INSERT INTO die_authz.authorization_revision (tenant_id, revision, updated_at)
 VALUES
   ('die-live-a', 1, '2026-07-30T00:00:00Z'),
@@ -264,6 +332,34 @@ BEGIN
       AND event.event_hash <> 'sha256:0000000000000000000000000000000000000000000000000000000000000000'
   ) THEN
     RAISE EXCEPTION 'database-authoritative audit hashing/head advancement failed';
+  END IF;
+END
+$$;
+
+-- Hash verification must be independent of the database session TimeZone.
+SET LOCAL TIME ZONE 'America/Los_Angeles';
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM die_audit.audit_event
+    WHERE audit_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa5'
+      AND event_hash IS DISTINCT FROM die_audit.compute_audit_event_hash(audit_event)
+  ) THEN
+    RAISE EXCEPTION 'audit hash changed under America/Los_Angeles session TimeZone';
+  END IF;
+END
+$$;
+SET LOCAL TIME ZONE 'UTC';
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM die_audit.audit_event
+    WHERE audit_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa5'
+      AND event_hash IS DISTINCT FROM die_audit.compute_audit_event_hash(audit_event)
+  ) THEN
+    RAISE EXCEPTION 'audit hash changed under UTC session TimeZone';
   END IF;
 END
 $$;
@@ -613,7 +709,7 @@ BEGIN
     SET status = 'completed', lease_owner = NULL, lease_token = NULL,
         lease_expires_at = NULL, updated_at = clock_timestamp()
     WHERE tenant_id = 'die-live-a' AND subject_id = 'live-job';
-    SET CONSTRAINTS work_terminal_requires_execution IMMEDIATE;
+    SET CONSTRAINTS die_pipeline.work_terminal_requires_execution IMMEDIATE;
     RAISE EXCEPTION 'terminal work without execution was accepted';
   EXCEPTION
     WHEN OTHERS THEN
@@ -782,5 +878,273 @@ WHERE tenant_id = 'die-live-a' AND projection_name = 'die_product_v1' AND genera
 UPDATE die_pipeline.projection_generation
 SET state = 'retired', retired_at = '2026-07-30T00:03:00Z'
 WHERE tenant_id = 'die-live-a' AND projection_name = 'die_product_v1' AND generation = 1;
+
+-- Erasure is a fenced saga. Sealing proves a complete placement-bound target
+-- manifest; the executing transition is the database linearization point that
+-- wins or loses atomically against a concurrent legal hold before any provider
+-- operation is allowed.
+INSERT INTO die_control.certification (
+  tenant_id, certification_id, producer_id, artifact_digest, contract_digest,
+  profile_versions, test_pack_digest, result, certified_at, expires_at,
+  evidence_object_key
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'sha256:3030303030303030303030303030303030303030303030303030303030303030',
+  '{"endpoint":"1.0.0"}',
+  'sha256:3131313131313131313131313131313131313131313131313131313131313131',
+  'passed', '2026-07-30T00:30:00Z', '2026-08-30T00:30:00Z',
+  'die-live-a/certifications/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30'
+);
+INSERT INTO die_evidence.producer_sequence (
+  tenant_id, producer_id, producer_epoch, sequence_no, record_id,
+  content_sha256, evidence_id, received_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa31', 1,
+  '018f0000-0000-7000-8000-000000000001',
+  'sha256:3232323232323232323232323232323232323232323232323232323232323232',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', '2026-07-30T00:31:00Z'
+);
+INSERT INTO die_evidence.evidence_record (
+  tenant_id, evidence_id, producer_id, installation_id, producer_epoch,
+  sequence_no, record_id, record_type, source_profile, profile_version,
+  schema_ref, source_object_type, source_namespace, source_object_id,
+  occurred_at, observed_at, enqueued_at, received_at, object_key,
+  object_version, object_size_bytes, content_sha256, privacy_policy_version,
+  capture_state, record_origin, evidence_quality, certification_id,
+  business_scope_id, environment, sensitivity, admitted_trust_state,
+  correlation, retention_class, admitted_by_artifact
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', 'endpoint-a',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa31', 1,
+  '018f0000-0000-7000-8000-000000000001', 'endpoint.test',
+  'endpoint', '1.0.0', 'urn:quilr:fixture:endpoint.test:1.0.0',
+  'device_observation', 'fixture', 'device-1',
+  '2026-07-30T00:30:00Z', '2026-07-30T00:30:10Z',
+  '2026-07-30T00:30:20Z', '2026-07-30T00:31:00Z',
+  'die-live-a/evidence/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32',
+  'version-1', 1,
+  'sha256:3232323232323232323232323232323232323232323232323232323232323232',
+  'privacy-v1', 'complete', 'fixture', 'fixture',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'test', 'internal',
+  'trusted', '{}', 'fixture-short',
+  'sha256:3333333333333333333333333333333333333333333333333333333333333333'
+);
+INSERT INTO die_evidence.evidence_disposition (
+  tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+  changed_by, changed_at
+) VALUES
+  (
+    'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 1,
+    'active', false, 'admitted', 'conformance',
+    '2026-07-30T00:31:00Z'
+  ),
+  (
+    'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 2,
+    'tombstoned', false, 'retention_expired', 'conformance',
+    '2026-07-30T00:32:00Z'
+  ),
+  (
+    'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 3,
+    'deletion_pending', false, 'retention_expired', 'conformance',
+    '2026-07-30T00:33:00Z'
+  );
+WITH target_manifest(target_ordinal, target_kind, target_locator_digest) AS (
+  VALUES
+    (
+      0, 'object_bytes',
+      'sha256:3434343434343434343434343434343434343434343434343434343434343434'
+    ),
+    (
+      1, 'clickhouse_evidence_rows',
+      'sha256:3535353535353535353535353535353535353535353535353535353535353535'
+    )
+), manifest AS (
+  SELECT 'sha256:' || encode(
+    digest(
+      string_agg(
+        int4send(target_ordinal)
+          || int8send(octet_length(target_kind)::bigint)
+          || convert_to(target_kind, 'UTF8')
+          || int8send(octet_length(target_locator_digest)::bigint)
+          || convert_to(target_locator_digest, 'UTF8'),
+        ''::bytea
+        ORDER BY target_ordinal
+      ),
+      'sha256'
+    ),
+    'hex'
+  ) AS target_manifest_digest
+  FROM target_manifest
+)
+INSERT INTO die_evidence.erasure_plan (
+  tenant_id, erasure_plan_id, evidence_id, source_disposition_revision,
+  placement_snapshot_digest, target_count, target_manifest_digest,
+  planner_artifact_digest, state, created_at
+)
+SELECT
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 3,
+  'sha256:3636363636363636363636363636363636363636363636363636363636363636',
+  2, target_manifest_digest,
+  'sha256:3737373737373737373737373737373737373737373737373737373737373737',
+  'building', '2026-07-30T00:34:00Z'
+FROM manifest;
+INSERT INTO die_evidence.erasure_target (
+  tenant_id, erasure_plan_id, target_id, target_ordinal, target_kind,
+  target_locator_digest
+) VALUES
+  (
+    'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa34', 0, 'object_bytes',
+    'sha256:3434343434343434343434343434343434343434343434343434343434343434'
+  ),
+  (
+    'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa35', 1,
+    'clickhouse_evidence_rows',
+    'sha256:3535353535353535353535353535353535353535353535353535353535353535'
+  );
+UPDATE die_evidence.erasure_plan
+SET state = 'sealed', sealed_at = '2026-07-30T00:35:00Z'
+WHERE tenant_id = 'die-live-a'
+  AND erasure_plan_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36';
+
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_evidence.erasure_target (
+      tenant_id, erasure_plan_id, target_id, target_ordinal, target_kind,
+      target_locator_digest
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa37', 2, 'cache_copy',
+      'sha256:3737373737373737373737373737373737373737373737373737373737373737'
+    );
+    RAISE EXCEPTION 'target was added after erasure-plan sealing';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM = 'target was added after erasure-plan sealing'
+        OR position('only while the plan is building' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+  BEGIN
+    INSERT INTO die_evidence.evidence_disposition (
+      tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+      changed_by, changed_at
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 4,
+      'held', true, 'legal_hold', 'conformance',
+      '2026-07-30T00:35:30Z'
+    );
+    UPDATE die_evidence.erasure_plan
+    SET state = 'executing',
+        execution_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38',
+        execution_started_at = '2026-07-30T00:36:00Z'
+    WHERE tenant_id = 'die-live-a'
+      AND erasure_plan_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36';
+    RAISE EXCEPTION 'erasure execution started after a legal hold won the race';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM = 'erasure execution started after a legal hold won the race'
+        OR position('exact latest unheld deletion-pending revision' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+
+SET SESSION AUTHORIZATION die_live_maintenance;
+SET LOCAL app.tenant_id = 'die-live-a';
+UPDATE die_evidence.erasure_plan
+SET state = 'executing',
+    execution_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38',
+    execution_started_at = '2026-07-30T00:36:00Z'
+WHERE tenant_id = 'die-live-a'
+  AND erasure_plan_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36';
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_evidence.evidence_disposition (
+      tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+      changed_by, changed_at
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 4,
+      'held', true, 'legal_hold', 'conformance',
+      '2026-07-30T00:36:30Z'
+    );
+    RAISE EXCEPTION 'legal hold was accepted after erasure execution commit';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM = 'legal hold was accepted after erasure execution commit'
+        OR position('too late after erasure execution commit' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+INSERT INTO die_evidence.erasure_receipt (
+  tenant_id, erasure_plan_id, target_id, receipt_digest,
+  verifier_artifact_digest, receipt_evidence_object_key, completed_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa34',
+  'sha256:3838383838383838383838383838383838383838383838383838383838383838',
+  'sha256:3939393939393939393939393939393939393939393939393939393939393939',
+  'die-live-a/erasure-receipts/object-34', '2026-07-30T00:37:00Z'
+);
+INSERT INTO die_evidence.evidence_disposition (
+  tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+  changed_by, changed_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 4,
+  'object_deleted', false, 'object_delete_verified', 'conformance',
+  '2026-07-30T00:37:00Z'
+);
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_evidence.evidence_disposition (
+      tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+      changed_by, changed_at
+    ) VALUES (
+      'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 5,
+      'deleted', false, 'erasure_verified', 'conformance',
+      '2026-07-30T00:37:30Z'
+    );
+    RAISE EXCEPTION 'terminal deletion was accepted before every receipt';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLERRM = 'terminal deletion was accepted before every receipt'
+        OR position('unreceipted required targets' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+INSERT INTO die_evidence.erasure_receipt (
+  tenant_id, erasure_plan_id, target_id, receipt_digest,
+  verifier_artifact_digest, receipt_evidence_object_key, completed_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa36',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa35',
+  'sha256:4040404040404040404040404040404040404040404040404040404040404040',
+  'sha256:4141414141414141414141414141414141414141414141414141414141414141',
+  'die-live-a/erasure-receipts/clickhouse-35', '2026-07-30T00:38:00Z'
+);
+INSERT INTO die_evidence.evidence_disposition (
+  tenant_id, evidence_id, revision, state, legal_hold, reason_code,
+  changed_by, changed_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', 5,
+  'deleted', false, 'erasure_verified', 'conformance',
+  '2026-07-30T00:38:00Z'
+);
+RESET SESSION AUTHORIZATION;
 
 ROLLBACK;

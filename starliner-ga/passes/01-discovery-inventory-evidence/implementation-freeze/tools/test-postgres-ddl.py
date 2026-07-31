@@ -34,6 +34,52 @@ def main() -> None:
         print(f"PASS {path.relative_to(ROOT)}: {len(statements)} statements")
 
         if path.name == "001-die-core.sql":
+            if re.search(r"\bjsonb_object_length\s*\(", sql):
+                raise AssertionError(
+                    "PostgreSQL has no jsonb_object_length function; use "
+                    "die_authz.jsonb_object_key_count"
+                )
+            for required_fragment in (
+                "CREATE OR REPLACE FUNCTION "
+                "die_authz.jsonb_object_key_count(value jsonb)",
+                "CHECK (die_authz.jsonb_object_key_count(payload) <= 32)",
+                "UNIQUE (tenant_id, object_key)",
+                "record_id::text ~",
+                "state text NOT NULL CHECK (state IN ('building','sealed','executing'))",
+                "UNIQUE (tenant_id, execution_id)",
+                "actual_object_target_count <> 1",
+                "IF OLD.state = 'sealed' AND NEW.state = 'executing' THEN",
+                "plan.state = 'executing'",
+                "PERFORM pg_advisory_xact_lock(",
+                "NEW.tenant_id || E'\\x1f' || NEW.evidence_id::text",
+                "legal hold or deletion cancellation is too late after erasure execution commit",
+                "hash_format text NOT NULL DEFAULT "
+                "'die.audit.pg-jsonb-utc.v1'",
+                "CREATE OR REPLACE FUNCTION die_audit.compute_audit_event_hash(",
+                "audit_row.occurred_at AT TIME ZONE 'UTC'",
+                "computed_hash := die_audit.compute_audit_event_hash(NEW)",
+            ):
+                if required_fragment not in sql:
+                    raise AssertionError(
+                        "PostgreSQL baseline lacks required runtime-safe "
+                        f"fragment: {required_fragment}"
+                    )
+            roles_sql = (ROOT / "sql" / "003-die-roles-and-grants.sql").read_text(
+                encoding="utf-8"
+            )
+            if (
+                "GRANT UPDATE (state, sealed_at, execution_id, execution_started_at)"
+                not in roles_sql
+            ):
+                raise AssertionError(
+                    "maintenance role cannot commit the erasure execution "
+                    "linearization fields"
+                )
+            if "(to_jsonb(NEW) - 'event_hash')::text" in sql:
+                raise AssertionError(
+                    "audit hashing must not use session-TimeZone-sensitive "
+                    "generic row-to-JSON serialization"
+                )
             create_positions = {
                 match.group(1): match.start()
                 for match in re.finditer(
@@ -71,6 +117,46 @@ def main() -> None:
                     "PostgreSQL baseline is not executable in file order:\n- "
                     + "\n- ".join(ordering_errors)
                 )
+
+            tables = set(create_positions)
+            rls_enabled = set(
+                match.group(1).lower()
+                for match in re.finditer(
+                    r"\bALTER\s+TABLE\s+(die_[a-z0-9_]+\.[a-z0-9_]+)"
+                    r"\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY",
+                    sql,
+                    flags=re.IGNORECASE,
+                )
+            )
+            rls_forced = set(
+                match.group(1).lower()
+                for match in re.finditer(
+                    r"\bALTER\s+TABLE\s+(die_[a-z0-9_]+\.[a-z0-9_]+)"
+                    r"\s+FORCE\s+ROW\s+LEVEL\s+SECURITY",
+                    sql,
+                    flags=re.IGNORECASE,
+                )
+            )
+            policy_tables = set(
+                match.group(1).lower()
+                for match in re.finditer(
+                    r"\bCREATE\s+POLICY\s+[a-z0-9_]+\s+ON\s+"
+                    r"(die_[a-z0-9_]+\.[a-z0-9_]+)",
+                    sql,
+                    flags=re.IGNORECASE,
+                )
+            )
+            for label, covered in (
+                ("ENABLE RLS", rls_enabled),
+                ("FORCE RLS", rls_forced),
+                ("tenant policy", policy_tables),
+            ):
+                missing = sorted(tables - covered)
+                if missing:
+                    raise AssertionError(
+                        f"PostgreSQL baseline lacks {label} on: "
+                        + ", ".join(missing)
+                    )
     print(f"PostgreSQL DDL parse passed: {statement_count} statements.")
 
 

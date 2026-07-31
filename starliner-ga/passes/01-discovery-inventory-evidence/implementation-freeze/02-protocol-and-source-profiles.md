@@ -7,6 +7,9 @@ Human-authored JSON Schema in `contracts/v1` becomes the protocol source of trut
 - Go types and validators;
 - Python Pydantic models and the compatibility `starliner_contracts` package;
 - TypeScript types and API client;
+- Java source-profile records and validators for Browser Backend;
+- Rust source-profile records and validators for Endpoint and Browser native
+  components;
 - canonical JSON fixtures;
 - schema digests and compatibility reports.
 
@@ -31,7 +34,41 @@ Sensor facts live only in a typed profile payload. The envelope does not accumul
 
 Admission validates the envelope and then dispatches the payload to the exact `(profile, profile_version, schema_ref)` schema. It also validates payload kind/lifecycle/stage/operation against the envelope `record_type` using [profile-envelope-bindings.yaml](ontology/profile-envelope-bindings.yaml). A valid payload with a falsely labeled envelope kind is rejected.
 
-Hashes and detached signatures use RFC 8785 JSON Canonicalization Scheme over I-JSON-compatible input. Non-finite numbers, duplicate object keys and values outside the admitted integer bounds are rejected. Strings retain their exact Unicode scalar sequence; adapters must not silently normalize Unicode before hashing. The conformance pack contains byte-identical Go, Java, TypeScript and Rust vectors.
+Hashes and detached signatures use RFC 8785 JSON Canonicalization Scheme over
+I-JSON-compatible input. Non-finite numbers, duplicate object keys and values
+outside the admitted integer bounds are rejected. Strings retain their exact
+Unicode scalar sequence; adapters must not silently normalize Unicode before
+hashing. The conformance pack covers every implementation language on the
+selected sensor/platform path: Go, Java, Python, TypeScript and Rust.
+
+V1 has exactly one detached-signature representation:
+
+```text
+{
+  "format": "jws-detached-jcs",
+  "algorithm": "ES256" | "EdDSA",
+  "key_id": "<allowlisted key ID>",
+  "value": "BASE64URL(protected-header)..BASE64URL(signature)"
+}
+```
+
+The signed payload is the UTF-8 RFC 8785 serialization of the containing object
+with its top-level `signature` member removed. JWS uses the ordinary
+base64url-encoded payload signing input even though the payload segment is
+detached:
+
+```text
+ASCII(protected-segment) + "." + BASE64URL(JCS payload bytes)
+```
+
+The protected header contains exactly `alg`, `kid` and
+`typ: "application/quilr+jcs"` in V1 and is itself RFC 8785 serialized before
+base64url encoding. Its `alg` and `kid` must equal the
+external `algorithm` and `key_id`; unknown protected members, `crit`, an
+unencoded-payload `b64:false` variant, algorithm substitution and non-allowlisted
+keys fail closed. ES256 is mandatory. EdDSA is enabled only for an explicitly
+certified non-FIPS algorithm profile; accepting it is never inferred from the
+schema enum alone.
 
 The Edge Runtime durably stores the highest accepted configuration generation and its digest. It accepts a higher signed generation, treats an equal generation with the same digest as idempotent, rejects an equal generation with a different digest, and rejects every lower generation. A rollback is issued as a newly signed, monotonically higher generation whose payload selects an older artifact; generation numbers themselves never move backwards.
 
@@ -58,11 +95,25 @@ Every producer maintains:
 
 ```text
 producer_epoch: random UUID created only when the durable WAL is initialized
-sequence: unsigned 64-bit integer allocated transactionally in the WAL
+sequence: unsigned JavaScript-safe integer allocated transactionally in the WAL
 record_id: UUIDv7 allocated once and persisted with the record
-idempotency_key: producer_id + epoch + sequence
-content_sha256: canonical envelope-without-hash plus payload digest
+idempotency_key: "v1:" + producer_id + ":" + producer_epoch + ":" + canonical base-10 sequence
+content_sha256: SHA-256 of the exact canonical record object defined below
 ```
+
+For one record, remove only `envelope.content_sha256`, construct the object
+`{"envelope": <remaining envelope>, "payload": <typed payload>}`, serialize that
+entire object with RFC 8785, hash the UTF-8 bytes with SHA-256, and encode the
+field as lowercase `sha256:<64 hex>`. There is no delimiter concatenation,
+payload-only digest substitution, batch metadata or compression byte stream in
+this hash. Admission recomputes both the idempotency key and content hash; they
+are not trusted producer assertions.
+
+The request-level `Idempotency-Key` is a separate opaque retry key. Its stored
+request digest is SHA-256 over the UTF-8 RFC 8785 serialization of the complete
+decompressed `delivery-batch` object. Transport headers and compressed bytes are
+not part of that digest. Same key/same digest reproduces the complete ordered
+receipt; same key/different digest is an HTTP `409`.
 
 Rules:
 
