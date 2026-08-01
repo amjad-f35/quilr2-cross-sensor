@@ -131,6 +131,11 @@ No implementation is authorized by a lower-ranked document when it conflicts wit
 | [`evidence/`](evidence/) | Hash-locked non-normative inputs and their normative disposition |
 | [`tools/`](tools/) | Corpus validation |
 
+Pass status:
+
+- [`passes/01-discovery-inventory-evidence/`](passes/01-discovery-inventory-evidence/) is the active normative first-release authority.
+- [`passes/02-intelligence-findings/`](passes/02-intelligence-findings/) is a deferred pre-freeze checklist only; it records what must be decided and proven before intelligence implementation is authorized.
+
 ## Evidence inputs
 
 This corpus was produced from:

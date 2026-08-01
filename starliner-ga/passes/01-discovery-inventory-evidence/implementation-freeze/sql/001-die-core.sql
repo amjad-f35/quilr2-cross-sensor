@@ -3968,15 +3968,17 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  IF TG_OP = 'DELETE'
-    AND TG_TABLE_NAME = 'api_idempotency'
-    AND OLD.state IN ('completed','failed')
-    AND OLD.expires_at <= transaction_timestamp()
-    AND pg_has_role(session_user, 'die_maintenance', 'member') THEN
-    RETURN OLD;
-  END IF;
-
   IF TG_OP = 'DELETE' THEN
+    -- Table selection must stay in an outer branch (same hazard the INSERT
+    -- section documents): OLD.state would otherwise bind against trigger
+    -- tables whose lifecycle column is status.
+    IF TG_TABLE_NAME = 'api_idempotency' THEN
+      IF OLD.state IN ('completed','failed')
+        AND OLD.expires_at <= transaction_timestamp()
+        AND pg_has_role(session_user, 'die_maintenance', 'member') THEN
+        RETURN OLD;
+      END IF;
+    END IF;
     RAISE EXCEPTION '% control records cannot be deleted', TG_TABLE_NAME;
   END IF;
 

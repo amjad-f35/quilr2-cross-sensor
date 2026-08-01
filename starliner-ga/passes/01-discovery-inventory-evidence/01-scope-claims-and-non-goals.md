@@ -145,3 +145,8 @@ The pass stores the facts required for later:
 - cases and workflows.
 
 It does not implement those consumers. Later modules consume versioned canonical events and ledgers, never re-read raw sensor APIs.
+
+The mandatory determinations and executable artifacts for the later
+intelligence implementation freeze are preserved in the deferred
+[Intelligence and Findings Pass checklist](../02-intelligence-findings/README.md).
+That checklist is not authorization to implement findings during this pass.
