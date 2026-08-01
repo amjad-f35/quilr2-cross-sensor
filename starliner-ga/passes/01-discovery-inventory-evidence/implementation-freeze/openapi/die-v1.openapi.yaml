@@ -1963,6 +1963,7 @@ components:
         lifecycle: {type: string, enum: [active, ended, stale, ambiguous, unknown]}
         valid_from: {type: string, format: date-time}
         valid_to: {type: [string, 'null'], format: date-time}
+        end_reason: {type: string, enum: [source_ended, retracted, reconciliation_absent, corrected, unknown]}
         confidence: {type: number, minimum: 0, maximum: 1}
         source_count: {type: integer, minimum: 0, maximum: 9007199254740991}
     SourceObservationSummary:

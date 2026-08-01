@@ -35,7 +35,7 @@ BEGIN
     FROM pg_roles role
     WHERE role.rolname IN (
       'die_ingest','die_normalizer','die_truth','die_projector',
-      'die_api','die_maintenance','die_control_admin','die_authz_admin'
+      'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
     )
       AND (role.rolsuper OR role.rolbypassrls OR role.rolcanlogin);
   IF violation IS NOT NULL THEN
@@ -46,7 +46,7 @@ BEGIN
     INTO violation
     FROM unnest(ARRAY[
       'die_ingest','die_normalizer','die_truth','die_projector',
-      'die_api','die_maintenance','die_control_admin','die_authz_admin'
+      'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
     ]) AS runtime_role(role_name)
     WHERE has_table_privilege(
       runtime_role.role_name,
@@ -70,7 +70,7 @@ BEGIN
     WHERE namespace.nspname LIKE 'die\_%' ESCAPE '\'
       AND owner_role.rolname IN (
         'die_ingest','die_normalizer','die_truth','die_projector',
-        'die_api','die_maintenance','die_control_admin','die_authz_admin'
+        'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
       );
   IF violation IS NOT NULL THEN
     RAISE EXCEPTION 'runtime role owns a DIE relation: %', violation;
@@ -209,8 +209,10 @@ $$;
 
 CREATE ROLE die_live_api LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_api_b LOGIN NOBYPASSRLS;
+CREATE ROLE die_live_bff LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_ingest LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_authz LOGIN NOBYPASSRLS;
+CREATE ROLE die_live_control LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_normalizer LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_truth LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_maintenance LOGIN NOBYPASSRLS;
@@ -218,8 +220,10 @@ CREATE ROLE die_live_indirect LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_role_bridge NOLOGIN NOBYPASSRLS;
 GRANT die_api TO die_live_api;
 GRANT die_api TO die_live_api_b;
+GRANT die_bff TO die_live_bff;
 GRANT die_ingest TO die_live_ingest;
 GRANT die_authz_admin TO die_live_authz;
+GRANT die_control_admin TO die_live_control;
 GRANT die_normalizer TO die_live_normalizer;
 GRANT die_truth TO die_live_truth;
 GRANT die_maintenance TO die_live_maintenance;
@@ -243,6 +247,185 @@ INSERT INTO die_control.tenant_cell_principal (
   ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa04', 'cell-a', 'die_live_normalizer', 'die_normalizer', 'active', '2026-07-30T00:00:00Z', 1),
   ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa05', 'cell-a', 'die_live_truth', 'die_truth', 'active', '2026-07-30T00:00:00Z', 1),
   ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa06', 'cell-a', 'die_live_maintenance', 'die_maintenance', 'active', '2026-07-30T00:00:00Z', 1);
+
+INSERT INTO die_control.tenant_cell_principal (
+  tenant_id, principal_binding_id, cell_id, database_principal, workload_role,
+  state, assigned_at, revision
+) VALUES
+  ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa07', 'cell-a', 'die_live_bff', 'die_bff', 'active', '2026-07-30T00:00:00Z', 1),
+  ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa08', 'cell-a', 'die_live_control', 'die_control_admin', 'active', '2026-07-30T00:00:00Z', 1);
+
+-- Final-delta trust/session authorities: real RLS, state-machine and uniqueness
+-- execution rather than DDL parsing alone.
+SET ROLE die_live_control;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.manifest_signer_key (
+  tenant_id, key_id, revision, algorithm, public_jwk, fingerprint, state,
+  manifest_kind, environment, not_before, not_after, issuer
+) VALUES (
+  'die-live-a', 'bootstrap-key-1', 1, 'ES256',
+  '{"kty":"EC","crv":"P-256","x":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","y":"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"}',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'active', 'tenant_bootstrap', 'test',
+  '2026-07-30T00:00:00Z', '2026-10-30T00:00:00Z', 'die-live-control'
+);
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_control.manifest_signer_key (
+      tenant_id, key_id, revision, algorithm, public_jwk, fingerprint, state,
+      manifest_kind, environment, not_before, not_after, issuer
+    ) VALUES (
+      'die-live-a', 'bootstrap-key-conflict', 1, 'ES256',
+      '{"kty":"EC","crv":"P-256","x":"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC","y":"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"}',
+      'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      'active', 'tenant_bootstrap', 'test',
+      '2026-07-30T00:00:00Z', '2026-10-30T00:00:00Z', 'die-live-control'
+    );
+    RAISE EXCEPTION 'second active manifest signer was accepted';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLSTATE <> '23505'
+        OR position('uq_manifest_signer_one_active' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+SET app.change_reason = 'rotation_started';
+UPDATE die_control.manifest_signer_key
+  SET state = 'retiring', revision = 2
+  WHERE tenant_id = 'die-live-a' AND key_id = 'bootstrap-key-1';
+DO $$
+BEGIN
+  IF (SELECT count(*) FROM die_control.manifest_signer_key_version
+      WHERE tenant_id = 'die-live-a' AND key_id = 'bootstrap-key-1') <> 2 THEN
+    RAISE EXCEPTION 'manifest signer key transition history is incomplete';
+  END IF;
+END
+$$;
+INSERT INTO die_control.manifest_verification (
+  tenant_id, attempt_id, manifest_id, manifest_kind, schema_version,
+  manifest_digest, issuer, key_id, key_fingerprint, algorithm,
+  verification_result, verifier_artifact_digest, applied_effects,
+  verified_at, applied_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa91',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa92', 'tenant_bootstrap',
+  'starliner.tenant-bootstrap.v1',
+  'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+  'die-live-control', 'bootstrap-key-1',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'ES256', 'verified',
+  'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+  '{"root_scope":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1"}',
+  '2026-07-30T00:10:00Z', '2026-07-30T00:10:01Z'
+);
+RESET ROLE;
+
+SET ROLE die_live_authz;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_authz.oidc_trust (
+  tenant_id, issuer_uri, revision, discovery_uri, allowed_audiences,
+  allowed_algorithms, jwks_soft_ttl_seconds, jwks_hard_ttl_seconds,
+  forced_refresh_min_interval_seconds, max_token_lifetime_seconds,
+  clock_skew_seconds, state
+) VALUES (
+  'die-live-a', 'https://id.die-live.example/', 1,
+  'https://id.die-live.example/.well-known/openid-configuration',
+  '["quilr-die-ui"]', '["ES256"]', 300, 3600, 60, 86400, 60, 'active'
+);
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO die_authz.oidc_trust (
+      tenant_id, issuer_uri, revision, discovery_uri, allowed_audiences,
+      allowed_algorithms, jwks_soft_ttl_seconds, jwks_hard_ttl_seconds,
+      forced_refresh_min_interval_seconds, max_token_lifetime_seconds,
+      clock_skew_seconds, state
+    ) VALUES (
+      'die-live-a', 'https://id.die-live.example/', 3,
+      'https://id.die-live.example/.well-known/openid-configuration',
+      '["quilr-die-ui"]', '["ES256"]', 300, 3600, 60, 86400, 60, 'pending'
+    );
+    RAISE EXCEPTION 'non-contiguous OIDC trust revision was accepted';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLSTATE <> 'P0001'
+        OR position('OIDC trust revision must be next contiguous revision 2' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+RESET ROLE;
+
+SET ROLE die_live_bff;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_authz.runtime_session (
+  tenant_id, session_id, session_token_digest, issuer_uri, issuer_revision,
+  subject, role_ids,
+  authorization_revision, session_epoch, authentication_time, assurance,
+  state, created_at, last_seen_at, idle_expires_at, absolute_expires_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa93',
+  'hmac-sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  'https://id.die-live.example/', 1, 'subject-1', '["viewer"]', 1, 1,
+  '2026-07-30T00:00:00Z', 'mfa', 'active',
+  '2026-07-30T00:00:00Z', '2026-07-30T00:01:00Z',
+  '2026-07-30T01:01:00Z', '2026-07-30T12:00:00Z'
+);
+UPDATE die_authz.runtime_session
+  SET state = 'logged_out', revoked_at = '2026-07-30T00:02:00Z',
+      revocation_reason = 'logout', session_epoch = 2,
+      purge_after = '2026-07-31T00:02:00Z'
+  WHERE tenant_id = 'die-live-a'
+    AND session_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa93';
+DO $$
+BEGIN
+  BEGIN
+    UPDATE die_authz.runtime_session
+      SET state = 'active', revoked_at = NULL, revocation_reason = NULL
+      WHERE tenant_id = 'die-live-a'
+        AND session_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa93';
+    RAISE EXCEPTION 'terminal runtime session reactivated';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLSTATE <> 'P0001'
+        OR position('terminal runtime session cannot reactivate' in SQLERRM) = 0 THEN
+        RAISE;
+      END IF;
+  END;
+END
+$$;
+SET app.tenant_id = 'die-live-b';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM die_authz.runtime_session) THEN
+    RAISE EXCEPTION 'BFF runtime session RLS leaked another tenant';
+  END IF;
+END
+$$;
+RESET ROLE;
+
+SET ROLE die_live_maintenance;
+SET app.tenant_id = 'die-live-a';
+SET app.change_reason = 'session_retention_expired';
+DELETE FROM die_authz.runtime_session
+  WHERE tenant_id = 'die-live-a'
+    AND session_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa93';
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM die_authz.runtime_session
+    WHERE tenant_id = 'die-live-a'
+      AND session_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa93'
+  ) THEN
+    RAISE EXCEPTION 'expired terminal runtime session was not purged';
+  END IF;
+END
+$$;
+RESET ROLE;
 
 DO $$
 BEGIN

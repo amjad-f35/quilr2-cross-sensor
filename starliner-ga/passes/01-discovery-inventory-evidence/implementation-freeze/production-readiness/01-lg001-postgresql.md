@@ -1,5 +1,13 @@
 # LG-001 — PostgreSQL Production Conformance
 
+## Final delta authorities
+
+LG-001 includes concurrent execution of the 25 temporal precedence cases,
+manifest signer rotation/single-active/audit behavior, and OIDC/BFF session
+state under RLS. Local PostgreSQL 17.10 smoke executes the tables, triggers,
+grants, terminal-session and cross-tenant negatives; retained multi-session,
+crash/failover evidence remains the release exit defined by LG001-T015..017.
+
 ## Frozen runtime design
 
 PostgreSQL 17 is the mutation authority for tenant/control identity, admission

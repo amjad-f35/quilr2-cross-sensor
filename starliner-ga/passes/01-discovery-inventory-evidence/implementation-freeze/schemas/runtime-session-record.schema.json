@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/runtime-session-record/1.0.0",
+  "title": "Server-private Runtime Session Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "tenant_id", "session_id", "session_token_digest",
+    "issuer_uri", "issuer_revision", "subject", "role_ids", "authorization_revision",
+    "session_epoch", "authentication_time", "assurance", "created_at",
+    "last_seen_at", "idle_expires_at", "absolute_expires_at", "state",
+    "purge_after"
+  ],
+  "properties": {
+    "schema_version": {"const": "die.runtime-session.v1"},
+    "tenant_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "session_id": {"type": "string", "format": "uuid"},
+    "session_token_digest": {"type": "string", "pattern": "^hmac-sha256:[0-9a-f]{64}$"},
+    "issuer_uri": {"type": "string", "format": "uri", "pattern": "^https://", "maxLength": 2048},
+    "issuer_revision": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+    "subject": {"type": "string", "minLength": 1, "maxLength": 512},
+    "role_ids": {
+      "type": "array", "maxItems": 128, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 256}
+    },
+    "authorization_revision": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+    "session_epoch": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+    "authentication_time": {"type": "string", "format": "date-time"},
+    "assurance": {"type": "string", "minLength": 1, "maxLength": 128},
+    "created_at": {"type": "string", "format": "date-time"},
+    "last_seen_at": {"type": "string", "format": "date-time"},
+    "idle_expires_at": {"type": "string", "format": "date-time"},
+    "absolute_expires_at": {"type": "string", "format": "date-time"},
+    "state": {"enum": ["active", "logged_out", "expired", "revoked"]},
+    "revoked_at": {"type": ["string", "null"], "format": "date-time"},
+    "revocation_reason": {"type": ["string", "null"], "maxLength": 256},
+    "purge_after": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "active"}}, "required": ["state"]},
+      "then": {"properties": {"revoked_at": {"type": "null"}, "revocation_reason": {"type": "null"}, "purge_after": {"type": "null"}}},
+      "else": {"required": ["revoked_at", "purge_after"], "properties": {"revoked_at": {"type": "string", "format": "date-time"}, "purge_after": {"type": "string", "format": "date-time"}}}
+    }
+  ]
+}

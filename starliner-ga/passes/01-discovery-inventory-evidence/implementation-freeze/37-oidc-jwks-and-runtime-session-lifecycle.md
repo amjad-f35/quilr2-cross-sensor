@@ -63,7 +63,8 @@ principal is rejected (landed `tenant_isolation`).
     a cached key set older than the hard bound without successful refresh
     fails closed for **all** verification against that issuer.
 - An unknown `kid` triggers one immediate forced refresh, rate-limited to at
-  most one forced refresh per issuer per 60 seconds; still-unknown after
+  most one forced refresh per issuer per 60 seconds by default and never more
+  often than the configured 60–300-second minimum interval; still-unknown after
   refresh fails closed. Key-miss refresh is the rotation fast path.
 - A JWKS response that is syntactically invalid, empty, or over the bounded
   response size is discarded; the prior cached set remains active until the
@@ -162,12 +163,30 @@ the session principal.
   `Secure`, `SameSite=Lax` or stricter, `Path=/`, no `Domain` attribute; the
   session identifier is ≥ 128 bits from a CSPRNG and is an opaque reference
   to server-side state — never a JWT, never claims.
-- **Session record (server-private):** issuer, subject, tenant, roles
+- **Tenant routing:** the browser cookie remains opaque. Before querying the
+  session store, the BFF resolves tenant context from the already-trusted
+  deployment/host router (dedicated host, cell route or authenticated tenant
+  selector), sets `app.tenant_id`, and performs an RLS-constrained lookup by
+  the HMAC-SHA256 digest of the cookie. A tenant identifier parsed from an
+  untrusted cookie or request parameter is never authority.
+- **Session record (server-private):** issuer and exact issuer-trust revision,
+  subject, tenant, roles
   snapshot, authorization revision at establishment, session epoch,
   authentication time/assurance, idle expiry, absolute expiry.
+
+The machine contracts are
+[`trusted-oidc-issuer.schema.json`](schemas/trusted-oidc-issuer.schema.json)
+and
+[`runtime-session-record.schema.json`](schemas/runtime-session-record.schema.json).
+Their PostgreSQL authorities are `die_authz.oidc_trust` and
+`die_authz.runtime_session`; raw cookies and IdP tokens are never persisted.
 - **Timeouts:** idle timeout default 60 minutes (configured ≤ 8 hours);
-  absolute timeout default 12 hours (configured ≤ 24 hours). Expiry destroys
-  the server-side record; the cookie alone re-establishes nothing.
+  absolute timeout default 12 hours (configured ≤ 24 hours). Expiry or logout
+  atomically terminalizes the server-side record, invalidates the cookie and
+  sets a purge deadline no more than seven days later. The HMAC digest is kept
+  only as a bounded replay/incident tombstone; after the deadline only the
+  maintenance role may delete it with the audited
+  `session_retention_expired` reason. The cookie alone re-establishes nothing.
 - **Session-principal cache binding (landed, frozen):** die query cache keys
   bind `(tenant, subject, session epoch)` in addition to the frozen
   scope/filter/projection-generation/authorization-revision dimensions (09).
@@ -177,8 +196,9 @@ the session principal.
   the identical principal is a no-op so in-session navigation keeps its
   cache. The cache identity grants nothing; the backend remains the sole
   authorization authority.
-- **Logout:** destroy the server-side session, expire the cookie, increment
-  the session epoch, purge session-scoped cached data. Logout is a
+- **Logout:** terminalize the server-side session, expire the cookie, increment
+  the session epoch, purge session-scoped cached data and schedule the bounded
+  tombstone purge above. Logout is a
   state-changing route and carries CSRF protection (09).
 - **Tenant switch:** a new principal binding through the same establishment
   path — roles and revision re-resolved for the target tenant, session epoch

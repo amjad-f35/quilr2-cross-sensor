@@ -2,7 +2,7 @@
 
 **Status:** FROZEN addendum; frozen 2026-08-01; closes the stale-revision and
 retraction contracts the implementation ledger marked
-`OPEN — no frozen source-revision contract in authority; do not invent`
+the formerly open item `no frozen source-revision contract in authority`
 
 **Scope:** exact, executable source-revision carrier, comparison, precedence
 and retraction semantics per source profile and per record kind. This addendum
@@ -230,7 +230,16 @@ Per record kind:
 | coverage | none | corrections append new serialized revisions; no retraction state exists |
 | reconciliation | none — pages and completed runs cannot be retracted | conflicting duplicates quarantine (04); an evaluated run is superseded only by a later full run passing the ratchet |
 
-Frozen retraction rules for relationships (the one v1 wire carrier):
+Frozen retraction rules for relationships (the v1 **normalized internal**
+carrier):
+
+The five native source-profile schemas currently expose raw relationship
+`operation = upsert | end`; none exposes a raw `retracted` operation. A
+`state = retracted` candidate is therefore legal only when produced by an
+accepted central correction/normalizer rule with evidence lineage. A native
+sensor retraction requires a profile-schema revision before admission. This
+distinction prevents implementation agents from fabricating raw sensor
+support from the normalized enum.
 
 1. Retraction closes the retracting source's support only. Another source's
    surviving support keeps the canonical edge active; the retracting
@@ -265,6 +274,13 @@ DDL) and the `end_reason` attribute complete it. No landed accepted semantics
 change.
 
 ## Executable precedence fixtures
+
+The prose table below is mirrored by the machine-validated
+[`source-temporal-precedence-cases.json`](fixtures/final-delta-freeze/source-temporal-precedence-cases.json).
+Every admitted profile kind is bound to its carrier/comparator and stale/head
+effect in
+[`source-temporal-precedence.csv`](registers/source-temporal-precedence.csv).
+The JSON cases are the executable IDs; the table remains the readable oracle.
 
 These fixtures are conformance authority. `head X` is committed state;
 `arriving Y` is the next admitted record in the same source stream unless

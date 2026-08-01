@@ -6,6 +6,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -154,10 +155,109 @@ def run() -> None:
 
     positive_count = 0
     negative_count = 0
+
+    final_fixtures = ROOT / "fixtures" / "final-delta-freeze"
+    fixture_contracts = [
+        ("trusted-oidc-issuer.schema.json", "trusted-oidc-issuer.valid.json"),
+        ("runtime-session-record.schema.json", "runtime-session-record.valid.json"),
+        ("manifest-signer-key.schema.json", "manifest-signer-key.valid.json"),
+    ]
+    loaded_final: dict[str, dict] = {}
+    for schema_name, fixture_name in fixture_contracts:
+        value = json.loads((final_fixtures / fixture_name).read_text())
+        accept(schema_name, value, fixture_name)
+        loaded_final[schema_name] = value
+        positive_count += 1
+
+    precedence_cases = json.loads(
+        (final_fixtures / "source-temporal-precedence-cases.json").read_text()
+    )
+    if len(precedence_cases) != 25:
+        raise AssertionError(f"expected 25 temporal precedence cases, got {len(precedence_cases)}")
+    precedence_ids = [case["case_id"] for case in precedence_cases]
+    if precedence_ids != [f"PRC-{index:03d}" for index in range(1, 26)]:
+        raise AssertionError("temporal precedence cases must be unique, contiguous PRC-001..PRC-025")
+    for case in precedence_cases:
+        accept("source-temporal-precedence-case.schema.json", case, case["case_id"])
+        positive_count += 1
+
+    oidc = loaded_final["trusted-oidc-issuer.schema.json"]
+    if oidc["jwks_hard_ttl_seconds"] < oidc["jwks_soft_ttl_seconds"]:
+        raise AssertionError("OIDC hard JWKS TTL cannot be lower than soft TTL")
+    session = loaded_final["runtime-session-record.schema.json"]
+    if not (session["created_at"] <= session["last_seen_at"] < session["idle_expires_at"] <= session["absolute_expires_at"]):
+        raise AssertionError("runtime session timestamps violate frozen ordering")
     for name, cases in PROFILE_CASES.items():
         for case in cases:
             accept(name, case, case["kind"])
             positive_count += 1
+
+    insecure_issuer = copy.deepcopy(oidc)
+    insecure_issuer["issuer_uri"] = "http://id.acme.example/"
+    reject("trusted-oidc-issuer.schema.json", insecure_issuer, "non-HTTPS issuer")
+    negative_count += 1
+
+    hmac_issuer = copy.deepcopy(oidc)
+    hmac_issuer["allowed_algorithms"] = ["HS256"]
+    reject("trusted-oidc-issuer.schema.json", hmac_issuer, "symmetric OIDC algorithm")
+    negative_count += 1
+
+    raw_session = copy.deepcopy(session)
+    raw_session["access_token"] = "must-not-be-stored"
+    reject("runtime-session-record.schema.json", raw_session, "raw session credential")
+    negative_count += 1
+
+    reactivated_session = copy.deepcopy(session)
+    reactivated_session["state"] = "revoked"
+    reject("runtime-session-record.schema.json", reactivated_session, "terminal session without revocation time")
+    negative_count += 1
+
+    terminal_session = copy.deepcopy(session)
+    terminal_session["state"] = "logged_out"
+    terminal_session["revoked_at"] = "2026-08-01T12:02:00Z"
+    terminal_session["revocation_reason"] = "logout"
+    terminal_session["purge_after"] = "2026-08-02T12:02:00Z"
+    accept("runtime-session-record.schema.json", terminal_session, "bounded terminal session tombstone")
+    revoked_at = datetime.fromisoformat(terminal_session["revoked_at"].replace("Z", "+00:00"))
+    purge_after = datetime.fromisoformat(terminal_session["purge_after"].replace("Z", "+00:00"))
+    if not revoked_at < purge_after <= revoked_at + timedelta(days=7):
+        raise AssertionError("terminal session purge deadline violates frozen retention bound")
+    positive_count += 1
+
+    unbounded_terminal_session = copy.deepcopy(terminal_session)
+    unbounded_terminal_session["purge_after"] = "2026-08-09T12:02:01Z"
+    accept("runtime-session-record.schema.json", unbounded_terminal_session, "shape-valid unbounded session tombstone")
+    try:
+        unbounded_purge = datetime.fromisoformat(
+            unbounded_terminal_session["purge_after"].replace("Z", "+00:00")
+        )
+        if not revoked_at < unbounded_purge <= revoked_at + timedelta(days=7):
+            raise AssertionError("terminal session purge deadline violates frozen retention bound")
+    except AssertionError:
+        negative_count += 1
+    else:
+        raise AssertionError("runtime session semantic validator accepted unbounded tombstone retention")
+
+    inverted_session = copy.deepcopy(session)
+    inverted_session["idle_expires_at"] = "2026-08-02T01:00:00Z"
+    try:
+        if not (inverted_session["created_at"] <= inverted_session["last_seen_at"] < inverted_session["idle_expires_at"] <= inverted_session["absolute_expires_at"]):
+            raise AssertionError("runtime session timestamps violate frozen ordering")
+    except AssertionError:
+        negative_count += 1
+    else:
+        raise AssertionError("runtime session semantic validator accepted expiry beyond absolute bound")
+
+    signer = loaded_final["manifest-signer-key.schema.json"]
+    private_signer = copy.deepcopy(signer)
+    private_signer["public_jwk"]["d"] = "private"
+    reject("manifest-signer-key.schema.json", private_signer, "private JWK member")
+    negative_count += 1
+
+    mismatched_signer = copy.deepcopy(signer)
+    mismatched_signer["algorithm"] = "EdDSA"
+    reject("manifest-signer-key.schema.json", mismatched_signer, "algorithm and key-type mismatch")
+    negative_count += 1
 
     backend_cases = [
         {"kind": "application_catalog", "operation": "observed", "source_id": "1", "status": "succeeded", "application_source_id": "a", "catalog_revision": "1"},

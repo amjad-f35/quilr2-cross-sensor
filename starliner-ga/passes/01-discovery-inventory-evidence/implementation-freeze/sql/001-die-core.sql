@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS die_control.tenant_cell_principal (
   database_principal name NOT NULL,
   workload_role text NOT NULL CHECK (workload_role IN (
     'die_ingest','die_normalizer','die_truth','die_projector',
-    'die_api','die_maintenance','die_control_admin','die_authz_admin'
+    'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
   )),
   state text NOT NULL CHECK (state IN ('active','revoked')),
   assigned_at timestamptz NOT NULL,
@@ -326,6 +326,97 @@ CREATE TABLE IF NOT EXISTS die_control.certification (
   CHECK (jsonb_typeof(profile_versions) = 'object'),
   CHECK (pg_column_size(profile_versions) <= 16384),
   CHECK (expires_at IS NULL OR expires_at > certified_at)
+);
+
+-- Tenant-scoped public verification keys for signed bootstrap, enrollment and
+-- edge-configuration manifests. One row is intentionally scoped to one kind:
+-- this makes least privilege and the single-active-key invariant enforceable.
+CREATE TABLE IF NOT EXISTS die_control.manifest_signer_key (
+  tenant_id text NOT NULL,
+  key_id text NOT NULL CHECK (length(key_id) BETWEEN 1 AND 512),
+  revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 9007199254740991),
+  algorithm text NOT NULL CHECK (algorithm IN ('ES256', 'EdDSA')),
+  public_jwk jsonb NOT NULL CHECK (jsonb_typeof(public_jwk) = 'object'),
+  fingerprint text NOT NULL CHECK (fingerprint ~ '^sha256:[0-9a-f]{64}$'),
+  state text NOT NULL CHECK (state IN (
+    'pending', 'active', 'retiring', 'retired',
+    'revoked', 'revoked_compromised'
+  )),
+  manifest_kind text NOT NULL CHECK (manifest_kind IN (
+    'tenant_bootstrap', 'producer_enrollment', 'edge_configuration'
+  )),
+  environment text NOT NULL CHECK (length(environment) BETWEEN 1 AND 128),
+  not_before timestamptz NOT NULL,
+  not_after timestamptz NOT NULL,
+  issuer text NOT NULL CHECK (length(issuer) BETWEEN 1 AND 512),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  PRIMARY KEY (tenant_id, key_id),
+  UNIQUE (tenant_id, fingerprint, manifest_kind, environment),
+  CHECK (not_after > not_before),
+  CHECK (NOT (public_jwk ?| ARRAY['d','p','q','dp','dq','qi','k'])),
+  CHECK (
+    (algorithm = 'ES256'
+      AND public_jwk->>'kty' = 'EC'
+      AND public_jwk->>'crv' = 'P-256'
+      AND public_jwk ? 'x' AND public_jwk ? 'y'
+      AND (public_jwk - ARRAY['kty','crv','x','y']) = '{}'::jsonb)
+    OR
+    (algorithm = 'EdDSA'
+      AND public_jwk->>'kty' = 'OKP'
+      AND public_jwk->>'crv' = 'Ed25519'
+      AND public_jwk ? 'x' AND NOT public_jwk ? 'y'
+      AND (public_jwk - ARRAY['kty','crv','x']) = '{}'::jsonb)
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_manifest_signer_one_active
+  ON die_control.manifest_signer_key (
+    tenant_id, environment, manifest_kind
+  ) WHERE state = 'active';
+
+CREATE TABLE IF NOT EXISTS die_control.manifest_signer_key_version (
+  tenant_id text NOT NULL,
+  key_id text NOT NULL,
+  revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 9007199254740991),
+  state text NOT NULL CHECK (state IN (
+    'pending', 'active', 'retiring', 'retired',
+    'revoked', 'revoked_compromised'
+  )),
+  fingerprint text NOT NULL CHECK (fingerprint ~ '^sha256:[0-9a-f]{64}$'),
+  manifest_kind text NOT NULL CHECK (manifest_kind IN (
+    'tenant_bootstrap', 'producer_enrollment', 'edge_configuration'
+  )),
+  environment text NOT NULL,
+  changed_at timestamptz NOT NULL,
+  changed_by name NOT NULL,
+  reason_code text NOT NULL CHECK (length(reason_code) BETWEEN 1 AND 256),
+  PRIMARY KEY (tenant_id, key_id, revision),
+  FOREIGN KEY (tenant_id, key_id)
+    REFERENCES die_control.manifest_signer_key(tenant_id, key_id)
+);
+
+CREATE TABLE IF NOT EXISTS die_control.manifest_verification (
+  tenant_id text NOT NULL,
+  attempt_id uuid NOT NULL,
+  manifest_id uuid,
+  manifest_kind text NOT NULL CHECK (manifest_kind IN (
+    'tenant_bootstrap', 'producer_enrollment', 'edge_configuration'
+  )),
+  schema_version text,
+  manifest_digest text NOT NULL CHECK (manifest_digest ~ '^sha256:[0-9a-f]{64}$'),
+  issuer text,
+  key_id text,
+  key_fingerprint text CHECK (
+    key_fingerprint IS NULL OR key_fingerprint ~ '^sha256:[0-9a-f]{64}$'
+  ),
+  algorithm text,
+  verification_result text NOT NULL CHECK (length(verification_result) BETWEEN 1 AND 128),
+  verifier_artifact_digest text NOT NULL CHECK (verifier_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
+  applied_effects jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(applied_effects) = 'object'),
+  verified_at timestamptz NOT NULL,
+  applied_at timestamptz,
+  PRIMARY KEY (tenant_id, attempt_id)
 );
 
 ALTER TABLE die_control.producer
@@ -2160,6 +2251,9 @@ CREATE TABLE IF NOT EXISTS die_read.relationship_current (
   lifecycle text NOT NULL,
   valid_from timestamptz NOT NULL,
   valid_to timestamptz,
+  end_reason text CHECK (end_reason IS NULL OR end_reason IN (
+    'source_ended', 'retracted', 'reconciliation_absent', 'corrected', 'unknown'
+  )),
   confidence numeric(5,4) NOT NULL,
   source_count bigint NOT NULL CHECK (source_count BETWEEN 0 AND 9007199254740991),
   projection_watermark bigint NOT NULL CHECK (projection_watermark BETWEEN 0 AND 9007199254740991),
@@ -2169,7 +2263,8 @@ CREATE TABLE IF NOT EXISTS die_read.relationship_current (
     (scope_kind = 'unscoped' AND scope_key = 'unscoped')
     OR
     (scope_kind <> 'unscoped' AND scope_key ~ '^sha256:[0-9a-f]{64}$')
-  )
+  ),
+  CHECK (lifecycle <> 'ended' OR end_reason IS NOT NULL)
 );
 
 CREATE TABLE IF NOT EXISTS die_read.producer_current (
@@ -2432,6 +2527,83 @@ CREATE TABLE IF NOT EXISTS die_authz.bootstrap_manifest (
     REFERENCES die_authz.business_scope(tenant_id, scope_id)
     DEFERRABLE INITIALLY DEFERRED,
   CHECK (expires_at > issued_at)
+);
+
+CREATE TABLE IF NOT EXISTS die_authz.oidc_trust (
+  tenant_id text NOT NULL,
+  issuer_uri text NOT NULL CHECK (issuer_uri ~ '^https://'),
+  revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 9007199254740991),
+  discovery_uri text NOT NULL CHECK (discovery_uri ~ '^https://'),
+  allowed_audiences jsonb NOT NULL CHECK (
+    jsonb_typeof(allowed_audiences) = 'array'
+    AND jsonb_array_length(allowed_audiences) BETWEEN 1 AND 32
+    AND NOT jsonb_path_exists(allowed_audiences, '$[*] ? (@.type() != "string")')
+  ),
+  allowed_algorithms jsonb NOT NULL CHECK (
+    jsonb_typeof(allowed_algorithms) = 'array'
+    AND jsonb_array_length(allowed_algorithms) BETWEEN 1 AND 4
+    AND allowed_algorithms <@ '["RS256","PS256","ES256","EdDSA"]'::jsonb
+  ),
+  jwks_soft_ttl_seconds integer NOT NULL CHECK (jwks_soft_ttl_seconds BETWEEN 60 AND 900),
+  jwks_hard_ttl_seconds integer NOT NULL CHECK (jwks_hard_ttl_seconds BETWEEN 3600 AND 86400),
+  forced_refresh_min_interval_seconds integer NOT NULL CHECK (forced_refresh_min_interval_seconds BETWEEN 60 AND 300),
+  max_token_lifetime_seconds integer NOT NULL CHECK (max_token_lifetime_seconds BETWEEN 60 AND 86400),
+  clock_skew_seconds integer NOT NULL CHECK (clock_skew_seconds BETWEEN 0 AND 300),
+  state text NOT NULL CHECK (state IN ('pending', 'active', 'disabled', 'revoked')),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  PRIMARY KEY (tenant_id, issuer_uri, revision),
+  CHECK (jwks_hard_ttl_seconds >= jwks_soft_ttl_seconds)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_oidc_trust_one_active
+  ON die_authz.oidc_trust (tenant_id, issuer_uri)
+  WHERE state = 'active';
+
+-- The raw cookie/JWT is never stored. The BFF resolves tenant routing from the
+-- trusted host/router context, sets app.tenant_id, then looks up this HMAC.
+CREATE TABLE IF NOT EXISTS die_authz.runtime_session (
+  tenant_id text NOT NULL,
+  session_id uuid NOT NULL,
+  session_token_digest text NOT NULL CHECK (
+    session_token_digest ~ '^hmac-sha256:[0-9a-f]{64}$'
+  ),
+  issuer_uri text NOT NULL CHECK (issuer_uri ~ '^https://'),
+  issuer_revision bigint NOT NULL CHECK (
+    issuer_revision BETWEEN 1 AND 9007199254740991
+  ),
+  subject text NOT NULL CHECK (length(subject) BETWEEN 1 AND 512),
+  role_ids jsonb NOT NULL CHECK (
+    jsonb_typeof(role_ids) = 'array'
+    AND jsonb_array_length(role_ids) <= 128
+    AND NOT jsonb_path_exists(role_ids, '$[*] ? (@.type() != "string")')
+  ),
+  authorization_revision bigint NOT NULL CHECK (
+    authorization_revision BETWEEN 1 AND 9007199254740991
+  ),
+  session_epoch bigint NOT NULL CHECK (session_epoch BETWEEN 1 AND 9007199254740991),
+  authentication_time timestamptz NOT NULL,
+  assurance text NOT NULL CHECK (length(assurance) BETWEEN 1 AND 128),
+  state text NOT NULL CHECK (state IN ('active', 'logged_out', 'expired', 'revoked')),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  last_seen_at timestamptz NOT NULL,
+  idle_expires_at timestamptz NOT NULL,
+  absolute_expires_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  revocation_reason text CHECK (revocation_reason IS NULL OR length(revocation_reason) <= 256),
+  purge_after timestamptz,
+  PRIMARY KEY (tenant_id, session_id),
+  UNIQUE (tenant_id, session_token_digest),
+  FOREIGN KEY (tenant_id, issuer_uri, issuer_revision)
+    REFERENCES die_authz.oidc_trust(tenant_id, issuer_uri, revision),
+  CHECK (last_seen_at >= created_at),
+  CHECK (idle_expires_at > created_at),
+  CHECK (absolute_expires_at > created_at),
+  CHECK (idle_expires_at <= absolute_expires_at),
+  CHECK ((state = 'active' AND revoked_at IS NULL AND purge_after IS NULL)
+    OR (state <> 'active' AND revoked_at IS NOT NULL
+      AND purge_after > revoked_at
+      AND purge_after <= revoked_at + interval '7 days'))
 );
 
 CREATE TABLE IF NOT EXISTS die_audit.audit_head (
@@ -2872,7 +3044,7 @@ BEGIN
       INTO effective_die_role_count
       FROM unnest(ARRAY[
         'die_ingest','die_normalizer','die_truth','die_projector',
-        'die_api','die_maintenance','die_control_admin','die_authz_admin'
+        'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
       ]) AS runtime_role(role_name)
       WHERE pg_has_role(NEW.database_principal, runtime_role.role_name, 'member');
     IF effective_die_role_count <> 1
@@ -5044,6 +5216,167 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION die_control.enforce_manifest_signer_key_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'manifest signer keys are append-preserved';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.revision <> 1 THEN
+      RAISE EXCEPTION 'new manifest signer key must start at revision one';
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF (NEW.tenant_id, NEW.key_id, NEW.algorithm, NEW.public_jwk,
+      NEW.fingerprint, NEW.manifest_kind, NEW.environment, NEW.not_before,
+      NEW.not_after, NEW.issuer, NEW.created_at)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.key_id, OLD.algorithm, OLD.public_jwk,
+      OLD.fingerprint, OLD.manifest_kind, OLD.environment, OLD.not_before,
+      OLD.not_after, OLD.issuer, OLD.created_at) THEN
+    RAISE EXCEPTION 'manifest signer key material and scope are immutable';
+  END IF;
+  IF NEW.revision <> OLD.revision + 1 THEN
+    RAISE EXCEPTION 'manifest signer key revision must advance by one';
+  END IF;
+  IF NOT (
+    (OLD.state = 'pending' AND NEW.state IN ('active', 'revoked', 'revoked_compromised'))
+    OR (OLD.state = 'active' AND NEW.state IN ('retiring', 'revoked', 'revoked_compromised'))
+    OR (OLD.state = 'retiring' AND NEW.state IN ('retired', 'revoked', 'revoked_compromised'))
+  ) THEN
+    RAISE EXCEPTION 'invalid manifest signer key state transition % -> %', OLD.state, NEW.state;
+  END IF;
+  NEW.updated_at := clock_timestamp();
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.record_manifest_signer_key_version()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, die_control
+AS $$
+DECLARE
+  reason text;
+BEGIN
+  reason := CASE
+    WHEN TG_OP = 'INSERT' THEN 'key_created'
+    ELSE NULLIF(current_setting('app.change_reason', true), '')
+  END;
+  IF reason IS NULL THEN
+    RAISE EXCEPTION 'manifest signer key transition requires app.change_reason';
+  END IF;
+  INSERT INTO die_control.manifest_signer_key_version (
+    tenant_id, key_id, revision, state, fingerprint, manifest_kind,
+    environment, changed_at, changed_by, reason_code
+  ) VALUES (
+    NEW.tenant_id, NEW.key_id, NEW.revision, NEW.state, NEW.fingerprint,
+    NEW.manifest_kind, NEW.environment, NEW.updated_at, session_user, reason
+  );
+  RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_authz.enforce_oidc_trust_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  expected_revision bigint;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'OIDC trust rows are append-preserved';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    PERFORM pg_advisory_xact_lock(
+      hashtextextended(NEW.tenant_id || chr(31) || NEW.issuer_uri, 0)
+    );
+    SELECT COALESCE(max(revision), 0) + 1
+      INTO expected_revision
+      FROM die_authz.oidc_trust
+      WHERE tenant_id = NEW.tenant_id
+        AND issuer_uri = NEW.issuer_uri;
+    IF NEW.revision <> expected_revision THEN
+      RAISE EXCEPTION 'OIDC trust revision must be next contiguous revision %', expected_revision;
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF (NEW.tenant_id, NEW.issuer_uri, NEW.revision, NEW.discovery_uri,
+      NEW.allowed_audiences, NEW.allowed_algorithms,
+      NEW.jwks_soft_ttl_seconds, NEW.jwks_hard_ttl_seconds,
+      NEW.forced_refresh_min_interval_seconds, NEW.max_token_lifetime_seconds,
+      NEW.clock_skew_seconds, NEW.created_at)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.issuer_uri, OLD.revision, OLD.discovery_uri,
+      OLD.allowed_audiences, OLD.allowed_algorithms,
+      OLD.jwks_soft_ttl_seconds, OLD.jwks_hard_ttl_seconds,
+      OLD.forced_refresh_min_interval_seconds, OLD.max_token_lifetime_seconds,
+      OLD.clock_skew_seconds, OLD.created_at) THEN
+    RAISE EXCEPTION 'OIDC trust revision contents are immutable';
+  END IF;
+  IF OLD.state = 'revoked'
+    OR NOT (
+      (OLD.state = 'pending' AND NEW.state IN ('active', 'disabled', 'revoked'))
+      OR (OLD.state = 'active' AND NEW.state IN ('disabled', 'revoked'))
+      OR (OLD.state = 'disabled' AND NEW.state IN ('active', 'revoked'))
+    ) THEN
+    RAISE EXCEPTION 'invalid OIDC trust state transition % -> %', OLD.state, NEW.state;
+  END IF;
+  NEW.updated_at := clock_timestamp();
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_authz.enforce_runtime_session_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    IF OLD.state = 'active'
+      OR OLD.purge_after IS NULL
+      OR OLD.purge_after > clock_timestamp()
+      OR NOT pg_has_role(session_user, 'die_maintenance', 'member')
+      OR current_setting('app.change_reason', true) <> 'session_retention_expired' THEN
+      RAISE EXCEPTION 'runtime session purge requires terminal expiry, maintenance role and retention reason';
+    END IF;
+    RETURN OLD;
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    RETURN NEW;
+  END IF;
+  IF (NEW.tenant_id, NEW.session_id, NEW.session_token_digest,
+      NEW.issuer_uri, NEW.issuer_revision, NEW.subject, NEW.role_ids,
+      NEW.authorization_revision,
+      NEW.authentication_time, NEW.assurance, NEW.created_at,
+      NEW.absolute_expires_at)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.session_id, OLD.session_token_digest,
+      OLD.issuer_uri, OLD.issuer_revision, OLD.subject, OLD.role_ids,
+      OLD.authorization_revision,
+      OLD.authentication_time, OLD.assurance, OLD.created_at,
+      OLD.absolute_expires_at) THEN
+    RAISE EXCEPTION 'runtime session authority fields are immutable';
+  END IF;
+  IF OLD.state <> 'active' THEN
+    IF NEW.state <> OLD.state THEN
+      RAISE EXCEPTION 'terminal runtime session cannot reactivate';
+    END IF;
+    RAISE EXCEPTION 'terminal runtime session is immutable until bounded purge';
+  END IF;
+  IF NEW.last_seen_at < OLD.last_seen_at
+    OR NEW.idle_expires_at < OLD.idle_expires_at
+    OR NEW.session_epoch < OLD.session_epoch THEN
+    RAISE EXCEPTION 'runtime session clocks and epoch cannot move backward';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
 CREATE TRIGGER work_item_controlled_transition
 BEFORE INSERT OR UPDATE OR DELETE ON die_pipeline.work_item
 FOR EACH ROW EXECUTE FUNCTION die_pipeline.enforce_work_item_transition();
@@ -5161,6 +5494,30 @@ FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
 CREATE TRIGGER certification_immutable
 BEFORE UPDATE OR DELETE ON die_control.certification
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER manifest_signer_key_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.manifest_signer_key
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_manifest_signer_key_transition();
+
+CREATE TRIGGER manifest_signer_key_version_append
+AFTER INSERT OR UPDATE ON die_control.manifest_signer_key
+FOR EACH ROW EXECUTE FUNCTION die_control.record_manifest_signer_key_version();
+
+CREATE TRIGGER manifest_signer_key_version_immutable
+BEFORE UPDATE OR DELETE ON die_control.manifest_signer_key_version
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER manifest_verification_immutable
+BEFORE UPDATE OR DELETE ON die_control.manifest_verification
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER oidc_trust_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_authz.oidc_trust
+FOR EACH ROW EXECUTE FUNCTION die_authz.enforce_oidc_trust_transition();
+
+CREATE TRIGGER runtime_session_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_authz.runtime_session
+FOR EACH ROW EXECUTE FUNCTION die_authz.enforce_runtime_session_transition();
 
 CREATE TRIGGER expected_population_version_immutable
 BEFORE UPDATE OR DELETE ON die_control.expected_population_version
@@ -5495,6 +5852,9 @@ BEFORE UPDATE OR DELETE ON die_audit.audit_checkpoint
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
 
 ALTER TABLE die_control.producer ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_signer_key ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_signer_key_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_verification ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_evidence.evidence_record ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_normalized.source_object ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_normalized.observation ENABLE ROW LEVEL SECURITY;
@@ -5519,11 +5879,22 @@ ALTER TABLE die_read.overview_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.business_scope ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.role_binding ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.relation_tuple ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_authz.oidc_trust ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_authz.runtime_session ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_head ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_event ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_checkpoint ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation_producer ON die_control.producer
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_manifest_signer_key ON die_control.manifest_signer_key
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_manifest_signer_key_version ON die_control.manifest_signer_key_version
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_manifest_verification ON die_control.manifest_verification
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_evidence ON die_evidence.evidence_record
@@ -5598,6 +5969,12 @@ CREATE POLICY tenant_isolation_role_binding ON die_authz.role_binding
 CREATE POLICY tenant_isolation_relation_tuple ON die_authz.relation_tuple
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_oidc_trust ON die_authz.oidc_trust
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_runtime_session ON die_authz.runtime_session
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_audit ON die_audit.audit_event
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
@@ -5617,6 +5994,9 @@ ALTER TABLE die_control.tenant_cell_principal ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.tenant_cell_principal FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer_capability ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer_capability FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_signer_key FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_signer_key_version FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.manifest_verification FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.expected_population ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.expected_population FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.expected_population_version ENABLE ROW LEVEL SECURITY;
@@ -5777,6 +6157,8 @@ ALTER TABLE die_authz.authorization_revision ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.authorization_revision FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.bootstrap_manifest ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.bootstrap_manifest FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_authz.oidc_trust FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_authz.runtime_session FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_head FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_event FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_event_evidence ENABLE ROW LEVEL SECURITY;

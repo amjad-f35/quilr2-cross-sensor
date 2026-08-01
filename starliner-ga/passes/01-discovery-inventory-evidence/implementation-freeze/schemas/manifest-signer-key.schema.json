@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/manifest-signer-key/1.0.0",
+  "title": "Manifest Signer Public Key",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "tenant_id", "key_id", "algorithm", "public_jwk",
+    "fingerprint", "state", "manifest_kind", "environment", "not_before",
+    "not_after", "revision"
+  ],
+  "properties": {
+    "schema_version": {"const": "die.manifest-signer-key.v1"},
+    "tenant_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "key_id": {"type": "string", "minLength": 1, "maxLength": 512},
+    "algorithm": {"enum": ["ES256", "EdDSA"]},
+    "public_jwk": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kty", "crv", "x", "y"],
+          "properties": {
+            "kty": {"const": "EC"}, "crv": {"const": "P-256"},
+            "x": {"type": "string", "pattern": "^[A-Za-z0-9_-]{43}$"},
+            "y": {"type": "string", "pattern": "^[A-Za-z0-9_-]{43}$"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kty", "crv", "x"],
+          "properties": {
+            "kty": {"const": "OKP"}, "crv": {"const": "Ed25519"},
+            "x": {"type": "string", "pattern": "^[A-Za-z0-9_-]{43}$"}
+          }
+        }
+      ]
+    },
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "state": {"enum": ["pending", "active", "retiring", "retired", "revoked", "revoked_compromised"]},
+    "manifest_kind": {"enum": ["tenant_bootstrap", "producer_enrollment", "edge_configuration"]},
+    "environment": {"type": "string", "minLength": 1, "maxLength": 128},
+    "not_before": {"type": "string", "format": "date-time"},
+    "not_after": {"type": "string", "format": "date-time"},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 9007199254740991}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"algorithm": {"const": "ES256"}}, "required": ["algorithm"]},
+      "then": {"properties": {"public_jwk": {"properties": {"kty": {"const": "EC"}, "crv": {"const": "P-256"}}}}},
+      "else": {"properties": {"public_jwk": {"properties": {"kty": {"const": "OKP"}, "crv": {"const": "Ed25519"}}}}}
+    }
+  ]
+}

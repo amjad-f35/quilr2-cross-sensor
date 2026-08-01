@@ -1,0 +1,15 @@
+{
+  "schema_version": "die.trusted-oidc-issuer.v1",
+  "tenant_id": "tenant-acme",
+  "issuer_uri": "https://id.acme.example/",
+  "discovery_uri": "https://id.acme.example/.well-known/openid-configuration",
+  "allowed_audiences": ["quilr-die-ui"],
+  "allowed_algorithms": ["RS256", "ES256"],
+  "jwks_soft_ttl_seconds": 300,
+  "jwks_hard_ttl_seconds": 3600,
+  "forced_refresh_min_interval_seconds": 60,
+  "max_token_lifetime_seconds": 86400,
+  "clock_skew_seconds": 60,
+  "state": "active",
+  "revision": 1
+}

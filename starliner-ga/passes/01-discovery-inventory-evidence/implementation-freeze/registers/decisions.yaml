@@ -11,7 +11,7 @@ decisions:
     status: frozen
   - id: DIE-ARCH-002
     area: architecture
-    decision: one signed central Go artifact with ingest normalizer truth projector api and maintenance roles
+    decision: one Go codebase and signed platform-release manifest binding compatible ingest normalizer truth projector api and maintenance role-artifact digests; roles may build canary scale and roll back independently only inside the frozen N/N-1 compatibility window
     status: frozen
   - id: DIE-ARCH-003
     area: architecture
@@ -608,4 +608,24 @@ decisions:
   - id: DIE-EVIDENCE-012
     area: portable_source_context
     decision: cloud and remote implementation agents receive a content-addressed size-bounded non-normative selection of the sensor legacy-platform and starting-code analyses; executable freeze contracts and generated LG-008 authority retain precedence and raw repositories are inspected only for the exact pinned implementation seam
+    status: frozen
+  - id: DIE-TEMPORAL-001
+    area: source_temporality
+    decision: every admitted profile kind has an explicit revision carrier comparator stale-input effect head-advance rule and end or retraction carrier; numeric decimal source revisions outrank observed time and stable record ID while absent or incomparable revisions never authorize fabricated ordering
+    status: frozen
+  - id: DIE-AUTHN-001
+    area: interactive_authentication
+    decision: customer production accepts only tenant-pinned HTTPS OIDC issuers with allowlisted asymmetric algorithms bounded JWKS freshness strict claims and exact authorization-revision checks; HS256 is test-only and production startup rejects it
+    status: frozen
+  - id: DIE-SESSION-001
+    area: runtime_session
+    decision: the Nuxt BFF uses an opaque host-only cookie and server-private HMAC session record bound to the exact issuer-trust revision and resolved only after trusted tenant routing with RLS; logout tenant switch expiry and authorization revision rotate or invalidate all session-scoped cache state while terminal HMAC tombstones are maintenance-purged within seven days
+    status: frozen
+  - id: DIE-KEY-001
+    area: manifest_trust
+    decision: signed bootstrap enrollment and edge-configuration manifests verify against tenant environment and single-kind scoped public keys with one active key controlled overlap rotation terminal revocation immutable attempt audit and no production unsigned mode
+    status: frozen
+  - id: DIE-CONFORMANCE-001
+    area: implementation_governance
+    decision: present code is classified separately from target authority as specified-not-implemented transitional-must-remove implemented-not-certified release-evidence-missing implementation-contradiction or independently accepted-complete with exact revisions and objective closure conditions
     status: frozen

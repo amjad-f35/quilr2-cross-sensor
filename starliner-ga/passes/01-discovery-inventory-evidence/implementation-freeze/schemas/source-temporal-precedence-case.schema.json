@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/source-temporal-precedence-case/1.0.0",
+  "title": "Source Temporal Precedence Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "profile", "payload_kind", "scenario", "events", "expected"],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^PRC-[0-9]{3}$"},
+    "profile": {"enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]},
+    "payload_kind": {"type": "string", "minLength": 1, "maxLength": 128},
+    "scenario": {"enum": ["revision_order", "duplicate", "late_arrival", "tie_break", "end", "retract", "correction", "reconciliation_absence", "unsupported_revision"]},
+    "events": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"type": "object"}},
+    "expected": {
+      "type": "object", "additionalProperties": false,
+      "required": ["head_action", "history_action", "reason_code"],
+      "properties": {
+        "head_action": {"enum": ["create", "advance", "retain", "close", "retract", "none"]},
+        "history_action": {"enum": ["append", "deduplicate", "reject"]},
+        "reason_code": {"type": "string", "minLength": 1, "maxLength": 128}
+      }
+    }
+  }
+}

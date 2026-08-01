@@ -142,6 +142,8 @@ const required = [
   '36-source-revision-and-retraction-precedence.md',
   '37-oidc-jwks-and-runtime-session-lifecycle.md',
   '38-manifest-signing-and-key-registry-lifecycle.md',
+  '39-implementation-conformance-and-transitional-removal.md',
+  '40-final-delta-freeze-closure.md',
   'engineering-execution/README.md',
   'engineering-execution/templates/AGENTS.md',
   'engineering-execution/templates/WORK_STATE.md',
@@ -210,6 +212,8 @@ const required = [
   'registers/github-repository-relevance.csv',
   'registers/source-revision-selection.csv',
   'registers/production-source-reachability.csv',
+  'registers/source-temporal-precedence.csv',
+  'registers/implementation-conformance.csv',
   'evidence/github/quilrbusiness-repositories.json',
   'evidence/github/quilrbusiness-repository-snapshot.json',
   'evidence/github/quilrbusiness-repository-relevance-summary.json',
@@ -235,11 +239,19 @@ const required = [
   'schemas/producer-enrollment-manifest.schema.json',
   'schemas/tenant-bootstrap-manifest.schema.json',
   'schemas/gate-evidence-package.schema.json',
+  'schemas/trusted-oidc-issuer.schema.json',
+  'schemas/runtime-session-record.schema.json',
+  'schemas/manifest-signer-key.schema.json',
+  'schemas/source-temporal-precedence-case.schema.json',
   'schemas/profile-browser-v1.schema.json',
   'schemas/profile-browser-backend-v1.schema.json',
   'schemas/profile-endpoint-v1.schema.json',
   'schemas/profile-llm-gateway-v1.schema.json',
   'schemas/profile-mcp-gateway-v1.schema.json',
+  'fixtures/final-delta-freeze/trusted-oidc-issuer.valid.json',
+  'fixtures/final-delta-freeze/runtime-session-record.valid.json',
+  'fixtures/final-delta-freeze/manifest-signer-key.valid.json',
+  'fixtures/final-delta-freeze/source-temporal-precedence-cases.json',
   'sql/001-die-core.sql',
   'sql/002-die-clickhouse.sql',
   'sql/003-die-roles-and-grants.sql',
@@ -563,6 +575,12 @@ if (openapi) {
   }
 }
 
+const relationshipEndReasons = openapi?.components?.schemas?.Relationship?.properties?.end_reason?.enum ?? []
+for (const reason of ['source_ended', 'retracted', 'reconciliation_absent', 'corrected', 'unknown']) {
+  if (!relationshipEndReasons.includes(reason))
+    fail(`Relationship.end_reason omits frozen value ${reason}`)
+}
+
 const edgeOpenapiPath = join(root, 'openapi/starliner-ingest-v1.openapi.yaml')
 const edgeOpenapi = yaml.get(edgeOpenapiPath)
 if (edgeOpenapi) {
@@ -646,6 +664,8 @@ for (const path of [
   'registers/defect-closure-ledger.csv',
   'registers/source-analysis-inputs.csv',
   'registers/lg-evidence-needs.csv',
+  'registers/source-temporal-precedence.csv',
+  'registers/implementation-conformance.csv',
 ])
   parseCsv(requireFile(path), path)
 
@@ -703,6 +723,71 @@ for (const [profile, fileName] of Object.entries(profileFileNames)) {
     if (key.startsWith(`${profile}:`) && !kinds.has(key.slice(profile.length + 1)))
       fail(`profile capability register contains ${key} absent from ${fileName}`)
   }
+}
+
+const temporalRows = csvObjects('registers/source-temporal-precedence.csv')
+const temporalKinds = new Map()
+const allowedComparators = new Set(['none', 'numeric_decimal_string'])
+for (const row of temporalRows) {
+  const key = `${row.profile}:${row.payload_kind}`
+  if (temporalKinds.has(key))
+    fail(`duplicate temporal precedence row ${key}`)
+  temporalKinds.set(key, row)
+  if (!profileKinds.has(key))
+    fail(`temporal precedence row ${key} is not an admitted profile kind`)
+  if (!allowedComparators.has(row.comparator))
+    fail(`temporal precedence row ${key} has unsupported comparator ${row.comparator}`)
+  if (!row.aggregate_class || !row.revision_presence || !row.observed_time
+    || !row.tie_breaker || !row.end_carrier || !row.retraction_carrier
+    || !row.stale_effect || !row.current_head_effect)
+    fail(`temporal precedence row ${key} is incomplete`)
+  if (row.revision_presence === 'absent' && (row.revision_field || row.comparator !== 'none'))
+    fail(`temporal precedence row ${key} fabricates a revision carrier`)
+  if (row.revision_presence !== 'absent' && (!row.revision_field || row.comparator === 'none'))
+    fail(`temporal precedence row ${key} lacks its comparator`)
+}
+for (const key of profileKinds.keys()) {
+  if (!temporalKinds.has(key))
+    fail(`temporal precedence register omits admitted kind ${key}`)
+}
+
+const precedenceCases = JSON.parse(requireFile('fixtures/final-delta-freeze/source-temporal-precedence-cases.json'))
+const precedenceIds = new Set()
+for (const [index, item] of precedenceCases.entries()) {
+  const expectedId = `PRC-${String(index + 1).padStart(3, '0')}`
+  if (item.case_id !== expectedId || precedenceIds.has(item.case_id))
+    fail(`temporal precedence fixtures must be contiguous and unique at ${expectedId}`)
+  precedenceIds.add(item.case_id)
+  const key = `${item.profile}:${item.payload_kind}`
+  const fixtureIds = new Set((temporalKinds.get(key)?.fixture_ids ?? '').split('|').filter(Boolean))
+  if (!temporalKinds.has(key) || !fixtureIds.has(item.case_id))
+    fail(`temporal precedence case ${item.case_id} is not linked from ${key}`)
+}
+if (precedenceCases.length !== 25)
+  fail(`temporal precedence corpus must contain exactly 25 cases, found ${precedenceCases.length}`)
+
+const conformanceRows = csvObjects('registers/implementation-conformance.csv')
+const conformanceIds = new Set()
+const conformanceStates = new Set([
+  'specified_not_implemented', 'transitional_must_remove',
+  'implemented_not_certified', 'release_evidence_missing',
+  'implementation_contradiction', 'accepted_complete',
+])
+for (const row of conformanceRows) {
+  if (!/^IC-[0-9]{3}$/.test(row.item_id) || conformanceIds.has(row.item_id))
+    fail(`missing invalid or duplicate implementation conformance ID ${row.item_id}`)
+  conformanceIds.add(row.item_id)
+  if (!conformanceStates.has(row.current_classification))
+    fail(`implementation conformance ${row.item_id} has invalid classification ${row.current_classification}`)
+  if (!/^[0-9a-f]{40}$/.test(row.implementation_revision))
+    fail(`implementation conformance ${row.item_id} lacks an exact commit or explicit zero revision`)
+  for (const field of ['domain', 'required_contract', 'implementation_repository', 'evidence', 'closure_condition', 'release_effect', 'owner_work_package']) {
+    if (!row[field])
+      fail(`implementation conformance ${row.item_id} lacks ${field}`)
+  }
+  if (row.current_classification === 'accepted_complete'
+    && (!row.evidence.includes('gate-evidence') || row.implementation_revision === '0'.repeat(40)))
+    fail(`implementation conformance ${row.item_id} claims accepted_complete without retained gate evidence`)
 }
 
 const capabilityRows = csvObjects('registers/sensor-capability-register.csv')
@@ -1073,6 +1158,11 @@ if (decisions) {
     'DIE-SCALING-001',
     'DIE-RESOLVER-001',
     'DIE-RELEASE-001',
+    'DIE-TEMPORAL-001',
+    'DIE-AUTHN-001',
+    'DIE-SESSION-001',
+    'DIE-KEY-001',
+    'DIE-CONFORMANCE-001',
   ]) {
     if (!ids.has(requiredId))
       fail(`decision register omits architectural amendment ${requiredId}`)
@@ -1663,6 +1753,12 @@ const requiredPgFragments = [
   'CREATE TABLE IF NOT EXISTS die_pipeline.api_idempotency',
   'CREATE TABLE IF NOT EXISTS die_pipeline.evidence_access_grant',
   'CREATE TABLE IF NOT EXISTS die_control.enrollment_manifest',
+  'CREATE TABLE IF NOT EXISTS die_control.manifest_signer_key',
+  'CREATE UNIQUE INDEX IF NOT EXISTS uq_manifest_signer_one_active',
+  'CREATE TABLE IF NOT EXISTS die_control.manifest_signer_key_version',
+  'CREATE OR REPLACE FUNCTION die_control.record_manifest_signer_key_version()',
+  'CREATE TABLE IF NOT EXISTS die_control.manifest_verification',
+  'CREATE OR REPLACE FUNCTION die_control.enforce_manifest_signer_key_transition()',
   'CREATE TABLE IF NOT EXISTS die_control.expected_population',
   'CREATE TABLE IF NOT EXISTS die_control.expected_population_version',
   'CREATE TABLE IF NOT EXISTS die_control.source_profile',
@@ -1720,9 +1816,17 @@ const requiredPgFragments = [
   'CREATE TABLE IF NOT EXISTS die_identity.resolution_decision_entity',
   'CREATE TABLE IF NOT EXISTS die_identity.entity_alias',
   'CREATE TABLE IF NOT EXISTS die_identity.correction_claim',
+  'CREATE TABLE IF NOT EXISTS die_authz.oidc_trust',
+  'CREATE TABLE IF NOT EXISTS die_authz.runtime_session',
+  'issuer_revision bigint NOT NULL CHECK',
+  "current_setting('app.change_reason', true) <> 'session_retention_expired'",
+  "purge_after <= revoked_at + interval '7 days'",
+  'CREATE OR REPLACE FUNCTION die_authz.enforce_oidc_trust_transition()',
+  'CREATE OR REPLACE FUNCTION die_authz.enforce_runtime_session_transition()',
   'CREATE TABLE IF NOT EXISTS die_canonical.entity_version',
   'CREATE TABLE IF NOT EXISTS die_canonical.entity_version_claim',
   'CREATE TABLE IF NOT EXISTS die_canonical.entity_version_correction_claim',
+  "end_reason text CHECK (end_reason IS NULL OR end_reason IN (",
   'CREATE TABLE IF NOT EXISTS die_canonical.relationship_version',
   'CREATE TABLE IF NOT EXISTS die_canonical.relationship_version_evidence',
   'CREATE TABLE IF NOT EXISTS die_canonical.activity_version',
@@ -1999,7 +2103,7 @@ for (const prohibited of ['source_object_id String', 'correlation_ids Map']) {
 }
 
 const grants = requireFile('sql/003-die-roles-and-grants.sql')
-for (const role of ['die_ingest', 'die_normalizer', 'die_truth', 'die_projector', 'die_api', 'die_maintenance', 'die_control_admin', 'die_authz_admin']) {
+for (const role of ['die_ingest', 'die_normalizer', 'die_truth', 'die_projector', 'die_api', 'die_bff', 'die_maintenance', 'die_control_admin', 'die_authz_admin']) {
   if (!grants.includes(role))
     fail(`PostgreSQL role/grant DDL omits ${role}`)
 }
@@ -2009,6 +2113,13 @@ if (!grants.includes('GRANT EXECUTE ON FUNCTION die_authz.current_tenant_id()'))
   fail('runtime roles cannot execute the RLS tenant-context function')
 if (!grants.includes('GRANT SELECT ON die_authz.business_scope TO die_control_admin'))
   fail('producer enrollment role cannot validate the target business scope')
+if (!grants.includes('GRANT USAGE ON SCHEMA die_authz, die_control TO die_bff')
+  || !grants.includes('GRANT INSERT ON die_authz.runtime_session TO die_bff'))
+  fail('server-private BFF lacks its narrow OIDC/session authority')
+if (!grants.includes('GRANT DELETE ON die_authz.runtime_session TO die_maintenance'))
+  fail('bounded runtime-session tombstones have no maintenance-only purge path')
+if (!grants.includes('GRANT SELECT, INSERT, UPDATE ON die_control.manifest_signer_key'))
+  fail('controlled trust administration cannot manage manifest signer keys')
 if (!/GRANT SELECT ON die_control\.source_profile, die_control\.source_profile_version,\s+die_control\.producer, die_control\.producer_capability,\s+die_control\.certification, die_control\.tenant_cell_assignment,\s+die_control\.tenant_cell_principal TO die_normalizer/.test(grants))
   fail('normalizer cannot validate enrolled cross-sensor assertion issuers')
 if (!grants.includes('die_normalized.cross_sensor_assertion_use'))
@@ -2119,6 +2230,9 @@ notes.push(`${profileEntityRows.length} profile-entity dispositions`)
 notes.push(`${fieldRows.length} field dispositions`)
 notes.push(`${relationshipRows.length} relationship support rules`)
 notes.push(`${uiFieldRows.length} UI field lineage rules`)
+notes.push(`${temporalRows.length} source-temporal kind rules`)
+notes.push(`${precedenceCases.length} temporal precedence fixtures`)
+notes.push(`${conformanceRows.length} implementation conformance rows`)
 notes.push(`${gateTestRows.length} production gate tests`)
 notes.push(`${defectRows.length} defect/live-gate ledger rows`)
 notes.push(`${organizationRepositories.length} organization repositories classified`)

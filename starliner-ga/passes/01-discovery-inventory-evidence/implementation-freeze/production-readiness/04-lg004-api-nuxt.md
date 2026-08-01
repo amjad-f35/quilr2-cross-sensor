@@ -1,5 +1,14 @@
 # LG-004 — Product API, Generated Client and Nuxt
 
+## Final identity/session scope
+
+This gate includes OIDC discovery/JWKS rotation and hard-expiry behavior,
+server-private session lifecycle, production startup guards, trusted BFF
+tenant routing, session/cache isolation and browser-level cross-tenant
+existence hiding, plus bounded terminal-session purge. Exact tests are
+LG004-T011..015. HS256 or a public/ambient
+bearer may close a local vertical but can never satisfy this gate.
+
 ## Frozen integration shape
 
 OpenAPI is the customer contract. The TypeScript client is generated from the

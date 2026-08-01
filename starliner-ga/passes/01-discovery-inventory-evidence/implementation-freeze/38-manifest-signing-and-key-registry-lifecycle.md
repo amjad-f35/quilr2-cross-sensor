@@ -1,8 +1,8 @@
 # Manifest Signing and Key-Registry Lifecycle
 
 **Status:** FROZEN addendum; frozen 2026-08-01; closes the operational
-signing contract the implementation ledger marked
-`OPEN (no frozen key-registry contract; activation still SQL in tests)`
+signing contract the implementation ledger formerly marked
+`no frozen key-registry contract; activation still SQL in tests`
 
 **Scope:** the trusted signer key registry for manifest verification, key
 identity and fingerprint format, rotation with overlap, revocation and
@@ -54,8 +54,8 @@ runtime workers or the API (03 §writer table). Frozen row semantics:
 | `public_jwk` | public key as a JWK containing only public members (`kty`,`crv`,`x`,`y` for EC; `kty`,`crv`,`x` for OKP); private members fail closed |
 | `fingerprint` | `sha256:` + lowercase hex of the SHA-256 over the RFC 7638 JWK-thumbprint input (the JCS-compatible canonical form of the required public members); recorded in every verification audit row |
 | `state` | `pending` → `active` → `retiring` → `retired`, or terminal `revoked` / `revoked_compromised` |
-| `manifest_kinds` | subset of the three signed surfaces this key may verify |
-| `environment` / `tenant_scope` | environment binding plus optional tenant restriction; a key never verifies outside its scope |
+| `manifest_kind` | exactly one of the three signed surfaces this key may verify; different kinds use separate key IDs even when backed by the same HSM policy |
+| `environment` / `tenant_id` | required environment and tenant binding; a key never verifies outside that exact scope |
 | `not_before` / `not_after` | validity window checked at verification time |
 | provenance | issuer, creation/rotation audit references; private keys are HSM/KMS or OS-keystore backed (LG-006) and never enter the registry, a manifest, or a repository |
 
@@ -63,8 +63,18 @@ State semantics, frozen: `pending` never verifies and never signs — it
 exists so distribution precedes activation. `active` verifies and is the only
 state that may sign new manifests. `retiring` verifies but must not sign.
 `retired`, `revoked` and `revoked_compromised` never verify new
-applications. Exactly one key per `(environment, manifest kind, tenant
-scope)` is `active` at a time.
+applications. Exactly one key per `(tenant_id, environment, manifest_kind)`
+is `active` at a time. Tenant scoping is deliberately mandatory: a platform
+root may provision equivalent public material into many tenants, but it does
+so with distinct tenant-scoped key IDs and audit rows so no global key row
+becomes an accidental cross-tenant authority.
+
+The machine contract is
+[`manifest-signer-key.schema.json`](schemas/manifest-signer-key.schema.json).
+The normative DDL now defines `die_control.manifest_signer_key`, its partial
+single-active index, controlled state-transition trigger, append-only
+`manifest_signer_key_version` history (a transition requires an explicit
+`app.change_reason`), RLS policy and least-privilege grants.
 
 ## Rotation
 
@@ -169,8 +179,9 @@ closed and steps never reorder:
    projection declaration succeed (landed audit-last ordering), so the audit
    row's existence proves the complete apply.
 
-Frozen audit-row contents for every verification attempt — success and
-failure:
+Frozen audit-row contents for every **tenant-resolved** verification attempt
+— success and failure — live in immutable
+`die_control.manifest_verification`:
 
 ```text
 tenant_id
@@ -187,6 +198,13 @@ verified_at / applied_at
 Failure rows apply nothing and are security-audited; replayed `manifest_id`
 after a key rotation remains a replay (the replay ledger is keyed by
 manifest identity, not by key).
+
+Malformed bytes that cannot safely yield a tenant or manifest kind never
+enter a tenant table. They are rejected before apply and emitted to the
+platform security telemetry/quarantine channel with byte digest, verifier
+artifact and fail-closed code. Once tenant identity is schema-resolved, every
+attempt must have a database audit row; an implementation must not use the
+pre-tenant exception to omit ordinary signature failures.
 
 ## Unsigned manifests
 

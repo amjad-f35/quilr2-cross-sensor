@@ -1,5 +1,27 @@
 # Testing, Conformance, and Release Gates
 
+## Final delta-freeze suites
+
+The executable suite also treats these as first-class contract families:
+
+- all 47 admitted profile kinds must appear exactly once in
+  `registers/source-temporal-precedence.csv`; all 25 contiguous `PRC-*` cases
+  validate and must pass the compiled truth path before temporal acceptance;
+- trusted OIDC issuer, server-private runtime session and manifest signer-key
+  schemas each have positive and adversarial fixtures;
+- PostgreSQL 17.10 conformance executes signer one-active uniqueness and
+  transitions, verification audit immutability, OIDC trust, BFF session
+  terminality and cross-tenant RLS;
+- OpenAPI conformance requires the closed relationship `end_reason` set;
+- mutation tests must prove the validator rejects temporal comparator drift,
+  unknown conformance classifications and retraction-enum removal; and
+- `accepted_complete` implementation rows require exact commits and retained
+  gate evidence, never only a work-package label or unit-test report.
+
+The expanded release scenarios are LG001-T015..017, LG004-T011..014 and
+LG006-T011..014 in
+`production-readiness/registers/gate-test-catalog.csv`.
+
 ## Principle
 
 The pass is releasable only when the complete path is proven:

@@ -1,0 +1,22 @@
+{
+  "schema_version": "die.runtime-session.v1",
+  "tenant_id": "tenant-acme",
+  "session_id": "11111111-1111-4111-8111-111111111111",
+  "session_token_digest": "hmac-sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "issuer_uri": "https://id.acme.example/",
+  "issuer_revision": 1,
+  "subject": "00u-user-1",
+  "role_ids": ["viewer"],
+  "authorization_revision": 12,
+  "session_epoch": 1,
+  "authentication_time": "2026-08-01T12:00:00Z",
+  "assurance": "urn:quilr:assurance:mfa",
+  "created_at": "2026-08-01T12:00:00Z",
+  "last_seen_at": "2026-08-01T12:01:00Z",
+  "idle_expires_at": "2026-08-01T13:01:00Z",
+  "absolute_expires_at": "2026-08-02T00:00:00Z",
+  "state": "active",
+  "revoked_at": null,
+  "revocation_reason": null,
+  "purge_after": null
+}

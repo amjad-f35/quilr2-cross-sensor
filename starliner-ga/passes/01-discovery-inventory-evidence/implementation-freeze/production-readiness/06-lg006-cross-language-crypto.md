@@ -1,5 +1,13 @@
 # LG-006 — Cross-Language Cryptographic Conformance
 
+## Final manifest-key scope
+
+The shared vector corpus also covers public-JWK admission and RFC 7638
+fingerprints, tenant/environment/kind scope, overlap rotation, routine and
+compromised revocation, affected-manifest enumeration, and the ordered
+I-JSON→schema→JCS→registry→header→signature→semantics→apply→audit-last
+pipeline. Exact tests are LG006-T011..014.
+
 ## Frozen algorithms and representations
 
 - JSON canonicalization: RFC 8785 JCS over the exact contract object;

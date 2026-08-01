@@ -104,6 +104,30 @@ const cases = [
     },
     command: ['node', 'starliner-ga/tools/validate-corpus.mjs'],
   },
+  {
+    id: 'MUT-008',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/registers/source-temporal-precedence.csv',
+    mutate(text) {
+      return replaceRequired(text, ',numeric_decimal_string,', ',lexicographic,', this.id)
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-009',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/registers/implementation-conformance.csv',
+    mutate(text) {
+      return replaceRequired(text, ',transitional_must_remove,', ',done_enough,', this.id)
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-010',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/openapi/die-v1.openapi.yaml',
+    mutate(text) {
+      return replaceRequired(text, 'source_ended, retracted, reconciliation_absent, corrected, unknown', 'source_ended, corrected, unknown', this.id)
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
 ]
 
 function replaceRequired(text, search, replacement, id) {

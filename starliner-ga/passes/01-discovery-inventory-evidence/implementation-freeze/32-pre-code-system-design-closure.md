@@ -138,3 +138,11 @@ full bounded-pass production implementation: AUTHORIZED
 Any contrary source or implementation evidence reopens only the smallest
 affected contract under formal change control. It does not give an implementer
 permission to invent a replacement architecture.
+
+The final delta-freeze in
+[40-final-delta-freeze-closure.md](40-final-delta-freeze-closure.md) closes the
+previously prose-only source-temporal, OIDC/session and manifest-key details
+with schemas, SQL, fixtures, registers and validation. Current implementation
+gaps are no longer embedded in this architectural closure; they are tracked
+machine-readably in
+[implementation-conformance.csv](registers/implementation-conformance.csv).

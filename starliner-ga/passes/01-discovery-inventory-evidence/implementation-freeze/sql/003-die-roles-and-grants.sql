@@ -12,6 +12,7 @@ BEGIN
     'die_truth',
     'die_projector',
     'die_api',
+    'die_bff',
     'die_maintenance',
     'die_control_admin',
     'die_authz_admin'
@@ -35,6 +36,8 @@ REVOKE ALL ON ALL SEQUENCES IN SCHEMA die_pipeline, die_outbox FROM PUBLIC;
 REVOKE ALL ON FUNCTION die_authz.current_tenant_id() FROM PUBLIC;
 REVOKE ALL ON FUNCTION die_authz.jsonb_object_key_count(jsonb) FROM PUBLIC;
 REVOKE ALL ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
+  FROM PUBLIC;
+REVOKE ALL ON FUNCTION die_control.record_manifest_signer_key_version()
   FROM PUBLIC;
 
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_outbox,
@@ -167,6 +170,20 @@ GRANT INSERT ON die_pipeline.work_item, die_audit.audit_event TO die_api;
 GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_api;
 GRANT USAGE, SELECT ON SEQUENCE die_pipeline.work_item_work_id_seq TO die_api;
 
+-- Server-private browser-session broker. The trusted host/router resolves the
+-- tenant before setting app.tenant_id; RLS then constrains every trust/session
+-- lookup. The BFF cannot read inventory, evidence or canonical truth directly.
+GRANT USAGE ON SCHEMA die_authz, die_control TO die_bff;
+GRANT SELECT ON die_control.tenant_cell_assignment,
+  die_control.tenant_cell_principal TO die_bff;
+GRANT SELECT ON die_authz.oidc_trust, die_authz.authorization_revision,
+  die_authz.runtime_session TO die_bff;
+GRANT INSERT ON die_authz.runtime_session TO die_bff;
+GRANT UPDATE (
+  last_seen_at, idle_expires_at, session_epoch, state,
+  revoked_at, revocation_reason, purge_after
+) ON die_authz.runtime_session TO die_bff;
+
 -- Used only by the maintenance artifact's authenticated enrollment/certification
 -- command. A long-lived API or ingest workload never receives this group role.
 GRANT USAGE ON SCHEMA die_control, die_pipeline, die_audit, die_authz
@@ -181,6 +198,12 @@ GRANT SELECT, INSERT, UPDATE ON die_control.expected_population_version
   TO die_control_admin;
 GRANT SELECT, INSERT ON die_control.enrollment_manifest,
   die_control.certification TO die_control_admin;
+GRANT SELECT, INSERT, UPDATE ON die_control.manifest_signer_key
+  TO die_control_admin;
+GRANT SELECT ON die_control.manifest_signer_key_version
+  TO die_control_admin;
+GRANT SELECT, INSERT ON die_control.manifest_verification
+  TO die_control_admin;
 GRANT SELECT, INSERT ON die_pipeline.work_item TO die_control_admin;
 GRANT SELECT, INSERT ON die_audit.audit_event TO die_control_admin;
 GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_control_admin;
@@ -195,12 +218,21 @@ GRANT SELECT ON die_control.tenant_cell_assignment,
 GRANT SELECT, INSERT ON die_audit.audit_event TO die_authz_admin;
 GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_authz_admin;
 
+-- Session rows are created/closed by the BFF. Authorization administration
+-- manages issuer trust but never receives browser session credentials.
+REVOKE ALL ON die_authz.runtime_session FROM die_authz_admin;
+GRANT SELECT, INSERT, UPDATE ON die_authz.oidc_trust TO die_authz_admin;
+
 GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_normalized,
   die_identity, die_canonical, die_outbox, die_read, die_authz, die_audit
   TO die_maintenance;
 GRANT SELECT ON ALL TABLES IN SCHEMA die_control, die_evidence, die_pipeline,
   die_normalized, die_identity, die_canonical, die_outbox, die_read,
   die_authz, die_audit TO die_maintenance;
+GRANT DELETE ON die_authz.runtime_session TO die_maintenance;
+GRANT SELECT ON die_control.manifest_signer_key TO die_maintenance;
+GRANT SELECT ON die_control.manifest_signer_key_version TO die_maintenance;
+GRANT INSERT ON die_control.manifest_verification TO die_maintenance;
 GRANT SELECT, INSERT, UPDATE ON die_pipeline.work_item,
   die_pipeline.projection_generation, die_pipeline.projection_checkpoint
   TO die_maintenance;
@@ -232,18 +264,21 @@ ALTER ROLE die_normalizer NOBYPASSRLS;
 ALTER ROLE die_truth NOBYPASSRLS;
 ALTER ROLE die_projector NOBYPASSRLS;
 ALTER ROLE die_api NOBYPASSRLS;
+ALTER ROLE die_bff NOBYPASSRLS;
 ALTER ROLE die_maintenance NOBYPASSRLS;
 ALTER ROLE die_control_admin NOBYPASSRLS;
 ALTER ROLE die_authz_admin NOBYPASSRLS;
 
 GRANT EXECUTE ON FUNCTION die_authz.current_tenant_id()
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_control_admin, die_authz_admin;
 GRANT EXECUTE ON FUNCTION die_authz.jsonb_object_key_count(jsonb)
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_control_admin, die_authz_admin;
 GRANT EXECUTE ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_control_admin, die_authz_admin;
+GRANT EXECUTE ON FUNCTION die_control.record_manifest_signer_key_version()
+  TO die_control_admin;
 
 COMMIT;

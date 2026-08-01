@@ -160,3 +160,22 @@ The gate implementations must follow the exact topologies, catalog IDs,
 evidence schema and exits in
 [production-readiness](production-readiness/README.md). “Close LG-001” or
 “close LG-005” is not an open-ended engineering instruction.
+
+The final delta-freeze adds binding authority that supersedes any older open
+wording in this handoff:
+
+- [source temporal precedence](36-source-revision-and-retraction-precedence.md)
+  plus its per-kind register and 25 executable PRC cases;
+- [OIDC/JWKS and server-private sessions](37-oidc-jwks-and-runtime-session-lifecycle.md)
+  plus machine schemas and PostgreSQL authorities;
+- [manifest signer registry](38-manifest-signing-and-key-registry-lifecycle.md)
+  plus machine schema, RLS, grants and immutable verification audit;
+- [implementation conformance](39-implementation-conformance-and-transitional-removal.md)
+  for the exact present-code/debt distinction; and
+- [final closure](40-final-delta-freeze-closure.md) for the current build
+  authorization.
+
+The Nuxt revision above is the original inspected seam baseline, not a claim
+about the current implementation branch. Current committed implementation
+revisions and dirty-worktree exclusion are tracked only in
+`registers/implementation-conformance.csv`.

@@ -1,7 +1,8 @@
 # Discovery, Inventory, Activity & Evidence — Evidence-Gated Engineering Freeze
 
-**Status:** source-complete architecture and semantic freeze; exact target-engine
-local smoke validated; expanded production acceptance gates remain open
+**Status:** final bounded implementation authority; source semantics and
+system design frozen; exact target-engine local smoke validated; production
+implementation conformance and expanded acceptance gates remain open
 
 **Scope:** end-to-end Discovery, Inventory/Catalog, Activity/Observability and
 Evidence design from Browser, Endpoint, LLM Gateway, MCP Gateway and Browser
@@ -28,7 +29,7 @@ runtime-proven contradiction reopens only the affected contracts under
 
 The target is:
 
-> A modular Go platform core in `quilrbusiness/project-starliner`, deployed as independently scalable roles from one versioned codebase and one release digest; generated wire contracts for Go, Java, Python, TypeScript and Rust plus generated Go/TypeScript product clients; existing sensor repositories with thin source adapters and durable local delivery; authoritative PostgreSQL canonical state; immutable object evidence; ClickHouse activity search; authorized APIs; and the existing Nuxt/shadcn application as the customer UI.
+> A modular Go platform core in `quilrbusiness/project-starliner`, deployed as independently scalable roles from one versioned codebase and a signed platform-release manifest binding compatible role-artifact digests; generated wire contracts for Go, Java, Python, TypeScript and Rust plus generated Go/TypeScript product clients; existing sensor repositories with thin source adapters and durable local delivery; authoritative PostgreSQL canonical state; immutable object evidence; ClickHouse activity search; authorized APIs; and the existing Nuxt/shadcn application as the customer UI.
 
 This is neither a single-process monolith nor independently owned microservices. It is a **modular monolith in source and authority, with role-separated distributed execution**.
 
@@ -97,6 +98,8 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Source-revision and retraction precedence](36-source-revision-and-retraction-precedence.md) | FROZEN addendum: exact per-profile/per-kind revision carriers, comparability, precedence and retraction-versus-ended semantics with executable PRC fixtures; extends 03/04/05/06 |
 | [OIDC/JWKS identity and runtime session lifecycle](37-oidc-jwks-and-runtime-session-lifecycle.md) | FROZEN addendum: OIDC discovery, JWKS fail-closed staleness bounds, algorithms/claims/skew, token-type separation, authorization-revision revocation, BFF session/cache-identity lifecycle and HS256 transitional boundary; extends 07/08/09 |
 | [Manifest signing and key-registry lifecycle](38-manifest-signing-and-key-registry-lifecycle.md) | FROZEN addendum: signer key registry, fingerprint format, rotation overlap, revocation/compromise remediation, verifier cache bounds, end-to-end bootstrap verification audit and unsigned-manifest boundary; extends 02/03/07 and LG-006 |
+| [Implementation conformance and transitional removal](39-implementation-conformance-and-transitional-removal.md) | FROZEN classification and removal policy for preview code, transitional authentication/bootstrap, API breadth, authorization, certification, code quality and operational debt |
+| [Final delta-freeze closure](40-final-delta-freeze-closure.md) | Final bounded-pass structural verdict, machine-contract closure and unambiguous build authorization |
 | [Engineering execution kit](engineering-execution/README.md) | Ready-to-install repository instructions, state/topology/ledger templates, repository map and live branch-disposition baseline |
 | [Portable cloud-agent source context](cloud-context/README.md) | Content-addressed 11.55 MB selection of sensor, legacy-platform and Starliner analysis needed for source-aware implementation without the 28 GB local corpus |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
@@ -121,10 +124,16 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Relationship support](registers/relationship-support.csv) | Exact proof and automatic-materialization rule for every graph edge |
 | [Future connector backlog](registers/future-connector-backlog.csv) | Deferred authoritative source and resulting entity/relationship coverage |
 | [UI field lineage](registers/ui-field-lineage.csv) | Exact native/profile/canonical/read-model/API/UI chain for every primary customer-visible field |
+| [Source temporal precedence](registers/source-temporal-precedence.csv) | Every admitted profile kind bound to revision carrier/comparator, stale/head effect, end/retraction carrier and PRC fixtures |
+| [Implementation conformance](registers/implementation-conformance.csv) | Exact inspected implementation revisions, frozen contract, current classification, closure evidence and release effect |
 | [Product OpenAPI](openapi/die-v1.openapi.yaml) | Executable customer API contract |
 | [Edge ingest OpenAPI](openapi/starliner-ingest-v1.openapi.yaml) | Producer batch and signed configuration HTTP contract |
 | [Producer enrollment manifest](schemas/producer-enrollment-manifest.schema.json) | Signed producer/scope/capability/certification bootstrap and revocation contract |
 | [Tenant bootstrap manifest](schemas/tenant-bootstrap-manifest.schema.json) | Signed one-time tenant-root scope, closure, authorization-revision and audit bootstrap contract |
+| [Trusted OIDC issuer](schemas/trusted-oidc-issuer.schema.json) | Tenant issuer/audience/algorithm/JWKS freshness and token-lifetime authority |
+| [Runtime session record](schemas/runtime-session-record.schema.json) | Server-private HMAC session, principal, authorization revision, epoch and expiry contract |
+| [Manifest signer key](schemas/manifest-signer-key.schema.json) | Tenant/environment/kind-scoped public-key and lifecycle contract |
+| [Temporal precedence case](schemas/source-temporal-precedence-case.schema.json) | Executable late-arrival/revision/end/retraction/reconciliation oracle schema |
 | [Normalization bundle](schemas/normalization-bundle.schema.json) | Deterministic multi-output normalization publication contract |
 | [Canonical change pointer](schemas/canonical-change-pointer.schema.json) | Typed aggregate/evidence pointer-outbox wire contract |
 | [Core PostgreSQL DDL](sql/001-die-core.sql) | Physical schema baseline |
