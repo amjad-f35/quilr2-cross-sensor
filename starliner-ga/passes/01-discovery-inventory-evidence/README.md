@@ -4,7 +4,11 @@ Status: **normative first customer release authority**
 
 Short name: **DIE Pass**
 
-Approval state: **CTO product sequencing is captured; named engineering, security, SRE, migration, and product owners must ratify the technical freeze at `DIE-0`.** “Accepted” in the pass decision register means selected as the baseline presented for that freeze; it is not evidence of human signoff until the immutable `DIE-0` package records approvers.
+Approval state: **the bounded technical freeze is complete and the full product
+implementation is authorized.** Named engineering, security, SRE and product
+owners approve promotion/release evidence for their domains; their signoff is
+not a prerequisite for writing or integrating the frozen product. Migration is
+a separate future track.
 
 ## Executive decision
 

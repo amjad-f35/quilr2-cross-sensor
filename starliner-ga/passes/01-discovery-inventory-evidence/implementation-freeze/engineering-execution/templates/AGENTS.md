@@ -7,6 +7,11 @@ Activity/Observability and Evidence pass from the frozen authority. Build
 production software, not a demonstration, mock platform or parallel truth
 system.
 
+Document 41 governs execution: work packages are concurrent capability lanes,
+LG gates are release-acceptance evidence, and the real product advances through
+coherent native-to-UI increments. Never stop independent coding because an LG
+is open or a remote validator is unavailable.
+
 ## Authority
 
 Record the exact installed architecture-authority and execution-kit commits in
@@ -22,11 +27,22 @@ Record the exact installed architecture-authority and execution-kit commits in
 Existing code, old PRs, comments and names do not override frozen contracts.
 Never fabricate a sensor field, relationship, identity binding or coverage
 claim. `new_capture_required`, `optional_unsourced`, `unsupported` and
-`unknown` remain explicit until implementation and certification prove
-otherwise.
+`unknown` remain explicit until implementation supplies the fact and release
+qualification supports the external claim.
 
 Migration, policy, findings/intelligence, cost/value and deployment-model
 portfolio are outside this pass.
+
+## Product path versus harness
+
+Fixed tenant/producer IDs, shared HS256 preview secrets, persona shims,
+unsigned manifests, manual SQL control transitions, fake provenance, dirty
+hotfix binaries and fixtures replacing Quilr-owned internal stages are
+diagnostic only. They cannot count as integrated product behavior or satisfy a
+WP outcome. Stubs are allowed only at genuine external provider boundaries.
+
+An integrated claim requires one exact `RUNTIME_MANIFEST.yaml`; never combine
+results from overlapping preview stacks or different component revisions.
 
 ## Customer UI
 
@@ -54,11 +70,12 @@ At the beginning of every session, after compaction and before modifying code:
 2. Read `docs/engineering/WORK_STATE.md` and `TOPOLOGY.md`.
 3. Read the active work package, contract and acceptance tests.
 4. Inspect `git status --short --branch`, recent commits and the branch diff.
-5. Inspect the active PR and last exact-SHA remote result.
-6. Continue the recorded next action.
+5. Inspect central program/capability state and the current runtime manifest;
+   inspect a PR or remote result only when one exists and is relevant.
+6. Continue the recorded next product action.
 
 Do not infer progress from chat history. If durable state and Git disagree,
-stop, reconcile them and record the correction.
+reconcile them promptly, record the correction and continue product work.
 
 ## Development loop
 
@@ -72,6 +89,10 @@ refactors, migrations and contract work:
 5. Review the diff for authority, privacy, tenant and failure-path regressions.
 6. Update state, topology and ledgers.
 7. Commit the coherent verified unit.
+
+Every session that can change product code must advance production behavior,
+correct a proven defect or produce required executable evidence. Governance
+updates alone are not a product increment.
 
 Generated outputs are regenerated from authority and committed; never edit them
 by hand. Do not weaken or delete a test to make a candidate pass.
@@ -94,15 +115,18 @@ Before yielding or when context may compact, update `WORK_STATE.md` with:
 
 Never leave the only copy of work in an uncommitted remote checkout.
 
-## Two-agent ownership
+## Optional exact-SHA validation lane
 
-The developer agent is the only writer to the implementation branch. The
-remote validation agent fetches an exact pushed SHA, deploys that SHA or its
-digest-bound artifact into an isolated Ubuntu environment, runs the required
-suite and records immutable evidence. It does not edit code or push fixes.
+The developer agent is the only writer to the implementation branch. When a
+qualified isolated environment is available, the remote validation agent
+fetches an exact pushed SHA, deploys that SHA or its digest-bound artifact,
+runs the required suite and records immutable evidence. It does not edit code
+or push fixes.
 
 A remote pass applies only to the recorded SHA, artifact digest, configuration
 digest and environment. A newer commit is unverified until tested again.
+Remote evidence is required for release rows that name it, not for continued
+implementation or local integration.
 
 ## Git and PR hygiene
 
@@ -120,7 +144,8 @@ digest and environment. A newer commit is unverified until tested again.
 
 ## Change control
 
-Raise a focused ADR and stop semantic implementation if work would change:
+Raise a focused ADR and pause only the affected semantic lane if executable
+evidence proves that implementation must change:
 
 - authority or source-of-truth boundaries;
 - identity, merge/split or relationship semantics;
@@ -135,10 +160,27 @@ Private code organization, tested libraries behind frozen interfaces, bounded
 batch/concurrency tuning and equivalent query plans remain implementation
 choices.
 
+## Blocker rule
+
+Only `CONTRACT_CONTRADICTION`, `EXTERNAL_CREDENTIAL`,
+`EXTERNAL_INFRASTRUCTURE`, `PRIVILEGED_USER_ACTION` or
+`DESTRUCTIVE_APPROVAL` may set `development_blocked=true`. Code that is not yet
+written, a failing test, an open LG, missing qualification evidence or an
+unfinished harness is the next active action. Continue every independent
+lane.
+
+A blocked row is invalid unless it records the exact blocked action, retained
+evidence, owner, objective unblock condition, RFC3339 recheck time and an
+independent next action. External credentials or infrastructure block only the
+specific external execution, never production-code implementation, a true
+third-party-boundary stub, harness construction or unrelated product work.
+
 ## Completion
 
-An item is complete only when its acceptance criteria pass, code and generated
-artifacts are committed, local evidence is recorded, required remote exact-SHA
-validation passes, the PR is reviewed and durable state identifies the next
-item. Report uncertainty directly; never claim a runtime or sensor behavior
-that was not executed or source-proven.
+An implementation slice is complete when production code and generated
+artifacts are committed and pushed, focused and affected tests pass, and
+durable state identifies the next product action. Integration and release
+qualification remain separate states; exact-SHA remote evidence is required
+only where the release catalog demands it. A PR is optional and opened only on
+explicit request. Report uncertainty directly; never claim a runtime or sensor
+behavior that was not executed or source-proven.

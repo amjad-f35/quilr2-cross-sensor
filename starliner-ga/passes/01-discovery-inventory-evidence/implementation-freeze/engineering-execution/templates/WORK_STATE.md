@@ -12,14 +12,19 @@ context compaction and whenever ownership or the next action changes.
 | Branch | `UNASSIGNED` |
 | Protected base | `UNASSIGNED` |
 | Developer owner | `UNASSIGNED` |
-| Remote validator owner | `UNASSIGNED` |
+| Remote validator owner | `OPTIONAL` |
 | Architecture authority commit | `UNASSIGNED` |
 | Execution-kit commit | `UNASSIGNED` |
 | Code base commit | `UNASSIGNED` |
 | Last locally verified commit | `NONE` |
 | Last remotely verified commit | `NONE` |
-| PR | `NONE` |
-| Status | `READY` |
+| PR | `NONE_OPTIONAL` |
+| Implementation state | `NOT_STARTED` |
+| Integration state | `NOT_CONNECTED` |
+| Evidence state | `NOT_RUN` |
+| Release state | `NOT_ELIGIBLE` |
+| Runtime mode | `NONE` |
+| Highest proven stage | `NONE` |
 | Updated at | `UNASSIGNED` |
 
 ## Objective and acceptance
@@ -27,6 +32,9 @@ context compaction and whenever ownership or the next action changes.
 State the bounded production outcome and link the exact work package,
 requirements, gate-test IDs and contracts. Do not restate the entire
 architecture.
+
+Release gates are evidence obligations, not hard code dependencies. Name both
+separately.
 
 ## Verified completed work
 
@@ -49,13 +57,24 @@ architecture.
 
 ## Blockers and decisions
 
-- Blocker: none.
+- Development blocked: no.
+- Blocker class: `NONE`.
+- Blocked on: `NONE`.
+- Exact blocked action: `NONE`.
+- Blocker evidence: `NONE`.
+- Blocker owner: `NONE`.
+- Objective unblock condition: `NONE`.
+- Recheck at: `NONE`.
+- Independent next action: `NONE`.
 - ADR required: no.
 - Assumptions requiring validation: none.
 
+Only blocker classes permitted by document 41 may set development blocked to
+yes. Missing code, failed tests and open gates remain active work.
+
 ## Next exact action
 
-`Select and accept one work item before modifying production code.`
+`Advance the next coherent production-path capability and record its highest proven stage.`
 
 ## Recovery checklist
 
@@ -65,6 +84,6 @@ read this file and TOPOLOGY.md
 verify authority commits
 git status --short --branch
 git log --oneline --decorate -10
-inspect current PR and latest remote validation
+inspect program capability state and current runtime manifest
 continue Next exact action
 ```

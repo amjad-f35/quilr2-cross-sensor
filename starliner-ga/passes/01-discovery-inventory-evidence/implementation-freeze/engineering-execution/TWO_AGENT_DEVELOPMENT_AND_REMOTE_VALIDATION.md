@@ -1,4 +1,10 @@
-# Two-Agent Development and Remote Validation
+# Development and Optional Exact-SHA Remote Validation
+
+Remote validation is a parallel evidence lane. It is mandatory only for the
+release catalog rows that require that environment; it is never a prerequisite
+for continued product implementation or local integration. A shared
+operational host that cannot provide isolation is read-only observation, not a
+validation target.
 
 ## Ownership
 
@@ -8,11 +14,11 @@
 | Write feature branch | sole owner | no |
 | Run focused/local suites | yes | optional reproduction only |
 | Push candidate SHA | yes | no |
-| Build/deploy exact candidate in remote dev | no | yes |
+| Build/deploy exact candidate in an available isolated environment | optional | yes |
 | Run server/native/runtime suites | consumes result | yes |
 | Commit fixes | yes | no |
 | Record remote evidence | reviews | yes |
-| Merge PR | after review/gates | no |
+| Integrate accepted branch | developer/repository workflow | no |
 
 ## Candidate handoff
 
@@ -57,7 +63,7 @@ environment-managed and never enter Git or evidence.
 
 ## Failure protocol
 
-The remote agent records:
+When a qualified environment is available, the remote agent records:
 
 - exact SHA and artifact/configuration digests;
 - first failing invariant and all required suite results;
@@ -71,12 +77,13 @@ passing evidence remain append-only.
 
 ## Success protocol
 
-A remote pass moves only that candidate to `REMOTE_VERIFIED`. The developer:
+A remote pass advances only that candidate's evidence axis. The developer:
 
 1. confirms the returned SHA/digests equal the pushed candidate;
-2. links evidence in the PR and change ledger;
+2. links evidence in durable state and, if one exists, the PR;
 3. reruns any locally required generated-drift or merge-base checks;
-4. requests review or continues the same work item;
+4. continues the product item or requests review when the repository workflow
+   calls for it;
 5. never amends the verified commit without invalidating the result.
 
 ## Remote environment hygiene
@@ -104,3 +111,8 @@ while developer prepares candidate N+1 locally
 Candidate N+1 cannot inherit N's pass. If N fails, the developer decides
 whether N+1 already contains the fix; the remote agent still validates N+1 as a
 new immutable candidate.
+
+If the remote environment is unavailable or unsafe, record
+`EXTERNAL_INFRASTRUCTURE` for the affected evidence lane and continue every
+independent implementation activity. Never deploy an untracked fix on a shared
+host merely to obtain a green result.

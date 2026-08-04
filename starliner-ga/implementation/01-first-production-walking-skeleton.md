@@ -6,17 +6,17 @@ Status: **normative pointer to the CTO-directed first pass**
 
 The first production walking skeleton is now the complete [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md).
 
-The earlier sequence that shipped one unmanaged-application finding and deferred MCP has been superseded. That sequence conflicted with the current product and migration directive:
+The earlier sequence that shipped one unmanaged-application finding and deferred MCP has been superseded. That sequence conflicted with the current bounded product directive:
 
 - integrate Browser, Browser Backend, Endpoint, LLM Gateway, and MCP Gateway evidence now;
 - build one canonical inventory now;
 - expose important source-backed activity, evidence, provenance, coverage, and gaps now;
-- preserve Quilr 1 customer continuity now;
-- defer intelligence/findings and policy/control until the evidence foundation and migration pass work.
+- preserve stable extension seams for a separately authorized Quilr 1 migration/coexistence track;
+- defer intelligence/findings and policy/control until the evidence foundation works.
 
 ## Walking-skeleton outcome
 
-> All four sensor families emit privacy-approved evidence through the permanent Starliner path; the tenant cell continuously resolves it into applications, agents, models, MCP servers, and tools with distinct surfaces/deployments; the UI exposes inventory, activity, evidence, provenance, coverage, and gaps; and an approved tenant cohort can move between Quilr 1 and Quilr 2 reads without losing accepted evidence.
+> All four sensor families, with Browser Backend as a distinct fifth producer, emit privacy-approved evidence through the permanent Starliner path; the tenant cell continuously resolves it into applications, agents, models, MCP servers, and tools with distinct surfaces/deployments; and the UI exposes inventory, activity, evidence, provenance, coverage, and gaps.
 
 This is production code and a customer release, not a synthetic event viewer.
 
@@ -33,8 +33,17 @@ This is production code and a customer release, not a synthetic event viewer.
 - unified APIs and UI;
 - tenant/security/privacy boundary;
 - projection rebuild;
-- Quilr 1 backfill, semantic parity, cohort cutover, fallback, and rollback;
 - release, operations, support, and certification.
+
+## Separate parallel migration track
+
+[ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md)
+preserves the complete Quilr 1 legacy-evidence, backfill, semantic-parity,
+cohort-cutover, fallback, rollback, and stabilization program under the
+independent `MIGRATION` track gate. That program consumes versioned seams from
+this product but is not a walking-skeleton component or a `DIE-GA` prerequisite.
+The walking skeleton must not create placeholder migration roles, state, APIs,
+UI, fixtures, or release evidence.
 
 ## Explicitly deferred
 
@@ -44,6 +53,7 @@ This is production code and a customer release, not a synthetic event viewer.
 - restricted content;
 - graph/search/cache infrastructure without measured need;
 - broader deployment profiles;
+- Quilr 1 extraction, coexistence, parity, cutover, fallback, and rollback implementation;
 - Quilr 1 retirement.
 
 ## Completion

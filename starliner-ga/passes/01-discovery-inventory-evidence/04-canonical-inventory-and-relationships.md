@@ -116,7 +116,9 @@ Configured relationships never appear as observed execution.
 - high-impact merges and splits support review and impact preview;
 - source deletion closes a claim but does not automatically delete a canonical entity;
 - observed use never creates business ownership;
-- legacy Quilr 1 IDs are aliases/compatibility references, not canonical IDs.
+- if the separately governed migration track later submits legacy Quilr 1
+  evidence, its IDs are source aliases/compatibility references, never canonical
+  IDs; bounded DIE does not import or resolve legacy records itself.
 
 ## Material inventory fields
 
@@ -178,4 +180,7 @@ Activation, inactivity, retirement, and reappearance rules are entity-class/vers
 - conflicting catalog/source claims;
 - false merge and split;
 - late evidence and source correction;
-- Quilr 1 composite row splitting into several canonical objects.
+- multi-output splitting of supported native-source composite records.
+
+Quilr 1 composite-row splitting and legacy alias evaluation belong to the
+separate migration qualification corpus in document 10.

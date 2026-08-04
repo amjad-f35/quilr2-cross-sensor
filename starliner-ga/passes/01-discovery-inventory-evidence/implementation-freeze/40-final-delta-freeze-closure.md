@@ -112,3 +112,9 @@ cross-contract change; otherwise implement the frozen authority.
 This is the final pre-code architecture closure for the bounded pass. Further
 documents may clarify evidence or implementation, but may not silently change
 the authority chain.
+
+Implementation scheduling, status language, coherent runtime identity and the
+separation of work-package ownership from LG release evidence are frozen by
+[document 41](41-product-first-continuous-delivery-authority.md). Document 41
+does not alter this architecture or any machine contract; it prevents gate-
+first scheduling and diagnostic previews from narrowing the end goal.

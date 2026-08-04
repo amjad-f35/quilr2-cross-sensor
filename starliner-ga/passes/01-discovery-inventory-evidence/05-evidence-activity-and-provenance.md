@@ -21,7 +21,8 @@ A versioned central interpretation or correlation of one or more source evidence
 
 ### Audit
 
-An immutable record of a user, service, identity, export, evidence-access, migration, configuration, or release action inside Quilr 2.
+An immutable record of a user, service, identity, export, evidence-access,
+configuration, maintenance, or release action inside bounded Quilr 2.
 
 These are never collapsed into one generic “event.”
 
@@ -84,7 +85,6 @@ The UI provides:
 - sensor lifecycle and configuration;
 - source gaps, loss, outage, and recovery;
 - identity merge/split/correction history;
-- migration/backfill events;
 - evidence access/export audit.
 
 It does not label frequency or severity as “important” through an ungoverned score. Importance filters are explicit event families and customer-selected scopes.
@@ -155,10 +155,14 @@ Retention classes are separately configurable for:
 - normalized observations;
 - canonical inventory/relationship history;
 - audit;
-- migration artifacts;
 - exports.
 
 Deleting a projection does not delete evidence or canonical history. Tenant deletion, legal hold, source deletion, privacy request, and export expiry propagate through an audited workflow. Exact production periods remain an accountable input.
+
+The separate migration track defines and retains its own extraction, backfill,
+parity and cohort evidence classes. It may reuse the frozen audit/evidence
+extension contracts but does not add handlers, retention classes or UI events to
+bounded DIE.
 
 ## Product limitations
 

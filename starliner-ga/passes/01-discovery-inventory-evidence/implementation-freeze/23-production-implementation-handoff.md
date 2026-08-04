@@ -70,28 +70,32 @@ the shared codebase/contracts but have distinct database credentials, queues,
 resource limits, SLOs and autoscaling signals. A worker never receives a
 schema-wide writer credential.
 
-## Build and gate order
+## Product implementation order
 
-1. Extend the passing exact-version local storage smoke into the digest-pinned,
-   multi-session/server-mode `LG-001` and `LG-002` conformance suites.
-2. Generate protocol/OpenAPI clients and shared JCS/JWS/safe-integer vectors.
-3. Implement signed tenant bootstrap and producer enrollment/certification.
-4. Implement ingest admission, object storage and exact receipts.
-5. Generate the five normalizers from the closed `LG-008` authority, then
-   implement and run native golden certification packs under `LG-005`.
-6. Implement source identity, truth materialization and reconciliation.
-7. Implement pointer projectors and generation verification.
-8. Implement authorization planner, API serializers, evidence/export redemption
-   and audit.
-9. Replace the fixture Nuxt repository with the generated `DieRepository`,
-   preserving fixtures only behind an unreachable production switch.
-10. Run the full functional, security, chaos, restore, performance,
-    accessibility and supply-chain gates.
+Implementation is organized around customer-visible increments, not a
+horizontal gate chain:
 
-This order is dependency order, not permission to omit later modules. The
-target is the complete intended bounded pass at the selected source cutoff.
-The 1,837-field generated authority supersedes any inference that the curated
-71-row product field register is itself a native field inventory.
+1. Build the real minimum control path: tenant bootstrap, signed producer and
+   installation enrollment, credentials/configuration, revocation and health.
+2. Drive one real source fact through WAL, admission, evidence, normalization,
+   canonical truth, projection, authorized API and live Nuxt; then expand that
+   same coherent runtime across all five profiles and every supported route.
+3. Materialize exact identity, relationship, activity, coverage, ambiguity,
+   succession and provenance semantics as the native source paths arrive.
+4. Complete all frozen API/UI breadth, authorization, rebuild, lifecycle and
+   operational behavior on that same product runtime.
+5. Run `LG-001..LG-007` conformance continuously against exact candidates and
+   correct failures without stopping independent product lanes.
+
+Protocol generation, storage harnesses, native qualification, cryptographic
+vectors, provider lifecycle tests and remote exact-SHA validation run in
+parallel with product construction. They are mandatory release evidence, not
+permission to implement another module. Hard code dependencies and release
+gates are tracked in separate fields under document 41.
+
+The target remains the complete intended bounded pass at the selected source
+cutoff. The 1,837-field generated authority supersedes any inference that the
+curated 71-row product field register is itself a native field inventory.
 
 ## Transaction stop conditions
 
@@ -134,7 +138,7 @@ variants. Product components may compose primitives; a second wrapper design
 system, cloned common primitives, alternate UI framework and arbitrary
 per-page utility policy are prohibited.
 
-## Readiness at handoff
+## Readiness and implementation authorization
 
 - Architecture and semantic authority: frozen for the selected-source facts;
   later source or runtime contradictions reopen only affected contracts.
@@ -143,23 +147,29 @@ per-page utility policy are prohibited.
 - Target-engine local smoke: PostgreSQL 17.10 passes the complete current DDL,
   roles and conformance transaction with checksums; ClickHouse 26.3.17.56 LTS
   passes DDL/materialized-view/tie/deletion smoke. Expanded contention,
-  server-mode lifecycle, load, recovery and immutable CI evidence remain
-  blocked until `LG-001`/`LG-002` pass.
-- Object retention and erasure-target completeness, sensor certification,
-  cross-language crypto and live Nuxt: blocked until their applicable
-  `LG-003` through `LG-007` gates pass.
+  server-mode lifecycle, load, recovery and immutable CI evidence are active
+  `LG-001`/`LG-002` qualification work.
+- Object retention, erasure-target completeness, native runtime support,
+  cross-language crypto and live Nuxt are active implementation and release-
+  qualification work under `LG-003` through `LG-007`. Open evidence prevents
+  the applicable production claim; it does not block continued construction.
 - Migration, deployment portfolio, policy engine, findings/intelligence and
   cost/value: intentionally outside this bounded pass.
 
-Production engineering is authorized to begin from this handoff. Start with
-the expanded live conformance and generated contract foundations, then follow
-the dependency order above. Do not start by rebuilding a query-builder or
-wiring the Nuxt fixtures to ad hoc endpoints.
+Production engineering is authorized to build and integrate the entire pass
+from this handoff. Start with the real control/enrollment path and a coherent
+native-to-UI product increment while conformance runs alongside it. Do not
+rebuild a query-builder, wire Nuxt fixtures to ad hoc endpoints, or let a
+diagnostic preview substitute for a missing internal product component.
 
 The gate implementations must follow the exact topologies, catalog IDs,
 evidence schema and exits in
 [production-readiness](production-readiness/README.md). “Close LG-001” or
 “close LG-005” is not an open-ended engineering instruction.
+
+The active scheduling, status and blocker rules are in
+[document 41](41-product-first-continuous-delivery-authority.md). They
+supersede older gate-first wording without changing any gate assertion.
 
 The final delta-freeze adds binding authority that supersedes any older open
 wording in this handoff:

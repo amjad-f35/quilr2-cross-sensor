@@ -11,6 +11,9 @@ does not redefine the frozen architecture.
 | Commit | `UNASSIGNED` |
 | Release manifest | `NONE` |
 | Generated contract digest | `UNASSIGNED` |
+| Runtime manifest | `NONE` |
+| Runtime mode | `NONE` |
+| Highest coherent product stage | `NONE` |
 
 ## Modules
 
@@ -50,6 +53,17 @@ Do not store secrets, customer identifiers or credentials here.
 |---|---|---|---|
 | local | focused development | `UNASSIGNED` | `UNASSIGNED` |
 | remote-dev | exact-SHA validation | `UNASSIGNED` | `UNASSIGNED` |
+
+## Product and harness separation
+
+| Path | Classification | Production reachable | Counts as product capability | Removal/guard |
+|---|---|---|---|---|
+| example | `diagnostic_harness` | no | no | `UNASSIGNED` |
+
+Allowed classifications are `production`, `external_boundary_stub`,
+`diagnostic_harness` and `legacy`. An internal Quilr product component cannot
+be replaced by an external-boundary stub. Every integrated product claim binds
+one runtime manifest and excludes diagnostic/legacy reachability.
 
 ## Known implementation debt
 

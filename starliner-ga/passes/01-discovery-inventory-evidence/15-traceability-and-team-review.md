@@ -27,12 +27,13 @@ customer question
 → UI state
 → authorization
 → tests and certification
-→ migration/parity
 → SLO/runbook/support
 → release gate evidence
 ```
 
-Missing links block the claim.
+Missing links block the bounded DIE claim they support. The separate migration
+track adds its own extraction/parity/cohort/rollback trace from these stable
+outputs; that trace is not a prerequisite for DIE implementation or DIE-GA.
 
 ## Required team reviews
 
@@ -43,7 +44,6 @@ Missing links block the claim.
 - Activity versus Evidence distinction;
 - important event families;
 - UI simplicity and partial states;
-- migration/fallback experience;
 - accessibility;
 - pilot acceptance.
 
@@ -64,7 +64,6 @@ Missing links block the claim.
 - create/link/defer;
 - merge/split/correction;
 - evaluation corpus/precision;
-- legacy mapping;
 - provenance.
 
 ### Platform
@@ -99,7 +98,11 @@ Missing links block the claim.
 - pilot operations;
 - customer communications.
 
-### Migration/legacy owners
+### Separate migration/legacy-track review
+
+The following review is retained for the parallel migration program only. It
+does not gate bounded DIE implementation, integration, product claims, or
+DIE-GA.
 
 - live Quilr 1 scope;
 - consumers/exports;
@@ -122,7 +125,6 @@ Freeze-entry checklist:
 - repository/module/deployment map;
 - threat/privacy review;
 - source adapter change plans;
-- live Quilr 1 inventory plan;
 - named owners and delivery capacity.
 
 Teams may implement the complete bounded pass in the frozen dependency order.
@@ -140,7 +142,6 @@ Review:
 - identity quality;
 - ingestion/projection lag;
 - privacy/security issues;
-- Quilr 1 parity differences;
 - customer/pilot feedback;
 - risks, owners, dependencies and gate status.
 
@@ -156,9 +157,7 @@ Progress is measured in verified permanent-path capabilities, not file count, se
 6. Can the product operate without sensor APIs during reads?
 7. Can every projection be destroyed and rebuilt?
 8. Can the pass ship without a graph/search/cache service?
-9. Can Quilr 1 remain stable throughout dark and pilot phases?
-10. Can a single tenant/domain roll back reads?
-11. Are source credentials and local IPC production safe?
-12. Are capacity, backup, support and exact deployed artifacts proven?
+9. Are source credentials and local IPC production safe?
+10. Are capacity, backup, support and exact deployed artifacts proven?
 
 Any “no” must become a requirement, input, risk, or approved scope change.

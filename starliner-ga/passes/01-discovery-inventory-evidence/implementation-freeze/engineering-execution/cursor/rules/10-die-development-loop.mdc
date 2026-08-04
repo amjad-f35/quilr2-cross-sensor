@@ -5,6 +5,8 @@ alwaysApply: true
 ---
 
 - One branch represents one stable work item or vertical increment.
+- Advance a coherent product capability; governance-only work is not a product
+  increment.
 - Use the test-driven-development skill for production changes.
 - Establish a failing test or executable reproduction before behavior changes.
 - Run focused tests, then affected contract/integration/security/architecture
@@ -14,5 +16,11 @@ alwaysApply: true
   commit.
 - The developer agent is the sole branch writer.
 - The remote agent validates an exact pushed SHA and never edits code.
-- Record commit, PR, commands and exact-SHA evidence in the engineering ledgers.
+- Remote validation runs in parallel when an isolated environment exists and
+  never blocks continued coding.
+- Record commit, optional PR, commands and exact-SHA evidence in the
+  engineering ledgers.
 - Open an ADR instead of improvising a frozen semantic change.
+- Missing code, failed tests and open LGs are ACTIVE work, not blockers.
+- Never count fixed IDs, shared preview credentials, persona shims, manual SQL,
+  fixture interiors, dirty binaries or mixed runtime manifests as product E2E.

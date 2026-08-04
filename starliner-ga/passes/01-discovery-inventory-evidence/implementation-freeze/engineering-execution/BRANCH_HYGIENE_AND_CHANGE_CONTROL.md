@@ -23,7 +23,8 @@ each repository; it does not share a Git branch.
 
 Long-lived environment branches already used by a legacy repository remain
 outside this policy until that repository owner changes them. New DIE work
-still branches from the current protected target and returns through a PR.
+branches from the current protected target and integrates through the explicit
+repository/user workflow. A PR is created only when the user requests one.
 
 ## Concurrency and ownership
 
@@ -35,19 +36,22 @@ still branches from the current protected target and returns through a PR.
 - Never have two agents alternately push to the same branch.
 - Use separate worktrees for concurrent local work.
 - Do not stack on a temporary review-base branch unless the dependency is real,
-  accepted and recorded. Prefer a normal PR to the protected base.
+  accepted and recorded. Prefer the repository's explicitly authorized
+  protected-base integration workflow; use a PR only when the user requests
+  one.
 
 Recommended active limits per repository:
 
 - at most one active branch per work item;
-- at most three concurrent DIE implementation PRs unless owners and dependency
-  order are explicit;
+- at most three concurrent DIE implementation branches unless owners and hard
+  code dependencies are explicit;
 - zero merged branches retained without a release/evidence reason;
 - zero stale branches with unknown unique commits.
 
 Repository settings should enable automatic deletion of merged head branches.
-The protected default requires PR review, required CI, no force-push and no
-direct deletion. A scheduled report refreshes branch head, last activity,
+Where a protected default actually requires PR review, follow that repository
+setting only when integration is requested; it is not a coding prerequisite.
+Required CI, no force-push and no direct deletion still apply. A scheduled report refreshes branch head, last activity,
 ahead/behind count and associated PR into `BRANCH_PR_REGISTER.csv`; it may
 recommend cleanup but never deletes an ahead/unknown branch automatically.
 
@@ -92,7 +96,7 @@ Use only these dispositions:
 
 | Disposition | Meaning | Required proof |
 |---|---|---|
-| `ACTIVE` | accepted current work | owner, work item, base, PR and recent state |
+| `ACTIVE` | accepted current work | owner, work item, base, PR-or-`NONE` and recent state |
 | `MERGED_DELETE` | content in protected base | zero commits ahead or merged PR plus patch verification |
 | `SUPERSEDE` | replaced by accepted successor | successor link and commit-level retain/reject mapping |
 | `PORT` | selected work will move | destination work item and exact source commits/files |
@@ -106,7 +110,8 @@ reviewed `REJECT`.
 
 ## Repository cleanup is separate from feature code
 
-Cleanup uses its own work item and PR where repository files change. Branch
+Cleanup uses its own work item and the explicitly authorized integration
+mechanism where repository files change; a PR is used only when requested. Branch
 deletion and PR closure are recorded in `BRANCH_PR_REGISTER.csv`. Never mix
 large historical cleanup with a sensor adapter, schema or customer UI PR.
 

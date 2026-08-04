@@ -4,7 +4,11 @@ Status: **normative product and engineering charter**
 
 ## Directive
 
-Ship the discovery, inventory, and observability/evidence foundation completely before building Quilr 2 intelligence/findings and policy/control. Preserve customer continuity while internal architecture and deployment discussions continue.
+Ship the discovery, inventory, and observability/evidence foundation completely
+before building Quilr 2 intelligence/findings and policy/control. Preserve
+stable, non-destructive compatibility seams for the separately governed
+migration/coexistence track while internal architecture and deployment
+discussions continue.
 
 The engineering interpretation is:
 
@@ -13,8 +17,10 @@ The engineering interpretation is:
 - expose useful inventory and source-backed activity now;
 - do not reproduce Quilr 1 API composition or competing truth stores;
 - do not require the final findings, policy, billing, or deployment portfolio to ship this pass;
-- do not remove or destabilize Quilr 1 during the pass;
-- make every transition reversible by tenant and product domain.
+- do not remove, mutate, route, backfill, cut over, or destabilize Quilr 1 from
+  this pass; and
+- expose versioned evidence, identity-alias, API, export and tenant-routing seams
+  that a later migration track can consume without changing DIE truth.
 
 ## Product job
 
@@ -27,7 +33,6 @@ An enterprise customer must be able to answer:
 5. Which source facts support each inventory field and relationship?
 6. How current and complete is visibility for the selected population and time?
 7. What is ambiguous, conflicted, stale, missing, unsupported, or privacy-omitted?
-8. Can we move from the existing Quilr 1 experience without losing inventory, evidence, exports, or customer trust?
 
 The pass does not answer whether a condition is risky or recommend remediation. It provides the trustworthy facts later intelligence requires.
 
@@ -47,11 +52,15 @@ Needs applications, agents, models, MCP dependencies, usage evidence, owners whe
 
 ### Quilr support/operator
 
-Needs tenant-safe producer/enrollment health, backlog, gaps, version/certification, projection freshness, migration parity, and purpose-bound evidence access.
+Needs tenant-safe producer/enrollment health, backlog, gaps,
+version/certification, projection freshness, and purpose-bound evidence access.
 
-### Migration engineer
+### Separate migration-track consumer
 
-Needs legacy extraction lineage, ID compatibility, member-level parity, cohort state, cutover watermarks, fallback, and rollback proof.
+The future migration/coexistence track needs stable legacy-evidence ingestion,
+ID-alias, API/export compatibility and tenant-routing seams from DIE. Legacy
+extraction, parity, cohort state, cutover watermarks, fallback and rollback proof
+are not DIE implementation or DIE-GA exit requirements.
 
 ## Success outcomes
 
@@ -62,7 +71,8 @@ Needs legacy extraction lineage, ID compatibility, member-level parity, cohort s
 - missing data is shown as a coverage gap rather than “no usage”;
 - important native blocks/DLP outcomes appear as events without implying Quilr 2 policy capability;
 - sensor or projection outage does not corrupt canonical inventory;
-- a tenant can return to Quilr 1 reads during stabilization without deleting Quilr 2 evidence;
+- Quilr 1 remains untouched by DIE and a future migration track can add
+  coexistence without rewriting canonical evidence or identity;
 - the frontend never joins source-specific APIs;
 - later findings and policies can consume the same canonical evidence without a rewrite.
 
@@ -72,7 +82,8 @@ The pass may use provisional internal infrastructure bindings where production v
 
 - provisional values are typed and visibly non-production;
 - no provisional value becomes a customer promise;
-- no implementation shortcut may violate identity, durability, tenant, privacy, or migration boundaries;
+- no implementation shortcut may violate identity, durability, tenant, privacy,
+  or the frozen extension seams reserved for the separate migration track;
 - every deferred architecture area is tracked in the [twenty-four-area register](14-twenty-four-area-disposition-register.md).
 
 ## Release identifier

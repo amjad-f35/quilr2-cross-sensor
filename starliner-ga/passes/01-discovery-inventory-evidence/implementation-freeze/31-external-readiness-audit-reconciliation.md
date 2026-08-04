@@ -1,5 +1,9 @@
 # External Readiness Audit Reconciliation
 
+> **Historical evidence record:** this reconciles a specific old commit. It
+> does not schedule current work. Documents 40 and 41 and live repository state
+> govern implementation.
+
 ## Scope
 
 The supplied external audit inspected commit

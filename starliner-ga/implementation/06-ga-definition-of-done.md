@@ -112,6 +112,11 @@ A capability is GA only when every applicable section below is satisfied with ev
 
 ## Migration and customer readiness
 
+Under [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md),
+this section applies to the independent `MIGRATION` track gate and G6, or to a
+release that changes an accepted migration/compatibility seam. It is not a
+blanket prerequisite for `DIE-GA` or G2 through G5.
+
 - Current-to-target mapping complete.
 - Backfill and semantic parity approved.
 - Mutation authority is unambiguous during coexistence.

@@ -1,5 +1,10 @@
 # Production Architecture and Runtime Revalidation
 
+> **Historical evidence record:** this exact-date runtime report is not live
+> program state. Current product capability and component revisions come only
+> from implementation-repository program state and one runtime manifest under
+> document 41.
+
 **Review date:** 2026-07-30
 **Scope:** the bounded Discovery, Inventory/Catalog,
 Activity/Observability and Evidence pass
@@ -37,8 +42,8 @@ here is:
 > isolated as an executable live gate.
 
 Production engineering may start autonomously inside the frozen contracts.
-Production acceptance and customer claims remain blocked where `LG-001..007`
-say they are blocked.
+Production acceptance and customer claims remain unqualified where
+`LG-001..007` evidence is open. Product construction remains authorized.
 
 ## Re-derived sensor-to-product architecture
 

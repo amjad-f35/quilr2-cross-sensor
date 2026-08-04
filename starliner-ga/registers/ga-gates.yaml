@@ -12,16 +12,25 @@ gates:
     required_proof: [durability, replay, compatibility, tenant_isolation, backup_restore, provenance, capacity]
   - id: DIE-GA
     name: Discovery Inventory and Evidence GA
-    customer_claim: "Continuous source-backed discovery and canonical inventory across Browser Endpoint LLM Gateway and MCP Gateway with important activity evidence provenance coverage gaps and reversible Quilr 1 cohort transition."
-    required_profiles: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway, quilr1_legacy]
+    customer_claim: "Continuous source-backed discovery and canonical inventory across Browser Endpoint LLM Gateway and MCP Gateway with important activity evidence provenance coverage and explicit gaps."
+    required_profiles: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway]
     required_product: [overview, application_inventory, agent_inventory, model_inventory, mcp_server_inventory, tool_inventory, activity, evidence, coverage, producers, export, audit]
-    required_proof: [durability, source_event_coverage, resolution_quality, activity_lineage, projection_rebuild, tenant_isolation, privacy, accessibility, capacity, backup_restore, exact_artifacts, quilr1_member_parity, cohort_fallback, pilot]
+    required_proof: [durability, source_event_coverage, resolution_quality, activity_lineage, projection_rebuild, tenant_isolation, privacy, accessibility, capacity, backup_restore, exact_artifacts, pilot]
+  - id: MIGRATION
+    name: Quilr 1 Migration and Coexistence GA
+    track: parallel
+    independent_of: [DIE-GA, G2, G3, G4, G5]
+    prerequisite_for: [G6]
+    customer_claim: "Existing customers can move discovery inventory and evidence from Quilr 1 to Quilr 2 by tenant and domain cohort with lineage-preserving legacy evidence explicit semantic parity reversible cutover fallback rollback and stabilization."
+    required_profiles: [quilr1_legacy]
+    required_product: [legacy_evidence_acquisition, compatibility_aliases, semantic_parity, cohort_control, migration_status, fallback, rollback, audit]
+    required_proof: [backfill_lineage, member_parity, authority_matrix, tenant_isolation, privacy, capacity_isolation, cutover_rehearsal, fallback, rollback, stabilization, customer_signoff]
   - id: G2
     name: Unified AI Estate GA
     customer_claim: "Unified active AI application and model estate across launch sensors with ownership, governance, coverage, and actionable discovery."
     required_profiles: [browser, browser_backend, endpoint, llm_gateway, enterprise_connector]
     required_product: [die_ga_foundation, overview, application_inventory, entity_page, coverage, unmanaged_app_insight, ownership_workflow, export, audit]
-    required_proof: [resolution_quality, finding_quality, browser_relay_lineage, pilot, accessibility, slo, dr, quilr1_coexistence]
+    required_proof: [resolution_quality, finding_quality, browser_relay_lineage, pilot, accessibility, slo, dr]
   - id: G3
     name: Agentic Estate GA
     customer_claim: "Agent, model, MCP server, and tool estate with workload identity, execution relationships, and supported unapproved/exposure findings."

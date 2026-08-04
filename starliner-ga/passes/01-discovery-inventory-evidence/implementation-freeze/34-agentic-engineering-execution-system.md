@@ -40,6 +40,27 @@ The implementation repository remains source of truth for code. The frozen
 cross-sensor package remains source of truth for semantics. Jira or the
 importable CSV is a portfolio view; it does not override either.
 
+## Product-first invariant
+
+The execution system records executable product capability, not activity
+volume. Work-package labels, green component tests, remote-validation status
+and branch state cannot substitute for a coherent source-to-UI result.
+
+Two durable levels are required:
+
+- per-repository `WORK_STATE.md` records one writer and branch; and
+- central `PROGRAM_STATE.md` plus `PRODUCT_DELIVERY_STATE.csv` bind one
+  cross-repository product candidate and its independent implementation,
+  integration, evidence and release states.
+
+`LG-*` is never a hard coding dependency. Missing code and failed tests remain
+active work. Only the blocker classes frozen in document 41 may stop the
+affected lane, and other independent lanes continue.
+
+A diagnostic harness using fixed identities, symmetric preview credentials,
+manual SQL, fixtures in place of owned internal components, dirty binaries or
+mixed runtime manifests cannot advance integrated-product state.
+
 ## Installation boundary
 
 The execution kit is copied into each active implementation repository. The
@@ -53,7 +74,10 @@ AGENTS.md
 .cursor/skills/test-driven-development/SKILL.md
 .cursor/skills/remote-sha-validation/SKILL.md
 docs/engineering/WORK_STATE.md
+docs/engineering/PROGRAM_STATE.md
+docs/engineering/PRODUCT_DELIVERY_STATE.csv
 docs/engineering/TOPOLOGY.md
+docs/engineering/RUNTIME_MANIFEST.yaml
 docs/engineering/CHANGE_LEDGER.csv
 docs/engineering/REMOTE_VALIDATION_LEDGER.csv
 docs/engineering/BRANCH_PR_REGISTER.csv

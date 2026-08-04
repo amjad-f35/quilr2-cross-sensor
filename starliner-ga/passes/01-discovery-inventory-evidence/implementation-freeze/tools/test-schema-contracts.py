@@ -82,6 +82,23 @@ def normalization_bundle_digest(output_refs: list[dict]) -> str:
     return "sha256:" + digest.hexdigest()
 
 
+def runtime_profile_registry_digest(entries: list[dict]) -> str:
+    canonical = sorted(
+        [
+            {
+                "profile": entry["profile"],
+                "profile_version": entry["profile_version"],
+                "component_role": entry["component_role"],
+                "schema_digest": entry["schema_digest"],
+            }
+            for entry in entries
+        ],
+        key=lambda entry: (entry["profile"], entry["profile_version"]),
+    )
+    encoded = json.dumps(canonical, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
 def validate_normalization_bundle(value: dict) -> None:
     accept("normalization-bundle.schema.json", value, "normalization bundle")
     refs = value["output_refs"]
@@ -799,6 +816,277 @@ def run() -> None:
     integer_masquerading_as_number = copy.deepcopy(typed_claims)
     integer_masquerading_as_number["claims"][1]["value"] = 2
     reject("normalized-observation.schema.json", integer_masquerading_as_number, "integer encoded as number claim")
+    negative_count += 1
+
+    execution_status = {
+        "capability_id": "PC-001",
+        "implementation_state": "ACTIVE",
+        "integration_state": "PARTIAL_PATH",
+        "evidence_state": "TEST_VERIFIED",
+        "release_state": "INTERNAL_ONLY",
+        "runtime_mode": "UNIT_HARNESS",
+        "highest_proven_stage": "INGEST_RECEIPT",
+        "development_blocked": False,
+        "blocker_class": "NONE",
+        "blocked_on": "NONE",
+        "blocked_action": "NONE",
+        "blocker_evidence": "NONE",
+        "blocker_owner": "NONE",
+        "unblock_condition": "NONE",
+        "blocker_recheck_at": "NONE",
+        "independent_next_action": "NONE",
+        "authority_commit": "a" * 40,
+        "last_verified_sha": "b" * 40,
+        "runtime_manifest": "NONE",
+        "runtime_manifest_digest": "NONE",
+        "next_product_action": "Replace preview enrollment with the production control path",
+        "limitations": ["Control path is not integrated"],
+    }
+    accept("execution-status.schema.json", execution_status, "active product capability")
+    positive_count += 1
+
+    valid_external_blocker = copy.deepcopy(execution_status)
+    valid_external_blocker.update({
+        "development_blocked": True,
+        "blocker_class": "EXTERNAL_CREDENTIAL",
+        "blocked_on": "provider test account",
+        "blocked_action": "execute the provider-specific object-lock race",
+        "blocker_evidence": "evidence/blockers/provider-account-unavailable.json",
+        "blocker_owner": "platform-infrastructure",
+        "unblock_condition": "isolated provider account and scoped credentials are issued",
+        "blocker_recheck_at": "2026-08-05T12:00:00Z",
+        "independent_next_action": "complete the deterministic object-port failure harness",
+    })
+    accept("execution-status.schema.json", valid_external_blocker, "bounded external blocker with continuing work")
+    positive_count += 1
+
+    endpoint_registry_entries = [{
+        "profile": "endpoint",
+        "profile_version": "1.0.0",
+        "component_role": "endpoint",
+        "schema_digest": "sha256:fb686ed047e38ca311cb6fcc724b63b4bf8857f648a438b310dc0403734372d6",
+    }]
+    coherent_runtime = {
+        "schema_version": "1.0",
+        "schema": "die.runtime-manifest.v1",
+        "manifest_id": UUID_1,
+        "candidate_digest": DIGEST,
+        "environment_id": "local-die-01",
+        "runtime_mode": "COHERENT_LOCAL_PRODUCT",
+        "authority_commit": "a" * 40,
+        "generated_contract_digest": DIGEST,
+        "database_migration_digest": "sha256:" + ("b" * 64),
+        "configuration_digest": "sha256:" + ("c" * 64),
+        "tenant_authority": {
+            "mode": "starliner_control",
+            "tenant_ref": "tenant-ref:sha256:" + ("d" * 64),
+            "configuration_digest": "sha256:" + ("e" * 64),
+        },
+        "profile_registry": {
+            "registry_ref": "evidence/control/source-profile-registry.json",
+            "registry_digest": runtime_profile_registry_digest(endpoint_registry_entries),
+            "entries": endpoint_registry_entries,
+        },
+        "components": [{
+            "component_id": "endpoint-agent",
+            "repository": "quilrbusiness/sentinel-endpoint-agent",
+            "branch": "feat/die-endpoint",
+            "commit_sha": "b" * 40,
+            "artifact_digest": "sha256:" + ("f" * 64),
+            "contract_digest": DIGEST,
+            "role": "endpoint",
+            "clean_tree": True,
+            "provenance": "exact_source_build",
+            "build_ref": "evidence/build/endpoint-agent.json",
+        }],
+        "stores": {
+            "postgresql": {"version": "17.10", "endpoint_ref": "secret-ref:pg", "configuration_digest": DIGEST},
+            "object_store": {"provider": "s3-compatible", "version": "2026.1", "endpoint_ref": "secret-ref:object", "configuration_digest": DIGEST},
+            "clickhouse": {"version": "26.3", "endpoint_ref": "secret-ref:ch", "configuration_digest": DIGEST},
+        },
+        "producers": [{
+            "profile": "endpoint",
+            "profile_version": "1.0.0",
+            "producer_id": UUID_2,
+            "installation_id": "endpoint-installation-1",
+            "certification_id": UUID_3,
+            "component_id": "endpoint-agent",
+            "artifact_digest": "sha256:" + ("f" * 64),
+            "configuration_digest": DIGEST,
+            "credential_class": "workload_jwt",
+        }],
+        "customer_endpoints": {
+            "api": "http://127.0.0.1:62069/die/v1",
+            "bff": "http://127.0.0.1:3000/die/v1",
+            "ui": "http://127.0.0.1:3000/estate",
+        },
+        "contamination": {
+            "mixed_candidates": False,
+            "dirty_components": False,
+            "manual_database_mutation": False,
+            "untracked_hotfixes": False,
+            "overlapping_runtime": False,
+            "notes": [],
+        },
+        "created_at": NOW,
+        "started_at": LATER,
+        "evidence_ref": "evidence/runtime/local-die-01",
+        "limitations": ["Only Endpoint producer is attached"],
+    }
+    accept("runtime-manifest.schema.json", coherent_runtime, "coherent local runtime")
+    positive_count += 1
+
+    connector_runtime = copy.deepcopy(coherent_runtime)
+    connector_entries = [{
+        "profile": "salesforce.discovery",
+        "profile_version": "1.0.0",
+        "component_role": "connector_poller",
+        "schema_digest": "sha256:" + ("9" * 64),
+    }]
+    connector_runtime["profile_registry"] = {
+        "registry_ref": "evidence/control/source-profile-registry.json",
+        "registry_digest": runtime_profile_registry_digest(connector_entries),
+        "entries": connector_entries,
+    }
+    connector_runtime["components"][0].update({
+        "component_id": "salesforce-poller",
+        "repository": "quilrbusiness/salesforce-connector",
+        "branch": "feat/die-salesforce-discovery",
+        "role": "connector_poller",
+        "build_ref": "evidence/build/salesforce-poller.json",
+    })
+    connector_runtime["producers"][0].update({
+        "profile": "salesforce.discovery",
+        "profile_version": "1.0.0",
+        "installation_id": "salesforce-connection-1",
+        "component_id": "salesforce-poller",
+    })
+    accept("runtime-manifest.schema.json", connector_runtime, "registered connector runtime")
+    positive_count += 1
+
+    draft_runtime = copy.deepcopy(coherent_runtime)
+    draft_runtime.update({
+        "manifest_id": "UNASSIGNED",
+        "candidate_digest": "UNASSIGNED",
+        "environment_id": "UNASSIGNED",
+        "runtime_mode": "NONE",
+        "authority_commit": "UNASSIGNED",
+        "generated_contract_digest": "UNASSIGNED",
+        "database_migration_digest": "UNASSIGNED",
+        "configuration_digest": "UNASSIGNED",
+        "tenant_authority": {"mode": "UNASSIGNED", "tenant_ref": "REDACTED", "configuration_digest": "UNASSIGNED"},
+        "profile_registry": {"registry_ref": "UNASSIGNED", "registry_digest": "UNASSIGNED", "entries": []},
+        "components": [],
+        "producers": [],
+        "customer_endpoints": {"api": "UNASSIGNED", "bff": "UNASSIGNED", "ui": "UNASSIGNED"},
+        "created_at": "UNASSIGNED",
+        "started_at": "UNASSIGNED",
+        "evidence_ref": "UNASSIGNED",
+        "limitations": [],
+    })
+    draft_runtime["stores"] = {
+        "postgresql": {"version": "UNASSIGNED", "endpoint_ref": "UNASSIGNED", "configuration_digest": "UNASSIGNED"},
+        "object_store": {"provider": "UNASSIGNED", "version": "UNASSIGNED", "endpoint_ref": "UNASSIGNED", "configuration_digest": "UNASSIGNED"},
+        "clickhouse": {"version": "UNASSIGNED", "endpoint_ref": "UNASSIGNED", "configuration_digest": "UNASSIGNED"},
+    }
+    accept("runtime-manifest.schema.json", draft_runtime, "unassigned runtime template")
+    positive_count += 1
+
+    preview_e2e = copy.deepcopy(execution_status)
+    preview_e2e.update({
+        "integration_state": "E2E_DEV",
+        "evidence_state": "RUNTIME_OBSERVED_DEV",
+        "runtime_mode": "DEV_PREVIEW",
+        "runtime_manifest": "runtime/preview.yaml",
+        "runtime_manifest_digest": DIGEST,
+    })
+    reject("execution-status.schema.json", preview_e2e, "preview claiming E2E product integration")
+    negative_count += 1
+
+    exact_without_manifest = copy.deepcopy(execution_status)
+    exact_without_manifest.update({
+        "integration_state": "E2E_EXACT_SHA",
+        "evidence_state": "EXACT_SHA_ISOLATED",
+        "runtime_mode": "ISOLATED_INTEGRATION",
+    })
+    reject("execution-status.schema.json", exact_without_manifest, "exact-SHA claim without runtime manifest")
+    negative_count += 1
+
+    release_qualified_not_releasable = copy.deepcopy(execution_status)
+    release_qualified_not_releasable["highest_proven_stage"] = "RELEASE_QUALIFIED"
+    reject("execution-status.schema.json", release_qualified_not_releasable, "release-qualified stage without releasable state")
+    negative_count += 1
+
+    not_started_live_ui = copy.deepcopy(execution_status)
+    not_started_live_ui.update({
+        "implementation_state": "NOT_STARTED",
+        "highest_proven_stage": "LIVE_UI",
+    })
+    reject("execution-status.schema.json", not_started_live_ui, "not-started capability claiming live UI")
+    negative_count += 1
+
+    implemented_not_run = copy.deepcopy(execution_status)
+    implemented_not_run.update({
+        "implementation_state": "IMPLEMENTED",
+        "integration_state": "NOT_CONNECTED",
+        "evidence_state": "NOT_RUN",
+        "runtime_mode": "NONE",
+        "highest_proven_stage": "NONE",
+        "last_verified_sha": "NONE",
+    })
+    reject("execution-status.schema.json", implemented_not_run, "implemented capability without evidence")
+    negative_count += 1
+
+    omitted_blocker_class = copy.deepcopy(execution_status)
+    del omitted_blocker_class["blocker_class"]
+    reject("execution-status.schema.json", omitted_blocker_class, "omitted blocker class")
+    negative_count += 1
+
+    invalid_blocker = copy.deepcopy(execution_status)
+    invalid_blocker["development_blocked"] = True
+    invalid_blocker["blocker_class"] = "NONE"
+    invalid_blocker["blocked_on"] = "open LG-005"
+    reject("execution-status.schema.json", invalid_blocker, "open gate as development blocker")
+    negative_count += 1
+
+    incomplete_external_blocker = copy.deepcopy(execution_status)
+    incomplete_external_blocker.update({
+        "development_blocked": True,
+        "blocker_class": "EXTERNAL_INFRASTRUCTURE",
+        "blocked_on": "isolated provider account",
+        "blocked_action": "run provider retention race",
+        "blocker_evidence": "NONE",
+        "blocker_owner": "platform-infrastructure",
+        "unblock_condition": "provider account assigned",
+        "blocker_recheck_at": "2026-08-05T12:00:00Z",
+        "independent_next_action": "build deterministic provider boundary harness",
+    })
+    reject("execution-status.schema.json", incomplete_external_blocker, "external blocker without retained evidence")
+    negative_count += 1
+
+    gate_masquerading_as_external_blocker = copy.deepcopy(valid_external_blocker)
+    gate_masquerading_as_external_blocker.update({
+        "blocker_class": "EXTERNAL_INFRASTRUCTURE",
+        "blocked_on": "open LG-005",
+    })
+    reject("execution-status.schema.json", gate_masquerading_as_external_blocker, "release gate masquerading as external blocker")
+    negative_count += 1
+
+    overbroad_external_blocker = copy.deepcopy(valid_external_blocker)
+    overbroad_external_blocker["blocked_action"] = "all implementation"
+    reject("execution-status.schema.json", overbroad_external_blocker, "external condition claiming to block all implementation")
+    negative_count += 1
+
+    dirty_runtime = copy.deepcopy(coherent_runtime)
+    dirty_runtime["components"][0]["clean_tree"] = False
+    dirty_runtime["contamination"]["dirty_components"] = True
+    reject("runtime-manifest.schema.json", dirty_runtime, "dirty coherent runtime")
+    negative_count += 1
+
+    empty_active_runtime = copy.deepcopy(coherent_runtime)
+    empty_active_runtime["components"] = []
+    empty_active_runtime["producers"] = []
+    reject("runtime-manifest.schema.json", empty_active_runtime, "active runtime without components or producers")
     negative_count += 1
 
     print(

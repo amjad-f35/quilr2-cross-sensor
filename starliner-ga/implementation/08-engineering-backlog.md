@@ -188,7 +188,11 @@ Source-specific warn/block/quarantine/configuration actions, offline behavior, i
 
 Direct and independent postconditions, reconciliation, unknown/reverted state, workflow closure, analytics.
 
-## Migration and GA epics
+## Separate parallel migration and GA epics
+
+Under [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md),
+E-501 through E-503 belong to the independently authorized `MIGRATION` track
+and G6. They do not block bounded DIE implementation or `DIE-GA`.
 
 ### E-501 Quilr 1 production discovery and extraction
 

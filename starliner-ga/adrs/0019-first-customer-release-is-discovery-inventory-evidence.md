@@ -1,6 +1,14 @@
 # ADR-0019: First customer release is Discovery, Inventory, and Evidence
 
-Status: **accepted; supersedes ADR-0012 only for first-release source and product scope**
+Status: **accepted for first-release source and product scope; migration sequencing superseded by ADR-0020**
+
+> **Sequencing amendment:** [ADR-0020](0020-die-migration-is-a-separate-parallel-track.md)
+> supersedes only the clauses below that place Quilr 1 legacy acquisition,
+> coexistence, parity, cohort cutover, fallback, or rollback inside the bounded
+> DIE implementation or `DIE-GA`. The five launch producer profiles and the
+> Discovery / Inventory / Evidence product boundary remain accepted. ADR-0014
+> and the complete future migration/coexistence end goal remain accepted in a
+> separately authorized parallel track.
 
 ## Context
 

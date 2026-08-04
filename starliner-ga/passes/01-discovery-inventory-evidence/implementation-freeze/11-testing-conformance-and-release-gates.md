@@ -247,7 +247,8 @@ The first executable engine gate is frozen in
 `tools/run-live-storage-conformance.sh`. Static grammar and dependency-order
 checks run in this package; they are not recorded as PostgreSQL or ClickHouse
 runtime success. A complete CI expansion must satisfy every assertion listed in
-that document before domain implementation broadens.
+that document in parallel with domain implementation. Its failures prevent
+promotion of the affected behavior; they do not act as coding permission gates.
 
 ## Projection/replay gates
 

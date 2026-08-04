@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/execution-status-v1.schema.json",
+  "title": "DIE product capability execution status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability_id",
+    "implementation_state",
+    "integration_state",
+    "evidence_state",
+    "release_state",
+    "runtime_mode",
+    "highest_proven_stage",
+    "development_blocked",
+    "blocker_class",
+    "blocked_on",
+    "blocked_action",
+    "blocker_evidence",
+    "blocker_owner",
+    "unblock_condition",
+    "blocker_recheck_at",
+    "independent_next_action",
+    "authority_commit",
+    "last_verified_sha",
+    "runtime_manifest",
+    "runtime_manifest_digest",
+    "next_product_action",
+    "limitations"
+  ],
+  "properties": {
+    "capability_id": { "type": "string", "pattern": "^PC-[0-9]{3}$" },
+    "implementation_state": { "enum": ["NOT_STARTED", "ACTIVE", "IMPLEMENTED", "SUPERSEDED"] },
+    "integration_state": { "enum": ["NOT_CONNECTED", "PARTIAL_PATH", "E2E_DEV", "E2E_EXACT_SHA"] },
+    "evidence_state": { "enum": ["NOT_RUN", "TEST_VERIFIED", "RUNTIME_OBSERVED_DEV", "EXACT_SHA_LOCAL", "EXACT_SHA_ISOLATED", "RELEASE_BOUND"] },
+    "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY", "CANDIDATE", "RELEASABLE"] },
+    "runtime_mode": { "enum": ["NONE", "UNIT_HARNESS", "DEV_PREVIEW", "COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] },
+    "highest_proven_stage": { "enum": ["NONE", "NATIVE_CAPTURE", "LOCAL_WAL", "INGEST_RECEIPT", "IMMUTABLE_EVIDENCE", "NORMALIZED", "CANONICAL_ENTITY", "CANONICAL_GRAPH_ACTIVITY", "PROJECTED", "AUTHORIZED_API", "LIVE_UI", "REBUILD_REPLAY", "RELEASE_QUALIFIED"] },
+    "development_blocked": { "type": "boolean" },
+    "blocker_class": { "enum": ["NONE", "CONTRACT_CONTRADICTION", "EXTERNAL_CREDENTIAL", "EXTERNAL_INFRASTRUCTURE", "PRIVILEGED_USER_ACTION", "DESTRUCTIVE_APPROVAL"] },
+    "blocked_on": { "type": "string", "minLength": 1, "pattern": "^(?!.*\\bLG-?00[1-8]\\b)(?!.*\\bDIE-WP[0-9]{2}\\b)(?!.*(?:remote validator|pull request|PR review)).+$" },
+    "blocked_action": { "type": "string", "minLength": 1, "pattern": "^(?!.*(?:all|broad|entire) (?:implementation|coding|development|program)).+$" },
+    "blocker_evidence": { "type": "string", "minLength": 1, "pattern": "^(NONE|(?!/)(?!.*\\.\\.)[A-Za-z0-9_.\\/-]+)$" },
+    "blocker_owner": { "type": "string", "minLength": 1 },
+    "unblock_condition": { "type": "string", "minLength": 1 },
+    "blocker_recheck_at": {
+      "type": "string",
+      "anyOf": [
+        { "const": "NONE" },
+        { "format": "date-time" }
+      ]
+    },
+    "independent_next_action": { "type": "string", "minLength": 1 },
+    "authority_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "last_verified_sha": { "type": "string", "pattern": "^(NONE|[0-9a-f]{40})$" },
+    "runtime_manifest": { "type": "string", "pattern": "^(NONE|(?!/)(?!.*\\.\\.)[A-Za-z0-9_.\\/-]+\\.ya?ml)$" },
+    "runtime_manifest_digest": { "type": "string", "pattern": "^(NONE|sha256:[0-9a-f]{64})$" },
+    "next_product_action": { "type": "string", "minLength": 1 },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "development_blocked": { "const": false } }, "required": ["development_blocked"] },
+      "then": {
+        "properties": {
+          "blocker_class": { "const": "NONE" },
+          "blocked_on": { "const": "NONE" },
+          "blocked_action": { "const": "NONE" },
+          "blocker_evidence": { "const": "NONE" },
+          "blocker_owner": { "const": "NONE" },
+          "unblock_condition": { "const": "NONE" },
+          "blocker_recheck_at": { "const": "NONE" },
+          "independent_next_action": { "const": "NONE" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "development_blocked": { "const": true } }, "required": ["development_blocked"] },
+      "then": {
+        "properties": {
+          "blocker_class": { "not": { "const": "NONE" } },
+          "blocked_on": { "pattern": "^(?!NONE$)(?!.*\\bLG-?00[1-8]\\b)(?!.*\\bDIE-WP[0-9]{2}\\b)(?!.*(?:remote validator|pull request|PR review)).+" },
+          "blocked_action": { "pattern": "^(?!NONE$).+" },
+          "blocker_evidence": { "pattern": "^(?!NONE$)(?!/)(?!.*\\.\\.)[A-Za-z0-9_.\\/-]+$" },
+          "blocker_owner": { "pattern": "^(?!NONE$).+" },
+          "unblock_condition": { "pattern": "^(?!NONE$).+" },
+          "blocker_recheck_at": { "format": "date-time" },
+          "independent_next_action": { "pattern": "^(?!NONE$).+" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "NONE" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "const": "NOT_CONNECTED" },
+          "evidence_state": { "const": "NOT_RUN" },
+          "release_state": { "const": "NOT_ELIGIBLE" },
+          "highest_proven_stage": { "const": "NONE" },
+          "last_verified_sha": { "const": "NONE" },
+          "runtime_manifest": { "const": "NONE" },
+          "runtime_manifest_digest": { "const": "NONE" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "UNIT_HARNESS" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["NOT_CONNECTED", "PARTIAL_PATH"] },
+          "evidence_state": { "const": "TEST_VERIFIED" },
+          "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY"] },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
+          "runtime_manifest": { "const": "NONE" },
+          "runtime_manifest_digest": { "const": "NONE" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "DEV_PREVIEW" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["NOT_CONNECTED", "PARTIAL_PATH"] },
+          "evidence_state": { "const": "RUNTIME_OBSERVED_DEV" },
+          "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY"] },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "COHERENT_LOCAL_PRODUCT" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["PARTIAL_PATH", "E2E_DEV"] },
+          "evidence_state": { "enum": ["RUNTIME_OBSERVED_DEV", "EXACT_SHA_LOCAL"] },
+          "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY"] },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "ISOLATED_INTEGRATION" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["PARTIAL_PATH", "E2E_EXACT_SHA"] },
+          "evidence_state": { "const": "EXACT_SHA_ISOLATED" },
+          "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY"] },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "RELEASE_CANDIDATE" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["PARTIAL_PATH", "E2E_EXACT_SHA"] },
+          "evidence_state": { "enum": ["EXACT_SHA_ISOLATED", "RELEASE_BOUND"] },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "implementation_state": { "const": "NOT_STARTED" } }, "required": ["implementation_state"] },
+      "then": {
+        "properties": {
+          "integration_state": { "const": "NOT_CONNECTED" },
+          "evidence_state": { "const": "NOT_RUN" },
+          "release_state": { "const": "NOT_ELIGIBLE" },
+          "runtime_mode": { "const": "NONE" },
+          "highest_proven_stage": { "const": "NONE" },
+          "last_verified_sha": { "const": "NONE" },
+          "runtime_manifest": { "const": "NONE" },
+          "runtime_manifest_digest": { "const": "NONE" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "implementation_state": { "const": "IMPLEMENTED" } }, "required": ["implementation_state"] },
+      "then": {
+        "properties": {
+          "evidence_state": { "not": { "const": "NOT_RUN" } },
+          "runtime_mode": { "not": { "const": "NONE" } },
+          "highest_proven_stage": { "not": { "const": "NONE" } },
+          "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "implementation_state": { "const": "SUPERSEDED" } }, "required": ["implementation_state"] },
+      "then": { "properties": { "release_state": { "const": "NOT_ELIGIBLE" } } }
+    },
+    {
+      "if": { "properties": { "integration_state": { "const": "E2E_DEV" } }, "required": ["integration_state"] },
+      "then": {
+        "properties": {
+          "runtime_mode": { "const": "COHERENT_LOCAL_PRODUCT" },
+          "evidence_state": { "enum": ["RUNTIME_OBSERVED_DEV", "EXACT_SHA_LOCAL"] },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "integration_state": { "const": "E2E_EXACT_SHA" } }, "required": ["integration_state"] },
+      "then": {
+        "properties": {
+          "runtime_mode": { "enum": ["ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] },
+          "evidence_state": { "enum": ["EXACT_SHA_ISOLATED", "RELEASE_BOUND"] },
+          "runtime_manifest": { "not": { "const": "NONE" } },
+          "runtime_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "NOT_RUN" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "const": "NONE" }, "last_verified_sha": { "const": "NONE" } } }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "TEST_VERIFIED" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "const": "UNIT_HARNESS" }, "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" } } }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "RUNTIME_OBSERVED_DEV" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "enum": ["DEV_PREVIEW", "COHERENT_LOCAL_PRODUCT"] }, "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" } } }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "EXACT_SHA_LOCAL" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "const": "COHERENT_LOCAL_PRODUCT" }, "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" } } }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "EXACT_SHA_ISOLATED" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "enum": ["ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] }, "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" } } }
+    },
+    {
+      "if": { "properties": { "evidence_state": { "const": "RELEASE_BOUND" } }, "required": ["evidence_state"] },
+      "then": { "properties": { "runtime_mode": { "const": "RELEASE_CANDIDATE" }, "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" } } }
+    },
+    {
+      "if": { "properties": { "release_state": { "const": "CANDIDATE" } }, "required": ["release_state"] },
+      "then": {
+        "properties": {
+          "integration_state": { "const": "E2E_EXACT_SHA" },
+          "evidence_state": { "const": "RELEASE_BOUND" },
+          "runtime_mode": { "const": "RELEASE_CANDIDATE" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "release_state": { "const": "RELEASABLE" } }, "required": ["release_state"] },
+      "then": {
+        "properties": {
+          "integration_state": { "const": "E2E_EXACT_SHA" },
+          "evidence_state": { "const": "RELEASE_BOUND" },
+          "runtime_mode": { "const": "RELEASE_CANDIDATE" },
+          "highest_proven_stage": { "const": "RELEASE_QUALIFIED" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "highest_proven_stage": { "const": "RELEASE_QUALIFIED" } }, "required": ["highest_proven_stage"] },
+      "then": { "properties": { "release_state": { "const": "RELEASABLE" } } }
+    },
+    {
+      "if": { "properties": { "highest_proven_stage": { "enum": ["LIVE_UI", "REBUILD_REPLAY"] } }, "required": ["highest_proven_stage"] },
+      "then": {
+        "properties": {
+          "integration_state": { "enum": ["E2E_DEV", "E2E_EXACT_SHA"] },
+          "runtime_mode": { "enum": ["COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] }
+        }
+      }
+    }
+  ]
+}

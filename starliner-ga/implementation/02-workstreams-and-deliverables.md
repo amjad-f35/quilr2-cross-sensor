@@ -106,9 +106,9 @@ Owns deployment, tenancy, networking, stores, observability, SLO/capacity, backu
 
 Owns test strategy, conformance, E2E, performance/resilience, release provenance, gates, artifact promotion, and defect policy.
 
-### W18 Quilr 1 migration and customer rollout
+### W18 Quilr 1 migration and customer rollout — separate parallel track
 
-Owns extraction/backfill, legacy mapping, dual-read/write constraints, parity, tenant cohorts, cutover, rollback, deprecation, and success.
+Under [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md), W18 owns extraction/backfill, legacy mapping, dual-read/write constraints, parity, tenant cohorts, cutover, rollback, deprecation, and success under the independent `MIGRATION` track gate. W18 consumes versioned seams from W05-W14 but is not a bounded DIE workstream and does not block `DIE-GA` or G2 through G5.
 
 ## Cross-workstream contracts
 
@@ -123,7 +123,7 @@ Owns extraction/backfill, legacy mapping, dual-read/write constraints, parity, t
 | W09/W10/W11 | W13/W14 | product contracts |
 | W13 | W14 | versioned APIs and authorization behavior |
 | W15/W16/W17 | all | platform controls and release gates |
-| W18 | W05-W14 | legacy evidence, parity, cutover requirements |
+| W18 | W05-W14 | versioned legacy-evidence/alias/API/export seams; migration parity and cutover requirements remain W18-owned and non-blocking for bounded DIE |
 
 ## Definition of ready
 
@@ -135,12 +135,12 @@ A work item is ready when it has:
 - acceptance and failure scenarios;
 - authorization and tenant scope;
 - observability and rollout;
-- migration/compatibility impact;
+- migration/compatibility impact, or an explicit statement that the item does not affect the separate migration track;
 - named accountable role.
 
 ## Definition of complete
 
-Code merge is not completion. A deliverable is complete when production artifacts, tests, security/privacy evidence, operations, documentation, migration, and product acceptance meet the relevant gate.
+Code merge is not completion. A deliverable is complete when production artifacts, tests, security/privacy evidence, operations, documentation, and product acceptance meet the relevant gate. Migration evidence is additionally required only for `MIGRATION`, G6, or a change to an accepted compatibility seam.
 
 ## Program control
 

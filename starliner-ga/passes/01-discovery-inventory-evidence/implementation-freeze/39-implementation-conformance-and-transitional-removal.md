@@ -16,6 +16,12 @@ slice and behind in another. That difference is tracked only in
 [`implementation-conformance.csv`](registers/implementation-conformance.csv),
 using these closed classifications:
 
+That register is a dated inspected-revision snapshot, not the live scheduler.
+Current implementation and integration state belongs in each implementation
+repository's `PRODUCT_DELIVERY_STATE.csv` and central `PROGRAM_STATE.md` under
+document 41. A stale snapshot must never make an agent repeat completed setup,
+stop construction, or claim current behavior.
+
 | Classification | Meaning |
 |---|---|
 | `specified_not_implemented` | the required behavior is frozen but no verified production path implements it |
@@ -51,6 +57,14 @@ The following are explicit removal obligations, not architectural options:
 Transitional code must be isolated behind build/runtime guards, visibly
 labelled, absent from production artifact reachability, and paired with a
 deletion condition. A release build fails if a forbidden mode is selected.
+
+It also cannot satisfy product integration. Fixed tenant/producer IDs,
+synthetic shared credentials, persona shims, unsigned enrollment, manual SQL
+control transitions, fake provenance, dirty hotfix binaries and fixtures that
+replace a Quilr-owned interior stage are diagnostic only. They may prove the
+boundary they exercise; they cannot advance a capability beyond
+`PARTIAL_PATH`, a runtime beyond `DEV_PREVIEW`, or a release beyond
+`INTERNAL_ONLY`.
 
 ## Production code-quality constitution
 
@@ -106,7 +120,9 @@ semantics.
 
 ## Required completion evidence
 
-No work package exits from prose or a branch label. Exit requires:
+No work package exits from prose or a branch label. Work-package exit is an
+acceptance summary, not permission for another capability lane to start. Exit
+requires:
 
 1. exact commit and clean tree;
 2. authority digest and generated-contract drift check;
@@ -141,6 +157,10 @@ The conformance register is the machine list. Its mandatory themes are:
 
 These are implementation and release obligations. They do not authorize
 agents to redesign the spine or silently narrow the product.
+
+They also do not suspend production implementation. An open obligation is
+active work; a failed assertion prevents relying on or promoting that behavior
+while independent implementation continues.
 
 ## Change control
 

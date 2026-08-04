@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/runtime-manifest-v1.schema.json",
+  "title": "DIE coherent runtime manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema",
+    "manifest_id",
+    "candidate_digest",
+    "environment_id",
+    "runtime_mode",
+    "authority_commit",
+    "generated_contract_digest",
+    "database_migration_digest",
+    "configuration_digest",
+    "tenant_authority",
+    "profile_registry",
+    "components",
+    "stores",
+    "producers",
+    "customer_endpoints",
+    "contamination",
+    "created_at",
+    "started_at",
+    "evidence_ref",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "schema": { "const": "die.runtime-manifest.v1" },
+    "manifest_id": { "type": "string", "pattern": "^(UNASSIGNED|[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$" },
+    "candidate_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+    "environment_id": { "type": "string", "minLength": 1 },
+    "runtime_mode": { "enum": ["NONE", "DEV_PREVIEW", "COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] },
+    "authority_commit": { "type": "string", "pattern": "^(UNASSIGNED|[0-9a-f]{40})$" },
+    "generated_contract_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+    "database_migration_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+    "configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+    "tenant_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "tenant_ref", "configuration_digest"],
+      "properties": {
+        "mode": { "enum": ["UNASSIGNED", "starliner_control"] },
+        "tenant_ref": { "type": "string", "pattern": "^(REDACTED|tenant-ref:sha256:[0-9a-f]{64})$" },
+        "configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" }
+      }
+    },
+    "profile_registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_ref", "registry_digest", "entries"],
+      "properties": {
+        "registry_ref": { "type": "string", "minLength": 1 },
+        "registry_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/profileRegistryEntry" }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "stores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["postgresql", "object_store", "clickhouse"],
+      "properties": {
+        "postgresql": { "$ref": "#/$defs/store" },
+        "object_store": { "$ref": "#/$defs/objectStore" },
+        "clickhouse": { "$ref": "#/$defs/store" }
+      }
+    },
+    "producers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/producer" }
+    },
+    "customer_endpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["api", "bff", "ui"],
+      "properties": {
+        "api": { "$ref": "#/$defs/uriOrUnassigned" },
+        "bff": { "$ref": "#/$defs/uriOrUnassigned" },
+        "ui": { "$ref": "#/$defs/uriOrUnassigned" }
+      }
+    },
+    "contamination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mixed_candidates", "dirty_components", "manual_database_mutation", "untracked_hotfixes", "overlapping_runtime", "notes"],
+      "properties": {
+        "mixed_candidates": { "type": "boolean" },
+        "dirty_components": { "type": "boolean" },
+        "manual_database_mutation": { "type": "boolean" },
+        "untracked_hotfixes": { "type": "boolean" },
+        "overlapping_runtime": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "created_at": { "$ref": "#/$defs/timeOrUnassigned" },
+    "started_at": { "$ref": "#/$defs/timeOrUnassigned" },
+    "evidence_ref": { "type": "string", "minLength": 1 },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "digestOrUnassigned": { "type": "string", "pattern": "^(UNASSIGNED|sha256:[0-9a-f]{64})$" },
+    "uriOrUnassigned": {
+      "type": "string",
+      "anyOf": [
+        { "const": "UNASSIGNED" },
+        { "format": "uri", "pattern": "^https?://" }
+      ]
+    },
+    "timeOrUnassigned": {
+      "type": "string",
+      "anyOf": [
+        { "const": "UNASSIGNED" },
+        { "format": "date-time" }
+      ]
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["component_id", "repository", "branch", "commit_sha", "artifact_digest", "contract_digest", "role", "clean_tree", "provenance", "build_ref"],
+      "properties": {
+        "component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" },
+        "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "branch": { "type": "string", "minLength": 1 },
+        "commit_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "artifact_digest": { "$ref": "#/$defs/digest" },
+        "contract_digest": { "$ref": "#/$defs/digest" },
+        "role": { "enum": ["ingest", "normalizer", "truth", "projector", "api", "maintenance", "bff", "ui", "browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway", "connector_runner", "connector_webhook", "connector_poller", "connector_cdc"] },
+        "clean_tree": { "type": "boolean" },
+        "provenance": { "enum": ["exact_source_build", "signed_artifact", "immutable_image_digest"] },
+        "build_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "store": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "endpoint_ref", "configuration_digest"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "endpoint_ref": { "type": "string", "minLength": 1 },
+        "configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" }
+      }
+    },
+    "objectStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "version", "endpoint_ref", "configuration_digest"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "endpoint_ref": { "type": "string", "minLength": 1 },
+        "configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "profile_version", "producer_id", "installation_id", "certification_id", "component_id", "artifact_digest", "configuration_digest", "credential_class"],
+      "properties": {
+        "profile": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+        "profile_version": { "type": "string", "pattern": "^[1-9][0-9]*[.][0-9]+[.][0-9]+(?:[-+][0-9A-Za-z.-]+)?$" },
+        "producer_id": { "type": "string", "format": "uuid" },
+        "installation_id": { "type": "string", "minLength": 1 },
+        "certification_id": { "type": "string", "format": "uuid" },
+        "component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" },
+        "artifact_digest": { "$ref": "#/$defs/digest" },
+        "configuration_digest": { "$ref": "#/$defs/digest" },
+        "credential_class": { "enum": ["preview_synthetic", "mtls", "workload_jwt", "oidc_workload", "platform_signed"] }
+      }
+    },
+    "profileRegistryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "profile_version", "component_role", "schema_digest"],
+      "properties": {
+        "profile": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+        "profile_version": { "type": "string", "pattern": "^[1-9][0-9]*[.][0-9]+[.][0-9]+(?:[-+][0-9A-Za-z.-]+)?$" },
+        "component_role": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway", "connector_runner", "connector_webhook", "connector_poller", "connector_cdc"] },
+        "schema_digest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "runtime_mode": { "const": "NONE" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "manifest_id": { "const": "UNASSIGNED" },
+          "candidate_digest": { "const": "UNASSIGNED" },
+          "environment_id": { "const": "UNASSIGNED" },
+          "authority_commit": { "const": "UNASSIGNED" },
+          "generated_contract_digest": { "const": "UNASSIGNED" },
+          "database_migration_digest": { "const": "UNASSIGNED" },
+          "configuration_digest": { "const": "UNASSIGNED" },
+          "tenant_authority": {
+            "properties": {
+              "mode": { "const": "UNASSIGNED" },
+              "tenant_ref": { "const": "REDACTED" },
+              "configuration_digest": { "const": "UNASSIGNED" }
+            }
+          },
+          "profile_registry": {
+            "properties": {
+              "registry_ref": { "const": "UNASSIGNED" },
+              "registry_digest": { "const": "UNASSIGNED" },
+              "entries": { "maxItems": 0 }
+            }
+          },
+          "components": { "maxItems": 0 },
+          "producers": { "maxItems": 0 },
+          "customer_endpoints": {
+            "properties": {
+              "api": { "const": "UNASSIGNED" },
+              "bff": { "const": "UNASSIGNED" },
+              "ui": { "const": "UNASSIGNED" }
+            }
+          },
+          "created_at": { "const": "UNASSIGNED" },
+          "started_at": { "const": "UNASSIGNED" },
+          "evidence_ref": { "const": "UNASSIGNED" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "not": { "const": "NONE" } } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "manifest_id": { "format": "uuid", "not": { "const": "UNASSIGNED" } },
+          "candidate_digest": { "$ref": "#/$defs/digest" },
+          "environment_id": { "not": { "const": "UNASSIGNED" } },
+          "authority_commit": { "pattern": "^[0-9a-f]{40}$" },
+          "generated_contract_digest": { "$ref": "#/$defs/digest" },
+          "database_migration_digest": { "$ref": "#/$defs/digest" },
+          "configuration_digest": { "$ref": "#/$defs/digest" },
+          "tenant_authority": {
+            "properties": {
+              "mode": { "const": "starliner_control" },
+              "tenant_ref": { "pattern": "^tenant-ref:sha256:[0-9a-f]{64}$" },
+              "configuration_digest": { "$ref": "#/$defs/digest" }
+            }
+          },
+          "profile_registry": {
+            "properties": {
+              "registry_ref": { "not": { "const": "UNASSIGNED" } },
+              "registry_digest": { "$ref": "#/$defs/digest" },
+              "entries": { "minItems": 1 }
+            }
+          },
+          "components": { "minItems": 1 },
+          "stores": {
+            "properties": {
+              "postgresql": {
+                "properties": {
+                  "version": { "not": { "const": "UNASSIGNED" } },
+                  "endpoint_ref": { "not": { "const": "UNASSIGNED" } },
+                  "configuration_digest": { "$ref": "#/$defs/digest" }
+                }
+              },
+              "object_store": {
+                "properties": {
+                  "provider": { "not": { "const": "UNASSIGNED" } },
+                  "version": { "not": { "const": "UNASSIGNED" } },
+                  "endpoint_ref": { "not": { "const": "UNASSIGNED" } },
+                  "configuration_digest": { "$ref": "#/$defs/digest" }
+                }
+              },
+              "clickhouse": {
+                "properties": {
+                  "version": { "not": { "const": "UNASSIGNED" } },
+                  "endpoint_ref": { "not": { "const": "UNASSIGNED" } },
+                  "configuration_digest": { "$ref": "#/$defs/digest" }
+                }
+              }
+            }
+          },
+          "producers": { "minItems": 1 },
+          "customer_endpoints": {
+            "properties": {
+              "api": { "format": "uri", "pattern": "^https?://" },
+              "bff": { "format": "uri", "pattern": "^https?://" },
+              "ui": { "format": "uri", "pattern": "^https?://" }
+            }
+          },
+          "created_at": { "format": "date-time", "not": { "const": "UNASSIGNED" } },
+          "started_at": { "format": "date-time", "not": { "const": "UNASSIGNED" } },
+          "evidence_ref": { "not": { "const": "UNASSIGNED" } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "enum": ["COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "components": { "items": { "properties": { "clean_tree": { "const": true } } } },
+          "contamination": {
+            "properties": {
+              "mixed_candidates": { "const": false },
+              "dirty_components": { "const": false },
+              "manual_database_mutation": { "const": false },
+              "untracked_hotfixes": { "const": false },
+              "overlapping_runtime": { "const": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "const": "RELEASE_CANDIDATE" } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "producers": {
+            "minItems": 5,
+            "items": { "properties": { "credential_class": { "not": { "const": "preview_synthetic" } } } },
+            "allOf": [
+              { "contains": { "required": ["profile"], "properties": { "profile": { "const": "browser" } } }, "minContains": 1 },
+              { "contains": { "required": ["profile"], "properties": { "profile": { "const": "browser_backend" } } }, "minContains": 1 },
+              { "contains": { "required": ["profile"], "properties": { "profile": { "const": "endpoint" } } }, "minContains": 1 },
+              { "contains": { "required": ["profile"], "properties": { "profile": { "const": "llm_gateway" } } }, "minContains": 1 },
+              { "contains": { "required": ["profile"], "properties": { "profile": { "const": "mcp_gateway" } } }, "minContains": 1 }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -49,8 +49,7 @@ Build:
 - transactional outbox and projector framework;
 - product API shell with real authorization;
 - cell deployment, observability, release provenance, backup;
-- browser, Browser Backend, endpoint, LLM gateway, and MCP gateway thin adapters for the first customer pass;
-- one authoritative identity/population connector.
+- browser, Browser Backend, endpoint, LLM gateway, and MCP gateway thin adapters for the first customer pass.
 
 This is not separately marketed. Every component is production code used by later releases.
 
@@ -60,15 +59,35 @@ Exit: Gate G1 Production Foundation.
 
 Deliver the [DIE Pass](../passes/01-discovery-inventory-evidence/README.md):
 
-- all four sensor families plus Browser Backend and Quilr 1 legacy evidence;
+- all four sensor families plus Browser Backend as exactly five launch producer profiles;
 - applications, agents, models, MCP servers and tools resolved across sources;
 - important source-backed activity and evidence;
 - provenance, coverage, gaps and identity transparency;
 - Overview, Inventory, Activity & Evidence, Sources & Coverage;
-- production APIs, exports, audit, support, SLO, backup/restore;
-- Quilr 1 backfill, semantic parity, cohort pilot, fallback and rollback.
+- production APIs, exports, audit, support, SLO, and backup/restore.
 
 Exit: Gate DIE-GA.
+
+### Parallel Track M — Quilr 1 migration and coexistence
+
+[ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md)
+preserves this track in full, but it is staffed, authorized, implemented, and
+accepted independently of the bounded DIE product. It consumes stable DIE
+evidence-admission, identity-alias, tenant-routing, API, and export seams; it is
+not a Stage C component and does not block `DIE-GA` or G2 through G5.
+
+Deliver:
+
+- production inventory of legacy tenants, stores, APIs, jobs, exports, and consumers;
+- immutable legacy evidence acquisition and historical backfill;
+- versioned legacy aliases and compatibility mappings;
+- member-level semantic parity under matched watermarks;
+- explicit domain read/mutation authority during coexistence;
+- tenant/domain cohort pilot and reversible cutover;
+- fallback, rollback, stabilization, customer communication, and migration audit;
+- migration-specific security, capacity isolation, backup/restore, and operations.
+
+Exit: independent `MIGRATION` track gate. Final legacy retirement remains G6.
 
 ### Stage D — Governed estate and decision-grade findings
 
@@ -80,7 +99,7 @@ Deliver:
 - the supported “production agents began using an unapproved model” insight;
 - case workflows;
 - MCP policies in observe/warn where supported;
-- extended enterprise connectors.
+- one authoritative identity/population connector and extended enterprise connectors.
 
 Exit: Gates G2 Unified AI Estate GA and G3 Agentic Estate GA.
 
@@ -102,9 +121,7 @@ Exit: Gates G4 Analytics GA and G5 Governed Control GA.
 
 Complete:
 
-- historical backfill;
-- customer cohort cutover;
-- parity and rollback closure;
+- the independently accepted `MIGRATION` track and fallback stabilization window;
 - legacy API/export migration;
 - source retirement;
 - data retention/deletion;
@@ -126,7 +143,7 @@ Every feature slice includes:
 - API/UI and authorization;
 - operational SLO/alerts/runbook;
 - security/privacy testing;
-- migration/compatibility;
+- migration/compatibility when the slice belongs to the migration track or changes a compatibility seam;
 - release and rollback evidence.
 
 Missing layers remain explicit and block GA for that capability.
@@ -159,5 +176,5 @@ Progress is not lines of code or number of events. It is:
 - identity and finding quality;
 - projection/replay correctness;
 - SLO and recovery proof;
-- migration parity;
+- migration parity for the independent migration track;
 - real customer outcome and workflow completion.

@@ -1,5 +1,10 @@
 # Source, Context and Repository Map
 
+> Repository revisions and worktree states quoted here are dated evidence, not
+> current program state or startup prerequisites. Reconcile live Git only for
+> repositories touched by the active product increment. Do not repeat the
+> organization-wide inventory before coding.
+
 Set:
 
 ```text
@@ -40,7 +45,7 @@ semantic authority.
 
 ## Production implementation repositories
 
-| Area | Repository | Frozen/current source baseline | Required treatment |
+| Area | Repository | Audited source baseline (historical) | Required treatment |
 |---|---|---|---|
 | Central Starliner protocol and DIE backend | [quilrbusiness/project-starliner](https://github.com/quilrbusiness/project-starliner) | `main@b747393468045425b3f07a24775dcbc93d380cb5` at audit | Primary implementation repository; retain/refactor/compat according to `12-repository-and-delivery-map.md` and `module-disposition.csv` |
 | Browser extension | [quilrbusiness/Project-Vanguard](https://github.com/quilrbusiness/Project-Vanguard) | `8e7a3e0c22c3ec29d0c642b211d59e9abc0071cb` | Add certified adapter/privacy/delivery at verified capture seam; do not add canonicalization |
@@ -50,7 +55,7 @@ semantic authority.
 | Endpoint sensor | [quilrbusiness/sentinel-endpoint-agent](https://github.com/quilrbusiness/sentinel-endpoint-agent) | `a022e52bf2fff6a9445ebad96c3afeaf277e259f` | Add adapter and Starliner WAL at frozen seams; retain local enforcement/state, no central truth |
 | LLM Gateway producer | [quilrbusiness/macrodata-refinement](https://github.com/quilrbusiness/macrodata-refinement) | `dev_main@92b0462c583b908f8ce0cadd1bc89d2e702f5a7d` | Current product code is authority for native capture; old open Starliner PRs are prototypes requiring disposition |
 | MCP Gateway producer | [quilrbusiness/quilr-llm-gateway](https://github.com/quilrbusiness/quilr-llm-gateway) | `add_gateway@99f759d75aa8260f97db6904433c941647a755e5` | Existing merged MCP adapter/observe code is retain/refactor evidence, not target contract authority |
-| Customer UI | [amjad-f35/quilr-platform-nuxt](https://github.com/amjad-f35/quilr-platform-nuxt) | local `main@8c745c88e56cb6fc88a022415a596b5d436a5264` plus 117 dirty paths | Checkpoint and clean before implementation; retain native Nuxt/Vue and source-owned shadcn-vue/Reka system under `35-nuxt-shadcn-ui-engineering-constitution.md`; replace fixture repository through generated DIE client |
+| Customer UI | [amjad-f35/quilr-platform-nuxt](https://github.com/amjad-f35/quilr-platform-nuxt) | local `main@8c745c88e56cb6fc88a022415a596b5d436a5264` plus 117 dirty paths at audit | Recheck live Git; preserve any overlapping dirty work before edits; retain native Nuxt/Vue and source-owned shadcn-vue/Reka system under `35-nuxt-shadcn-ui-engineering-constitution.md`; replace fixture repository through generated DIE client |
 
 Sensor placement and emitted profile kinds are frozen in
 `implementation-freeze/14-sensor-adapter-bindings.md`. Field-level truth is in

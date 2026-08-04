@@ -14,7 +14,6 @@ The pass shows:
 Permissioned:
 
 - Identity & Resolution
-- Migration Comparison
 - Exports
 - Audit
 - Administration
@@ -45,8 +44,7 @@ Explicit fact-based changes:
 - MCP server/tool registry changed;
 - new activity observed;
 - source became stale/degraded/recovered;
-- identity was merged/split/corrected;
-- migration parity changed.
+- identity was merged/split/corrected.
 
 No risk ranking or finding language.
 
@@ -154,7 +152,10 @@ The interface is an investigation product, not a spreadsheet dump or database br
 - unresolved identity → separate candidates or unresolved group;
 - no activity under unknown coverage → “not evaluable”;
 - unauthorized evidence → safe not-found/permission state;
-- migration pilot → explicit Quilr 1 comparison status, never silent fallback.
+
+Migration comparison, cohort and fallback interfaces belong to a separately
+shipped migration operator experience. They are not navigation, screen states or
+API consumers in bounded DIE.
 
 ## Interaction constraints
 

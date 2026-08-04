@@ -1,110 +1,150 @@
-# Production Implementation Work Packages
+# Production Implementation Capability Work Packages
 
-These work packages are dependency-ordered. They are not permission to omit
-later work, weaken contracts or substitute mocks for release evidence.
+These work packages are concurrent capability and accountability domains. They
+are not sequential permissions and a package exit is not a prerequisite for
+writing independent code in another package. Product increments in document
+41 span multiple WPs and integrate continuously.
+
+Every WP distinguishes:
+
+- **implementation outcome**: production-path code and coherent integration;
+- **release qualification**: applicable LG evidence on exact artifacts.
+
+An open or failed release qualification keeps the release claim open. It does
+not stop implementation.
 
 ## WP-00 — Reproducible authority
 
-Deliver clean-room validation, intrinsic/source LG-008 modes, pinned
-toolchains, CI, evidence schema, mutation tests and clean immutable baseline.
+Implementation outcome: clean-room validation, intrinsic/source LG-008 modes,
+pinned toolchains, CI, evidence schema, mutation tests and immutable authority
+baseline are usable by every repository.
 
-Exit: intrinsic validation passes from a fresh checkout and source mode
-reproduces zero drift in the authorized workspace.
+Qualification: intrinsic validation passes from a fresh checkout and source
+mode reproduces zero drift in the authorized workspace.
 
-## WP-01 — Storage conformance foundations
+## WP-01 — Storage product foundations and conformance
 
-Implement expanded PostgreSQL and ClickHouse harnesses before domain workers
-depend on accidental engine behavior.
+Implementation outcome: production PostgreSQL and ClickHouse adapters,
+migrations, work/lease/outbox/checkpoint behavior and local integration
+environments exist behind the frozen ports. Domain code may use those frozen
+ports while extended engine tests continue.
 
-Exit: required `LG001-*` and `LG002-*` correctness cases pass; load/failover
-may continue in parallel but any semantic failure reopens the contract.
+Qualification: required `LG001-*` and `LG002-*` correctness, contention,
+lifecycle, load and recovery rows pass at their specified evidence levels.
 
 ## WP-02 — Generated protocol and trust libraries
 
-Generate wire types and shared vector runners for Go, Java, Python, TypeScript
-and Rust. Implement JCS/JWS/digest/replay/configuration verification.
+Implementation outcome: generated wire types and shared Go, Java, Python,
+TypeScript and Rust trust libraries implement JCS/JWS/digest/replay and
+configuration contracts required by the languages actually shipped.
 
-Exit: `LG006-*` passes and producer enrollment can trust every supported
-implementation.
+Qualification: applicable `LG006-*` rows pass on release artifacts.
 
-## WP-03 — Control, enrollment and edge runtime
+## WP-03 — Product control, enrollment and edge runtime
 
-Implement tenant bootstrap, producer/workload identity, certification,
-capability history, signed configuration, edge privacy gate and durable WAL.
+Implementation outcome: a real administrator can bootstrap a tenant; enroll,
+rotate and revoke producer/installations; distribute verified configuration;
+observe capabilities/health; and drive the durable privacy/WAL/delivery path.
+No fixed UUID, persona shim, unsigned manifest, shared preview secret or manual
+SQL substitutes for this product path.
 
-Exit: common `LG005-*` restart/offline/privacy/receipt cases pass.
+Qualification: common `LG005-*` identity, restart, offline, privacy, receipt,
+artifact and configuration cases pass.
 
-## WP-04 — Ingest and evidence
+## WP-04 — Ingest and immutable evidence product
 
-Implement bounded delivery admission, idempotency, evidence-object conditional
-put, metadata transaction, receipts, orphan reconciliation, retention and
-mediated reads.
+Implementation outcome: bounded authenticated admission, idempotency, exact
+receipts, conditional object put, evidence metadata transaction, orphan
+reconciliation, retention and mediated reads operate in the coherent runtime.
 
-Exit: ingest conformance plus `LG003-*` provider cases pass.
+Qualification: ingest conformance plus applicable `LG003-*` and `LG007-*`
+provider/lifecycle rows pass.
 
-## WP-05 — Normalization and source truth
+## WP-05 — Five-profile normalization and source truth
 
-Implement generated dispatch and the five deterministic multi-output
-normalizers. Persist observations/claims/candidates/bundles with provenance.
+Implementation outcome: registry dispatch and all five deterministic
+multi-output normalizers persist observations, claims, typed candidates,
+bundles and provenance for every frozen supported route. Native adapter work
+and normalizer work proceed together; release qualification does not defer
+either.
 
-Exit: every supported LG-008 trace has a golden native-to-normalized case and
-no new-capture/optional field is fabricated.
+Qualification: every advertised LG-008 trace has native-to-normalized exact-
+artifact evidence under `LG005-*`, and unsupported/new-capture facts remain
+truthfully absent.
 
 ## WP-06 — Resolution and canonical materialization
 
-Implement source-scoped bindings/conflicts, merge/split/alias, versioned
-entities, relationships, activity, coverage, reconciliation and pointer
-outbox.
+Implementation outcome: source-scoped bindings/conflicts, type-specific
+resolution, merge/split/alias, canonical entities, exact relationships,
+activity, coverage, reconciliation, temporal succession, dependencies and the
+pointer outbox operate continuously across all five profiles.
 
-Exit: identity/graph temporal, concurrency and replay suites pass.
+Qualification: identity/graph temporal, concurrency, replay, retraction and
+failure suites pass at their required LG evidence level.
 
-## WP-07 — Projectors and read generations
+## WP-07 — Projectors and product read generations
 
-Implement PostgreSQL product materializers, ClickHouse projectors, destination
-acknowledgements, checkpoints, generation build/verify/activate/standby and
-rebuild.
+Implementation outcome: PostgreSQL product read models and ClickHouse
+activity/evidence projections consume pointer outboxes with destination
+acknowledgements, checkpoints, generation build/verify/activate/standby,
+rollback and rebuild. Manual activation remains harness-only.
 
-Exit: complete `LG002-*` and cross-store rebuild equivalence passes.
+Qualification: complete `LG002-*`, cross-store rebuild equivalence and
+applicable erasure rows pass on exact candidates.
 
-## WP-08 — Authorization and product API
+## WP-08 — Authorization and complete product API
 
-Implement identity/authentication integration, authorization revision,
-RBAC/ABAC/ReBAC planner, RLS context, field masks, cursors, export and evidence
-redemption, auditing and generated clients.
+Implementation outcome: OIDC/session identity, authorization revision,
+RBAC/ABAC/ReBAC planning, RLS context, field policy, existence hiding, cursors,
+all frozen operations, exports/evidence redemption, audit and generated clients
+operate on canonical read models.
 
-Exit: tenant/field/export/API contract and security suites pass.
+Qualification: tenant/field/export/API/security rows under `LG001-*`,
+`LG004-*` and `LG006-*` pass.
 
 ## WP-09 — Nuxt customer product
 
-Replace fixtures through `DieRepository`; implement overview, inventories,
-detail, graph, activity/evidence and progressive disclosure using only frozen
-DTOs. Continue the existing shell through native Nuxt/Vue composition and its
-checked-in shadcn-vue/Reka primitives, semantic tokens and typed variants under
-`35-nuxt-shadcn-ui-engineering-constitution.md`; do not introduce a parallel
-wrapper design system or alternate component framework.
+Implementation outcome: the existing shell uses generated clients and
+`DieRepository` for overview, inventories, details, connected graph, activity,
+evidence, coverage, ambiguity, provenance and source health. Native Nuxt/Vue
+composition and checked-in shadcn-vue/Reka primitives remain mandatory; no
+fixture interior or alternate design system counts as product integration.
 
-Exit: `LG004-*` and `UI-GATE-001..010` pass.
+Qualification: `LG004-*` and `UI-GATE-001..010` pass against the coherent live
+backend with production authentication and masking behavior.
 
-## WP-10 — Native release certification
+## WP-10 — Native product integration and release qualification
 
-Build signed sensor artifacts and run profile matrices on supported native
-environments.
+Implementation outcome: Browser, Browser Backend, Endpoint, LLM Gateway and
+MCP Gateway production adapters, WAL/senders, enrollment/configuration and
+health paths are integrated into the coherent product. This is implementation,
+not a test-only certification lane.
 
-Exit: applicable `LG005-*` passes per advertised profile/artifact/runtime.
+Qualification: signed artifacts pass every applicable `LG005-*` profile,
+platform, degraded-mode and runtime matrix before the profile is shipped or
+advertised.
 
-## WP-11 — Erasure and operational qualification
+## WP-11 — Lifecycle and operational product qualification
 
-Implement placement authority, sealed planner, provider/ClickHouse/cache/export
-workers, independent negative scanner, restore reconciliation, SLOs, load,
-chaos, backup and runbooks.
+Implementation outcome: placement authority, sealed erasure planner,
+provider/ClickHouse/cache/export workers, negative scanning, restore
+reconciliation, observability, SLOs, load, chaos, backup and runbooks operate
+on the integrated candidate.
 
-Exit: `LG007-*`, remaining operational/security gates and pilot acceptance
-pass.
+Qualification: `LG007-*`, remaining security/operational gates and pilot
+acceptance pass.
+
+## Cross-WP integration responsibility
+
+No WP owner may claim a product outcome from an isolated branch. Product
+increments `PI-001..PI-007` in document 41 and the machine capability map bind
+the cross-WP outcome. If a native/provider lane has a valid external blocker,
+other backend, graph, authz, API, UI and operations work continues.
 
 ## Change control
 
 Implementation may choose private code structure, libraries behind frozen
 interfaces, concurrency values within bounded profiles and equivalent query
-plans. It must raise an ADR before changing authority, identity, graph,
-evidence, replay, cryptographic, tenancy, transaction, API or UI truth
-semantics.
+plans. It raises an ADR only when executable evidence proves that fulfilling
+the product would otherwise change authority, identity, graph, evidence,
+replay, cryptographic, tenancy, transaction, API or UI truth semantics.

@@ -1,6 +1,8 @@
 # Quilr 1 Migration and Cutover
 
-Status: **normative migration plan**
+Status: **normative separate parallel migration-track plan; not a DIE-GA prerequisite**
+
+This plan is governed by [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md) and the independent `MIGRATION` track gate. It preserves the full migration and customer-continuity end goal while keeping migration runtime, state, inputs, product surfaces, and acceptance evidence outside the bounded five-profile DIE product.
 
 ## Objective
 

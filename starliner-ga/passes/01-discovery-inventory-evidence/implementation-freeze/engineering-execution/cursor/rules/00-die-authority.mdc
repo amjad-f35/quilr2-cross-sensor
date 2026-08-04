@@ -8,6 +8,8 @@ alwaysApply: true
 - Read `docs/engineering/WORK_STATE.md` and `docs/engineering/TOPOLOGY.md`
   before planning or resuming.
 - Use the exact authority commit recorded in `WORK_STATE.md`.
+- Apply document 41: LG gates never block implementation, and WPs are
+  capability ownership rather than sequential permissions.
 - Frozen contracts outrank existing code, historical branches, old PRs,
   comments and chat history.
 - Never fabricate sensor data, identity, relationships, entitlement, coverage
@@ -16,3 +18,4 @@ alwaysApply: true
 - Migration, policy, findings/intelligence, cost/value and deployment portfolio
   are outside this pass.
 - Update durable state before stopping or context compaction.
+- A preview/harness path never counts as integrated product behavior.

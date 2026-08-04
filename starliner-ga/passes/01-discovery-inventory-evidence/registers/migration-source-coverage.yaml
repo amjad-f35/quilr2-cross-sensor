@@ -1,0 +1,11 @@
+schema_version: "1.0"
+track: "MIGRATION"
+status: "parallel_track"
+rule: "This register preserves future legacy acquisition requirements outside bounded DIE. It does not add a sixth launch producer, a migration worker, or a migration release gate to the bounded product."
+entry_contract: bounded_die_legacy_evidence_extension_seam
+profiles:
+  - id: quilr1_legacy
+    producer_boundaries: [migration_worker]
+    required_families: [extraction, legacy_entity, legacy_relationship, legacy_event, tombstone, watermark, checksum, limitation, correction]
+    direct_authority: [legacy_customer_visible_record_at_extraction]
+    limitations: [canonical_identity, undocumented_semantics, live_sensor_truth, post_watermark_change]

@@ -12,8 +12,7 @@ Status: **normative pass security boundary**
 6. global metadata control → tenant cell;
 7. evidence/canonical authorities → query projections;
 8. product user/support actor → API/evidence;
-9. Quilr 1 → migration worker;
-10. CI/release/signing → deployed artifact.
+9. CI/release/signing → deployed artifact.
 
 Each boundary requires explicit authentication, authorization, input bounds, audit, failure posture, and secret handling.
 
@@ -39,11 +38,13 @@ Static shared bearer credentials are not an acceptable GA identity. The producti
 - roles plus entity/business scope and field sensitivity;
 - evidence access is separately permissioned and purpose-bound;
 - operator/support access is JIT, approved, time-bounded, tenant-specific, audited, and revocable;
-- identity correction and migration operations require elevated permission and preview;
+- identity correction operations require elevated permission and preview;
 - exports require explicit authorization and immutable scope;
 - cross-tenant operator workflows are isolated from customer APIs.
 
-Quilr 1 SSO may be reused through an approved identity-broker/compatibility path during migration, but new APIs enforce Quilr 2 tenant/field authorization.
+Bounded DIE uses its frozen Quilr 2 human/session authorization path. Quilr 1
+SSO brokerage and compatibility are owned and qualified by the separate
+migration track; they are not a DIE authentication mode.
 
 ## Privacy
 
@@ -72,7 +73,7 @@ Tests cover:
 - search/count/empty-state leakage;
 - exports;
 - logs, metrics and traces;
-- replay/rebuild/migration jobs;
+- replay/rebuild/maintenance jobs;
 - support access;
 - backups and restores;
 - error messages and timing.
@@ -92,9 +93,11 @@ Tenant ID supplied in a record or URL never overrides authenticated routing.
 
 Exact issuers/providers/lifetimes are registered inputs.
 
-## Security blockers
+## Security release stop-lines
 
-The following block affected source certification:
+The following prohibit the affected release qualification or advertising claim.
+They do not prohibit implementing and testing the remediation or continuing
+independent product lanes:
 
 - endpoint private signing/CA material without approved incident disposition;
 - unauthenticated or world-writable endpoint IPC;
@@ -116,7 +119,6 @@ Audit includes:
 - evidence admission/quarantine;
 - evidence access/export;
 - identity correction/merge/split;
-- migration extraction/parity/cutover/rollback;
 - configuration/release changes;
 - support elevation;
 - backup/restore;
@@ -137,9 +139,12 @@ Audit records are immutable, tenant scoped, bounded, privacy safe, time synchron
 - local IPC impersonation;
 - browser message confusion;
 - SQL/object/ClickHouse injection;
-- migration source poisoning;
 - identity merge manipulation;
 - denial of service/noisy tenant;
 - support/operator abuse;
 - backup/export theft;
 - supply-chain compromise.
+
+The separate migration track owns its Quilr 1 trust boundary, SSO compatibility,
+legacy-source poisoning, migration-actor authorization, and
+extraction/parity/cutover/rollback audit and threat tests.

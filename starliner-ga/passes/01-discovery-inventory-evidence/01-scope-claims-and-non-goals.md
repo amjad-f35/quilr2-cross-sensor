@@ -13,8 +13,7 @@ Status: **normative claim boundary**
 - endpoint applications, artifacts, processes, destinations, local runtimes, and supported MCP observations;
 - LLM gateway routes, provider/model candidates, callers, requests, outcomes, and usage measures;
 - MCP registry servers/tools/resources/prompts, sessions, calls, outcomes, and negotiated capabilities;
-- Browser Backend receipt/configuration/handoff evidence as a distinct producer;
-- legacy Quilr 1 records imported with explicit legacy provenance.
+- Browser Backend receipt/configuration/handoff evidence as a distinct producer.
 
 ### Inventory
 
@@ -55,7 +54,6 @@ Contextual canonical resources:
 - Sources & Coverage;
 - Identity & Sources panel;
 - producer/integration health;
-- migration comparison and operator surfaces;
 - audit;
 - accessibility, empty/partial/error states, documentation, support, and onboarding.
 
@@ -76,10 +74,17 @@ The pass does not ship:
 - a graph database merely because relationships exist;
 - a search cluster when PostgreSQL search meets the certified profile;
 - Quilr 1 retirement;
+- Quilr 1 extraction, backfill, parity, coexistence routing, cohort cutover,
+  rollback, fallback, compatibility UI, or migration operator workflows;
 - support for every deployment profile;
 - enterprise connectors not required for selected launch identity/population bridges.
 
 The UI does not display disabled placeholders for excluded capabilities.
+
+The separate migration/coexistence track may later submit immutable legacy
+evidence and versioned compatibility aliases through the same frozen contracts.
+That future consumer does not add a migration worker, migration read path, or
+migration UI to the bounded DIE product.
 
 ## Allowed evidence from existing controls
 

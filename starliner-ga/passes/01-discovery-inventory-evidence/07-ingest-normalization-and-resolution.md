@@ -124,8 +124,11 @@ Examples:
 - MCP Gateway owns its registry and routed invocation;
 - IdP/HR/CMDB may own person/team/device/owner fields when included;
 - user/operator assertion owns only its approved assertion class;
-- legacy value is fallback evidence;
 - last observed user never becomes owner.
+
+Legacy-value authority and fallback selection are defined only when the
+separate migration track submits a certified legacy evidence profile. Bounded
+DIE neither imports those values nor compares them with Quilr 1.
 
 ## Activity correlation
 
@@ -162,7 +165,6 @@ Name/time similarity alone cannot merge activities. Low-confidence candidates re
 - unresolved/ambiguous rate;
 - automatic merge/split/correction rate;
 - projection/canonical parity;
-- source and canonical member diffs versus Quilr 1;
 - provenance completeness;
 - capture/privacy omission;
 - stale coverage and producer health.

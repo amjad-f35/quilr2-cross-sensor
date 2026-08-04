@@ -39,8 +39,28 @@ Every material result uses one state:
    controls pass the pilot matrix.
 6. `GA_READY`: all release gates pass on immutable production candidates.
 
-The current state is `IMPLEMENTATION_AUTHORIZED`. It is not
-`INTERNAL_INTEGRATION_READY`, `CONTROLLED_PILOT_READY` or `GA_READY`.
+At freeze publication, the architecture package reached
+`IMPLEMENTATION_AUTHORIZED`. That historical package state is not the current
+implementation state. Current product capability is derived only from the
+cross-repository program state and runtime manifest.
+
+## Implementation authorization is independent
+
+The readiness ladder governs claims about a candidate. It is not a source-code
+workflow. Once `IMPLEMENTATION_AUTHORIZED` is reached, authorization to build
+the complete bounded product remains in force unless the architecture itself
+is formally revoked.
+
+- an open or failed gate cannot demote implementation authorization;
+- failed tests are active defect work, not a reason to stop unrelated coding;
+- absent remote/provider/native evidence prevents the matching release claim;
+- only a proven frozen-contract contradiction pauses semantic work on the
+  affected lane; and
+- independent product lanes continue when one lane needs external access.
+
+Implementation, integration, evidence, release and runtime mode are recorded
+as separate axes under document 41. `DEV_PREVIEW` can never imply
+`RELEASE_BOUND` or `RELEASABLE`.
 
 ## Gate evidence rule
 

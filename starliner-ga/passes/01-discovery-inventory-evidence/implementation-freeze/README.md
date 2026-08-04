@@ -1,8 +1,8 @@
-# Discovery, Inventory, Activity & Evidence — Evidence-Gated Engineering Freeze
+# Discovery, Inventory, Activity & Evidence — Product-First Engineering Freeze
 
 **Status:** final bounded implementation authority; source semantics and
-system design frozen; exact target-engine local smoke validated; production
-implementation conformance and expanded acceptance gates remain open
+system design frozen; complete product implementation authorized; production
+conformance and release evidence continue in parallel
 
 **Scope:** end-to-end Discovery, Inventory/Catalog, Activity/Observability and
 Evidence design from Browser, Endpoint, LLM Gateway, MCP Gateway and Browser
@@ -20,6 +20,13 @@ in
 ## Decision
 
 This package defines the engineering design for the entire Discovery, Inventory, Activity & Evidence pass. It is not considered accepted merely because prose exists: every product fact is bounded by audited native capture, an explicit support state, executable schemas, relationship rules, and validation. Teams implement slices only after this whole contract is accepted. A slice is a delivery unit, not permission to invent the rest of the platform.
+
+Implementation scheduling is governed by
+[product-first continuous delivery](41-product-first-continuous-delivery-authority.md).
+Work packages are capability ownership lanes, not sequential permissions, and
+LG gates constrain release claims rather than continued coding. A preview,
+fixture, fixed identity, manual SQL transition or dirty hotfix runtime never
+counts as integrated-product progress.
 
 “Entire pass” defines the product and processing boundary. The selected-source
 cutoff is exhaustively dispositioned by the
@@ -100,7 +107,9 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Manifest signing and key-registry lifecycle](38-manifest-signing-and-key-registry-lifecycle.md) | FROZEN addendum: signer key registry, fingerprint format, rotation overlap, revocation/compromise remediation, verifier cache bounds, end-to-end bootstrap verification audit and unsigned-manifest boundary; extends 02/03/07 and LG-006 |
 | [Implementation conformance and transitional removal](39-implementation-conformance-and-transitional-removal.md) | FROZEN classification and removal policy for preview code, transitional authentication/bootstrap, API breadth, authorization, certification, code quality and operational debt |
 | [Final delta-freeze closure](40-final-delta-freeze-closure.md) | Final bounded-pass structural verdict, machine-contract closure and unambiguous build authorization |
+| [Product-first continuous delivery authority](41-product-first-continuous-delivery-authority.md) | FROZEN execution correction: vertical product increments, independent progress/evidence axes, valid blocker classes, coherent runtime law and preview-substitution prohibition |
 | [Engineering execution kit](engineering-execution/README.md) | Ready-to-install repository instructions, state/topology/ledger templates, repository map and live branch-disposition baseline |
+| [Product capability map](engineering-execution/registers/product-capability-map.csv) | Machine-readable complete product outcomes, required stages, hard code dependencies, release gates and prohibited substitutes |
 | [Portable cloud-agent source context](cloud-context/README.md) | Content-addressed 11.55 MB selection of sensor, legacy-platform and Starliner analysis needed for source-aware implementation without the 28 GB local corpus |
 | [Production-readiness gate authority](production-readiness/README.md) | Executable LG-001..007 architectures, test catalog, evidence model, clean-room CI and implementation work packages |
 | [Generated LG-008 authority](lg008/README.md) | Content-addressed profile, record, field, access, delta and target-trace authority |

@@ -45,10 +45,12 @@ Status: **normative pass API and query contract**
 - approved correction/merge/split endpoints under operator authorization;
 - `POST /die/v1/exports`
 - `GET /die/v1/exports/{job_id}`
-- `GET /die/v1/audit`
-- migration comparison endpoints restricted to operators/pilots.
+- `GET /die/v1/audit`.
 
-The exact OpenAPI and JSON schemas are release-blocking deliverables. Paths above are the frozen resource model, not invented proof of an implementation.
+The exact OpenAPI and JSON schemas are required implementation and release
+artifacts. Paths above are the frozen resource model, not invented proof of an
+implementation; missing code or a failing contract is active engineering, not a
+permission stop for independent paths.
 
 ## Standard list contract
 
@@ -114,8 +116,7 @@ Restricted content is not implemented in this pass.
 - activity detail hydrates canonical/evidence metadata by a bounded batch;
 - evidence detail reads PostgreSQL metadata and authorized object reference;
 - Overview reads one PostgreSQL summary projection;
-- no customer path queries Quilr 1 and Quilr 2 and reconciles them silently;
-- migration comparison uses a separate explicit operator API;
+- bounded DIE never queries Quilr 1 or mixes Quilr 1 and Quilr 2 results;
 - no request calls live sensors.
 
 ## Consistency and freshness
@@ -159,4 +160,8 @@ Search, counts, errors, caches, timing, and empty states must not leak other ten
 
 ## Compatibility
 
-The pass API is not a thin rename of Quilr 1. Compatibility adapters translate only documented legacy contracts. New APIs retain unknown-enum handling, additive minor evolution, major-version migration, deprecation telemetry, generated SDK tests, and frontend contract tests.
+The pass API is not a thin rename of Quilr 1. It retains unknown-enum handling,
+additive minor evolution, major-version protocol upgrade, deprecation telemetry,
+generated SDK tests, and frontend contract tests. Any legacy API translation or
+migration comparison endpoint belongs to the separate migration track and may
+consume only the documented extension seam.

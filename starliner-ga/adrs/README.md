@@ -24,4 +24,5 @@ Accepted ADRs are subordinate only to the architecture constitution. A change re
 | [0016](0016-integration-roles-not-vendor-shaped-connectors.md) | Integrations are separated into runtime, discovery, telemetry, control, and response roles |
 | [0017](0017-finding-definitions-own-grouping-and-severity.md) | Versioned finding definitions own grouping, severity, lifecycle, and recompute |
 | [0018](0018-engineering-truth-and-feature-traceability.md) | Engineering systems preserve authority and end-to-end feature traceability |
-| [0019](0019-first-customer-release-is-discovery-inventory-evidence.md) | First customer release ships all-sensor discovery, inventory, evidence, coverage, UI, and Quilr 1 coexistence before findings and policy |
+| [0019](0019-first-customer-release-is-discovery-inventory-evidence.md) | First customer release ships five-profile discovery, inventory, evidence, coverage, and UI; its migration sequencing is superseded by ADR-0020 |
+| [0020](0020-die-migration-is-a-separate-parallel-track.md) | The bounded five-profile DIE product ships independently; Quilr 1 migration/coexistence remains a separately authorized parallel track |

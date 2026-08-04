@@ -112,6 +112,14 @@ decisions:
   - id: ADR-0019
     title: First customer release is Discovery Inventory and Evidence
     status: accepted
+    superseded_scope: migration_sequence
+    superseded_by: ADR-0020
     record: ../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md
     owners: [product_lead, chief_architect, program_lead, migration_lead]
     affects: [delivery, sensors, evidence, identity, inventory, product, migration, gates]
+  - id: ADR-0020
+    title: DIE migration is a separate parallel track
+    status: accepted
+    record: ../adrs/0020-die-migration-is-a-separate-parallel-track.md
+    owners: [product_lead, chief_architect, program_lead, migration_lead]
+    affects: [delivery, sensors, evidence, migration, compatibility, gates]

@@ -1,10 +1,10 @@
 schema_version: "1.0"
 authority: "Discovery, Inventory, and Evidence Pass"
-approval_state: "Selected freeze baseline pending named DIE-0 ratification; status accepted does not by itself prove human approval."
+approval_state: "Frozen implementation authority; complete bounded product construction and integration authorized; human approval applies to release promotion and customer claims."
 decisions:
   - id: DIE-ADR-001
     status: accepted
-    decision: "The first customer release ships discovery, canonical inventory, evidence/activity, coverage, provenance, APIs, UI, and migration continuity before findings and policy."
+    decision: "The bounded product ships discovery, canonical inventory, evidence/activity, coverage, provenance, APIs and UI before findings and policy, while preserving a stable seam for a separate migration track."
     consequence: "Later intelligence consumes this pass; it cannot be a dependency of DIE-GA."
   - id: DIE-ADR-002
     status: accepted
@@ -20,8 +20,8 @@ decisions:
     consequence: "Endpoint application IDs, MCP deterministic IDs, and Quilr 1 IDs remain source or compatibility aliases."
   - id: DIE-ADR-005
     status: accepted
-    decision: "The pass uses a modular platform codebase with role-specific ingest, normalizer, truth, projection, API, migration, and web deployments."
-    consequence: "Logical modules do not become one microservice per domain or materializer."
+    decision: "The pass uses one modular backend codebase and release authority with role-specific ingest, normalizer, truth, projector, API and maintenance deployments, plus the separate web deployment."
+    consequence: "Logical modules do not become one microservice per domain or materializer; role-specific images retain independent digests, rollout and scaling authority."
   - id: DIE-ADR-006
     status: accepted
     decision: "The minimum pass storage set is PostgreSQL, encrypted object storage, and ClickHouse."
@@ -32,7 +32,7 @@ decisions:
     consequence: "A separate event broker requires an ADR and capacity proof; it cannot become authority."
   - id: DIE-ADR-008
     status: accepted
-    decision: "PostgreSQL owns canonical inventory, relationship, activity, coverage, migration, audit, and ordinary product read models."
+    decision: "PostgreSQL owns canonical inventory, relationship, activity, coverage, audit, control state and ordinary product read models; a future migration track may add separately governed compatibility state."
     consequence: "ClickHouse owns only rebuildable high-volume activity/evidence search and bounded aggregates."
   - id: DIE-ADR-009
     status: accepted
@@ -76,5 +76,5 @@ decisions:
     consequence: "The pass can ship trustworthy facts without findings, workflows, policy, or Quilr 1 retirement."
   - id: DIE-ADR-019
     status: accepted
-    decision: "quilrbusiness/project-starliner is the intended core backend repository for the pass, subject to an exact-source fit-gap audit before existing modules are reused."
+    decision: "quilrbusiness/project-starliner is the core backend repository for the pass; the exact-source fit-gap audit is complete and implementation follows the frozen module disposition."
     consequence: "The program evolves one verified spine, does not create a competing core backend, and classifies existing code as retain, harden, refactor, compatibility-only, replace, delete-later, missing, or unresolved."

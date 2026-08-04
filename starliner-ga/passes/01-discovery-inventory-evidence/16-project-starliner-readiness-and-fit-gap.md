@@ -42,9 +42,12 @@ The pass includes all of the following. “Discovery and inventory” does not m
 | Central transactional outbox | Atomic canonical mutation plus durable downstream change publication | Canonical PostgreSQL transaction |
 | Query projections | Idempotent PostgreSQL product read models and ClickHouse activity/evidence search projections, with checkpoints and safe rebuild/promotion | `die-projection-worker` |
 | Product access | Versioned authorized APIs, Overview, Inventory, Activity & Evidence, Sources & Coverage, export and audit | `die-product-api` and `die-web` |
-| Migration | Immutable Quilr 1 backfill, compatibility mapping, semantic parity, cohort cutover, fallback and rollback | `die-migration-worker` and migration control state |
+| Separate migration track | Not included in bounded DIE; later consumes frozen legacy-evidence, alias, API/export and tenant-routing seams | Document 10 and its independently governed runtime/state |
 
-The pass does **not** include finding admission/materialization, risk scoring, policy authoring, command orchestration, new enforcement, cases, cost/billing analytics, or Quilr 1 retirement.
+The pass does **not** include finding admission/materialization, risk scoring,
+policy authoring, command orchestration, new enforcement, cases, cost/billing
+analytics, or any Quilr 1 extraction/backfill/parity/coexistence/cutover/rollback/
+retirement implementation.
 
 There are two different outboxes:
 
@@ -95,7 +98,7 @@ That violates the frozen rule that the edge preserves source-native references a
 - removal of producer-minted canonical identity;
 - source reference and optional binding-token semantics;
 - mixed-version adapter operation;
-- golden-trace and certification migration;
+- golden-trace and certification version transition;
 - replay of already accepted prototype evidence under an explicit legacy profile.
 
 ### Evidence not currently available
@@ -104,7 +107,7 @@ No supplied source checkout or independent runtime proof currently establishes:
 
 - the current default branch and commit of `project-starliner`;
 - complete repository inventory, public APIs, packages and deployable entry points;
-- build, test, migration and release status;
+- build, test, database-upgrade and release status;
 - an admission transaction that durably commits evidence bytes, metadata, idempotency and handoff before returning `accepted`;
 - profile normalizers;
 - claims/bindings and a continuous central identity resolver;
@@ -139,7 +142,7 @@ This table is an audit hypothesis, not a substitute for reading the repository.
 | Projection runner/read models | **Unresolved** | Inspect and classify |
 | Product API | **Unresolved** | Inspect and classify |
 | Quilr 2 web application | **Unresolved and expected outside core backend** | Bind the approved frontend repository |
-| Quilr 1 migration worker/parity | **Unresolved** | Inspect and classify |
+| Separate Quilr 1 migration runtime/parity | **Outside bounded DIE** | Govern only under document 10 and its parallel-track requirements |
 | Deployment/IaC/operations | **Unresolved** | Inspect and bind approved ownership |
 
 ## Required repository audit
@@ -200,7 +203,7 @@ Missing or inferred edges remain explicit.
 
 - clean build from lockfiles;
 - unit, property, contract, integration and E2E tests;
-- schema/migration create and upgrade from supported versions;
+- schema create and database upgrade from supported versions;
 - ingest duplicate/partial-ack/crash/replay tests;
 - canonical transaction/outbox atomicity tests;
 - resolver merge/split/correction tests;
@@ -220,7 +223,7 @@ Every meaningful module receives one disposition:
 | `RETAIN` | Implements the frozen behavior and passes required verification |
 | `HARDEN` | Correct boundary, incomplete GA security/reliability/operations |
 | `REFACTOR` | Useful implementation with incorrect contract, authority or dependency direction |
-| `COMPATIBILITY_ONLY` | Required temporarily for pinned consumers or migration |
+| `COMPATIBILITY_ONLY` | Required temporarily for pinned consumers through a named compatibility window |
 | `REPLACE` | Conflicts materially with frozen invariants and cannot be safely evolved |
 | `DELETE_LATER` | Superseded code retained only through a named compatibility window |
 | `MISSING` | Required Pass capability not present |
@@ -230,25 +233,34 @@ The result must map module and symbol evidence to every applicable `DIE-REQ-*`, 
 
 ## Build readiness
 
+> **Historical gate notice:** this section records the pre-freeze audit state.
+> The audit completed and the current implementation/scheduling authority is
+> documents 40 and 41. Nothing below blocks present product construction.
+
 ### Work that can start now
 
 - audit and branch/revision selection for `project-starliner`;
 - correct source-envelope and identity semantics;
 - versioned source profiles and golden traces;
 - audited sensor-hook remediations that do not depend on unresolved central internals;
-- Quilr 1 live production inventory and compatibility catalog;
+- stable extension seams and non-regression checks that do not inspect, extract,
+  backfill, route or compare Quilr 1 data;
 - physical data-model design and threat/privacy review;
 - UI interaction design and contract fixtures clearly labeled non-production;
 - production backlog, ownership and test/certification harness setup.
 
-### Work blocked on the audit or `DIE-0`
+### Work that was blocked before the completed audit
 
 - declaring an existing central module reusable;
 - implementing around undocumented APIs or tables;
 - selecting final module destinations and deployment entry points;
 - freezing concrete generated SDKs against the old canonical-at-source grammar;
 - broad parallel implementation of ingest, resolver, materializers, projections and product APIs;
-- customer pilot or migration cutover.
+- customer pilot.
+
+Quilr 1 inventory, parity and cutover construction belongs exclusively to the
+parallel migration track in document 10; it was never a prerequisite for the
+bounded product build.
 
 ### Readiness statement
 
@@ -258,9 +270,13 @@ required exact-source fit-gap audit has completed and the
 [production implementation handoff](implementation-freeze/23-production-implementation-handoff.md)
 authorizes the autonomous bounded-pass build.
 
-The remaining blocker is not more abstract architecture brainstorming. It is an exact-source fit-gap audit plus the named production inputs in the pass register. Once the audit identifies what is real and reusable, teams implement the missing/refactored work inside the frozen boundaries without reopening the central architecture.
+The exact-source fit-gap audit and technical freeze are complete. Current
+release/environment inputs do not block implementation; they affect only the
+applicable qualification or external lane under document 41. Teams implement
+missing/refactored work inside the frozen boundaries without reopening the
+central architecture.
 
-## Required output of `DIE-0`
+## Historical required output of `DIE-0`
 
 `DIE-0` must include:
 
@@ -268,7 +284,7 @@ The remaining blocker is not more abstract architecture brainstorming. It is an 
 - existing-module disposition matrix;
 - requirement-to-symbol/deployable fit-gap matrix;
 - approved target module/repository/deployment map;
-- protocol compatibility and migration decision for the pinned SDK;
+- protocol compatibility and version-transition decision for the pinned SDK;
 - named owners and release branches;
 - clean build/test evidence;
 - initial physical DDL and workload/security decisions;

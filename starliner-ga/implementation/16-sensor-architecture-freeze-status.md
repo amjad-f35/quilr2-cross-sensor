@@ -2,7 +2,7 @@
 
 Status: **normative determination ledger**
 
-Release-sequencing amendment: [ADR-0019](../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md) and the [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md) now define the first customer release. The broader platform determinations below remain the long-term architecture, but findings, policy, cost, broad deployment expansion, and Quilr 1 retirement are not dependencies of `DIE-GA`.
+Release-sequencing amendment: [ADR-0019](../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md), [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md), and the [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md) define the first customer release. The broader platform determinations below remain the long-term architecture, but findings, policy, cost, broad deployment expansion, Quilr 1 migration/coexistence, and Quilr 1 retirement are not dependencies of `DIE-GA`. Migration remains fully preserved under the independent `MIGRATION` track and G6.
 
 ## Bottom line
 
@@ -116,8 +116,13 @@ The following work is unblocked by deployment/commercial decisions:
 6. implement the four sensor adapters and WAL paths at the exact audited seams;
 7. remove producer-created canonical IDs from endpoint and MCP paths;
 8. build unified inventory/coverage/activity APIs and the first cross-sensor UI slice;
-9. establish privacy, secret-canary, isolation, replay and failure tests;
-10. dual-run against Quilr 1 using legacy evidence adapters.
+9. establish privacy, secret-canary, isolation, replay and failure tests.
+
+## Separate parallel migration work
+
+Separately, once the `MIGRATION` track is staffed and authorized, W18 may
+dual-run against Quilr 1 using legacy evidence adapters. That work is not part
+of the immediate bounded build and does not block `DIE-GA` or G2 through G5.
 
 Development fixtures for issuers, keys, tenants, regions and endpoints must be visibly non-production and replaceable by typed configuration.
 

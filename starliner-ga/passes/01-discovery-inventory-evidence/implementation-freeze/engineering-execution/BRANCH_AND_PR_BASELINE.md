@@ -1,5 +1,10 @@
 # Branch and PR Baseline
 
+> **Historical hygiene snapshot:** use this only when porting or deleting the
+> named historical refs. It is not current implementation state and must never
+> delay an unrelated product increment. Live Git and repository durable state
+> govern current work.
+
 Snapshot time: 2026-07-30, from the authenticated GitHub API and local Git.
 Refresh this evidence before any branch deletion or PR closure.
 
@@ -11,11 +16,12 @@ Refresh this evidence before any branch deletion or PR closure.
 | `quilrbusiness/macrodata-refinement` | `dev_main` | `92b0462c583b908f8ce0cadd1bc89d2e702f5a7d` | 109 | 9 |
 | `quilrbusiness/quilr-llm-gateway` | `add_gateway` | `99f759d75aa8260f97db6904433c941647a755e5` | 25 | 5 |
 
-The local Nuxt shell at
+At snapshot time, the local Nuxt shell at
 `/Users/t4ctic4l/STAR-PLATFORM/quilr-platform-nuxt` is on
 `main@8c745c88e56cb6fc88a022415a596b5d436a5264` with 117 dirty paths:
 96 modified, two deleted and 19 untracked. It must be checkpointed on an
-explicit branch and reviewed before DIE UI implementation begins.
+explicit branch before overlapping or destructive edits. This dated condition
+must be rechecked; it is not a permanent UI implementation blocker.
 
 ## Project Starliner
 

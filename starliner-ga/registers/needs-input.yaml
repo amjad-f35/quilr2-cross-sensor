@@ -14,10 +14,10 @@ items:
     consulted: [product_lead, chief_architect, sre_lead]
     evidence: deployment_profile_decision
   - id: NI-003
-    input: Tenant and environment identifier source and migration mapping
+    input: Tenant and environment identifier source for the new platform; legacy tenant/environment mapping is isolated to NI-021 and NI-022 under MIGRATION
     blocks: [G1]
     accountable_role: platform_lead
-    consulted: [migration_lead, security_lead]
+    consulted: [security_lead]
     evidence: tenant_registry_contract
   - id: NI-004
     input: Customer identity issuer, federation modes, and SCIM launch scope
@@ -123,13 +123,13 @@ items:
     evidence: operational_readiness_review
   - id: NI-021
     input: Quilr 1 live production stores, tenants, volumes, consumers, and data quality
-    blocks: [G2, G6]
+    blocks: [MIGRATION, G6]
     accountable_role: migration_lead
     consulted: [legacy_service_owners, data_identity_lead]
     evidence: production_migration_inventory
   - id: NI-022
     input: Quilr 1 coexistence duration, cutover cohorts, parity thresholds, and rollback window
-    blocks: [G2, G6]
+    blocks: [MIGRATION, G6]
     accountable_role: migration_lead
     consulted: [product_lead, customer_lead, sre_lead]
     evidence: approved_cutover_plan

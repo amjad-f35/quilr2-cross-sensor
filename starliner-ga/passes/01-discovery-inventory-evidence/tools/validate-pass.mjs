@@ -80,6 +80,7 @@ const required = [
   "registers/decisions.yaml",
   "registers/needs-input.yaml",
   "registers/source-coverage.yaml",
+  "registers/migration-source-coverage.yaml",
   "registers/migration-matrix.csv",
   "registers/risks.csv"
 ];
@@ -87,6 +88,49 @@ const required = [
 required.forEach((item) => {
   if (!fs.existsSync(path.join(root, item))) fail(`missing required file: ${item}`);
 });
+
+const boundedSourceCoverageFile = path.join(root, "registers/source-coverage.yaml");
+if (fs.existsSync(boundedSourceCoverageFile)) {
+  const text = fs.readFileSync(boundedSourceCoverageFile, "utf8");
+  const profileIds = [...text.matchAll(/^\s+- id: ([a-z0-9_]+)$/gm)].map((match) => match[1]).sort();
+  const expectedProfileIds = ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"].sort();
+  if (JSON.stringify(profileIds) !== JSON.stringify(expectedProfileIds)) {
+    fail(`source-coverage.yaml must contain exactly the five bounded launch profiles; found ${profileIds.join(", ")}`);
+  }
+  if (/\b(quilr1_legacy|migration_worker)\b/.test(text)) {
+    fail("source-coverage.yaml embeds the separate legacy migration acquisition profile");
+  }
+}
+
+const migrationSourceCoverageFile = path.join(root, "registers/migration-source-coverage.yaml");
+if (fs.existsSync(migrationSourceCoverageFile)) {
+  const text = fs.readFileSync(migrationSourceCoverageFile, "utf8");
+  const requiredFragments = [
+    'track: "MIGRATION"',
+    'status: "parallel_track"',
+    'entry_contract: bounded_die_legacy_evidence_extension_seam',
+    '- id: quilr1_legacy',
+    'producer_boundaries: [migration_worker]',
+    'required_families: [extraction, legacy_entity, legacy_relationship, legacy_event, tombstone, watermark, checksum, limitation, correction]',
+  ];
+  for (const fragment of requiredFragments) {
+    if (!text.includes(fragment)) {
+      fail(`migration-source-coverage.yaml omits required parallel-track authority: ${fragment}`);
+    }
+  }
+  const profileIds = [...text.matchAll(/^\s+- id: ([a-z0-9_]+)$/gm)].map((match) => match[1]);
+  if (profileIds.length !== 1 || profileIds[0] !== "quilr1_legacy") {
+    fail("migration-source-coverage.yaml must contain exactly the preserved quilr1_legacy acquisition profile");
+  }
+}
+
+const migrationPlanFile = path.join(root, "10-quilr1-migration-and-coexistence.md");
+if (fs.existsSync(migrationPlanFile)) {
+  const text = fs.readFileSync(migrationPlanFile, "utf8");
+  if (!text.includes("registers/migration-source-coverage.yaml")) {
+    fail("migration plan does not link the separate machine-readable legacy acquisition profile");
+  }
+}
 
 // Exact copies in the portable cloud-context payload retain the source
 // package's historical conventions and intentionally unresolved links.
@@ -124,6 +168,8 @@ if (fs.existsSync(requirementsFile)) {
   const rows = parseCsv(fs.readFileSync(requirementsFile, "utf8"));
   const header = rows[0];
   const idIndex = header.indexOf("id");
+  const domainIndex = header.indexOf("domain");
+  const requirementIndex = header.indexOf("requirement");
   const gateIndex = header.indexOf("gate");
   const statusIndex = header.indexOf("status");
   const ids = new Set();
@@ -140,15 +186,49 @@ if (fs.existsSync(requirementsFile)) {
     if (!/^(normative|parallel_track)$/.test(row[statusIndex])) {
       fail(`requirements.csv:${offset + 2} has invalid status ${row[statusIndex]}`);
     }
+    if (row[statusIndex] === "parallel_track" && (row[gateIndex] !== "MIGRATION" || row[domainIndex] !== "Migration")) {
+      fail(`requirements.csv:${offset + 2} parallel-track requirement ${id} is not isolated to the MIGRATION domain/gate`);
+    }
+    if (row[statusIndex] === "normative") {
+      const boundedText = row[requirementIndex].replace(/schema migration/gi, "schema upgrade");
+      if (/\b(migrat\w*|backfill|cutover|cohort|fallback|parity)\b/i.test(boundedText)) {
+        fail(`requirements.csv:${offset + 2} bounded requirement ${id} embeds separate migration-track behavior`);
+      }
+    }
     if (row[statusIndex] === "normative") normativeCount += 1;
     if (row[statusIndex] === "parallel_track") parallelCount += 1;
   });
+  const requirementById = new Map(rows.slice(1).map((row) => [row[idIndex], row]));
+  const endpointRelease = requirementById.get("DIE-REQ-018") || [];
+  const endpointText = endpointRelease[requirementIndex] || "";
+  if (endpointRelease[gateIndex] !== "DIE-GA"
+      || !endpointText.includes("release qualification and advertising under LG-005")
+      || !endpointText.includes("implementation and non-production integration shall continue")
+      || endpointText.includes("certification shall remain blocked")) {
+    fail("DIE-REQ-018 must constrain Endpoint release qualification/advertising without blocking implementation or non-production integration");
+  }
+  for (let index = 76; index <= 84; index += 1) {
+    const id = `DIE-REQ-${String(index).padStart(3, "0")}`;
+    const row = requirementById.get(id) || [];
+    if (row[gateIndex] !== "MIGRATION" || row[statusIndex] !== "parallel_track") {
+      fail(`${id} must remain isolated to the parallel MIGRATION track`);
+    }
+  }
   if (ids.size < 90) fail(`only ${ids.size} requirements; expected at least 90`);
   notices.push(`${normativeCount} normative pass requirements; ${parallelCount} parallel migration requirements`);
 }
 
 for (const file of yaml) {
   const text = fs.readFileSync(file, "utf8");
+  if (text.trimStart().startsWith("{")) {
+    try {
+      const document = JSON.parse(text);
+      if (!document.schema_version) fail(`${relative(file)} missing schema_version property`);
+    } catch (error) {
+      fail(`${relative(file)} invalid JSON-form YAML: ${error.message}`);
+    }
+    continue;
+  }
   const isOpenApi = relative(file).includes("/openapi/") && text.startsWith("openapi:");
   if (!isOpenApi && !text.startsWith("schema_version:")) fail(`${relative(file)} missing schema_version header`);
   if (/\t/.test(text)) fail(`${relative(file)} contains tab indentation`);
@@ -162,6 +242,9 @@ if (fs.existsSync(decisionsFile)) {
   if (new Set(ids).size !== ids.length) fail("duplicate pass decision IDs");
   const acceptedCount = [...text.matchAll(/^\s+status: accepted$/gm)].length;
   const deferredCount = [...text.matchAll(/^\s+status: deferred_parallel$/gm)].length;
+  if (!text.includes('approval_state: "Frozen implementation authority;')) {
+    fail("pass decisions do not authorize the frozen bounded implementation");
+  }
   notices.push(`${acceptedCount} accepted pass decisions; ${deferredCount} parallel migration decisions`);
 }
 
@@ -171,20 +254,60 @@ if (fs.existsSync(inputsFile)) {
   const ids = [...text.matchAll(/^\s+- id: (DIE-NI-[0-9]{3})$/gm)].map((match) => match[1]);
   if (ids.length < 24) fail(`only ${ids.length} pass inputs; expected at least 24`);
   if (new Set(ids).size !== ids.length) fail("duplicate pass input IDs");
-  notices.push(`${ids.length} registered pass inputs`);
+  if (/^\s+blocks:/m.test(text)) fail("pass inputs still encode implementation/release blockers in one field");
+  const implementationEffects = [...text.matchAll(/^\s+implementation_effect: ([a-z_]+)$/gm)].map((match) => match[1]);
+  const releaseEffects = [...text.matchAll(/^\s+release_effect: \[[^\]]+\]$/gm)];
+  if (implementationEffects.length !== ids.length || implementationEffects.some((effect) => effect !== "none")) {
+    fail("every historical pass input must explicitly have implementation_effect none");
+  }
+  if (releaseEffects.length !== ids.length) fail("every pass input must declare a separate release_effect");
+  for (const migrationId of ["DIE-NI-020", "DIE-NI-021", "DIE-NI-022"]) {
+    const item = text.match(new RegExp(`- id: ${migrationId}([\\s\\S]*?)(?=\\n  - id:|$)`))?.[1] ?? "";
+    if (!item.includes("release_effect: [separate_migration_pass]")) {
+      fail(`${migrationId} is not isolated to the separate migration pass`);
+    }
+  }
+  for (const boundedId of ["DIE-NI-001", "DIE-NI-019"]) {
+    const item = text.match(new RegExp(`- id: ${boundedId}([\\s\\S]*?)(?=\\n  - id:|$)`))?.[1] ?? "";
+    if (/\b(migrat\w*|Quilr 1 SSO)\b/i.test(item)) {
+      fail(`${boundedId} embeds ownership or identity inputs from the separate migration track`);
+    }
+  }
+  notices.push(`${ids.length} release/environment inputs; zero implementation blockers`);
 }
 
 const risksFile = path.join(root, "registers/risks.csv");
 if (fs.existsSync(risksFile)) {
   const rows = parseCsv(fs.readFileSync(risksFile, "utf8"));
   const idIndex = rows[0].indexOf("id");
+  const gateIndex = rows[0].indexOf("gate");
   const ids = rows.slice(1).map((row) => row[idIndex]);
   if (ids.length < 24) fail(`only ${ids.length} pass risks; expected at least 24`);
   if (new Set(ids).size !== ids.length) fail("duplicate pass risk IDs");
   ids.forEach((id) => {
     if (!/^DIE-R-[0-9]{3}$/.test(id)) fail(`invalid pass risk ID ${id}`);
   });
+  const riskById = new Map(rows.slice(1).map((row) => [row[idIndex], row]));
+  for (const migrationId of ["DIE-R-016", "DIE-R-017", "DIE-R-023"]) {
+    if (riskById.get(migrationId)?.[gateIndex] !== "MIGRATION") {
+      fail(`${migrationId} must remain isolated to the separate MIGRATION track`);
+    }
+  }
   notices.push(`${ids.length} registered pass risks`);
+}
+
+const boundedDocumentProhibitions = new Map([
+  ["02-pass-architecture-freeze.md", [/\bdie-migration-worker\b/i]],
+  ["06-runtime-storage-workers-and-scaling.md", [/\bdie-migration-worker\b/i]],
+  ["01-scope-claims-and-non-goals.md", [/Migration Comparison/i]],
+  ["09-ui-information-architecture.md", [/^#{1,6}\s+Migration Comparison\b/im]],
+  ["15-traceability-and-team-review.md", [/→\s*migration\/parity/i]],
+]);
+for (const [document, patterns] of boundedDocumentProhibitions) {
+  const text = fs.readFileSync(path.join(root, document), "utf8");
+  for (const pattern of patterns) {
+    if (pattern.test(text)) fail(`${document} reintroduces bounded-pass migration runtime or product behavior: ${pattern}`);
+  }
 }
 
 const localLink = /\[[^\]]*]\(([^)]+)\)/g;

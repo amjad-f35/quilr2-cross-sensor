@@ -76,6 +76,7 @@ signed and versioned; updating one requires reviewed semantic diff.
 Certification closes per profile only when its common and profile-specific
 required rows pass on every supported runtime. The platform may ship a subset
 of certified profiles, but UI/API capability state must accurately reflect
-uncertified combinations. MCP remains blocked until its selected-source
+uncertified combinations. MCP may be implemented and integrated continuously;
+its production advertisement/release remains unqualified until selected-source
 failures are resolved or individually proven environmental and the native pack
 passes.

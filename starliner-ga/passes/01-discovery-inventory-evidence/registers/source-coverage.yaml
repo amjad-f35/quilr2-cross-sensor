@@ -26,8 +26,3 @@ profiles:
     required_families: [producer_lifecycle, registry_snapshot, server, tool, resource, prompt, capability_negotiation, connection, session, invocation, progress_cancel, native_decision, native_effect, health, gap, correction]
     direct_authority: [gateway_registry, routed_mcp_operation, negotiated_capability, gateway_native_effect]
     limitations: [direct_local_bypass, unsupported_surface, raw_arguments_results, enterprise_owner]
-  - id: quilr1_legacy
-    producer_boundaries: [migration_worker]
-    required_families: [extraction, legacy_entity, legacy_relationship, legacy_event, tombstone, watermark, checksum, limitation, correction]
-    direct_authority: [legacy_customer_visible_record_at_extraction]
-    limitations: [canonical_identity, undocumented_semantics, live_sensor_truth, post_watermark_change]

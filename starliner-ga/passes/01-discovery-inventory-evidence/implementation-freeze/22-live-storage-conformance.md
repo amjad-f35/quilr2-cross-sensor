@@ -95,9 +95,12 @@ DIE_CLICKHOUSE_IMAGE='clickhouse/clickhouse-server@sha256:<approved-digest>' \
 - ClickHouse physical deletion and activity evidence-reference scrubbing wait
   for completed mutations and negative scans before their receipt is inserted.
 
-## Required expansion before domain implementation broadens
+## Parallel storage conformance obligations
 
-The first storage conformance work-item branch must extend the PostgreSQL suite with:
+These required suites run alongside product implementation. A failure prevents
+relying on or promoting the affected storage behavior and becomes active defect
+work; it does not defer independent domain construction. The storage
+conformance work must extend the PostgreSQL suite with:
 
 - direct parent and default-child RLS reads/writes for every runtime role;
 - catalog assertions for `NOBYPASSRLS`, table ownership, grants, policies and
@@ -185,5 +188,6 @@ A passing CI job must retain:
 - assertion counts;
 - any retry or quarantine output.
 
-The corresponding `LG-*` ledger item changes from
-`blocked_by_live_evidence` to `verified` only after that artifact is linked.
+The corresponding `LG-*` ledger item changes from `release_evidence_open` to
+`verified` only after that artifact is linked. This state affects release
+qualification, not implementation authorization.

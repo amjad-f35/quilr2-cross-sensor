@@ -4,27 +4,27 @@ profiles:
     record: ../profiles/00-browser-source-profile.md
     direct_authority: [web_surface_observation, browser_interaction_metadata, browser_policy_effect]
     not_authority: [enterprise_owner, provider_model_deployment, enterprise_population]
-    launch_gate: G2
+    launch_gate: DIE-GA
   - id: browser_backend
     record: ../profiles/05-browser-backend-source-profile.md
     direct_authority: [backend_receipt, enrollment_configuration_receipt, backend_runtime_health, documented_heartbeat_freshness]
     not_authority: [client_action_not_received, exact_client_enforcement_effect, enterprise_population, downstream_commit_not_observed]
-    launch_gate: G2
+    launch_gate: DIE-GA
   - id: endpoint
     record: ../profiles/01-endpoint-source-profile.md
     direct_authority: [device_local_process, artifact, installed_software, local_network, endpoint_policy_effect]
     not_authority: [provider_execution, enterprise_owner, activity_outside_device]
-    launch_gate: G2
+    launch_gate: DIE-GA
   - id: llm_gateway
     record: ../profiles/02-llm-gateway-source-profile.md
     direct_authority: [routed_model_execution, route, provider_account, token_latency_status, gateway_policy_effect]
     not_authority: [bypass_traffic, enterprise_owner, device_local_activity]
-    launch_gate: G2
+    launch_gate: DIE-GA
   - id: mcp_gateway
     record: ../profiles/03-mcp-gateway-source-profile.md
     direct_authority: [registered_server_tool, proxied_mcp_invocation, negotiated_capability, mcp_policy_effect]
     not_authority: [bypass_mcp, global_tool_identity, enterprise_owner]
-    launch_gate: G3
+    launch_gate: DIE-GA
   - id: enterprise_connector
     record: ../profiles/04-enterprise-and-quilr1-profile.md
     direct_authority: [field_and_scope_specific_external_fact]
@@ -34,4 +34,4 @@ profiles:
     record: ../profiles/04-enterprise-and-quilr1-profile.md
     direct_authority: [legacy_value_and_lineage]
     not_authority: [canonical_quilr2_identity, current_cross_sensor_truth]
-    launch_gate: G2
+    launch_gate: MIGRATION

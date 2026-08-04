@@ -1,5 +1,9 @@
 # Independent Falsification and Readiness Verdict
 
+> **Historical evidence record:** preserve every finding and closure assertion,
+> but use documents 40 and 41 for current implementation authorization,
+> blocking semantics and completion language.
+
 **Review date:** 2026-07-30
 **Review type:** fresh adversarial source-to-UI falsification
 **Bounded scope:** Browser, Browser Backend, Endpoint, LLM Gateway and MCP Gateway through protocol, ingest, evidence, normalization, identity, canonical truth, relationships/activity/coverage, PostgreSQL/outbox, ClickHouse, authorization, API and the existing Nuxt seam

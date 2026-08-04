@@ -33,12 +33,11 @@ Status: **normative pass proof strategy**
 - resolver create/link/defer/merge/split/rebind;
 - canonical transaction/outbox;
 - projector duplicate/rebuild/promotion/rollback;
-- API authorization/pagination/error/freshness;
-- migration watermarks/checksums.
+- API authorization/pagination/error/freshness.
 
 ### Integrated and E2E
 
-- all four sensors into one tenant cell;
+- all four sensor families plus Browser Backend into one tenant cell;
 - cross-sensor application identity;
 - agent/model/MCP/tool relationships;
 - important source event timelines;
@@ -48,7 +47,6 @@ Status: **normative pass proof strategy**
 - endpoint local IPC;
 - LLM streaming/cancellation;
 - Direct/OneMCP separation;
-- Quilr 1 backfill/parity/cutover/rollback;
 - customer UI and export;
 - backup/restore and replay.
 
@@ -120,7 +118,7 @@ Static audit alone cannot certify production.
 - error/partial states;
 - authorization denials;
 - accessibility;
-- customer support rate and migration differences.
+- customer support rate and product limitations.
 
 Numerical SLOs and error budgets require measurement and accountable approval.
 
@@ -139,7 +137,7 @@ Every role has:
 - deployment/upgrade/rollback;
 - incident and customer communication;
 - safe diagnostics/support bundle;
-- kill/pause controls for admission, processing, projection, migration and export.
+- kill/pause controls for admission, processing, projection, maintenance and export.
 
 ## Backup and recovery
 
@@ -150,10 +148,13 @@ Every role has:
 - tenant-cell restore rehearsal;
 - edge replay after restore;
 - canonical/projection invariant validation;
-- migration/cutover state recovery;
 - export and key recovery.
 
 ## Quality gates
+
+These gates qualify a release candidate; they are not sequential permission
+gates for product coding or integration. A failed row is active correction and
+evidence work on the affected behavior.
 
 ### DIE-0 — Contract freeze
 
@@ -161,7 +162,6 @@ Every role has:
 - source event catalog and typed schemas;
 - canonical model and read contracts;
 - runtime/storage/worker ADR;
-- migration authority;
 - threat/privacy model;
 - named owners and release inputs.
 
@@ -171,34 +171,39 @@ Every role has:
 - durability, isolation, privacy and resource proof;
 - canonical inventory/activity materializes;
 - no customer reads;
-- Quilr 1 unaffected.
+- installed sensor adapters do not mutate or reroute Quilr 1 behavior.
 
 ### DIE-2 — Internal product
 
 - all UI/API surfaces work;
-- four-source golden scenario;
+- five-profile golden scenario covering Browser, Browser Backend, Endpoint,
+  LLM Gateway and MCP Gateway;
 - coverage/gaps/provenance;
-- backfill/parity;
 - accessibility and operator readiness.
 
 ### DIE-3 — Customer pilot
 
 - exact production artifacts;
-- approved tenant cohort;
-- member-level semantic parity;
+- approved pilot tenants;
 - measured SLO/capacity;
 - security/privacy/backup/upgrade;
 - support and rollback rehearsal;
 - customer acceptance.
 
-### DIE-GA — Cohort availability
+### DIE-GA — Approved availability population
 
 - all release-blocking requirements and inputs closed;
 - approved artifacts/configuration/deployment profile;
 - no critical security/privacy/durability/tenant gap;
 - product claims exactly match evidence;
-- migration stabilization and fallback active;
 - immutable gate package signed.
+
+## Separate migration-track qualification
+
+Document 10 retains the future migration watermarks/checksums, immutable
+backfill, member-level parity, SSO compatibility, cohort/cutover/rollback,
+fallback, restore and stabilization tests. They are independently scheduled and
+do not appear in DIE-0 through DIE-GA.
 
 ## Prohibited proof shortcuts
 

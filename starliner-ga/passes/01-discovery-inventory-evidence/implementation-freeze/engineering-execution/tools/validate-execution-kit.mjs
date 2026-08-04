@@ -4,6 +4,13 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import {
+  initializeProductDeliveryState,
+  PRODUCT_DELIVERY_HEADER,
+  validateProductDeliveryState,
+} from './product-delivery-state-lib.mjs'
+import { validateRuntimeManifestFile } from './validate-runtime-manifest.mjs'
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const errors = []
 
@@ -84,30 +91,59 @@ function parseCsv(text, path) {
 
 requireFragments('README.md', [
   'Start or resume',
-  'Work-item lifecycle',
+  'Independent lifecycles',
   'One branch represents one coherent work item',
-  'remote Ubuntu',
+  'never stops local product construction',
 ])
 requireFragments('templates/AGENTS.md', [
   'Resume protocol',
   'test-driven-development skill',
   'One branch is one work item',
-  'remote validation agent fetches an exact pushed SHA',
+  'qualified isolated environment',
   'Raise a focused ADR',
   'native Vue SFCs',
   'clone existing Button/Dialog/Table',
+  'Code that is not yet',
 ])
 requireFragments('templates/WORK_STATE.md', [
   'Architecture authority commit',
   'Last locally verified commit',
   'Last remotely verified commit',
   'Next exact action',
+  'Implementation state',
+  'Highest proven stage',
+  'Exact blocked action',
+  'Blocker evidence',
+  'Independent next action',
+])
+requireFragments('templates/PROGRAM_STATE.md', [
+  'one coherent cross-repository product candidate',
+  'Current runtime manifest',
+  'Next integration action',
+  'Exact blocked action',
+  'Independent next action',
 ])
 requireFragments('templates/TOPOLOGY.md', [
   'Runtime roles and artifacts',
   'Persistence and transport',
   'External repository seams',
+  'Product and harness separation',
 ])
+requireFragments('templates/RUNTIME_MANIFEST.yaml', [
+  'schema: die.runtime-manifest.v1',
+  'authority_commit:',
+  'profile_registry:',
+  'components:',
+  'database_migration_digest:',
+  'contamination:',
+])
+try {
+  for (const error of validateRuntimeManifestFile(join(root, 'templates/RUNTIME_MANIFEST.yaml')))
+    fail(`templates/RUNTIME_MANIFEST.yaml: ${error}`)
+}
+catch (error) {
+  fail(`templates/RUNTIME_MANIFEST.yaml cannot be parsed: ${error.message}`)
+}
 requireFragments('BRANCH_HYGIENE_AND_CHANGE_CONTROL.md', [
   'One branch may contain many commits',
   'One writer per branch',
@@ -138,9 +174,11 @@ requireFragments('CODING_AGENT_START_PROMPT.md', [
   'Work only from fresh/current Git checkouts',
   'complete selected-source system end to end',
   'First action: establish an executable program',
-  'Do not return merely with another plan',
+  'Do not return merely',
   'UI implementation law',
   '/Users/t4ctic4l/STAR-PLATFORM/quilr-platform-nuxt',
+  'an open LG never means stop coding',
+  'No workaround product',
 ])
 requireFragments('cursor/rules/00-die-authority.mdc', [
   'alwaysApply: true',
@@ -169,7 +207,8 @@ const ledgerHeaders = new Map([
   ['templates/CHANGE_LEDGER.csv.template', 'change_id,work_item_id,repository,branch,commit_sha,pr_url,local_verification,remote_validation_id,status,created_at,notes'],
   ['templates/REMOTE_VALIDATION_LEDGER.csv.template', 'validation_id,work_item_id,repository,commit_sha,artifact_digest,configuration_digest,environment,deploy_id,started_at,finished_at,result,commands_ref,evidence_ref,validator,notes'],
   ['templates/BRANCH_PR_REGISTER.csv.template', 'repository,branch,base,work_item_id,owner,state,pr_url,head_sha,ahead,behind,last_activity,disposition,delete_after,notes'],
-  ['templates/WORK_ITEMS.csv.template', 'work_item_id,parent_id,title,repository,component,status,priority,depends_on,acceptance_ref,owner,branch,pr_url,last_verified_sha,notes'],
+  ['templates/WORK_ITEMS.csv.template', 'work_item_id,parent_id,title,repository,component,product_capabilities,implementation_state,integration_state,evidence_state,release_state,runtime_mode,priority,hard_code_dependencies,release_gates,development_blocked,blocker_class,blocked_on,blocked_action,blocker_evidence,blocker_owner,unblock_condition,blocker_recheck_at,independent_next_action,highest_proven_stage,owner,branch,last_verified_sha,next_product_action,notes'],
+  ['templates/PRODUCT_DELIVERY_STATE.csv.template', PRODUCT_DELIVERY_HEADER.join(',')],
 ])
 for (const [path, header] of ledgerHeaders) {
   const text = load(path).trim()
@@ -189,7 +228,8 @@ const expectedJiraHeader = [
   'Labels',
   'Component',
   'Parent External ID',
-  'Depends On',
+  'Hard Code Dependencies',
+  'Release Gates',
   'Acceptance Criteria',
 ]
 if (JSON.stringify(jiraHeader) !== JSON.stringify(expectedJiraHeader))
@@ -202,13 +242,141 @@ for (const row of jiraRows.slice(1)) {
   if (jiraIds.has(id))
     fail(`duplicate Jira External ID: ${id}`)
   jiraIds.add(id)
-  if (!row[9])
+  if (!row[10])
     fail(`Jira item ${id} has no acceptance criteria`)
+  if (/LG-?00[1-8]/.test(row[8] || ''))
+    fail(`Jira item ${id} uses a release gate as a hard code dependency`)
+  if (/\bDIE-WP00\b/.test(row[8] || ''))
+    fail(`Jira item ${id} uses program setup DIE-WP00 as a blanket hard code dependency`)
 }
 for (let index = 0; index <= 11; index += 1) {
   const id = `DIE-WP${String(index).padStart(2, '0')}`
   if (!jiraIds.has(id))
     fail(`Jira import omits ${id}`)
+}
+
+for (let index = 1; index <= 7; index += 1) {
+  const id = `DIE-PI${String(index).padStart(3, '0')}`
+  if (!jiraIds.has(id))
+    fail(`Jira import omits product increment ${id}`)
+}
+
+const capabilityPath = 'registers/product-capability-map.csv'
+const capabilityRows = parseCsv(load(capabilityPath), capabilityPath)
+const capabilityHeader = capabilityRows[0] || []
+const expectedCapabilityHeader = [
+  'capability_id', 'product_outcome', 'required_stages', 'authority_refs',
+  'work_packages', 'hard_code_dependencies', 'release_gates',
+  'completion_required', 'scope', 'customer_facing',
+  'forbidden_substitute',
+]
+if (JSON.stringify(capabilityHeader) !== JSON.stringify(expectedCapabilityHeader))
+  fail('product capability map header changed')
+const capabilityIds = new Set()
+const launchProducerCapabilities = new Set(['PC-002', 'PC-003', 'PC-004', 'PC-005', 'PC-006'])
+const allowedStages = new Set([
+  'NONE', 'NATIVE_CAPTURE', 'LOCAL_WAL', 'INGEST_RECEIPT', 'IMMUTABLE_EVIDENCE',
+  'NORMALIZED', 'CANONICAL_ENTITY', 'CANONICAL_GRAPH_ACTIVITY', 'PROJECTED',
+  'AUTHORIZED_API', 'LIVE_UI', 'REBUILD_REPLAY', 'RELEASE_QUALIFIED',
+])
+const requiredCapabilityIds = new Set()
+const futureCapabilityIds = new Set()
+for (const row of capabilityRows.slice(1)) {
+  if (!/^PC-[0-9]{3}$/.test(row[0]) || capabilityIds.has(row[0]))
+    fail(`invalid or duplicate product capability ${row[0]}`)
+  capabilityIds.add(row[0])
+  if (!row[1] || !row[2] || !row[3] || !row[4] || !row[7] || !row[8] || !row[9] || !row[10])
+    fail(`product capability ${row[0]} is incomplete`)
+  if (/LG-?00[1-8]/.test(row[5] || ''))
+    fail(`product capability ${row[0]} treats a release gate as a hard code dependency`)
+  const stages = new Set((row[2] || '').split('|'))
+  for (const stage of stages) {
+    if (!allowedStages.has(stage))
+      fail(`product capability ${row[0]} has invalid stage ${stage}`)
+  }
+  if (!['YES', 'NO'].includes(row[7]))
+    fail(`product capability ${row[0]} has invalid completion_required ${row[7]}`)
+  if (!['bounded_die', 'future_extension'].includes(row[8]))
+    fail(`product capability ${row[0]} has invalid scope ${row[8]}`)
+  if (!['YES', 'NO'].includes(row[9]))
+    fail(`product capability ${row[0]} has invalid customer_facing ${row[9]}`)
+  if (row[7] === 'YES') {
+    requiredCapabilityIds.add(row[0])
+    if (row[8] !== 'bounded_die' || stages.has('NONE'))
+      fail(`required product capability ${row[0]} is not a bounded DIE capability`)
+  }
+  else {
+    futureCapabilityIds.add(row[0])
+    if (row[8] !== 'future_extension')
+      fail(`non-required product capability ${row[0]} is not a future extension`)
+  }
+  if (row[9] === 'YES' && !stages.has('LIVE_UI'))
+    fail(`customer-facing product capability ${row[0]} omits LIVE_UI`)
+  if (row[8] === 'bounded_die') {
+    for (const workPackage of row[4].split('|')) {
+      if (!/^WP(?:0[0-9]|1[01])$/.test(workPackage))
+        fail(`product capability ${row[0]} references invalid work package ${workPackage}`)
+    }
+    for (const gate of row[6].split('|')) {
+      if (!/^LG00[1-7]$/.test(gate))
+        fail(`product capability ${row[0]} references invalid release gate ${gate}`)
+    }
+  }
+  if (launchProducerCapabilities.has(row[0])) {
+    for (const stage of ['NATIVE_CAPTURE', 'LOCAL_WAL', 'INGEST_RECEIPT', 'IMMUTABLE_EVIDENCE', 'NORMALIZED']) {
+      if (!stages.has(stage))
+        fail(`launch producer capability ${row[0]} omits required acquisition stage ${stage}`)
+    }
+  }
+}
+if (capabilityIds.size < 15)
+  fail(`product capability map is too narrow: ${capabilityIds.size}`)
+if (requiredCapabilityIds.size !== 15 || futureCapabilityIds.size !== 1 || !futureCapabilityIds.has('PC-016'))
+  fail(`product capability completion scope is wrong: ${requiredCapabilityIds.size} required; ${futureCapabilityIds.size} future`)
+
+try {
+  const generatedState = initializeProductDeliveryState(load(capabilityPath), 'a'.repeat(40))
+  for (const error of validateProductDeliveryState(generatedState, load(capabilityPath)))
+    fail(`generated PRODUCT_DELIVERY_STATE.csv is invalid: ${error}`)
+  const generatedRows = parseCsv(generatedState, 'generated PRODUCT_DELIVERY_STATE.csv')
+  if (generatedRows.length !== requiredCapabilityIds.size + 1)
+    fail('PRODUCT_DELIVERY_STATE initializer does not emit every required capability exactly once')
+  if (generatedRows.slice(1).some(row => row[0] === 'PC-016'))
+    fail('PRODUCT_DELIVERY_STATE initializer incorrectly makes future connector PC-016 a bounded completion requirement')
+}
+catch (error) {
+  fail(`PRODUCT_DELIVERY_STATE initializer failed: ${error.message}`)
+}
+
+try {
+  const schema = JSON.parse(load('../schemas/execution-status.schema.json'))
+  if (schema.title !== 'DIE product capability execution status')
+    fail('execution status schema title changed')
+  for (const field of [
+    'blocker_class', 'blocked_action', 'blocker_evidence', 'blocker_owner',
+    'unblock_condition', 'blocker_recheck_at', 'independent_next_action',
+    'authority_commit', 'last_verified_sha', 'runtime_manifest',
+    'runtime_manifest_digest', 'limitations',
+  ]) {
+    if (!schema.required?.includes(field))
+      fail(`execution status schema does not require ${field}`)
+  }
+  const runtimeSchema = JSON.parse(load('../schemas/runtime-manifest.schema.json'))
+  if (runtimeSchema.title !== 'DIE coherent runtime manifest')
+    fail('runtime manifest schema title changed')
+  if (!runtimeSchema.required?.includes('profile_registry'))
+    fail('runtime manifest schema does not require the digest-bound profile registry')
+  if (!runtimeSchema.$defs?.producer?.properties?.profile?.pattern
+    || runtimeSchema.$defs.producer.properties.profile.enum) {
+    fail('runtime manifest producer profile is not registry-extensible')
+  }
+  for (const role of ['connector_runner', 'connector_webhook', 'connector_poller', 'connector_cdc']) {
+    if (!runtimeSchema.$defs?.component?.properties?.role?.enum?.includes(role))
+      fail(`runtime manifest component roles omit ${role}`)
+  }
+}
+catch (error) {
+  fail(`execution status schema is invalid JSON: ${error.message}`)
 }
 
 const branchPath = 'registers/branch-pr-baseline.csv'

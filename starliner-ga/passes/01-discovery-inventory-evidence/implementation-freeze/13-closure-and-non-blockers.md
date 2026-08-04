@@ -190,7 +190,7 @@ Batch size, worker count, index selection and private code organization may chan
 ```text
 architecture: accepted bounded-pass implementation authority
 protocol and profiles: internally validated and evidence-gated
-storage and authority: source-corrected; PostgreSQL/ClickHouse live gates blocked
+storage and authority: source-corrected; PostgreSQL/ClickHouse release evidence open
 distributed processing: frozen
 identity and canonicalization: frozen
 relationships activity coverage: frozen
@@ -198,9 +198,9 @@ connected observed/configured four-sensor estate: frozen
 enterprise entitlement/cloud reachability: unsupported unless authoritative connectors are separately accepted
 authorization and audit: frozen
 typed API boundary: internally validated
-existing Nuxt seam: reusable shell; live repository/client binding blocked
+existing Nuxt seam: reusable shell; live product integration is active work
 reliability and verification: frozen
 current implementation: partial foundation
-full pass implementation: authorized in the frozen dependency order
+full pass implementation: authorized through product-first vertical increments
 production GA: requires implementation plus environment certification evidence
 ```

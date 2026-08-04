@@ -44,8 +44,8 @@ This does **not** remove the independent runtime gates:
 - `LG-007` physical evidence-copy enumeration and erasure.
 
 Consequently, full bounded-pass production implementation can proceed
-autonomously in the frozen dependency order. `LG-001` and `LG-002` are
+autonomously through the product increments in document 41. `LG-001` and `LG-002` are
 mandatory database implementation/conformance workstreams, and a contrary
 result reopens only the affected physical contract. They do not postpone
-writing the domain modules they evaluate. GA remains blocked by the applicable
-live gates.
+writing the domain modules they evaluate. GA remains unqualified until the
+applicable live gates pass.

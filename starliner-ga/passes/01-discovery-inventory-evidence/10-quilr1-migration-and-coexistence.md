@@ -1,6 +1,13 @@
 # Quilr 1 Migration and Coexistence
 
-Status: **normative pass migration plan**
+Status: **normative separate parallel migration-track plan; not bounded DIE
+implementation scope or a DIE-GA prerequisite**
+
+This document preserves the future continuity end goal without inserting
+migration code, workers, state, UI, inputs, reviews or release gates into the
+bounded DIE product. The migration track consumes DIE's versioned evidence,
+identity-alias, API/export and tenant-routing seams. It is scheduled, staffed,
+implemented and accepted independently.
 
 ## Non-negotiable objective
 
@@ -27,6 +34,32 @@ Quilr 1 store/API
 ```
 
 Legacy evidence never receives higher authority merely because it was customer-visible.
+
+## Track-owned runtime and product surfaces
+
+When this track is separately authorized, it owns and qualifies all of the
+following outside the bounded DIE runtime:
+
+- migration leadership, operators, SSO/identity-broker compatibility and
+  least-privilege migration actor credentials;
+- extractor/backfill workers, immutable extraction state, watermarks,
+  checksums, legacy mappings, parity results and cohort state;
+- tenant/domain partitions, lower-priority quotas, pause controls, failure
+  recovery, backup/restore and noisy-neighbor protection;
+- legacy normalizers, composite-row splitting and legacy field-authority
+  evaluation;
+- migration/backfill evidence classes, retention, audit, poisoning tests and
+  chain-of-custody requirements;
+- explicit migration comparison APIs and operator UI, with no silent
+  Quilr 1/Quilr 2 request-time mixing; and
+- backfill/parity/cutover/rollback/fallback/stabilization E2E, security,
+  operability and customer-acceptance gates.
+
+The track may use a separately deployed migration artifact or role, but that
+artifact is not one of bounded DIE's seven roles. Its state is not part of the
+bounded DIE PostgreSQL ownership map. It submits typed legacy evidence through
+the frozen admission extension seam and consumes versioned alias/API/export and
+tenant-routing contracts without changing DIE authority.
 
 ## Authority rule
 
@@ -165,4 +198,11 @@ Rollback:
 - support/runbooks staffed;
 - customer communication and known limitations approved.
 
-The machine authority matrix is [`registers/migration-matrix.csv`](registers/migration-matrix.csv).
+The machine authority matrix is
+[`registers/migration-matrix.csv`](registers/migration-matrix.csv). The
+separately scoped legacy acquisition profile is
+[`registers/migration-source-coverage.yaml`](registers/migration-source-coverage.yaml);
+it is explicitly `MIGRATION` / `parallel_track` and is not a sixth bounded DIE
+launch producer.
+The parallel machine requirements are `DIE-REQ-076..084`, inputs are
+`DIE-NI-020..022`, and risks include `DIE-R-016`, `DIE-R-017` and `DIE-R-023`.

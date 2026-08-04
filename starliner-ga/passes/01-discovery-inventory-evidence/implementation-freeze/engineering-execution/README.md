@@ -12,17 +12,27 @@ Before changing code:
 2. Read repository-root `AGENTS.md`.
 3. Read `docs/engineering/WORK_STATE.md` and `TOPOLOGY.md`.
 4. Read the referenced work package and exact frozen contracts.
-5. Inspect the latest local and remote validation ledger entries for the
-   intended commit.
+5. Inspect the latest product-delivery state, runtime manifest and any
+   applicable local or remote evidence for the intended commit.
 6. Inspect `git status`, the branch diff and the exact pushed remote SHA.
-7. Continue the recorded next action; do not restart the design from chat
-   memory.
+7. Continue the recorded next product action; do not restart the design from
+   chat memory or turn state reconciliation into the session's deliverable.
 
 If these files are absent, install them from [templates](templates) and
-[Cursor assets](cursor) in the first setup commit. Copy each
-`*.csv.template` to the corresponding repository `*.csv` path; the template
-suffix prevents empty ledger contracts from being mistaken for completed
-corpus data.
+[Cursor assets](cursor) in the first setup commit. Ordinary ledger templates
+may be copied to the corresponding repository path. Generate
+`PRODUCT_DELIVERY_STATE.csv` from the capability map and exact authority commit
+instead of copying its header-only template:
+
+```bash
+node tools/initialize-product-delivery-state.mjs \
+  --authority <40-hex-authority-commit> > docs/engineering/PRODUCT_DELIVERY_STATE.csv
+node tools/validate-product-delivery-state.mjs \
+  docs/engineering/PRODUCT_DELIVERY_STATE.csv
+```
+
+The template suffix prevents empty ledger contracts from being mistaken for
+completed corpus data.
 
 ## Durable files
 
@@ -32,7 +42,10 @@ corpus data.
 | `.cursor/rules/*.mdc` | Cursor project-wide persistent context | Mirror `AGENTS.md`; never create a conflicting rule |
 | `.cursor/skills/*/SKILL.md` | Task-specific TDD and remote verification procedures | Invoke when the task matches |
 | `WORK_STATE.md` | Exact resumable state for the active work item | Before stopping, after compaction risk, after every verified commit |
+| `PROGRAM_STATE.md` | One coherent cross-repository product candidate | After each integrated candidate or component-manifest change |
+| `PRODUCT_DELIVERY_STATE.csv` | Independent capability implementation/integration/evidence/release states | After every material capability-stage change |
 | `TOPOLOGY.md` | Code-to-runtime mapping actually implemented | Whenever a module, role, store, contract or deployment mapping changes |
+| `RUNTIME_MANIFEST.yaml` | Exact components, stores, identities and endpoints in one coherent runtime | Before any integrated-product claim; validate and bind its SHA-256 digest from capability state |
 | `CHANGE_LEDGER.csv` | Work item → commit → PR → local/remote proof | Append for every pushed candidate |
 | `REMOTE_VALIDATION_LEDGER.csv` | Exact-SHA server deployment and result | Remote agent appends one immutable result per run |
 | `BRANCH_PR_REGISTER.csv` | Active and historical branch disposition | On branch/PR creation, base change, merge, close or delete |
@@ -42,23 +55,25 @@ Do not use an unstructured `TODO.md` as the authoritative backlog. Temporary
 notes are acceptable only when every surviving item is moved to a stable work
 item or deleted before commit.
 
-## Work-item lifecycle
+## Independent lifecycles
 
 ```text
-READY
-→ ACTIVE
-→ LOCAL_VERIFIED
-→ PUSHED
-→ REMOTE_VALIDATING
-→ REMOTE_VERIFIED
-→ REVIEWED
-→ MERGED
-→ BRANCH_DELETED
+implementation: NOT_STARTED → ACTIVE → IMPLEMENTED
+integration:    NOT_CONNECTED → PARTIAL_PATH → E2E_DEV → E2E_EXACT_SHA
+evidence:       NOT_RUN → TEST_VERIFIED → RUNTIME_OBSERVED_DEV
+                → EXACT_SHA_LOCAL → EXACT_SHA_ISOLATED → RELEASE_BOUND
+release:        NOT_ELIGIBLE → INTERNAL_ONLY → CANDIDATE → RELEASABLE
 ```
 
-Failure returns the same item to `ACTIVE` with the failing commit and evidence
-recorded. A blocked item remains `BLOCKED` with an exact external condition and
-the smallest command or observation that can unblock it.
+Failure keeps or returns implementation to `ACTIVE` with the failing commit and
+next correction recorded. It does not erase already proven lower stages.
+`development_blocked` is valid only for the blocker classes in document 41 and
+only for the affected lane. Missing code, failed tests, open LGs, missing
+remote evidence and unfinished harnesses are active work, not blockers.
+
+Implementation-slice completion means production code, focused/affected tests,
+a pushed exact SHA and durable state. Release qualification is separate. A PR,
+review, merge or remote validator is not required to continue building.
 
 ## Commit and branch unit
 
@@ -74,9 +89,27 @@ writes a branch at a time.
 
 ## Local and remote agents
 
-The developer agent owns code changes and the feature branch. The remote Ubuntu
-agent fetches and validates exact immutable SHAs. It never edits the deployed
-checkout, commits fixes or force-pushes the developer's branch.
+The developer agent owns code changes and the feature branch. When an isolated
+remote environment exists, a validation agent fetches and validates exact
+immutable SHAs. It never edits the deployed checkout, commits fixes or force-
+pushes the developer's branch. Unavailable remote infrastructure is release-
+evidence work and never stops local product construction.
+
+`RUNTIME_MANIFEST.yaml` is strict YAML parsed through the pinned duplicate-key-
+rejecting helper so semantic validation remains dependency-stable. Run
+`node tools/validate-runtime-manifest.mjs docs/engineering/RUNTIME_MANIFEST.yaml`
+before referencing it from capability state. A non-`NONE` runtime with empty,
+dirty, mixed, manually mutated or digest-unbound components is invalid.
+
+Every active manifest also binds the exact release-managed source-profile
+registry snapshot used by its producers. The registry digest is SHA-256 over
+compact JSON containing entries sorted by `(profile, profile_version)`, with
+each entry serialized as `profile`, `profile_version`, `component_role`, then
+`schema_digest`. The five launch profiles bind to like-named component roles.
+Future registered profiles remain structurally supported, but may bind only to
+`connector_runner`, `connector_webhook`, `connector_poller` or `connector_cdc`;
+an unregistered profile, wrong role or mismatched component artifact fails
+closed.
 
 The complete protocol is
 [two-agent development and remote validation](TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md).
@@ -90,6 +123,8 @@ The complete protocol is
 - [Branch hygiene and change control](BRANCH_HYGIENE_AND_CHANGE_CONTROL.md)
 - [Two-agent development and remote validation](TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md)
 - [Coding-agent launch prompt](CODING_AGENT_START_PROMPT.md)
+- [Product-first delivery authority](../41-product-first-continuous-delivery-authority.md)
+- [Product capability map](registers/product-capability-map.csv)
 - [Nuxt/shadcn-vue Cursor rule](cursor/rules/20-nuxt-shadcn-ui.mdc)
 - [Jira import](jira/die-work-program-import.csv)
 - [Execution-kit validator](tools/validate-execution-kit.mjs)

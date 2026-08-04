@@ -18,8 +18,6 @@ flowchart LR
   PR --> A["die-product-api"]
   CH --> A
   A --> UI["die-web"]
-  Q1["Quilr 1 stores/APIs"] --> M["die-migration-worker"]
-  M --> I
 ```
 
 ## Deployment units
@@ -67,14 +65,14 @@ flowchart LR
 - initiates bounded export jobs through an internal job module;
 - does not perform background identity or projection work in request handlers.
 
-### `die-migration-worker`
+### `die-maintenance`
 
-- tenant/domain-scoped leased jobs;
-- extracts immutable legacy records;
-- maintains watermarks/checksums;
-- builds compatibility mappings and parity reports;
-- cannot silently write back into Quilr 1;
-- has lower resource priority than live ingest and interactive reads.
+- owns projection build/activation/rollback, integrity scans, retention,
+  repair, bounded export and explicit signed tenant/producer administration;
+- runs bulk work through tenant-scoped leases, fencing and lower-priority quotas;
+- mutates producer/control state only through short-lived dedicated credentials;
+- does not normalize, resolve identity, mutate canonical truth, or implement
+  Quilr 1 extraction/backfill/coexistence.
 
 ## PostgreSQL ownership
 
@@ -87,6 +85,14 @@ evidence
   sequence_state
   quarantine
   work_partition
+
+control
+  tenant
+  producer
+  installation
+  certification
+  expected_population
+  authorization_revision
 
 source
   normalized_observation
@@ -118,18 +124,20 @@ product
   coverage_summary
   projection_checkpoint
 
-migration
-  extraction
-  watermark
-  legacy_mapping
-  parity_result
-  cohort_state
+maintenance
+  projection_generation
+  integrity_run
+  retention_job
+  repair_job
+  export_job
 
 audit
   event
 ```
 
-Exact DDL, indexes, partitions, RLS, migrations, and retention are a release-blocking design artifact.
+Exact DDL, indexes, partitions, RLS, schema migrations, and retention are
+required implementation and release artifacts. Missing or failing work remains
+active engineering; it is not a permission gate for independent code paths.
 
 ## ClickHouse ownership
 
@@ -154,7 +162,7 @@ No identity merge, ownership, lifecycle, coverage denominator, or canonical muta
 | canonical activity | tenant + correlation/aggregate key |
 | product projection | tenant + canonical aggregate |
 | ClickHouse projection | tenant + time bucket + activity partition |
-| migration | tenant + legacy store/domain + extraction range |
+| maintenance/bulk lifecycle | tenant + operation kind + target/generation |
 
 Partition reassignment uses leases with fencing tokens. A stale worker cannot commit after lease loss.
 
@@ -168,8 +176,8 @@ Priority order:
 4. interactive product reads;
 5. live projections;
 6. reconciliation;
-7. migration/backfill;
-8. rebuild/export.
+7. bounded evidence replay and normalization reprocessing;
+8. rebuild/export/retention/repair.
 
 Queues are bounded. Lag and coverage impact are visible. Batch work cannot starve live traffic.
 
@@ -199,7 +207,7 @@ Exact replica counts require a certified profile. Architecture requires:
 - worker scale-out preserves partition fencing and idempotency;
 - largest supported tenant and noisy-neighbor tests pass;
 - ClickHouse and PostgreSQL have backup/restore and capacity headroom;
-- migration/replay can pause independently;
+- bulk replay/reprocessing/rebuild can pause independently;
 - all roles expose readiness, lag, oldest age, throughput, rejects, retries, saturation, tenant fairness, watermark, and version;
 - on-prem or small deployments may colocate roles only under an explicitly certified profile.
 
@@ -216,3 +224,8 @@ Adding Kafka, a graph database, external search, Redis, or another service requi
 - cost and operational owner;
 - rebuild/removal plan;
 - approved ADR.
+
+The separate migration/coexistence track owns its extractor, workers, state,
+quotas, parity and cohort controls. It may submit typed immutable legacy evidence
+through the frozen admission extension seam, but no migration runtime or state is
+part of this bounded topology.

@@ -1,5 +1,9 @@
 # Audit Corrections and Build Readiness
 
+> **Historical evidence record:** retain the corrections and tests in this
+> document, but do not use its dated readiness wording to schedule current
+> implementation. Documents 40 and 41 are the active build authority.
+
 **Status:** required acceptance record
 
 ## Why this record exists

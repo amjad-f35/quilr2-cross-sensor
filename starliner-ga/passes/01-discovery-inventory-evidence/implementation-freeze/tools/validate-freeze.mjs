@@ -144,9 +144,13 @@ const required = [
   '38-manifest-signing-and-key-registry-lifecycle.md',
   '39-implementation-conformance-and-transitional-removal.md',
   '40-final-delta-freeze-closure.md',
+  '41-product-first-continuous-delivery-authority.md',
   'engineering-execution/README.md',
   'engineering-execution/templates/AGENTS.md',
   'engineering-execution/templates/WORK_STATE.md',
+  'engineering-execution/templates/PROGRAM_STATE.md',
+  'engineering-execution/templates/PRODUCT_DELIVERY_STATE.csv.template',
+  'engineering-execution/templates/RUNTIME_MANIFEST.yaml',
   'engineering-execution/templates/TOPOLOGY.md',
   'engineering-execution/templates/CHANGE_LEDGER.csv.template',
   'engineering-execution/templates/REMOTE_VALIDATION_LEDGER.csv.template',
@@ -160,11 +164,17 @@ const required = [
   'engineering-execution/SOURCE_CONTEXT_AND_REPOSITORY_MAP.md',
   'engineering-execution/BRANCH_AND_PR_BASELINE.md',
   'engineering-execution/registers/branch-pr-baseline.csv',
+  'engineering-execution/registers/product-capability-map.csv',
   'engineering-execution/BRANCH_HYGIENE_AND_CHANGE_CONTROL.md',
   'engineering-execution/TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md',
   'engineering-execution/CODING_AGENT_START_PROMPT.md',
   'engineering-execution/jira/die-work-program-import.csv',
   'engineering-execution/tools/validate-execution-kit.mjs',
+  'engineering-execution/tools/validate-runtime-manifest.mjs',
+  'engineering-execution/tools/test-runtime-manifest-validator.mjs',
+  'engineering-execution/tools/product-delivery-state-lib.mjs',
+  'engineering-execution/tools/initialize-product-delivery-state.mjs',
+  'engineering-execution/tools/validate-product-delivery-state.mjs',
   'cloud-context/README.md',
   'cloud-context/SELECTION_POLICY.md',
   'cloud-context/CLOUD_AGENT_BOOTSTRAP.md',
@@ -183,6 +193,8 @@ const required = [
   'production-readiness/09-implementation-work-packages.md',
   'production-readiness/registers/readiness-levels.csv',
   'production-readiness/registers/gate-test-catalog.csv',
+  'schemas/execution-status.schema.json',
+  'schemas/runtime-manifest.schema.json',
   'authz/model.yaml',
   'authz/api-field-policy.yaml',
   'ontology/entity-types.yaml',
@@ -243,6 +255,8 @@ const required = [
   'schemas/runtime-session-record.schema.json',
   'schemas/manifest-signer-key.schema.json',
   'schemas/source-temporal-precedence-case.schema.json',
+  'schemas/execution-status.schema.json',
+  'schemas/runtime-manifest.schema.json',
   'schemas/profile-browser-v1.schema.json',
   'schemas/profile-browser-backend-v1.schema.json',
   'schemas/profile-endpoint-v1.schema.json',
@@ -666,6 +680,7 @@ for (const path of [
   'registers/lg-evidence-needs.csv',
   'registers/source-temporal-precedence.csv',
   'registers/implementation-conformance.csv',
+  'engineering-execution/registers/product-capability-map.csv',
 ])
   parseCsv(requireFile(path), path)
 
@@ -855,14 +870,17 @@ for (const row of readinessRows) {
   if (!/^RL-[0-9]{3}$/.test(row.level_id) || readinessIds.has(row.level_id))
     fail(`missing, invalid, or duplicate readiness level ${row.level_id}`)
   readinessIds.add(row.level_id)
-  if (!['PASS', 'NOT_REACHED'].includes(row.current_state))
-    fail(`readiness level ${row.level_id} has invalid state ${row.current_state}`)
+  if (!['PASS', 'NOT_REACHED_AT_FREEZE'].includes(row.freeze_publication_state))
+    fail(`readiness level ${row.level_id} has invalid freeze-publication state ${row.freeze_publication_state}`)
   for (const field of [
     'name', 'entry_rule', 'exit_rule', 'permitted_work', 'prohibited_claim',
+    'blocks_implementation',
   ]) {
     if (!row[field])
       fail(`readiness level ${row.level_id} lacks ${field}`)
   }
+  if (row.blocks_implementation !== 'NO')
+    fail(`readiness level ${row.level_id} incorrectly blocks implementation`)
 }
 if (readinessRows.length !== 6)
   fail(`readiness ladder must contain exactly 6 levels, found ${readinessRows.length}`)
@@ -905,7 +923,8 @@ const defectStates = new Set([
   'fixed',
   'verified',
   'engineering_action',
-  'blocked_by_live_evidence',
+  'release_evidence_open',
+  'external_input_required',
   'out_of_scope',
 ])
 const severities = new Set(['P0', 'P1', 'P2', 'P3'])
@@ -932,8 +951,92 @@ for (const requiredId of [
   if (!defectIds.has(requiredId))
     fail(`defect ledger omits required independent-review item ${requiredId}`)
 }
-if (defectRows.filter(row => row.state === 'blocked_by_live_evidence').length < 6)
-  fail('defect ledger does not preserve every blocked live-evidence gate')
+if (defectRows.filter(row => row.state === 'release_evidence_open').length < 6)
+  fail('defect ledger does not preserve every open release-evidence gate')
+
+const productCapabilityRows = csvObjects('engineering-execution/registers/product-capability-map.csv')
+const productCapabilityIds = new Set()
+const launchProducerCapabilities = new Set(['PC-002', 'PC-003', 'PC-004', 'PC-005', 'PC-006'])
+const productStages = new Set([
+  'NONE', 'NATIVE_CAPTURE', 'LOCAL_WAL', 'INGEST_RECEIPT', 'IMMUTABLE_EVIDENCE',
+  'NORMALIZED', 'CANONICAL_ENTITY', 'CANONICAL_GRAPH_ACTIVITY', 'PROJECTED',
+  'AUTHORIZED_API', 'LIVE_UI', 'REBUILD_REPLAY', 'RELEASE_QUALIFIED',
+])
+let boundedCapabilityCount = 0
+let futureCapabilityCount = 0
+for (const row of productCapabilityRows) {
+  if (!/^PC-[0-9]{3}$/.test(row.capability_id) || productCapabilityIds.has(row.capability_id))
+    fail(`invalid or duplicate product capability ${row.capability_id}`)
+  productCapabilityIds.add(row.capability_id)
+  for (const field of [
+    'product_outcome', 'required_stages', 'authority_refs', 'work_packages',
+    'completion_required', 'scope', 'customer_facing', 'forbidden_substitute',
+  ]) {
+    if (!row[field])
+      fail(`product capability ${row.capability_id} lacks ${field}`)
+  }
+  const stages = new Set(row.required_stages.split('|'))
+  for (const stage of stages) {
+    if (!productStages.has(stage))
+      fail(`product capability ${row.capability_id} has invalid stage ${stage}`)
+  }
+  if (!['YES', 'NO'].includes(row.completion_required))
+    fail(`product capability ${row.capability_id} has invalid completion_required ${row.completion_required}`)
+  if (!['bounded_die', 'future_extension'].includes(row.scope))
+    fail(`product capability ${row.capability_id} has invalid scope ${row.scope}`)
+  if (!['YES', 'NO'].includes(row.customer_facing))
+    fail(`product capability ${row.capability_id} has invalid customer_facing ${row.customer_facing}`)
+  if (row.completion_required === 'YES') {
+    boundedCapabilityCount += 1
+    if (row.scope !== 'bounded_die' || stages.has('NONE'))
+      fail(`required capability ${row.capability_id} must be bounded_die with real required stages`)
+  }
+  else {
+    futureCapabilityCount += 1
+    if (row.scope !== 'future_extension')
+      fail(`non-required capability ${row.capability_id} must be future_extension`)
+  }
+  if (row.customer_facing === 'YES' && !stages.has('LIVE_UI'))
+    fail(`customer-facing capability ${row.capability_id} omits LIVE_UI`)
+  if (row.scope === 'bounded_die') {
+    for (const workPackage of row.work_packages.split('|')) {
+      if (!/^WP(?:0[0-9]|1[01])$/.test(workPackage))
+        fail(`product capability ${row.capability_id} references invalid work package ${workPackage}`)
+    }
+    for (const gate of row.release_gates.split('|')) {
+      if (!/^LG00[1-7]$/.test(gate))
+        fail(`product capability ${row.capability_id} references invalid release gate ${gate}`)
+    }
+  }
+  if (/LG-?00[1-8]/.test(row.hard_code_dependencies ?? ''))
+    fail(`product capability ${row.capability_id} uses a release gate as a hard code dependency`)
+  if (launchProducerCapabilities.has(row.capability_id)) {
+    for (const stage of ['NATIVE_CAPTURE', 'LOCAL_WAL', 'INGEST_RECEIPT', 'IMMUTABLE_EVIDENCE', 'NORMALIZED']) {
+      if (!stages.has(stage))
+        fail(`launch producer capability ${row.capability_id} omits required acquisition stage ${stage}`)
+    }
+  }
+}
+if (productCapabilityRows.length < 15)
+  fail(`product capability map is too narrow: ${productCapabilityRows.length}`)
+if (boundedCapabilityCount !== 15 || futureCapabilityCount !== 1)
+  fail(`product capability scope is wrong: ${boundedCapabilityCount} bounded, ${futureCapabilityCount} future`)
+
+const executionStatusSchema = JSON.parse(requireFile('schemas/execution-status.schema.json'))
+if (executionStatusSchema.title !== 'DIE product capability execution status')
+  fail('execution status schema is not the frozen product capability status contract')
+for (const field of [
+  'blocker_class', 'blocked_action', 'blocker_evidence', 'blocker_owner',
+  'unblock_condition', 'blocker_recheck_at', 'independent_next_action',
+  'authority_commit', 'last_verified_sha', 'runtime_manifest',
+  'runtime_manifest_digest', 'limitations',
+]) {
+  if (!executionStatusSchema.required?.includes(field))
+    fail(`execution status schema does not require ${field}`)
+}
+const runtimeManifestSchema = JSON.parse(requireFile('schemas/runtime-manifest.schema.json'))
+if (runtimeManifestSchema.title !== 'DIE coherent runtime manifest')
+  fail('runtime manifest schema is not the frozen coherent-runtime contract')
 
 const sourceInputRows = csvObjects('registers/source-analysis-inputs.csv')
 const sourceInputIds = new Set()

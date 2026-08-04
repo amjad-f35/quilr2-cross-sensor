@@ -36,7 +36,7 @@ Logical modules do not become independent microservices. The baseline roles are:
 | `die-truth-worker` | identity resolution, canonical entity/relationship/activity/coverage mutation | canonical module |
 | `die-projection-worker` | PostgreSQL read models, ClickHouse activity/aggregate projection, rebuild | projection schemas only |
 | `die-product-api` | authorized inventory, activity, evidence, coverage, export, audit reads | no new truth |
-| `die-migration-worker` | Quilr 1 extraction, backfill, parity and compatibility mappings | legacy evidence and migration ledgers only |
+| `die-maintenance` | projection lifecycle, integrity, retention, repair, export and signed tenant/producer administration | maintenance state; producer/control registry only under short-lived dedicated credentials |
 | `die-web` | customer and operator UI | API only |
 
 Roles may be built from one governed repository/artifact family and may share domain libraries. They run separately where workload or failure isolation requires it. Small supported deployments may colocate roles without weakening transaction or authority rules.
@@ -45,7 +45,7 @@ Roles may be built from one governed repository/artifact family and may share do
 
 Required:
 
-- **PostgreSQL:** evidence metadata/inbox, normalized observations, identity claims/bindings, canonical ledgers, inventory read models, projection checkpoints, audit, migration state, transactional outbox;
+- **PostgreSQL:** control/producer state, evidence metadata/inbox, normalized observations, identity claims/bindings, canonical ledgers, inventory read models, projection checkpoints, audit, maintenance state, and transactional outbox;
 - **object storage:** encrypted immutable evidence payloads, large safe snapshots, exports, rebuild artifacts;
 - **ClickHouse:** high-volume activity/evidence search projection and bounded activity aggregates.
 
@@ -90,7 +90,8 @@ Normal UI requests never query multiple sensor APIs. A screen requiring repeated
 - truth ordering adds resolution/aggregate key;
 - only one active owner mutates an aggregate partition at a time;
 - retries and duplicates are normal;
-- replay/backfill has separate quotas from live ingest;
+- bounded evidence replay, normalization reprocessing and projection rebuild have
+  separate quotas from live ingest;
 - lag, oldest-item age, throughput, errors, lock contention, disk, memory, and tenant fairness drive scaling;
 - exact replica counts remain capacity-profile values, not architecture semantics.
 
@@ -111,8 +112,12 @@ Every row, object, sequence, partition, watermark, cache key, export, log and qu
 - cross-tenant joins are prohibited;
 - customer evidence does not enter the global metadata control plane;
 - tenant routing comes from authenticated registry state, not the producer body alone;
-- every rebuild, replay, export and migration job carries an immutable tenant scope.
+- every rebuild, replay, export and maintenance job carries an immutable tenant scope.
 
 ## Deferred architecture
 
-Findings, metrics/cost, policies, commands, workflows, graph traversal, external search, broad connector portfolios, dedicated/BYOC/on-prem packaging, and Quilr 1 retirement are explicitly outside this pass. Their reserved identifiers and event compatibility cannot force their services into the release.
+Findings, metrics/cost, policies, commands, workflows, graph traversal, external
+search, broad connector portfolios, dedicated/BYOC/on-prem packaging, and all
+Quilr 1 extraction/backfill/parity/coexistence/cutover/rollback/retirement work
+are explicitly outside this pass. Their reserved identifiers and compatibility
+seams cannot force their services, workers, state or UI into the release.

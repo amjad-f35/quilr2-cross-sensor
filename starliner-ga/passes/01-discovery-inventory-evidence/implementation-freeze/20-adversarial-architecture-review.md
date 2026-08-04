@@ -1,5 +1,9 @@
 # Adversarial Architecture Review
 
+> **Historical evidence record:** this review's defects and invariants remain
+> binding; its dated readiness statements are superseded for scheduling by
+> documents 40 and 41.
+
 **Review date:** 2026-07-30
 **Scope:** Browser, Browser Backend, Endpoint, LLM Gateway and MCP Gateway through Starliner ingest, immutable evidence, normalization, identity, canonical materialization, PostgreSQL/ClickHouse projections, authorization, API and Nuxt UI
 **Disposition:** the defects below are corrections to the freeze, not optional recommendations

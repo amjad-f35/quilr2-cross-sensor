@@ -1,15 +1,21 @@
 # Delivery Plan and Definition of Done
 
-Status: **normative implementation sequence**
+Status: **normative product-delivery accountability plan; scheduling is governed
+by implementation-freeze document 41**
+
+`P01..P10` retain responsibility coverage; they are not sequential permission
+gates. Product construction advances through the cross-package `PI-001..PI-007`
+vertical outcomes in document 41. Release evidence remains a separate axis.
 
 ## Work packages
 
 ### P01 — Freeze and ownership
 
 - approve pass charter and claim language;
-- assign named technical/product/security/SRE/migration owners;
+- assign named technical/product/security/SRE owners for bounded DIE;
 - accept pass decisions;
-- close blocking production inputs;
+- record external release/environment inputs without treating them as coding
+  blockers;
 - bind target repositories/modules and engineering system of record.
 
 ### P02 — Contracts and SDK
@@ -64,7 +70,7 @@ Status: **normative implementation sequence**
 - ClickHouse activity/evidence projection;
 - rebuild/promotion;
 - APIs, authorization, pagination, exports;
-- compatibility API/mapping.
+- complete generated product API/client contracts.
 
 ### P08 — UI
 
@@ -73,10 +79,13 @@ Status: **normative implementation sequence**
 - entity/source/identity pages;
 - Activity & Evidence;
 - Sources & Coverage;
-- operator/migration/audit/export;
+- operator/audit/export;
 - empty/partial/error/accessibility/large-tenant behavior.
 
-### P09 — Quilr 1 coexistence
+### P09 — Separate parallel Quilr 1 migration/coexistence track
+
+P09 is retained as the future continuity program. It is not a bounded DIE work
+package, code dependency, UI requirement, or DIE-GA exit condition.
 
 - live production inventory;
 - immutable backfill;
@@ -96,29 +105,25 @@ Status: **normative implementation sequence**
 - pilots;
 - gate evidence and signoff.
 
-## Recommended sequencing
+## Product-first coordination
 
 ```text
-P01
-  ├─ P02
-  ├─ P09 production inventory
-  └─ security incident work
+P01 maintains authority and ownership
 
-P02
-  ├─ P03
-  ├─ P04
-  ├─ P05
-  └─ P06 physical schema
+P02..P08 + P10
+  -> execute concurrently where their actual interface/data dependencies exist
+  -> integrate through PI-001..PI-007 native-to-UI product outcomes
+  -> close applicable release evidence in parallel
 
-P03 + P04 + P05 + P06
-  → dark end-to-end pipeline
-  → P07
-  → P08
-  → P09 shadow/pilot
-  → P10
+P09 migration/coexistence
+  -> separate program consuming stable DIE seams
+  -> never blocks bounded DIE construction or DIE-GA
 ```
 
-Teams may work in parallel only against frozen contracts. A frontend fixture can support design development but cannot become product proof.
+Teams work in parallel against frozen contracts. A frontend fixture can support
+design development but cannot become product proof. Missing code, a failing
+test, an open release gate or unavailable remote validation is active work, not
+a permission stop.
 
 ## Production walking scenario
 
@@ -131,9 +136,10 @@ Teams may work in parallel only against frozen contracts. A frontend fixture can
 7. Resolver creates one application product with distinct surfaces, plus agent/model/MCP/tool objects where supported.
 8. Activity remains correctly distinct/correlated under exact identifiers.
 9. UI shows inventory, relationships, timelines, evidence, coverage and provenance.
-10. Quilr 1 continues serving existing customers.
-11. Legacy backfill maps old IDs and compares members.
-12. A pilot tenant enables the new experience and successfully rolls back reads without losing Quilr 2 evidence.
+
+The separate migration track later proves Quilr 1 continuity, legacy backfill,
+member-level parity, cohort enablement and read rollback. Those are not steps in
+the bounded product scenario above.
 
 ## Definition of done
 
@@ -175,7 +181,10 @@ Teams may work in parallel only against frozen contracts. A frontend fixture can
 - no source-API or frontend truth mashup;
 - SLO/capacity/backup/upgrade/support proof passes.
 
-### Migration
+### Separate migration-track definition of done
+
+This subsection applies only when the separately authorized migration program
+is active. It is not part of bounded DIE completion or DIE-GA.
 
 - live Quilr 1 inventory complete for cohort;
 - backfill and member-level parity approved;
@@ -188,7 +197,8 @@ Teams may work in parallel only against frozen contracts. A frontend fixture can
 ### Governance
 
 - all pass requirements trace to code/tests/artifacts;
-- all blockers closed or explicitly gate-prohibited;
+- every valid external blocker is resolved for the affected release claim or
+  remains isolated from independent product work;
 - risks/owners/approvals current;
 - immutable DIE-GA package approved;
 - no critical waiver hides durability, privacy, security, tenant, identity, customer continuity, or unsupported claim.

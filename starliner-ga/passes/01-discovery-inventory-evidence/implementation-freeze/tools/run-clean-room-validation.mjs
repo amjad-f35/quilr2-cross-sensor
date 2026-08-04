@@ -106,6 +106,11 @@ execute(
   [join(freezeRoot, 'engineering-execution/tools/validate-execution-kit.mjs')],
 )
 execute(
+  'runtime manifest semantic contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-runtime-manifest-validator.mjs')],
+)
+execute(
   'JSON Schema contracts',
   python,
   [join(toolDir, 'test-schema-contracts.py')],

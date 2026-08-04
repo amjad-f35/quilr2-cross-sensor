@@ -1,0 +1,49 @@
+schema_version: "1.0"
+schema: die.runtime-manifest.v1
+manifest_id: UNASSIGNED
+candidate_digest: UNASSIGNED
+environment_id: UNASSIGNED
+runtime_mode: NONE
+authority_commit: UNASSIGNED
+generated_contract_digest: UNASSIGNED
+database_migration_digest: UNASSIGNED
+configuration_digest: UNASSIGNED
+tenant_authority:
+  mode: UNASSIGNED
+  tenant_ref: REDACTED
+  configuration_digest: UNASSIGNED
+profile_registry:
+  registry_ref: UNASSIGNED
+  registry_digest: UNASSIGNED
+  entries: []
+components: []
+stores:
+  postgresql:
+    version: UNASSIGNED
+    endpoint_ref: UNASSIGNED
+    configuration_digest: UNASSIGNED
+  object_store:
+    provider: UNASSIGNED
+    version: UNASSIGNED
+    endpoint_ref: UNASSIGNED
+    configuration_digest: UNASSIGNED
+  clickhouse:
+    version: UNASSIGNED
+    endpoint_ref: UNASSIGNED
+    configuration_digest: UNASSIGNED
+producers: []
+customer_endpoints:
+  api: UNASSIGNED
+  bff: UNASSIGNED
+  ui: UNASSIGNED
+contamination:
+  mixed_candidates: false
+  dirty_components: false
+  manual_database_mutation: false
+  untracked_hotfixes: false
+  overlapping_runtime: false
+  notes: []
+created_at: UNASSIGNED
+started_at: UNASSIGNED
+evidence_ref: UNASSIGNED
+limitations: []

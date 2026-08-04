@@ -45,7 +45,7 @@ Required:
 
 Customer promise:
 
-> Continuously discover and inventory the AI applications, agents, models, MCP servers, and tools visible to covered Browser, Endpoint, LLM Gateway, and MCP Gateway sensors; show the important source-backed activity and evidence with provenance, coverage, and gaps; and transition tenant cohorts without breaking the existing Quilr 1 experience.
+> Continuously discover and inventory the AI applications, agents, models, MCP servers, and tools visible to covered Browser, Endpoint, LLM Gateway, and MCP Gateway sensors; and show the important source-backed activity and evidence with provenance, coverage, and gaps.
 
 This is the first customer-facing release gate. Its complete authority is the [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md).
 
@@ -57,10 +57,35 @@ Required:
 - Overview, Inventory, Activity & Evidence, Sources & Coverage, unified APIs, export, and audit;
 - explicit privacy capture state, freshness, gaps, ambiguity, and provenance;
 - minimal PostgreSQL/object-storage/ClickHouse topology and rebuildable projections;
-- exact production artifacts, workload identity, tenant isolation, capacity, backup, support, and accessibility;
-- Quilr 1 production inventory, backfill, member-level semantic parity, pilot cohort, fallback, and rollback.
+- exact production artifacts, workload identity, tenant isolation, capacity, backup, support, and accessibility.
 
-Findings, cases, policy, commands, cost, and Quilr 1 retirement are not required for this gate.
+Findings, cases, policy, commands, cost, Quilr 1 migration/coexistence, and Quilr 1 retirement are not required for this gate. [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md) preserves migration as an independent track rather than a hidden product dependency.
+
+## MIGRATION — Quilr 1 Migration and Coexistence
+
+This is a separately authorized parallel track. It may execute before, during,
+or after later product increments, but it does not block `DIE-GA` or G2 through
+G5. It consumes stable versioned seams from the bounded product and owns its own
+runtime, state, operators, security review, capacity, product surfaces, and gate
+evidence.
+
+Customer promise:
+
+> Move existing customer discovery, inventory, and evidence from Quilr 1 to Quilr 2 by tenant and domain cohort without losing accepted data or workflows, with lineage-preserving legacy evidence, explicit semantic parity, reversible cutover, fallback, rollback, and stabilization.
+
+Required:
+
+- live Quilr 1 production inventory of tenants, stores, APIs, jobs, exports, consumers, credentials, regions, retention, volumes, and quality;
+- immutable legacy evidence extraction with versions, watermarks, checksums, limitations, replay, and chain of custody;
+- legacy identifiers preserved as aliases and compatibility mappings, never promoted automatically to canonical identity;
+- member-level semantic parity under matched watermarks, not count-only parity;
+- one declared read and mutation authority, propagation direction, conflict rule, watermark, fallback, and rollback state per tenant/domain;
+- explicit migration status and comparison APIs/UI with no silent request-time source mixing;
+- reversible pilot/cutover, fallback, rollback, stabilization, customer communication, support, and audit;
+- tenant isolation, privacy, capacity isolation, backup/restore, and exact migration artifacts.
+
+Quilr 1 remains operational through the declared fallback window. No retirement
+or destructive decommission is authorized by this gate; that remains G6.
 
 ## G2 — Unified AI Estate GA
 
@@ -91,8 +116,7 @@ Required proof:
 - tenant isolation and privacy assessment;
 - accessibility;
 - backup/DR and on-call;
-- pilot success;
-- Quilr 1 coexistence/parity for covered features.
+- pilot success.
 
 ## G3 — Agentic Estate GA
 
@@ -181,7 +205,7 @@ Each gate package includes:
 - security/privacy/compliance;
 - SLO/capacity/cost;
 - operational readiness;
-- migration and rollback;
+- migration and rollback evidence when the gate is `MIGRATION` or G6; deployment rollback evidence for every gate;
 - product/UX acceptance;
 - pilot/customer evidence;
 - open risks and approved exceptions;
