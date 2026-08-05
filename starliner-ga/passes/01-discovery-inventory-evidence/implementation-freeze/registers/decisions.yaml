@@ -633,3 +633,7 @@ decisions:
     area: producer_health
     decision: producer health is exactly unknown healthy degraded unhealthy offline shared by the API the read projection and every source profile with sensor-native states normalized by the adapter and preserved in evidence and endpoint-native critical mapped to unhealthy; it is an independent axis from trust and coverage and never retires inventory deletes relationships or proves source absence; it is derived only from the signed effective health policy on an idempotent scheduled maintenance evaluation with precedence offline over unhealthy over degraded over healthy, request-time calculation and direct cron mutation of producer_current are prohibited, and with no valid policy or insufficient evidence the state stays unknown rather than healthy
     status: frozen
+  - id: DIE-HEALTH-002
+    area: producer_health
+    decision: maintenance schedules producer-health evaluation and the projector executes it against one exact projection generation; a maintenance role never writes or projects a health read model; component health enters as normalized typed observations with exact per-profile source mappings rather than unconstrained JSON; die_read.producer_health_component_current is generation-bound projection authority carrying native-state provenance freshness and queue metrics; component-current rows and the aggregate producer health state are projected atomically for the same generation; and only the exact allowed health-state and reason-code pairs may be persisted
+    status: frozen

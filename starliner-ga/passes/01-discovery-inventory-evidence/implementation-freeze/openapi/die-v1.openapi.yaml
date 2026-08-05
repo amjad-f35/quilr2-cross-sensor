@@ -2173,10 +2173,13 @@ components:
     ProducerHealth:
       type: object
       additionalProperties: false
-      required: [state, evaluated_at, reason_code, policy_state, queue_state, components]
+      required: [state, evaluated_at, reason_code, policy_state, queue_state, projection_generation, components]
       description: >-
         Why the producer currently holds its health_state. It explains an
         already-derived projection; it never triggers request-time evaluation.
+        The aggregate state and every component below were projected together
+        in one transaction for the single projection_generation named here, so
+        the explanation can never mix generations.
       properties:
         state: {$ref: '#/components/schemas/ProducerHealthState'}
         evaluated_at: {type: [string, 'null'], format: date-time}
@@ -2186,6 +2189,14 @@ components:
         next_evaluation_at: {type: [string, 'null'], format: date-time}
         last_accepted_ingest_at: {type: [string, 'null'], format: date-time}
         queue_state: {type: string, enum: [clear, degraded, unhealthy, unknown]}
+        projection_generation:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 9007199254740991
+          description: >-
+            The exact projection generation this aggregate state and its
+            components were derived and written for.
         components:
           type: array
           maxItems: 64
@@ -2211,8 +2222,12 @@ components:
       type: object
       additionalProperties: false
       required: [component, required, state, evidence_state]
+      description: >-
+        One typed component-health row from the generation-bound projection.
+        component is a closed vocabulary scoped to the producer's own source
+        profile; the API never returns free-form component blobs.
       properties:
-        component: {type: string, maxLength: 128}
+        component: {$ref: '#/components/schemas/ProducerHealthComponentName'}
         required: {type: boolean}
         state: {$ref: '#/components/schemas/ProducerHealthState'}
         evidence_state: {type: string, enum: [fresh, stale, missing]}
@@ -2225,6 +2240,48 @@ components:
             The unmodified sensor-native health token before normalization, so
             an endpoint reporting critical remains explainable while the common
             enum stays closed.
+        source_native_metric:
+          type: [string, 'null']
+          maxLength: 64
+          description: >-
+            Native metric the token came from when it is not the profile's
+            primary health discriminator, for example proxy_health_state.
+        queue_depth: {type: [integer, 'null'], format: int64, minimum: 0, maximum: 9007199254740991}
+        oldest_queue_age_ms: {type: [integer, 'null'], format: int64, minimum: 0, maximum: 9007199254740991}
+    ProducerHealthComponentName:
+      type: string
+      description: >-
+        Closed component vocabulary across the five source profiles. Each
+        profile may only report its own components: browser reports extension,
+        background, content_script, native_host and backend_link; browser
+        backend reports relay and downstream_delivery derived from its
+        heartbeat; endpoint reports supervisor, monitor, proxy, hook,
+        template_service and delivery; the LLM gateway reports gateway,
+        provider_route, classifier, db_writer and delivery; the MCP gateway
+        reports gateway, registry, direct_handler, onemcp_handler,
+        workflow_runner and delivery.
+      enum:
+        - extension
+        - background
+        - content_script
+        - native_host
+        - backend_link
+        - relay
+        - downstream_delivery
+        - supervisor
+        - monitor
+        - proxy
+        - hook
+        - template_service
+        - delivery
+        - gateway
+        - provider_route
+        - classifier
+        - db_writer
+        - registry
+        - direct_handler
+        - onemcp_handler
+        - workflow_runner
     ProducerCapability:
       type: object
       additionalProperties: false

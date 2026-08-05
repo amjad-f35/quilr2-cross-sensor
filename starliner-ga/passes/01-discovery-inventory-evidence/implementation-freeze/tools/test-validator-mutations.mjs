@@ -397,6 +397,160 @@ const cases = [
     },
     command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
   },
+  {
+    // Maintenance must not be able to execute the health evaluation it schedules.
+    id: 'MUT-031',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        /'maintenance_job','evidence_erasure','producer_health_schedule'/g,
+        "'maintenance_job','evidence_erasure','producer_health_schedule','producer_health_evaluation'",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // A health evaluation must always name one exact projection generation.
+    id: 'MUT-032',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        /\{12\}:\[1-9\]\[0-9\]\{0,15\}\$'\)/g,
+        "{12}$')",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // Component rows must stay bound to their aggregate's exact generation.
+    id: 'MUT-033',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '  FOREIGN KEY (tenant_id, projection_generation, producer_id)\n    REFERENCES die_read.producer_current(tenant_id, projection_generation, producer_id)\n    ON DELETE CASCADE,\n',
+        '',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // A reason code may not be paired with a state it does not explain.
+    id: 'MUT-034',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "    OR (health_state = 'unhealthy' AND health_reason_code IN (\n      'required_component_unhealthy','delivery_queue_unhealthy'\n    ))",
+        "    OR (health_state = 'unhealthy' AND health_reason_code IN (\n      'required_component_unhealthy','delivery_queue_unhealthy',\n      'all_required_components_healthy'\n    ))",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // Health may not become a function of trust or coverage.
+    id: 'MUT-035',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "  CHECK (health_state <> 'healthy' OR health_queue_state = 'clear'),",
+        "  CHECK (health_state <> 'healthy' OR health_queue_state = 'clear'),\n  CHECK (health_state <> 'healthy' OR trust_state = 'certified'),",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // A profile may only project components it actually declares.
+    id: 'MUT-036',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "    (source_profile = 'browser' AND component IN (\n      'extension','background','content_script','native_host','backend_link'\n    ))",
+        "    (source_profile = 'browser' AND component IN (\n      'extension','background','content_script','native_host','backend_link','proxy'\n    ))",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // Component health must stay a typed contract, not an open object.
+    id: 'MUT-037',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/schemas/normalized-observation.schema.json',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '"required": ["observation_key", "component", "state", "source_native_state", "observed_at"],\n        "properties": {',
+        '"required": ["observation_key", "component", "state", "observed_at"],\n        "properties": {',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // Browser Backend has no offline value and may not assert one.
+    id: 'MUT-038',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/ontology/source-normalization.yaml',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '        blocked: unhealthy\n        unknown: unknown\n      queue_metrics: [queue_depth]\n      derived_offline_rule:',
+        '        blocked: offline\n        unknown: unknown\n      queue_metrics: [queue_depth]\n      derived_offline_rule:',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // Maintenance must stay explicitly revoked from writing health read models.
+    id: 'MUT-039',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/003-die-roles-and-grants.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_read.producer_health_component_current\n  FROM die_maintenance;\n',
+        '',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // The API must keep naming the exact generation an explanation came from.
+    id: 'MUT-040',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/openapi/die-v1.openapi.yaml',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'required: [state, evaluated_at, reason_code, policy_state, queue_state, projection_generation, components]',
+        'required: [state, evaluated_at, reason_code, policy_state, queue_state, components]',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    // The aggregate must keep recording the component rows it wrote.
+    id: 'MUT-041',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "  CHECK (health_state <> 'healthy' OR health_required_component_count >= 1),\n",
+        '',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
 ]
 
 function replaceRequired(text, search, replacement, id) {

@@ -188,6 +188,11 @@ The canonical ledger stays normalized. Customer list screens read disposable, ge
 - `die_read.device_current`;
 - `die_read.identity_current`;
 - `die_read.relationship_current`;
+- `die_read.producer_health_component_current`, keyed by
+  `(tenant_id, projection_generation, producer_id, component)` and bound to its
+  aggregate by a composite foreign key to `die_read.producer_current`, so
+  component health is typed generation-bound projection state rather than a
+  JSON column on the producer row;
 - `die_read.entity_current` for generic investigation/extension.
 
 These tables contain list/sort/filter fields and bounded aggregate counts only. Hydrated detail repositories read the selected generation plus canonical relationship/activity/source support in bounded server-side queries. They never call a sensor, legacy API, or frontend join. Each table has tenant RLS, a stable identity tie-breaker, projection watermark, coverage, ambiguity, lifecycle and source count. A projector may truncate and rebuild a non-active generation; canonical truth and immutable evidence remain untouched.

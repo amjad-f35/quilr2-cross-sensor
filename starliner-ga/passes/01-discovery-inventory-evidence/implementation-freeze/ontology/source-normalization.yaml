@@ -22,7 +22,22 @@ profiles:
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
-      health: [producer_health_claim, coverage_candidate]
+      health: [health_observation, coverage_candidate]
+    health_mapping:
+      record: browser.health
+      component_source: component
+      components: [extension, background, content_script, native_host, backend_link]
+      discriminator: state
+      canonical_mapping:
+        healthy: healthy
+        degraded: degraded
+        unhealthy: unhealthy
+        offline: offline
+        unknown: unknown
+      observed_at_source: last_success_at
+      queue_metrics: [queue_depth, oldest_queue_age_ms]
+      reason_source: reason_code
+      preserve_native_rule: "The pre-normalization state token is carried as source_native_state on the typed health observation and stays in evidence and provenance."
     entity_mapping:
       installation: browser_installation
       device: device
@@ -90,9 +105,13 @@ profiles:
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
-      health: [producer_health_claim, coverage_candidate]
+      health: [health_observation, coverage_candidate]
     relay_rule: "A backend receipt or handoff is a lineage stage and never a second independent client action."
     health_mapping:
+      record: heartbeat
+      component_source: derived
+      components: [relay, downstream_delivery]
+      component_rule: "Browser Backend publishes no component field. Every heartbeat emits exactly one relay observation from status. When downstream is present and is neither none nor unknown, the same heartbeat additionally emits one downstream_delivery observation from the same status, with the downstream token recorded as its source_native_state. No other component may be produced for this profile."
       discriminator: status
       canonical_mapping:
         succeeded: healthy
@@ -100,7 +119,9 @@ profiles:
         failed: unhealthy
         blocked: unhealthy
         unknown: unknown
-      derived_offline_rule: "Browser Backend carries no offline value. A heartbeat missed beyond the producer's configured offline_after_seconds is derived centrally as offline."
+      queue_metrics: [queue_depth]
+      derived_offline_rule: "Browser Backend carries no offline value, so no observation may normalize to offline. A heartbeat missed beyond the producer's configured offline_after_seconds is derived centrally by the projector as producer offline; the adapter never asserts it."
+      preserve_native_rule: "The heartbeat status token, and the downstream token on a downstream_delivery observation, are carried as source_native_state and stay in evidence and provenance."
     account_context:
       authentication_context:
         source_values: [guest, credentialed, unknown]
@@ -141,9 +162,12 @@ profiles:
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
-      health: [producer_health_claim, coverage_candidate]
+      health: [health_observation, coverage_candidate]
     migration_rule: "Legacy resolve_app_ids values are aliases and claims only; they cannot select a canonical entity."
     health_mapping:
+      record: endpoint.health
+      component_source: component
+      components: [supervisor, monitor, proxy, hook, template_service, delivery]
       discriminator: state
       canonical_mapping:
         healthy: healthy
@@ -153,11 +177,16 @@ profiles:
         unknown: unknown
       native_metric_mapping:
         proxy_health_state:
-          Healthy: healthy
-          Degraded: degraded
-          Unhealthy: unhealthy
-          Critical: unhealthy
-      preserve_native_rule: "The pre-normalization native token and its metrics stay in evidence and provenance. Critical is never added to the common producer health vocabulary."
+          component: proxy
+          values:
+            Healthy: healthy
+            Degraded: degraded
+            Unhealthy: unhealthy
+            Critical: unhealthy
+      queue_metrics: [queue_depth]
+      watermark_source: snapshot_watermark
+      reason_source: reason_code
+      preserve_native_rule: "The pre-normalization native token is carried as source_native_state and stays in evidence and provenance. When the token came from proxy_health_state rather than state, the observation also records source_native_metric proxy_health_state, so a native Critical normalizes to unhealthy while remaining exactly readable as Critical. Critical is never added to the common producer health vocabulary."
     entity_mapping:
       endpoint_installation: endpoint_installation
       device: device
@@ -237,7 +266,21 @@ profiles:
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
-      health: [producer_health_claim, coverage_candidate]
+      health: [health_observation, coverage_candidate]
+    health_mapping:
+      record: llm.health
+      component_source: component
+      components: [gateway, provider_route, classifier, db_writer, delivery]
+      discriminator: state
+      canonical_mapping:
+        healthy: healthy
+        degraded: degraded
+        unhealthy: unhealthy
+        offline: offline
+        unknown: unknown
+      queue_metrics: [queue_depth, oldest_queue_age_ms]
+      reason_source: reason_code
+      preserve_native_rule: "The pre-normalization state token is carried as source_native_state and stays in evidence and provenance."
     content_rule: "Raw request/response bodies and credentials are prohibited from the default profile."
     cross_sensor_attribution:
       input_field: cross_sensor_attribution
@@ -298,7 +341,22 @@ profiles:
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
-      health: [producer_health_claim, coverage_candidate]
+      health: [health_observation, coverage_candidate]
+    health_mapping:
+      record: mcp.health
+      component_source: component
+      components: [gateway, registry, direct_handler, onemcp_handler, workflow_runner, delivery]
+      discriminator: state
+      canonical_mapping:
+        healthy: healthy
+        degraded: degraded
+        unhealthy: unhealthy
+        offline: offline
+        unknown: unknown
+      queue_metrics: [queue_depth]
+      session_metric: active_sessions
+      reason_source: reason_code
+      preserve_native_rule: "The pre-normalization state token is carried as source_native_state and stays in evidence and provenance."
     surface_rule: "Direct, OneMCP and native handler surfaces are separately declared and certified; missing instrumentation becomes unsupported or gap coverage."
     cross_sensor_attribution:
       input_field: cross_sensor_attribution
@@ -374,3 +432,5 @@ global:
   candidate_dependency_rule: "Truth resolves all primary source objects in the normalization bundle before relationships and activities. Missing or ambiguous external bindings are persisted as pending_dependency or held_ambiguous and re-evaluated from the reverse dependency index."
   coverage_population_rule: "Every coverage candidate names one exact population_type, source_namespace and source_population_id. Zero matches is pending/unknown; multiple matches is held_ambiguous; neither case is guessed."
   producer_health_rule: "Producer health uses exactly unknown, healthy, degraded, unhealthy and offline. Adapters normalize sensor-native states into that closed set and retain the original token in evidence and provenance. Health is an independent axis from trust and coverage, is derived only from the signed effective health policy on a scheduled evaluation, and never retires inventory, deletes relationships or proves source absence."
+  producer_health_component_rule: "A source health record normalizes to typed health_observation rows, never to unconstrained JSON and never to an aggregate producer state. Each observation names one component from its own profile's frozen component set, one normalized state, the exact pre-normalization source_native_state, the observation instant, and only the queue metrics that profile actually publishes. A component name outside the producer's profile set, or a source token with no declared mapping, is quarantined or normalized to unknown; neither widens the vocabulary."
+  producer_health_ownership_rule: "Maintenance schedules producer-health evaluation and the projector performs it. The maintenance sweep enqueues a producer_health_schedule work item, reads which producers are due and enqueues one project_postgres producer_health_evaluation work item naming one producer and one exact projection generation. Only the projector executes that item, and it writes die_read.producer_health_component_current and die_read.producer_current in the same transaction for that same generation. A maintenance role never writes, derives or projects a health read model, and no request-time path calculates health."

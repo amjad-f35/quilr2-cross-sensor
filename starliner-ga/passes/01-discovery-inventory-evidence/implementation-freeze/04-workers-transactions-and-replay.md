@@ -84,6 +84,22 @@ maintenance. Enqueue permissions are separately mapped to the upstream role.
 A runtime login cannot lease, retry, cancel, quarantine or publish an execution
 for another stage even if it can see a same-tenant work row.
 
+Producer health is the explicit case where scheduling and execution are
+different jobs owned by different roles, and the stage/subject constraints say
+so rather than leaving it to convention. `producer_health_schedule` exists only
+on the `maintenance` stage: the sweep names the exact scheduled instant as its
+`subject_id`, reads which producers are due and enqueues execution work.
+`producer_health_evaluation` exists only on the `project_postgres` stage: its
+`subject_id` is `<producer_id>:<generation>`, so an execution is permanently
+bound to the one projection generation it was scheduled for and a replay cannot
+retarget itself. The projector writes
+`die_read.producer_health_component_current` and `die_read.producer_current`
+for that generation in the same transaction, recording the component counts it
+wrote. Maintenance is explicitly revoked from writing either table, so a
+maintenance worker that tried to derive or project health would fail at the
+database rather than quietly become a second writer. Neither table is written
+outside this path, and nothing calculates health at request time.
+
 An expired lease is never reclaimed by simply replacing its token. The
 maintenance reaper locks expired rows and:
 

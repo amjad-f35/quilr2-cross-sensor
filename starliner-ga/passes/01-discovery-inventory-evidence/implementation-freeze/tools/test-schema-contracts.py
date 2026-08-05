@@ -477,9 +477,97 @@ def run() -> None:
         "activity_candidates": [],
         "coverage_candidates": [],
         "reconciliation_candidates": [],
+        "health_observations": [],
     }
     accept("normalized-observation.schema.json", normalized, "minimal normalized observation")
     positive_count += 1
+
+    endpoint_health = copy.deepcopy(normalized)
+    endpoint_health["health_observations"] = [{
+        "observation_key": "endpoint_proxy",
+        "component": "proxy",
+        "state": "unhealthy",
+        "source_native_state": "Critical",
+        "source_native_metric": "proxy_health_state",
+        "observed_at": NOW,
+        "queue_depth": 12,
+        "snapshot_watermark": "w-1",
+    }]
+    accept(
+        "normalized-observation.schema.json",
+        endpoint_health,
+        "endpoint native Critical normalized to unhealthy with the native token retained",
+    )
+    positive_count += 1
+
+    backend_health = copy.deepcopy(normalized)
+    backend_health["health_observations"] = [
+        {
+            "observation_key": "relay",
+            "component": "relay",
+            "state": "degraded",
+            "source_native_state": "partial",
+            "observed_at": NOW,
+            "queue_depth": 4,
+        },
+        {
+            "observation_key": "downstream_delivery",
+            "component": "downstream_delivery",
+            "state": "degraded",
+            "source_native_state": "kafka",
+            "observed_at": NOW,
+        },
+    ]
+    accept(
+        "normalized-observation.schema.json",
+        backend_health,
+        "browser backend heartbeat status mapped to relay and downstream delivery components",
+    )
+    positive_count += 1
+
+    aggregate_health = copy.deepcopy(normalized)
+    aggregate_health["health_observations"] = [{
+        "observation_key": "producer",
+        "component": "producer",
+        "state": "healthy",
+        "source_native_state": "healthy",
+        "observed_at": NOW,
+    }]
+    reject(
+        "normalized-observation.schema.json",
+        aggregate_health,
+        "normalizer asserting an aggregate producer component",
+    )
+    negative_count += 1
+
+    untyped_health = copy.deepcopy(normalized)
+    untyped_health["health_observations"] = [{
+        "observation_key": "endpoint_proxy",
+        "component": "proxy",
+        "state": "critical",
+        "source_native_state": "Critical",
+        "observed_at": NOW,
+    }]
+    reject(
+        "normalized-observation.schema.json",
+        untyped_health,
+        "component health widening the closed state vocabulary",
+    )
+    negative_count += 1
+
+    unprovenanced_health = copy.deepcopy(normalized)
+    unprovenanced_health["health_observations"] = [{
+        "observation_key": "endpoint_proxy",
+        "component": "proxy",
+        "state": "unhealthy",
+        "observed_at": NOW,
+    }]
+    reject(
+        "normalized-observation.schema.json",
+        unprovenanced_health,
+        "component health dropping the pre-normalization native token",
+    )
+    negative_count += 1
 
     normalization_outputs = [{
         "output_key": normalized["output_key"],

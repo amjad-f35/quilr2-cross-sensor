@@ -736,12 +736,18 @@ CREATE TABLE IF NOT EXISTS die_pipeline.work_item (
   tenant_id text NOT NULL,
   work_id bigint GENERATED ALWAYS AS IDENTITY CHECK (work_id BETWEEN 1 AND 9007199254740991),
   stage text NOT NULL CHECK (stage IN ('normalize','truth','identity_command','project_postgres','project_clickhouse','export','maintenance')),
+  -- Producer health is split across two subject kinds on purpose.
+  -- producer_health_schedule is the maintenance sweep: it selects the producers
+  -- whose next_evaluation_at is due and enqueues execution work. It computes no
+  -- health state and writes no read model.
+  -- producer_health_evaluation is the projector execution: it derives component
+  -- and aggregate health and projects both for one exact generation.
   subject_kind text NOT NULL CHECK (subject_kind IN (
     'evidence','normalization_run','relationship_candidate',
     'activity_candidate','coverage_candidate','reconciliation_run',
     'identity_command','canonical_change','projection_generation',
     'export_job','maintenance_job','evidence_erasure',
-    'producer_health_evaluation'
+    'producer_health_schedule','producer_health_evaluation'
   )),
   subject_id text NOT NULL,
   input_version text NOT NULL,
@@ -779,12 +785,24 @@ CREATE TABLE IF NOT EXISTS die_pipeline.work_item (
       'coverage_candidate','reconciliation_run'
     ))
     OR (stage = 'identity_command' AND subject_kind = 'identity_command')
-    OR (stage IN ('project_postgres','project_clickhouse') AND subject_kind IN ('canonical_change','projection_generation'))
+    OR (stage = 'project_postgres' AND subject_kind IN (
+      'canonical_change','projection_generation','producer_health_evaluation'
+    ))
+    OR (stage = 'project_clickhouse' AND subject_kind IN ('canonical_change','projection_generation'))
     OR (stage = 'export' AND subject_kind = 'export_job')
     OR (stage = 'maintenance' AND subject_kind IN (
-      'maintenance_job','evidence_erasure','producer_health_evaluation'
+      'maintenance_job','evidence_erasure','producer_health_schedule'
     ))
-  )
+  ),
+  -- An execution work item names one producer and one exact projection
+  -- generation, so a health projection can never straddle generations or be
+  -- replayed against a different one.
+  CHECK (subject_kind <> 'producer_health_evaluation'
+    OR subject_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[1-9][0-9]{0,15}$'),
+  -- A maintenance sweep names the exact instant it is scheduling for, so the
+  -- existing stage/subject uniqueness makes the sweep idempotent.
+  CHECK (subject_kind <> 'producer_health_schedule'
+    OR subject_id ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$')
 );
 
 CREATE TABLE IF NOT EXISTS die_pipeline.mutation_preview (
@@ -910,7 +928,7 @@ CREATE TABLE IF NOT EXISTS die_pipeline.stage_execution (
     'activity_candidate','coverage_candidate','reconciliation_run',
     'identity_command','canonical_change','projection_generation',
     'export_job','maintenance_job','evidence_erasure',
-    'producer_health_evaluation'
+    'producer_health_schedule','producer_health_evaluation'
   )),
   subject_id text NOT NULL,
   input_version text NOT NULL,
@@ -936,12 +954,19 @@ CREATE TABLE IF NOT EXISTS die_pipeline.stage_execution (
       'coverage_candidate','reconciliation_run'
     ))
     OR (stage = 'identity_command' AND subject_kind = 'identity_command')
-    OR (stage IN ('project_postgres','project_clickhouse') AND subject_kind IN ('canonical_change','projection_generation'))
+    OR (stage = 'project_postgres' AND subject_kind IN (
+      'canonical_change','projection_generation','producer_health_evaluation'
+    ))
+    OR (stage = 'project_clickhouse' AND subject_kind IN ('canonical_change','projection_generation'))
     OR (stage = 'export' AND subject_kind = 'export_job')
     OR (stage = 'maintenance' AND subject_kind IN (
-      'maintenance_job','evidence_erasure','producer_health_evaluation'
+      'maintenance_job','evidence_erasure','producer_health_schedule'
     ))
   ),
+  CHECK (subject_kind <> 'producer_health_evaluation'
+    OR subject_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[1-9][0-9]{0,15}$'),
+  CHECK (subject_kind <> 'producer_health_schedule'
+    OR subject_id ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'),
   CHECK (execution_kind = 'worker' OR result = 'quarantined'),
   CHECK (completed_at >= started_at)
 );
@@ -2342,6 +2367,14 @@ CREATE TABLE IF NOT EXISTS die_read.producer_current (
   health_queue_state text NOT NULL CHECK (health_queue_state IN ('clear','degraded','unhealthy','unknown')),
   health_evaluated_at timestamptz,
   health_policy_version text,
+  -- Counts of the component rows the projector wrote into
+  -- die_read.producer_health_component_current in the same transaction for this
+  -- same generation. They make the atomic pairing auditable with one query
+  -- rather than trusting the writer.
+  health_component_count integer NOT NULL DEFAULT 0
+    CHECK (health_component_count BETWEEN 0 AND 64),
+  health_required_component_count integer NOT NULL DEFAULT 0
+    CHECK (health_required_component_count BETWEEN 0 AND 64),
   next_evaluation_at timestamptz,
   last_accepted_ingest_at timestamptz,
   coverage_state text NOT NULL,
@@ -2361,8 +2394,124 @@ CREATE TABLE IF NOT EXISTS die_read.producer_current (
   CHECK ((health_reason_code = 'no_health_policy') = (health_policy_version IS NULL)),
   CHECK (health_reason_code <> 'all_required_components_healthy' OR health_state = 'healthy'),
   CHECK (health_state <> 'healthy' OR health_queue_state = 'clear'),
+  -- The exact allowed state/reason pairs. A reason code is the cause of the
+  -- state it accompanies, so no arbitrary combination can be persisted. The
+  -- bands follow the frozen precedence offline > unhealthy > degraded > healthy.
+  CHECK (
+    (health_state = 'unknown' AND health_reason_code IN (
+      'no_health_policy','insufficient_evidence'
+    ))
+    OR (health_state = 'healthy' AND health_reason_code = 'all_required_components_healthy')
+    OR (health_state = 'degraded' AND health_reason_code IN (
+      'required_component_degraded','required_component_stale',
+      'required_component_missing','delivery_queue_degraded'
+    ))
+    OR (health_state = 'unhealthy' AND health_reason_code IN (
+      'required_component_unhealthy','delivery_queue_unhealthy'
+    ))
+    OR (health_state = 'offline' AND health_reason_code IN (
+      'required_component_offline','producer_liveness_expired'
+    ))
+  ),
+  -- A delivery-queue reason must be backed by the matching queue observation.
+  CHECK (health_reason_code <> 'delivery_queue_degraded' OR health_queue_state = 'degraded'),
+  CHECK (health_reason_code <> 'delivery_queue_unhealthy' OR health_queue_state = 'unhealthy'),
+  -- A component-derived reason requires at least one projected component row,
+  -- and healthy requires at least one required component to have been evaluated.
+  CHECK (health_required_component_count <= health_component_count),
+  CHECK (health_state <> 'healthy' OR health_required_component_count >= 1),
+  CHECK (health_component_count = 0 OR health_evaluated_at IS NOT NULL),
+  CHECK (health_reason_code NOT IN (
+      'required_component_offline','required_component_unhealthy',
+      'required_component_degraded','required_component_stale',
+      'required_component_missing','all_required_components_healthy'
+    ) OR health_required_component_count >= 1),
+  CHECK (health_reason_code <> 'insufficient_evidence' OR health_component_count = 0),
   -- A scheduled re-evaluation only exists once an evaluation has run.
   CHECK (next_evaluation_at IS NULL OR health_evaluated_at IS NOT NULL)
+);
+
+-- Typed per-component producer health. Component observations are normalized
+-- typed rows, never unconstrained JSON, and every row is bound to the same
+-- exact projection generation as its aggregate through the foreign key below.
+-- The projector writes this table and the matching die_read.producer_current
+-- row in one transaction; nothing else may write either.
+CREATE TABLE IF NOT EXISTS die_read.producer_health_component_current (
+  tenant_id text NOT NULL,
+  projection_generation bigint NOT NULL CHECK (projection_generation BETWEEN 1 AND 9007199254740991),
+  producer_id uuid NOT NULL,
+  source_profile text NOT NULL CHECK (source_profile IN (
+    'browser','browser_backend','endpoint','llm_gateway','mcp_gateway'
+  )),
+  component text NOT NULL CHECK (component ~ '^[a-z][a-z0-9_]{0,63}$'),
+  is_required boolean NOT NULL,
+  component_state text NOT NULL CHECK (component_state IN (
+    'unknown','healthy','degraded','unhealthy','offline'
+  )),
+  -- Provenance: the unmodified sensor-native token before normalization, so an
+  -- endpoint reporting critical stays explainable while the common vocabulary
+  -- stays closed at five values.
+  source_native_state text CHECK (source_native_state IS NULL OR length(source_native_state) BETWEEN 1 AND 64),
+  source_native_metric text CHECK (source_native_metric IS NULL OR source_native_metric ~ '^[a-z][a-z0-9_]{0,63}$'),
+  source_reason_code text CHECK (source_reason_code IS NULL OR length(source_reason_code) BETWEEN 1 AND 128),
+  -- Freshness is decided against the producer's signed policy at evaluation
+  -- time; it is not a source-reported value.
+  evidence_state text NOT NULL CHECK (evidence_state IN ('fresh','stale','missing')),
+  observed_at timestamptz,
+  ingested_at timestamptz,
+  evaluated_at timestamptz NOT NULL,
+  evidence_id uuid,
+  normalization_run_id uuid,
+  -- Queue metrics only where the frozen profile actually carries them.
+  queue_depth bigint CHECK (queue_depth IS NULL OR queue_depth BETWEEN 0 AND 9007199254740991),
+  oldest_queue_age_ms bigint CHECK (oldest_queue_age_ms IS NULL OR oldest_queue_age_ms BETWEEN 0 AND 9007199254740991),
+  active_sessions bigint CHECK (active_sessions IS NULL OR active_sessions BETWEEN 0 AND 9007199254740991),
+  snapshot_watermark text CHECK (snapshot_watermark IS NULL OR length(snapshot_watermark) BETWEEN 1 AND 256),
+  health_policy_version text NOT NULL CHECK (health_policy_version ~ '^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$'),
+  PRIMARY KEY (tenant_id, projection_generation, producer_id, component),
+  -- Generation binding: a component row cannot exist without its aggregate row
+  -- in the same generation, and a generation cannot be retired underneath it.
+  FOREIGN KEY (tenant_id, projection_generation, producer_id)
+    REFERENCES die_read.producer_current(tenant_id, projection_generation, producer_id)
+    ON DELETE CASCADE,
+  -- Exact source-to-component mapping for all five profiles. A component name
+  -- outside its own profile's declared set cannot be projected.
+  CHECK (
+    (source_profile = 'browser' AND component IN (
+      'extension','background','content_script','native_host','backend_link'
+    ))
+    OR (source_profile = 'browser_backend' AND component IN (
+      'relay','downstream_delivery'
+    ))
+    OR (source_profile = 'endpoint' AND component IN (
+      'supervisor','monitor','proxy','hook','template_service','delivery'
+    ))
+    OR (source_profile = 'llm_gateway' AND component IN (
+      'gateway','provider_route','classifier','db_writer','delivery'
+    ))
+    OR (source_profile = 'mcp_gateway' AND component IN (
+      'gateway','registry','direct_handler','onemcp_handler','workflow_runner','delivery'
+    ))
+  ),
+  -- A component that never reported has no observation and cannot claim a state.
+  CHECK ((evidence_state = 'missing') = (observed_at IS NULL)),
+  CHECK (evidence_state <> 'missing' OR component_state = 'unknown'),
+  CHECK (evidence_state <> 'missing' OR source_native_state IS NULL),
+  -- Healthy is never assumed: it needs a fresh observation with its native token.
+  CHECK (component_state <> 'healthy'
+    OR (evidence_state = 'fresh' AND source_native_state IS NOT NULL)),
+  -- Every observation carries its immutable evidence and normalization lineage.
+  CHECK ((observed_at IS NOT NULL) = (evidence_id IS NOT NULL)),
+  CHECK ((observed_at IS NOT NULL) = (normalization_run_id IS NOT NULL)),
+  CHECK ((observed_at IS NOT NULL) = (source_native_state IS NOT NULL)),
+  CHECK (ingested_at IS NULL OR (observed_at IS NOT NULL AND ingested_at >= observed_at)),
+  CHECK (evaluated_at >= observed_at OR observed_at IS NULL),
+  -- Only the profiles that actually publish these metrics may carry them.
+  CHECK (oldest_queue_age_ms IS NULL OR source_profile IN ('browser','llm_gateway')),
+  CHECK (active_sessions IS NULL OR source_profile = 'mcp_gateway'),
+  CHECK (snapshot_watermark IS NULL OR source_profile = 'endpoint'),
+  -- Only endpoint publishes a distinct native health metric name today.
+  CHECK (source_native_metric IS NULL OR source_profile = 'endpoint')
 );
 
 CREATE TABLE IF NOT EXISTS die_read.overview_current (
@@ -2901,6 +3050,12 @@ CREATE INDEX IF NOT EXISTS idx_read_identity_list
   );
 CREATE INDEX IF NOT EXISTS idx_read_producer_scope
   ON die_read.producer_current(tenant_id, projection_generation, business_scope_id, source_profile, producer_id);
+CREATE INDEX IF NOT EXISTS idx_read_producer_health_due
+  ON die_read.producer_current(tenant_id, projection_generation, next_evaluation_at, producer_id);
+CREATE INDEX IF NOT EXISTS idx_read_producer_health_component_required
+  ON die_read.producer_health_component_current(
+    tenant_id, projection_generation, producer_id, is_required, component_state, component
+  );
 CREATE INDEX IF NOT EXISTS idx_read_relationship_subject
   ON die_read.relationship_current(tenant_id, projection_generation, subject_entity_id, predicate, scope_kind, scope_key, object_entity_id);
 CREATE INDEX IF NOT EXISTS idx_read_relationship_object
@@ -5954,6 +6109,7 @@ ALTER TABLE die_read.device_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_read.identity_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_read.relationship_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_read.producer_current ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_read.producer_health_component_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_read.overview_current ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.business_scope ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_authz.role_binding ENABLE ROW LEVEL SECURITY;
@@ -6034,6 +6190,10 @@ CREATE POLICY tenant_isolation_read_relationship ON die_read.relationship_curren
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_read_producer ON die_read.producer_current
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_read_producer_health_component
+  ON die_read.producer_health_component_current
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_read_overview ON die_read.overview_current
@@ -6223,6 +6383,7 @@ ALTER TABLE die_read.device_current FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_read.identity_current FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_read.relationship_current FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_read.producer_current FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_read.producer_health_component_current FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_read.overview_current FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_read.export_job ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_read.export_job FORCE ROW LEVEL SECURITY;

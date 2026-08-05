@@ -132,7 +132,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON
   die_read.application_current, die_read.model_current,
   die_read.mcp_server_current, die_read.device_current,
   die_read.identity_current, die_read.relationship_current,
-  die_read.producer_current, die_read.overview_current TO die_projector;
+  die_read.producer_current, die_read.producer_health_component_current,
+  die_read.overview_current TO die_projector;
 GRANT SELECT, INSERT, UPDATE ON die_pipeline.work_item,
   die_pipeline.projection_generation, die_pipeline.projection_checkpoint
   TO die_projector;
@@ -264,6 +265,25 @@ GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_maintenance;
 GRANT INSERT ON die_audit.audit_checkpoint TO die_maintenance;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA die_pipeline, die_outbox
   TO die_maintenance;
+
+-- Maintenance schedules producer-health evaluation and never performs it. It
+-- may read health to decide what is due and it may enqueue the projector's
+-- execution work item, but it may not write either health read model. The
+-- blanket die_read SELECT above stays; these revokes make the prohibition
+-- explicit rather than incidental, and survive a future blanket write grant.
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_read.producer_current
+  FROM die_maintenance;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_read.producer_health_component_current
+  FROM die_maintenance;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_read.producer_current
+  FROM die_api, die_ingest, die_normalizer, die_truth, die_bff;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_read.producer_health_component_current
+  FROM die_api, die_ingest, die_normalizer, die_truth, die_bff;
+-- Authoring a health policy stays with control administration; maintenance
+-- reads the effective policy only to compute which producers are due.
+GRANT SELECT ON die_control.producer_health_policy TO die_maintenance;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON die_control.producer_health_policy
+  FROM die_maintenance, die_projector;
 
 -- Runtime roles must not own schemas/tables and cannot bypass RLS.
 ALTER ROLE die_ingest NOBYPASSRLS;

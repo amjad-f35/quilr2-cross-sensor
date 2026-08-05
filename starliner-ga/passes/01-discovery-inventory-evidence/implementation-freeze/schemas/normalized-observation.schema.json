@@ -20,7 +20,8 @@
     "relationship_candidates",
     "activity_candidates",
     "coverage_candidates",
-    "reconciliation_candidates"
+    "reconciliation_candidates",
+    "health_observations"
   ],
   "properties": {
     "normalization_run_id": { "type": "string", "format": "uuid" },
@@ -350,6 +351,70 @@
             }
           }
         ]
+      }
+    },
+    "health_observations": {
+      "type": "array",
+      "maxItems": 64,
+      "description": "Typed per-component producer health reported by this source record. Component health is never an unconstrained JSON blob: component and state are closed vocabularies, the pre-normalization source token is retained separately, and the normalizer emits no aggregate producer health. Deriving the producer's health_state from these observations belongs to the projector under the signed effective policy. Non-health records carry an empty array.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observation_key", "component", "state", "source_native_state", "observed_at"],
+        "properties": {
+          "observation_key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,127}$",
+            "description": "Deterministic key unique within one normalization run, stable across replay of the same normalizer artifact."
+          },
+          "component": {
+            "description": "Component identity within the producer's own profile. The exact per-profile component set is frozen in ontology/source-normalization.yaml and enforced by die_read.producer_health_component_current; a component outside its profile's set is a quarantine, never a widening.",
+            "enum": [
+              "extension",
+              "background",
+              "content_script",
+              "native_host",
+              "backend_link",
+              "relay",
+              "downstream_delivery",
+              "supervisor",
+              "monitor",
+              "proxy",
+              "hook",
+              "template_service",
+              "delivery",
+              "gateway",
+              "provider_route",
+              "classifier",
+              "db_writer",
+              "registry",
+              "direct_handler",
+              "onemcp_handler",
+              "workflow_runner"
+            ]
+          },
+          "state": {
+            "enum": ["unknown", "healthy", "degraded", "unhealthy", "offline"],
+            "description": "Normalized component state in the closed producer health vocabulary. A source token with no mapping normalizes to unknown; it never invents a sixth value."
+          },
+          "source_native_state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "The unmodified source-native token before normalization, retained so an endpoint reporting Critical stays explainable while the common vocabulary stays closed."
+          },
+          "source_native_metric": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
+            "description": "Name of the native metric the token came from when it is not the profile's primary health discriminator, for example proxy_health_state."
+          },
+          "source_reason_code": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "observed_at": { "type": "string", "format": "date-time" },
+          "queue_depth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "oldest_queue_age_ms": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "active_sessions": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+          "snapshot_watermark": { "type": "string", "minLength": 1, "maxLength": 256 }
+        }
       }
     }
   },

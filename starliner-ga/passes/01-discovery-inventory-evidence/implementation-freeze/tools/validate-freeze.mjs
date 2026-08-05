@@ -882,7 +882,7 @@ const conformanceIds = new Set()
 const conformanceStates = new Set([
   'specified_not_implemented', 'transitional_must_remove',
   'implemented_not_certified', 'release_evidence_missing',
-  'implementation_contradiction', 'accepted_complete',
+  'implementation_contradiction', 'remediation_required', 'accepted_complete',
 ])
 for (const row of conformanceRows) {
   if (!/^IC-[0-9]{3}$/.test(row.item_id) || conformanceIds.has(row.item_id))
@@ -1018,6 +1018,10 @@ const defectIds = new Set()
 const defectStates = new Set([
   'fixed',
   'verified',
+  // An authority fix that independent review found incomplete. It is not
+  // reopened as unfixed and it is not closed; the accepted part stands while
+  // the named remainder is corrected before implementation may proceed.
+  'remediation_required',
   'engineering_action',
   'release_evidence_open',
   'external_input_required',
@@ -1363,6 +1367,7 @@ if (decisions) {
     'DIE-KEY-001',
     'DIE-CONFORMANCE-001',
     'DIE-HEALTH-001',
+    'DIE-HEALTH-002',
   ]) {
     if (!ids.has(requiredId))
       fail(`decision register omits architectural amendment ${requiredId}`)
@@ -2423,6 +2428,215 @@ if (normalizationRouting?.output_contract?.schema !== '../schemas/normalization-
   fail('normalization routing is not bound to the executable bundle schema')
 if (!normalizationRouting?.output_contract?.cross_sensor_replay_ledger)
   fail('normalization routing omits the cross-sensor replay ledger')
+
+// --- Producer health execution semantics (FP-095 remediation, DIE-HEALTH-002)
+// Maintenance schedules and the projector executes against one exact
+// generation; component health is typed and generation-bound; component and
+// aggregate rows are written atomically; state and reason are exactly paired.
+
+// Maintenance may schedule producer health but may never execute or project it.
+if (!/OR \(stage = 'maintenance' AND subject_kind IN \(\n {6}'maintenance_job','evidence_erasure','producer_health_schedule'\n {4}\)\)/.test(postgres))
+  fail('the maintenance stage must own producer_health_schedule and nothing else for producer health')
+if (/stage = 'maintenance' AND subject_kind IN \([^)]*producer_health_evaluation/.test(postgres))
+  fail('producer_health_evaluation must not be executable on the maintenance stage')
+if (!/OR \(stage = 'project_postgres' AND subject_kind IN \(\n {6}'canonical_change','projection_generation','producer_health_evaluation'\n {4}\)\)/.test(postgres))
+  fail('the projector must execute producer_health_evaluation on the project_postgres stage')
+if (/stage = 'project_clickhouse' AND subject_kind IN \([^)]*producer_health/.test(postgres))
+  fail('producer health must not be evaluated on the ClickHouse projection stage')
+// The execution subject names one producer and one exact generation.
+const healthSubjectIdCheck = "CHECK (subject_kind <> 'producer_health_evaluation'\n    OR subject_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[1-9][0-9]{0,15}$')"
+const healthScheduleIdCheck = "CHECK (subject_kind <> 'producer_health_schedule'\n    OR subject_id ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$')"
+for (const [label, fragment] of [
+  ['producer_health_evaluation', healthSubjectIdCheck],
+  ['producer_health_schedule', healthScheduleIdCheck],
+]) {
+  const occurrences = postgres.split(fragment).length - 1
+  if (occurrences < 2)
+    fail(`${label} must bind its subject_id format on both work_item and stage_execution`)
+}
+
+// The typed component projection and its generation binding.
+const componentTable = 'CREATE TABLE IF NOT EXISTS die_read.producer_health_component_current'
+if (!postgres.includes(componentTable))
+  fail('die_read.producer_health_component_current is missing from the frozen schema')
+for (const fragment of [
+  'PRIMARY KEY (tenant_id, projection_generation, producer_id, component)',
+  'FOREIGN KEY (tenant_id, projection_generation, producer_id)\n    REFERENCES die_read.producer_current(tenant_id, projection_generation, producer_id)',
+  "CHECK (component_state IN (\n    'unknown','healthy','degraded','unhealthy','offline'\n  ))",
+  "CHECK (evidence_state IN ('fresh','stale','missing'))",
+  'CHECK ((evidence_state = \'missing\') = (observed_at IS NULL))',
+  "CHECK (evidence_state <> 'missing' OR component_state = 'unknown')",
+  "CHECK (component_state <> 'healthy'\n    OR (evidence_state = 'fresh' AND source_native_state IS NOT NULL))",
+  'CHECK ((observed_at IS NOT NULL) = (evidence_id IS NOT NULL))',
+  'CHECK ((observed_at IS NOT NULL) = (normalization_run_id IS NOT NULL))',
+  'CHECK ((observed_at IS NOT NULL) = (source_native_state IS NOT NULL))',
+  "CHECK (oldest_queue_age_ms IS NULL OR source_profile IN ('browser','llm_gateway'))",
+  "CHECK (active_sessions IS NULL OR source_profile = 'mcp_gateway')",
+  "CHECK (snapshot_watermark IS NULL OR source_profile = 'endpoint')",
+  'ALTER TABLE die_read.producer_health_component_current ENABLE ROW LEVEL SECURITY',
+  'ALTER TABLE die_read.producer_health_component_current FORCE ROW LEVEL SECURITY',
+  'CREATE POLICY tenant_isolation_read_producer_health_component',
+]) {
+  if (!postgres.includes(fragment))
+    fail(`die_read.producer_health_component_current lacks required invariant: ${fragment.split('\n')[0]}`)
+}
+
+// Component and aggregate health are written together for one generation.
+for (const fragment of [
+  'health_component_count integer NOT NULL DEFAULT 0',
+  'health_required_component_count integer NOT NULL DEFAULT 0',
+  'CHECK (health_required_component_count <= health_component_count)',
+  "CHECK (health_state <> 'healthy' OR health_required_component_count >= 1)",
+  'CHECK (health_component_count = 0 OR health_evaluated_at IS NOT NULL)',
+  "CHECK (health_reason_code <> 'insufficient_evidence' OR health_component_count = 0)",
+]) {
+  if (!postgres.includes(fragment))
+    fail(`die_read.producer_current lacks the atomic component-projection invariant: ${fragment}`)
+}
+
+// The exact state/reason matrix. Every reason belongs to exactly one state.
+const frozenHealthReasonMatrix = new Map([
+  ['unknown', ['no_health_policy', 'insufficient_evidence']],
+  ['healthy', ['all_required_components_healthy']],
+  ['degraded', [
+    'required_component_degraded', 'required_component_stale',
+    'required_component_missing', 'delivery_queue_degraded',
+  ]],
+  ['unhealthy', ['required_component_unhealthy', 'delivery_queue_unhealthy']],
+  ['offline', ['required_component_offline', 'producer_liveness_expired']],
+])
+const healthMatrixBlock = postgres.match(
+  /-- The exact allowed state\/reason pairs\.[\s\S]*?\n {2}\),\n/,
+)
+if (!healthMatrixBlock) {
+  fail('die_read.producer_current lacks the exact health state/reason matrix')
+}
+else {
+  const seenReasons = new Set()
+  for (const [state, reasons] of frozenHealthReasonMatrix) {
+    const clause = healthMatrixBlock[0].match(
+      new RegExp(`health_state = '${state}' AND health_reason_code (?:IN \\(([\\s\\S]*?)\\)|= '([a-z_]+)')`),
+    )
+    if (!clause) {
+      fail(`health state/reason matrix omits ${state}`)
+      continue
+    }
+    const allowed = clause[2] ? [clause[2]] : [...clause[1].matchAll(/'([a-z_]+)'/g)].map(match => match[1])
+    if ([...allowed].sort().join(',') !== [...reasons].sort().join(','))
+      fail(`health state ${state} allows ${allowed.join(', ')} instead of the frozen ${reasons.join(', ')}`)
+    for (const reason of allowed) {
+      if (seenReasons.has(reason))
+        fail(`health reason ${reason} is allowed for more than one state`)
+      seenReasons.add(reason)
+    }
+  }
+  if ([...seenReasons].sort().join(',') !== [...producerHealthReasons].sort().join(','))
+    fail('the health state/reason matrix does not cover exactly the frozen ProducerHealthReason vocabulary')
+}
+for (const fragment of [
+  "CHECK (health_reason_code <> 'delivery_queue_degraded' OR health_queue_state = 'degraded')",
+  "CHECK (health_reason_code <> 'delivery_queue_unhealthy' OR health_queue_state = 'unhealthy')",
+]) {
+  if (!postgres.includes(fragment))
+    fail(`die_read.producer_current lacks the queue-reason coherence invariant: ${fragment}`)
+}
+
+// Health, trust and coverage stay independent axes: no constraint on the
+// producer projection may make one a function of another.
+const producerCurrentBlock = postgres.match(
+  /CREATE TABLE IF NOT EXISTS die_read\.producer_current \(([\s\S]*?)\n\);/,
+)
+if (!producerCurrentBlock) {
+  fail('die_read.producer_current could not be read for axis-independence checking')
+}
+else {
+  for (const check of producerCurrentBlock[1].matchAll(/CHECK \(([\s\S]*?)\)(?=,\n|\n\);|$)/g)) {
+    const body = check[1]
+    if (/health_(?:state|reason_code|queue_state)/.test(body) && /trust_state|coverage_state/.test(body))
+      fail('a producer_current constraint couples producer health to trust or coverage; the axes must stay independent')
+  }
+}
+
+// Grants: the projector writes both health read models and nothing else does.
+if (!/GRANT SELECT, INSERT, UPDATE, DELETE ON[\s\S]*?die_read\.producer_health_component_current[\s\S]*?TO die_projector;/.test(grants))
+  fail('the projector must hold write access to die_read.producer_health_component_current')
+for (const table of ['die_read.producer_current', 'die_read.producer_health_component_current']) {
+  if (!new RegExp(`REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON ${table.replace('.', '\\.')}\\n {2}FROM die_maintenance;`).test(grants))
+    fail(`maintenance must be explicitly revoked from writing ${table}`)
+}
+if (/GRANT[^;]*(?:INSERT|UPDATE|DELETE)[^;]*die_read\.producer_health_component_current[^;]*TO die_maintenance/.test(grants))
+  fail('maintenance must never be granted write access to the component health projection')
+
+// Typed component-health observations in the normalized contract.
+const healthObservations = normalizedSchema.properties?.health_observations
+if (!normalizedSchema.required?.includes('health_observations'))
+  fail('the normalized observation contract must require typed health_observations')
+if (healthObservations?.items?.additionalProperties !== false)
+  fail('typed health observations must be closed objects, not unconstrained JSON')
+for (const field of ['observation_key', 'component', 'state', 'source_native_state', 'observed_at']) {
+  if (!healthObservations?.items?.required?.includes(field))
+    fail(`typed health observations must require ${field}`)
+}
+const observationStates = healthObservations?.items?.properties?.state?.enum ?? []
+if ([...observationStates].sort().join(',') !== [...producerHealthStates].sort().join(','))
+  fail('typed health observation state diverges from the common ProducerHealthState vocabulary')
+if (healthObservations?.items?.properties?.component?.enum === undefined)
+  fail('typed health observation component must be a closed vocabulary')
+
+// Exact source-to-component mappings for all five profiles, agreeing across the
+// ontology, the normalized contract, the API and the read projection.
+const componentMappingBlock = postgres.match(
+  /-- Exact source-to-component mapping for all five profiles\.[\s\S]*?\n {2}\),\n/,
+)
+if (!componentMappingBlock) {
+  fail('die_read.producer_health_component_current lacks the per-profile component mapping')
+}
+else {
+  const ontologyComponents = new Set()
+  for (const profile of ['browser', 'browser_backend', 'endpoint', 'llm_gateway', 'mcp_gateway']) {
+    const mapping = sourceNormalization?.profiles?.[profile]?.health_mapping
+    if (!mapping)
+      fail(`profile ${profile} has no frozen health_mapping`)
+    const components = mapping?.components ?? []
+    if (!Array.isArray(components) || components.length === 0)
+      fail(`profile ${profile} declares no health components`)
+    if (!mapping?.canonical_mapping)
+      fail(`profile ${profile} has no canonical health state mapping`)
+    const mapped = Object.values(mapping?.canonical_mapping ?? {})
+    for (const state of mapped) {
+      if (!producerHealthStates.includes(state))
+        fail(`profile ${profile} maps a source health token to ${state}, outside ProducerHealthState`)
+    }
+    if (profile === 'browser_backend' && mapped.includes('offline'))
+      fail('Browser Backend carries no offline value; offline must be derived centrally')
+    const clause = componentMappingBlock[0].match(
+      new RegExp(`source_profile = '${profile}' AND component IN \\(([\\s\\S]*?)\\)`),
+    )
+    if (!clause) {
+      fail(`the component projection does not constrain profile ${profile}`)
+      continue
+    }
+    const sqlComponents = [...clause[1].matchAll(/'([a-z_]+)'/g)].map(match => match[1])
+    if ([...sqlComponents].sort().join(',') !== [...components].sort().join(','))
+      fail(`profile ${profile} component set diverges between the ontology and the read projection`)
+    for (const component of components) ontologyComponents.add(component)
+  }
+  const contractComponents = healthObservations?.items?.properties?.component?.enum ?? []
+  if ([...contractComponents].sort().join(',') !== [...ontologyComponents].sort().join(','))
+    fail('the typed health observation component vocabulary diverges from the five frozen profile component sets')
+  const apiComponents = openapi?.components?.schemas?.ProducerHealthComponentName?.enum ?? []
+  if ([...apiComponents].sort().join(',') !== [...ontologyComponents].sort().join(','))
+    fail('ProducerHealthComponentName diverges from the five frozen profile component sets')
+}
+if (openapi?.components?.schemas?.ProducerHealthComponent?.properties?.component?.$ref
+  !== '#/components/schemas/ProducerHealthComponentName')
+  fail('ProducerHealthComponent.component must reference the closed component vocabulary')
+if (!openapi?.components?.schemas?.ProducerHealth?.required?.includes('projection_generation'))
+  fail('ProducerHealth must name the exact projection generation it was derived for')
+for (const rule of ['producer_health_component_rule', 'producer_health_ownership_rule']) {
+  if (!sourceNormalization?.global?.[rule])
+    fail(`the normalization ontology omits the frozen ${rule}`)
+}
 
 const markdownPaths = allFiles.filter(path => path.endsWith('.md'))
 for (const path of markdownPaths) {
