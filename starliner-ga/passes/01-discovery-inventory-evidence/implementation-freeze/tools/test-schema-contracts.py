@@ -21,6 +21,15 @@ NOW = "2026-07-29T12:00:00Z"
 LATER = "2026-07-29T13:00:00Z"
 DIGEST = "sha256:" + ("a" * 64)
 SIGNATURE = {"format": "jws-detached-jcs", "algorithm": "ES256", "key_id": "key-1", "value": "e30..c2ln"}
+HEALTH_POLICY = {
+    "policy_version": "health.v1",
+    "expected_report_interval_seconds": 60,
+    "degraded_after_seconds": 300,
+    "offline_after_seconds": 900,
+    "queue_degraded_after_ms": 60000,
+    "queue_unhealthy_after_ms": 300000,
+    "required_components": ["capture", "delivery"],
+}
 ATTRIBUTION = {
     "assertion_id": UUID_1,
     "issuer_producer_id": UUID_2,
@@ -339,10 +348,29 @@ def run() -> None:
         "profiles": [{"profile": "endpoint", "profile_version": "1.0.0", "schema_ref": "endpoint/1.0.0", "schema_sha256": DIGEST, "capabilities": ["inventory"]}],
         "privacy": {"policy_version": "1", "policy_sha256": DIGEST, "policy_ref": "privacy/1"},
         "trust": {"certification_id": UUID_1, "artifact_digest": DIGEST, "contract_digest": DIGEST},
+        "health_policy": HEALTH_POLICY,
         "signature": SIGNATURE,
     }
     accept("edge-configuration.schema.json", configuration, "minimal configuration")
     positive_count += 1
+
+    configuration_without_health_policy = copy.deepcopy(configuration)
+    del configuration_without_health_policy["health_policy"]
+    reject(
+        "edge-configuration.schema.json",
+        configuration_without_health_policy,
+        "edge configuration without a signed health policy",
+    )
+    negative_count += 1
+
+    configuration_unknown_health_field = copy.deepcopy(configuration)
+    configuration_unknown_health_field["health_policy"]["offline_grace_seconds"] = 60
+    reject(
+        "edge-configuration.schema.json",
+        configuration_unknown_health_field,
+        "edge health policy with an unfrozen timing field",
+    )
+    negative_count += 1
 
     gate_evidence = {
         "schema_version": "die-gate-evidence/1.0.0",
@@ -556,6 +584,7 @@ def run() -> None:
         "credential_subject": "spiffe://quilr/endpoint/1",
         "artifact_digest": DIGEST,
         "capabilities": [{"capability": "inventory", "mode": "observe", "profile_version": "1.0.0", "effective_from": NOW}],
+        "health_policy": HEALTH_POLICY,
         "expected_populations": [{
             "population_id": UUID_1,
             "capability": "inventory",
@@ -733,6 +762,33 @@ def run() -> None:
         "producer-enrollment-manifest.schema.json",
         invalid_profile_name,
         "invalid source-profile identifier shape",
+    )
+    negative_count += 1
+
+    missing_health_policy = copy.deepcopy(manifest)
+    del missing_health_policy["health_policy"]
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        missing_health_policy,
+        "apply manifest without a signed health policy",
+    )
+    negative_count += 1
+
+    empty_required_components = copy.deepcopy(manifest)
+    empty_required_components["health_policy"]["required_components"] = []
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        empty_required_components,
+        "health policy aggregating no required component",
+    )
+    negative_count += 1
+
+    unfrozen_health_timing = copy.deepcopy(manifest)
+    unfrozen_health_timing["health_policy"]["unhealthy_after_seconds"] = 600
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        unfrozen_health_timing,
+        "health policy carrying an unfrozen timing constant",
     )
     negative_count += 1
 

@@ -121,6 +121,9 @@ GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
   die_control.expected_population_version,
   die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_projector;
+-- The projector derives producer health from the effective signed policy. It
+-- reads the policy; it never authors one.
+GRANT SELECT ON die_control.producer_health_policy TO die_projector;
 GRANT SELECT ON die_evidence.erasure_plan, die_evidence.erasure_target
   TO die_projector;
 GRANT INSERT ON die_evidence.erasure_receipt TO die_projector;
@@ -195,6 +198,10 @@ GRANT SELECT, INSERT, UPDATE ON die_control.producer,
   die_control.tenant_cell_assignment, die_control.tenant_cell_principal
   TO die_control_admin;
 GRANT SELECT, INSERT, UPDATE ON die_control.expected_population_version
+  TO die_control_admin;
+-- Only the authenticated enrollment command admits an effective health policy,
+-- and only from a verified signed producer-enrollment manifest.
+GRANT SELECT, INSERT, UPDATE ON die_control.producer_health_policy
   TO die_control_admin;
 GRANT SELECT, INSERT ON die_control.enrollment_manifest,
   die_control.certification TO die_control_admin;

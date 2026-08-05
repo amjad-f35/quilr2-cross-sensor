@@ -92,6 +92,15 @@ profiles:
       gap: [coverage_candidate_gap]
       health: [producer_health_claim, coverage_candidate]
     relay_rule: "A backend receipt or handoff is a lineage stage and never a second independent client action."
+    health_mapping:
+      discriminator: status
+      canonical_mapping:
+        succeeded: healthy
+        partial: degraded
+        failed: unhealthy
+        blocked: unhealthy
+        unknown: unknown
+      derived_offline_rule: "Browser Backend carries no offline value. A heartbeat missed beyond the producer's configured offline_after_seconds is derived centrally as offline."
     account_context:
       authentication_context:
         source_values: [guest, credentialed, unknown]
@@ -134,6 +143,21 @@ profiles:
       gap: [coverage_candidate_gap]
       health: [producer_health_claim, coverage_candidate]
     migration_rule: "Legacy resolve_app_ids values are aliases and claims only; they cannot select a canonical entity."
+    health_mapping:
+      discriminator: state
+      canonical_mapping:
+        healthy: healthy
+        degraded: degraded
+        unhealthy: unhealthy
+        offline: offline
+        unknown: unknown
+      native_metric_mapping:
+        proxy_health_state:
+          Healthy: healthy
+          Degraded: degraded
+          Unhealthy: unhealthy
+          Critical: unhealthy
+      preserve_native_rule: "The pre-normalization native token and its metrics stay in evidence and provenance. Critical is never added to the common producer health vocabulary."
     entity_mapping:
       endpoint_installation: endpoint_installation
       device: device
@@ -349,3 +373,4 @@ global:
   normalization_bundle_rule: "One evidence record may emit multiple deterministic observation outputs. The normalizer commits one normalization_run, every output_key, claims and candidates, plus one truth work item in one transaction."
   candidate_dependency_rule: "Truth resolves all primary source objects in the normalization bundle before relationships and activities. Missing or ambiguous external bindings are persisted as pending_dependency or held_ambiguous and re-evaluated from the reverse dependency index."
   coverage_population_rule: "Every coverage candidate names one exact population_type, source_namespace and source_population_id. Zero matches is pending/unknown; multiple matches is held_ambiguous; neither case is guessed."
+  producer_health_rule: "Producer health uses exactly unknown, healthy, degraded, unhealthy and offline. Adapters normalize sensor-native states into that closed set and retain the original token in evidence and provenance. Health is an independent axis from trust and coverage, is derived only from the signed effective health policy on a scheduled evaluation, and never retires inventory, deletes relationships or proves source absence."

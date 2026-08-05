@@ -123,3 +123,9 @@ decisions:
     record: ../adrs/0020-die-migration-is-a-separate-parallel-track.md
     owners: [product_lead, chief_architect, program_lead, migration_lead]
     affects: [delivery, sensors, evidence, migration, compatibility, gates]
+  - id: ADR-0021
+    title: Producer health is a closed, policy-derived vocabulary
+    status: accepted
+    record: ../adrs/0021-producer-health-is-a-closed-derived-vocabulary.md
+    owners: [product_lead, chief_architect, program_lead]
+    affects: [sensors, evidence, inventory, product, operations, gates]

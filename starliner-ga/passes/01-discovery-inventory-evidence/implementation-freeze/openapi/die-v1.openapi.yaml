@@ -1389,6 +1389,18 @@ components:
     CoverageState:
       type: string
       enum: [covered, degraded, gap, unsupported, unknown]
+    ProducerHealthState:
+      type: string
+      enum: [unknown, healthy, degraded, unhealthy, offline]
+      description: >-
+        Common producer operational reporting/delivery health. It is an
+        independent axis from trust_state (enrollment/certification trust) and
+        coverage_state (what the producer can currently observe completely). A
+        producer may be healthy while coverage has a gap, or trusted while
+        offline. Producer health never retires inventory, deletes relationships
+        or proves source absence. Sensor-native states outside this set are
+        normalized by the adapter and preserved in evidence and provenance;
+        endpoint-native critical normalizes to unhealthy.
     CaptureState:
       type: string
       enum: [complete, minimized, redacted, metadata_only, unsupported, unknown]
@@ -2129,7 +2141,7 @@ components:
     Producer:
       type: object
       additionalProperties: false
-      required: [producer_id, installation_id, source_profile, business_scope_id, environment, display_name, trust_state, health_state, coverage_state, artifact_digest, open_gap_count]
+      required: [producer_id, installation_id, source_profile, business_scope_id, environment, display_name, trust_state, health_state, health_evaluated_at, coverage_state, artifact_digest, open_gap_count]
       properties:
         producer_id: {$ref: '#/components/schemas/OpaqueId'}
         installation_id: {type: string}
@@ -2138,7 +2150,8 @@ components:
         environment: {type: string}
         display_name: {type: string}
         trust_state: {type: string}
-        health_state: {type: string}
+        health_state: {$ref: '#/components/schemas/ProducerHealthState'}
+        health_evaluated_at: {type: [string, 'null'], format: date-time}
         coverage_state: {$ref: '#/components/schemas/CoverageState'}
         last_seen_at: {type: [string, 'null'], format: date-time}
         queue_depth: {type: [integer, 'null'], minimum: 0, maximum: 9007199254740991}
@@ -2149,13 +2162,69 @@ components:
     ProducerDetail:
       type: object
       additionalProperties: false
-      required: [summary, capabilities, certification]
+      required: [summary, health, capabilities, certification]
       properties:
         summary: {$ref: '#/components/schemas/Producer'}
+        health: {$ref: '#/components/schemas/ProducerHealth'}
         capabilities:
           type: array
           items: {$ref: '#/components/schemas/ProducerCapability'}
         certification: {oneOf: [{$ref: '#/components/schemas/Certification'}, {type: 'null'}]}
+    ProducerHealth:
+      type: object
+      additionalProperties: false
+      required: [state, evaluated_at, reason_code, policy_state, queue_state, components]
+      description: >-
+        Why the producer currently holds its health_state. It explains an
+        already-derived projection; it never triggers request-time evaluation.
+      properties:
+        state: {$ref: '#/components/schemas/ProducerHealthState'}
+        evaluated_at: {type: [string, 'null'], format: date-time}
+        reason_code: {$ref: '#/components/schemas/ProducerHealthReason'}
+        policy_state: {type: string, enum: [effective, missing, invalid]}
+        policy_version: {type: [string, 'null'], maxLength: 64}
+        next_evaluation_at: {type: [string, 'null'], format: date-time}
+        last_accepted_ingest_at: {type: [string, 'null'], format: date-time}
+        queue_state: {type: string, enum: [clear, degraded, unhealthy, unknown]}
+        components:
+          type: array
+          maxItems: 64
+          items: {$ref: '#/components/schemas/ProducerHealthComponent'}
+    ProducerHealthReason:
+      type: string
+      description: >-
+        Exact cause of the derived state. Ordered by the frozen precedence for
+        known failures: offline > unhealthy > degraded > healthy.
+      enum:
+        - no_health_policy
+        - insufficient_evidence
+        - required_component_offline
+        - producer_liveness_expired
+        - required_component_unhealthy
+        - delivery_queue_unhealthy
+        - required_component_degraded
+        - required_component_stale
+        - required_component_missing
+        - delivery_queue_degraded
+        - all_required_components_healthy
+    ProducerHealthComponent:
+      type: object
+      additionalProperties: false
+      required: [component, required, state, evidence_state]
+      properties:
+        component: {type: string, maxLength: 128}
+        required: {type: boolean}
+        state: {$ref: '#/components/schemas/ProducerHealthState'}
+        evidence_state: {type: string, enum: [fresh, stale, missing]}
+        observed_at: {type: [string, 'null'], format: date-time}
+        ingested_at: {type: [string, 'null'], format: date-time}
+        source_native_state:
+          type: [string, 'null']
+          maxLength: 64
+          description: >-
+            The unmodified sensor-native health token before normalization, so
+            an endpoint reporting critical remains explainable while the common
+            enum stays closed.
     ProducerCapability:
       type: object
       additionalProperties: false

@@ -26,3 +26,4 @@ Accepted ADRs are subordinate only to the architecture constitution. A change re
 | [0018](0018-engineering-truth-and-feature-traceability.md) | Engineering systems preserve authority and end-to-end feature traceability |
 | [0019](0019-first-customer-release-is-discovery-inventory-evidence.md) | First customer release ships five-profile discovery, inventory, evidence, coverage, and UI; its migration sequencing is superseded by ADR-0020 |
 | [0020](0020-die-migration-is-a-separate-parallel-track.md) | The bounded five-profile DIE product ships independently; Quilr 1 migration/coexistence remains a separately authorized parallel track |
+| [0021](0021-producer-health-is-a-closed-derived-vocabulary.md) | Producer health is a closed five-value vocabulary derived from a signed policy on scheduled evaluation, independent of trust and coverage |

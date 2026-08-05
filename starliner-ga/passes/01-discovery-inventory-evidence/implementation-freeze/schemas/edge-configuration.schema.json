@@ -15,6 +15,7 @@
     "profiles",
     "privacy",
     "trust",
+    "health_policy",
     "signature"
   ],
   "properties": {
@@ -96,6 +97,35 @@
         "certification_id": { "type": "string", "format": "uuid" },
         "artifact_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
         "contract_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "health_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The producer's effective health policy, mirrored from its signed enrollment manifest so the edge reports on the same deadlines the centre evaluates against. The edge holds no hard-coded health timing constants. JSON Schema cannot express the cross-field ordering, so the edge MUST refuse a configuration unless expected_report_interval_seconds < degraded_after_seconds < offline_after_seconds and queue_degraded_after_ms < queue_unhealthy_after_ms.",
+      "required": [
+        "policy_version",
+        "expected_report_interval_seconds",
+        "degraded_after_seconds",
+        "offline_after_seconds",
+        "queue_degraded_after_ms",
+        "queue_unhealthy_after_ms",
+        "required_components"
+      ],
+      "properties": {
+        "policy_version": { "type": "string", "pattern": "^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$" },
+        "expected_report_interval_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+        "degraded_after_seconds": { "type": "integer", "minimum": 2, "maximum": 604800 },
+        "offline_after_seconds": { "type": "integer", "minimum": 3, "maximum": 2592000 },
+        "queue_degraded_after_ms": { "type": "integer", "minimum": 1, "maximum": 9007199254740990 },
+        "queue_unhealthy_after_ms": { "type": "integer", "minimum": 2, "maximum": 9007199254740991 },
+        "required_components": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
       }
     },
     "signature": {

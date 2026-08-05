@@ -2,6 +2,8 @@ data_class,authoritative_store,only_writer,derived_consumers,rebuild_source,forb
 producer enrollment and trust,PostgreSQL die_control,producer registry use cases,"ingest|producer read model",die_control,"sensor payload|UI|ClickHouse"
 capability and certification,PostgreSQL die_control,certification use cases,"admission|coverage|producer read model",die_control,"self-asserted uncertified sensor field"
 expected coverage population,PostgreSQL die_control,producer enrollment use case,"coverage materializer|overview|coverage API","signed enrollment/deployment/authoritative-connector binding","observed row count|UI inference|sensor self-assertion without approved binding"
+effective producer health policy,PostgreSQL die_control,producer enrollment use case,"producer health evaluation|edge configuration|producer read model","signed producer-enrollment manifest","hard-coded timing constant|edge self-assertion|UI default|request-time override"
+derived producer health state,PostgreSQL die_read,scheduled producer health evaluation,"producer API|sensors UI","die_control policy plus accepted health observations and central ingest liveness","request-time calculation|cron job writing producer_current directly|sensor-asserted common state"
 edge pending delivery,edge WAL,Starliner edge runtime,delivery worker,native/profile record,"central PostgreSQL|UI"
 admitted evidence bytes,certified EvidenceObjectStoreV1 adapter,ingest conditional put,"normalizer|authorized content access",edge retransmit/import backup,"PostgreSQL JSON|ClickHouse"
 evidence identity and metadata,PostgreSQL die_evidence,ingest,"normalizer|evidence projection|audit",evidence/object manifests,"ClickHouse|UI"

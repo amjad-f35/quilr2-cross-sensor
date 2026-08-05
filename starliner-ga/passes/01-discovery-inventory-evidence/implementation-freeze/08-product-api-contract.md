@@ -22,7 +22,7 @@ The executable contract is [die-v1.openapi.yaml](openapi/die-v1.openapi.yaml). T
 | Activity | canonical activity search and detail |
 | Evidence | safe metadata, lineage and separately authorized content access |
 | Coverage | intervals, source/capability state and gaps |
-| Producers | installation, capability, certification, queue and health state |
+| Producers | installation, capability, certification, queue and derived health state with its explanation |
 | Identity | explanation, conflicts, correction preview and commit |
 | Authorization | scopes, role bindings, curated relations and preview/commit administration |
 | Export | authorized snapshot jobs and short-lived download access |
@@ -130,6 +130,14 @@ An application list row is rooted at a resolved product when possible; an unreso
 Each hydrated detail returns bounded related collections, recent activity, source summaries and field provenance in one response. Implementations may execute several bounded SQL statements inside the central read repository at one projection generation; they may not fan out to sensors/legacy services or make the frontend reconstruct cross-sensor identity.
 
 Detail DTOs use explicit composition: the corresponding list-row DTO is returned under `data.summary`, while hydrated collections and detail-only attributes remain named fields under `data`. This avoids JSON Schema's closed-object inheritance trap and gives generated clients one stable list/detail boundary. A client must not assume summary fields are duplicated at the detail root.
+
+## Producer health
+
+`Producer.health_state` is the closed `ProducerHealthState` vocabulary: `unknown`, `healthy`, `degraded`, `unhealthy`, `offline`. It is an independent axis from `trust_state` and `coverage_state`. A producer may be healthy while coverage has a gap, or trusted while offline, and producer health never retires inventory, deletes relationships or proves source absence.
+
+`listProducers` returns the state and `health_evaluated_at`. `getProducer` additionally returns `data.health` so the UI can explain the state: the exact reason code, policy state and version, queue state, evaluation and next-evaluation times, and per-required-component evidence with its pre-normalization `source_native_state`. Every one of those fields resolves through the same field-classification policy as the rest of the producer surface.
+
+The API reports an already-derived projection. It never calculates health during a request, and no scheduler writes `die_read.producer_current` directly. Derivation runs as an idempotent `producer_health_evaluation` maintenance work item at `next_evaluation_at`, so transitions to `degraded` and `offline` happen with no new sensor record arriving. All timing comes from the signed effective `health_policy`; with no valid policy the state stays `unknown` and is never assumed healthy.
 
 ## Evidence
 

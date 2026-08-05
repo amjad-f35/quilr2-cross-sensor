@@ -595,6 +595,102 @@ for (const reason of ['source_ended', 'retracted', 'reconciliation_absent', 'cor
     fail(`Relationship.end_reason omits frozen value ${reason}`)
 }
 
+// Producer health is one closed common vocabulary shared by the API, the read
+// projection and every source profile. Sensor-native states outside it are
+// normalized by the adapter and preserved in evidence, never added here.
+const producerHealthStates = ['unknown', 'healthy', 'degraded', 'unhealthy', 'offline']
+const openapiHealthStates = openapi?.components?.schemas?.ProducerHealthState?.enum ?? []
+if ([...openapiHealthStates].sort().join(',') !== [...producerHealthStates].sort().join(','))
+  fail(`ProducerHealthState must be exactly ${producerHealthStates.join(', ')}`)
+if (openapi?.components?.schemas?.Producer?.properties?.health_state?.$ref
+  !== '#/components/schemas/ProducerHealthState')
+  fail('Producer.health_state must reference the common ProducerHealthState vocabulary')
+for (const field of ['health_state', 'health_evaluated_at']) {
+  if (!openapi?.components?.schemas?.Producer?.required?.includes(field))
+    fail(`Producer does not require ${field}`)
+}
+if (!openapi?.components?.schemas?.ProducerDetail?.required?.includes('health')
+  || openapi?.components?.schemas?.ProducerDetail?.properties?.health?.$ref
+    !== '#/components/schemas/ProducerHealth')
+  fail('getProducer must explain health through the required ProducerHealth detail')
+const producerHealthComponent = openapi?.components?.schemas?.ProducerHealthComponent
+for (const field of ['component', 'required', 'state', 'evidence_state']) {
+  if (!producerHealthComponent?.required?.includes(field))
+    fail(`ProducerHealthComponent does not require ${field}`)
+}
+if (producerHealthComponent?.properties?.state?.$ref !== '#/components/schemas/ProducerHealthState')
+  fail('ProducerHealthComponent.state must reference the common ProducerHealthState vocabulary')
+if (!producerHealthComponent?.properties?.source_native_state)
+  fail('ProducerHealthComponent must preserve the pre-normalization sensor-native state')
+const producerHealthReasons = openapi?.components?.schemas?.ProducerHealthReason?.enum ?? []
+for (const reason of [
+  'no_health_policy', 'insufficient_evidence',
+  'required_component_offline', 'producer_liveness_expired',
+  'required_component_unhealthy', 'delivery_queue_unhealthy',
+  'required_component_degraded', 'required_component_stale',
+  'required_component_missing', 'delivery_queue_degraded',
+  'all_required_components_healthy',
+]) {
+  if (!producerHealthReasons.includes(reason))
+    fail(`ProducerHealthReason omits frozen value ${reason}`)
+}
+for (const profile of [
+  'profile-browser-v1.schema.json',
+  'profile-endpoint-v1.schema.json',
+  'profile-llm-gateway-v1.schema.json',
+  'profile-mcp-gateway-v1.schema.json',
+]) {
+  const schemaText = requireFile(`schemas/${profile}`)
+  const stateEnums = [...schemaText.matchAll(/"state":\s*\{\s*"enum":\s*\[([^\]]*)\]/g)]
+    .map(match => [...match[1].matchAll(/"([^"]+)"/g)].map(value => value[1]))
+  const healthEnum = stateEnums.find(values => values.includes('offline'))
+  if (!healthEnum)
+    fail(`${profile} no longer declares a producer health state enum`)
+  else if ([...healthEnum].sort().join(',') !== [...producerHealthStates].sort().join(','))
+    fail(`${profile} health state diverges from the common ProducerHealthState vocabulary`)
+}
+
+// The signed health policy is the only source of health timing. Neither manifest
+// may carry an unfrozen timing constant, and neither may omit the policy.
+const healthPolicyFields = [
+  'policy_version',
+  'expected_report_interval_seconds',
+  'degraded_after_seconds',
+  'offline_after_seconds',
+  'queue_degraded_after_ms',
+  'queue_unhealthy_after_ms',
+  'required_components',
+]
+const enrollmentSchema = JSON.parse(requireFile('schemas/producer-enrollment-manifest.schema.json'))
+const enrollmentHealthPolicy = enrollmentSchema.$defs?.healthPolicy
+if (!enrollmentSchema.properties?.health_policy)
+  fail('producer enrollment manifest does not carry a signed health policy')
+const enrollmentApplyBranch = (enrollmentSchema.allOf ?? [])
+  .find(branch => branch.if?.properties?.operation?.const === 'apply')
+if (!enrollmentApplyBranch?.then?.required?.includes('health_policy'))
+  fail('producer enrollment apply does not require a signed health policy')
+const edgeConfigurationSchema = JSON.parse(requireFile('schemas/edge-configuration.schema.json'))
+const edgeHealthPolicy = edgeConfigurationSchema.properties?.health_policy
+if (!edgeConfigurationSchema.required?.includes('health_policy'))
+  fail('edge configuration does not require a signed health policy')
+for (const [label, policy] of [
+  ['producer enrollment manifest', enrollmentHealthPolicy],
+  ['edge configuration', edgeHealthPolicy],
+]) {
+  if (!policy) {
+    fail(`${label} health policy is missing`)
+    continue
+  }
+  if (policy.additionalProperties !== false)
+    fail(`${label} health policy admits an unfrozen timing constant`)
+  for (const field of healthPolicyFields) {
+    if (!policy.required?.includes(field))
+      fail(`${label} health policy does not require ${field}`)
+  }
+  if ((policy.properties?.required_components?.minItems ?? 0) < 1)
+    fail(`${label} health policy allows an empty required-component set`)
+}
+
 const edgeOpenapiPath = join(root, 'openapi/starliner-ingest-v1.openapi.yaml')
 const edgeOpenapi = yaml.get(edgeOpenapiPath)
 if (edgeOpenapi) {
@@ -1266,6 +1362,7 @@ if (decisions) {
     'DIE-SESSION-001',
     'DIE-KEY-001',
     'DIE-CONFORMANCE-001',
+    'DIE-HEALTH-001',
   ]) {
     if (!ids.has(requiredId))
       fail(`decision register omits architectural amendment ${requiredId}`)
@@ -1843,7 +1940,28 @@ else {
       fail(`PostgreSQL canonical entity_type constraint contains unknown ${type}`)
   }
 }
+const sqlHealthStateMatch = postgres.match(
+  /health_state text NOT NULL CHECK \(health_state IN \(([\s\S]*?)\)\)/,
+)
+if (!sqlHealthStateMatch) {
+  fail('die_read.producer_current lacks the common producer health_state constraint')
+}
+else {
+  const sqlHealthStates = [...sqlHealthStateMatch[1].matchAll(/'([^']+)'/g)].map(match => match[1])
+  if ([...sqlHealthStates].sort().join(',') !== [...producerHealthStates].sort().join(','))
+    fail('PostgreSQL producer health_state constraint diverges from ProducerHealthState')
+}
 const requiredPgFragments = [
+  // Producer health is derived from a signed policy on a scheduled evaluation.
+  // It is never computed at request time, and no cron job may write the
+  // projection directly.
+  'CREATE TABLE IF NOT EXISTS die_control.producer_health_policy',
+  'CHECK (expected_report_interval_seconds < degraded_after_seconds)',
+  'CHECK (degraded_after_seconds < offline_after_seconds)',
+  'CHECK (queue_degraded_after_ms < queue_unhealthy_after_ms)',
+  "CHECK (health_policy_version IS NOT NULL OR health_state = 'unknown')",
+  "CHECK (health_state <> 'healthy'\n    OR (health_evaluated_at IS NOT NULL AND health_policy_version IS NOT NULL))",
+  "'producer_health_evaluation'",
   'CREATE SCHEMA IF NOT EXISTS die_evidence',
   'CREATE TABLE IF NOT EXISTS die_pipeline.work_item',
   "CHECK (implementation_version ~ '^sha256:[0-9a-f]{64}$')",

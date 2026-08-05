@@ -66,6 +66,8 @@ schema_defaults:
     - EvidenceLineage
     - Producer
     - ProducerDetail
+    - ProducerHealth
+    - ProducerHealthComponent
     - IdentityExplanation
     - IdentityBinding
     - IdentityConflict

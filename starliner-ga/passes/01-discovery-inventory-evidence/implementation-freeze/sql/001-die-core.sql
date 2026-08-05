@@ -224,6 +224,48 @@ CREATE TABLE IF NOT EXISTS die_control.producer_capability (
   ) DEFERRABLE INITIALLY DEFERRED
 );
 
+-- Effective versioned producer health policy admitted from the signed producer
+-- enrollment manifest and mirrored into edge configuration. There are no
+-- hard-coded global health timing constants anywhere in the platform: every
+-- deadline is read from the effective row for that producer. A producer with no
+-- currently effective row has no valid policy, so its time-based health stays
+-- unknown rather than defaulting to healthy.
+CREATE TABLE IF NOT EXISTS die_control.producer_health_policy (
+  tenant_id text NOT NULL,
+  producer_id uuid NOT NULL,
+  policy_version text NOT NULL,
+  expected_report_interval_seconds integer NOT NULL
+    CHECK (expected_report_interval_seconds BETWEEN 1 AND 86400),
+  degraded_after_seconds integer NOT NULL
+    CHECK (degraded_after_seconds BETWEEN 1 AND 604800),
+  offline_after_seconds integer NOT NULL
+    CHECK (offline_after_seconds BETWEEN 1 AND 2592000),
+  queue_degraded_after_ms bigint NOT NULL
+    CHECK (queue_degraded_after_ms BETWEEN 1 AND 9007199254740991),
+  queue_unhealthy_after_ms bigint NOT NULL
+    CHECK (queue_unhealthy_after_ms BETWEEN 1 AND 9007199254740991),
+  required_components text[] NOT NULL,
+  source_manifest_id uuid NOT NULL,
+  effective_from timestamptz NOT NULL,
+  effective_to timestamptz,
+  PRIMARY KEY (tenant_id, producer_id, effective_from),
+  FOREIGN KEY (tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id),
+  CHECK (policy_version ~ '^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$'),
+  -- The frozen ordering invariant; an out-of-order manifest is never admitted.
+  CHECK (expected_report_interval_seconds < degraded_after_seconds),
+  CHECK (degraded_after_seconds < offline_after_seconds),
+  CHECK (queue_degraded_after_ms < queue_unhealthy_after_ms),
+  CHECK (cardinality(required_components) BETWEEN 1 AND 64),
+  CHECK (array_position(required_components, NULL) IS NULL),
+  CHECK (effective_to IS NULL OR effective_to > effective_from),
+  EXCLUDE USING gist (
+    tenant_id WITH =,
+    producer_id WITH =,
+    tstzrange(effective_from, effective_to, '[)') WITH &&
+  ) DEFERRABLE INITIALLY DEFERRED
+);
+
 CREATE TABLE IF NOT EXISTS die_control.expected_population (
   tenant_id text NOT NULL,
   population_id uuid NOT NULL,
@@ -698,7 +740,8 @@ CREATE TABLE IF NOT EXISTS die_pipeline.work_item (
     'evidence','normalization_run','relationship_candidate',
     'activity_candidate','coverage_candidate','reconciliation_run',
     'identity_command','canonical_change','projection_generation',
-    'export_job','maintenance_job','evidence_erasure'
+    'export_job','maintenance_job','evidence_erasure',
+    'producer_health_evaluation'
   )),
   subject_id text NOT NULL,
   input_version text NOT NULL,
@@ -738,7 +781,9 @@ CREATE TABLE IF NOT EXISTS die_pipeline.work_item (
     OR (stage = 'identity_command' AND subject_kind = 'identity_command')
     OR (stage IN ('project_postgres','project_clickhouse') AND subject_kind IN ('canonical_change','projection_generation'))
     OR (stage = 'export' AND subject_kind = 'export_job')
-    OR (stage = 'maintenance' AND subject_kind IN ('maintenance_job','evidence_erasure'))
+    OR (stage = 'maintenance' AND subject_kind IN (
+      'maintenance_job','evidence_erasure','producer_health_evaluation'
+    ))
   )
 );
 
@@ -864,7 +909,8 @@ CREATE TABLE IF NOT EXISTS die_pipeline.stage_execution (
     'evidence','normalization_run','relationship_candidate',
     'activity_candidate','coverage_candidate','reconciliation_run',
     'identity_command','canonical_change','projection_generation',
-    'export_job','maintenance_job','evidence_erasure'
+    'export_job','maintenance_job','evidence_erasure',
+    'producer_health_evaluation'
   )),
   subject_id text NOT NULL,
   input_version text NOT NULL,
@@ -892,7 +938,9 @@ CREATE TABLE IF NOT EXISTS die_pipeline.stage_execution (
     OR (stage = 'identity_command' AND subject_kind = 'identity_command')
     OR (stage IN ('project_postgres','project_clickhouse') AND subject_kind IN ('canonical_change','projection_generation'))
     OR (stage = 'export' AND subject_kind = 'export_job')
-    OR (stage = 'maintenance' AND subject_kind IN ('maintenance_job','evidence_erasure'))
+    OR (stage = 'maintenance' AND subject_kind IN (
+      'maintenance_job','evidence_erasure','producer_health_evaluation'
+    ))
   ),
   CHECK (execution_kind = 'worker' OR result = 'quarantined'),
   CHECK (completed_at >= started_at)
@@ -2276,7 +2324,26 @@ CREATE TABLE IF NOT EXISTS die_read.producer_current (
   source_profile text NOT NULL,
   display_name text NOT NULL,
   trust_state text NOT NULL,
-  health_state text NOT NULL,
+  -- Producer health is the common operational reporting/delivery vocabulary.
+  -- It is independent of trust_state and coverage_state: a producer may be
+  -- healthy while coverage has a gap, or trusted while offline. This column
+  -- never retires inventory, deletes relationships or proves source absence.
+  health_state text NOT NULL CHECK (health_state IN (
+    'unknown','healthy','degraded','unhealthy','offline'
+  )),
+  health_reason_code text NOT NULL CHECK (health_reason_code IN (
+    'no_health_policy','insufficient_evidence',
+    'required_component_offline','producer_liveness_expired',
+    'required_component_unhealthy','delivery_queue_unhealthy',
+    'required_component_degraded','required_component_stale',
+    'required_component_missing','delivery_queue_degraded',
+    'all_required_components_healthy'
+  )),
+  health_queue_state text NOT NULL CHECK (health_queue_state IN ('clear','degraded','unhealthy','unknown')),
+  health_evaluated_at timestamptz,
+  health_policy_version text,
+  next_evaluation_at timestamptz,
+  last_accepted_ingest_at timestamptz,
   coverage_state text NOT NULL,
   last_seen_at timestamptz,
   queue_depth bigint CHECK (queue_depth IS NULL OR queue_depth BETWEEN 0 AND 9007199254740991),
@@ -2285,7 +2352,17 @@ CREATE TABLE IF NOT EXISTS die_read.producer_current (
   artifact_digest text NOT NULL,
   certification_id uuid,
   projection_watermark bigint NOT NULL CHECK (projection_watermark BETWEEN 0 AND 9007199254740991),
-  PRIMARY KEY (tenant_id, projection_generation, producer_id)
+  PRIMARY KEY (tenant_id, projection_generation, producer_id),
+  -- Without a valid signed effective policy, time-based health stays unknown.
+  CHECK (health_policy_version IS NOT NULL OR health_state = 'unknown'),
+  -- Never guess healthy: healthy requires a policy and a completed evaluation.
+  CHECK (health_state <> 'healthy'
+    OR (health_evaluated_at IS NOT NULL AND health_policy_version IS NOT NULL)),
+  CHECK ((health_reason_code = 'no_health_policy') = (health_policy_version IS NULL)),
+  CHECK (health_reason_code <> 'all_required_components_healthy' OR health_state = 'healthy'),
+  CHECK (health_state <> 'healthy' OR health_queue_state = 'clear'),
+  -- A scheduled re-evaluation only exists once an evaluation has run.
+  CHECK (next_evaluation_at IS NULL OR health_evaluated_at IS NOT NULL)
 );
 
 CREATE TABLE IF NOT EXISTS die_read.overview_current (
@@ -5996,6 +6073,8 @@ ALTER TABLE die_control.tenant_cell_principal ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.tenant_cell_principal FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer_capability ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer_capability FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_health_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_health_policy FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_signer_key FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_signer_key_version FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_verification FORCE ROW LEVEL SECURITY;
@@ -6168,6 +6247,9 @@ ALTER TABLE die_audit.audit_event_evidence FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_checkpoint FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation_producer_capability ON die_control.producer_capability
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_health_policy ON die_control.producer_health_policy
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY cell_worker_read_assignment ON die_control.tenant_cell_assignment

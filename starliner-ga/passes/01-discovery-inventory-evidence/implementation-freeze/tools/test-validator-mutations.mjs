@@ -332,6 +332,71 @@ const cases = [
     },
     command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-runtime-manifest-validator.mjs'],
   },
+  {
+    id: 'MUT-026',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/openapi/die-v1.openapi.yaml',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'enum: [unknown, healthy, degraded, unhealthy, offline]',
+        'enum: [unknown, healthy, degraded, unhealthy, offline, critical]',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-027',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "'unknown','healthy','degraded','unhealthy','offline'",
+        "'unknown','healthy','degraded','unhealthy','offline','stale'",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-028',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/schemas/edge-configuration.schema.json',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '    "health_policy",\n    "signature"',
+        '    "signature"',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-029',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/sql/001-die-core.sql',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "  CHECK (health_policy_version IS NOT NULL OR health_state = 'unknown'),",
+        '',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
+  {
+    id: 'MUT-030',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/schemas/producer-enrollment-manifest.schema.json',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '"additionalProperties": false,\n      "description": "Signed producer health policy.',
+        '"additionalProperties": true,\n      "description": "Signed producer health policy.',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
+  },
 ]
 
 function replaceRequired(text, search, replacement, id) {

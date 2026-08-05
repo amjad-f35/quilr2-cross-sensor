@@ -629,3 +629,7 @@ decisions:
     area: implementation_governance
     decision: present code is classified separately from target authority as specified-not-implemented transitional-must-remove implemented-not-certified release-evidence-missing implementation-contradiction or independently accepted-complete with exact revisions and objective closure conditions
     status: frozen
+  - id: DIE-HEALTH-001
+    area: producer_health
+    decision: producer health is exactly unknown healthy degraded unhealthy offline shared by the API the read projection and every source profile with sensor-native states normalized by the adapter and preserved in evidence and endpoint-native critical mapped to unhealthy; it is an independent axis from trust and coverage and never retires inventory deletes relationships or proves source absence; it is derived only from the signed effective health policy on an idempotent scheduled maintenance evaluation with precedence offline over unhealthy over degraded over healthy, request-time calculation and direct cron mutation of producer_current are prohibited, and with no valid policy or insufficient evidence the state stays unknown rather than healthy
+    status: frozen

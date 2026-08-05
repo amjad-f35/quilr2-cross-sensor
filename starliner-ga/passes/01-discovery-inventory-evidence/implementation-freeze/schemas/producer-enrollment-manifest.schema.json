@@ -55,6 +55,7 @@
         }
       }
     },
+    "health_policy": { "$ref": "#/$defs/healthPolicy" },
     "expected_populations": {
       "type": "array",
       "maxItems": 256,
@@ -145,7 +146,8 @@
           "display_name",
           "credential_subject",
           "artifact_digest",
-          "capabilities"
+          "capabilities",
+          "health_policy"
         ]
       }
     },
@@ -159,6 +161,36 @@
     }
   ],
   "$defs": {
-    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "healthPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Signed producer health policy. There are no hard-coded global health timing constants: every deadline is read from this policy. JSON Schema cannot express the cross-field ordering, so admission MUST additionally reject a manifest unless expected_report_interval_seconds < degraded_after_seconds < offline_after_seconds and queue_degraded_after_ms < queue_unhealthy_after_ms. A producer with no valid effective policy holds health_state unknown; it is never assumed healthy.",
+      "required": [
+        "policy_version",
+        "expected_report_interval_seconds",
+        "degraded_after_seconds",
+        "offline_after_seconds",
+        "queue_degraded_after_ms",
+        "queue_unhealthy_after_ms",
+        "required_components"
+      ],
+      "properties": {
+        "policy_version": { "type": "string", "pattern": "^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$" },
+        "expected_report_interval_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+        "degraded_after_seconds": { "type": "integer", "minimum": 2, "maximum": 604800 },
+        "offline_after_seconds": { "type": "integer", "minimum": 3, "maximum": 2592000 },
+        "queue_degraded_after_ms": { "type": "integer", "minimum": 1, "maximum": 9007199254740990 },
+        "queue_unhealthy_after_ms": { "type": "integer", "minimum": 2, "maximum": 9007199254740991 },
+        "required_components": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "description": "Components aggregated into producer health. Only components declared here participate; a missing required component prevents healthy.",
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      }
+    }
   }
 }
