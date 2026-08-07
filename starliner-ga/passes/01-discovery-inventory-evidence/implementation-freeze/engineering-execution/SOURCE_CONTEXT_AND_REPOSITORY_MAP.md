@@ -34,6 +34,7 @@ not a second implementation authority.
 | Pre-code design closure | `implementation-freeze/32-pre-code-system-design-closure.md` |
 | Execution kit | `implementation-freeze/engineering-execution/README.md` |
 | Portable source-intelligence payload | `implementation-freeze/cloud-context/README.md` |
+| Installed-product and source-vertical authority | `implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md` |
 | Five-profile generated source authority | `implementation-freeze/lg008/` |
 | All 377 organization repositories classified | `implementation-freeze/registers/github-repository-relevance.csv` |
 | Selected immutable source/build evidence | `implementation-freeze/evidence/github/selected-revision-and-build-evidence.json` |
@@ -56,6 +57,35 @@ semantic authority.
 | LLM Gateway producer | [quilrbusiness/macrodata-refinement](https://github.com/quilrbusiness/macrodata-refinement) | `dev_main@92b0462c583b908f8ce0cadd1bc89d2e702f5a7d` | Current product code is authority for native capture; old open Starliner PRs are prototypes requiring disposition |
 | MCP Gateway producer | [quilrbusiness/quilr-llm-gateway](https://github.com/quilrbusiness/quilr-llm-gateway) | `add_gateway@99f759d75aa8260f97db6904433c941647a755e5` | Existing merged MCP adapter/observe code is retain/refactor evidence, not target contract authority |
 | Customer UI | [amjad-f35/quilr-platform-nuxt](https://github.com/amjad-f35/quilr-platform-nuxt) | local `main@8c745c88e56cb6fc88a022415a596b5d436a5264` plus 117 dirty paths at audit | Recheck live Git; preserve any overlapping dirty work before edits; retain native Nuxt/Vue and source-owned shadcn-vue/Reka system under `35-nuxt-shadcn-ui-engineering-constitution.md`; replace fixture repository through generated DIE client |
+
+## Official installation and operating authority
+
+Before changing Browser or Endpoint startup, tenant discovery, persona/device
+bootstrap, enrollment, packaging, service configuration, install, update,
+uninstall or health behavior, agents must inspect these exact official sources
+in addition to product code:
+
+| Authority | Pinned revision | Required use |
+|---|---|---|
+| [quilrai/installdocs](https://github.com/quilrai/installdocs) and `https://installdocs.quilrai.dev/llms.txt` | `e7cebd2274ab4f7993e2e4c4f3f83e9b1cb735cd` | Customer installation parameters, supported Browser/Endpoint lifecycle and linked procedures |
+| [quilrai/platformdocs](https://github.com/quilrai/platformdocs) | `6a13d2708eb98cc9593de00def94f4bb953ae237` | Current customer platform and tenant/persona workflow context |
+| [quilrai/docs](https://github.com/quilrai/docs) | `3942bc046629a5dff5661cc5b90c72d00d8cce64` | Current product/operator documentation and referenced rollout behavior |
+
+Documentation describes the supported external lifecycle; executable installer,
+package-builder and sensor source remains behavior authority. An agent records
+both in `SOURCE_PRODUCT_PATH.yaml` and resolves disagreement from current code
+and a safe runtime observation. It may not fill a disagreement with a preview
+script, fixed UUID, hand-written plist/environment value, alternate daemon or
+DevTools storage injection.
+
+Relevant package/build authorities include
+`quilrbusiness/QuilrEndpoint-msi-builder`,
+`quilrbusiness/QuilrEndpoint-pkg-builder`, `quilrbusiness/signlab`, the
+packaging workflows inside `sentinel-endpoint-agent`, the extension builders
+inside `Project-Vanguard`, and the native-host installers in
+`project-sentinel`. Pin their exact current revision in the per-source manifest
+when that vertical begins; this historical authority must not guess a future
+candidate SHA.
 
 Sensor placement and emitted profile kinds are frozen in
 `implementation-freeze/14-sensor-adapter-bindings.md`. Field-level truth is in

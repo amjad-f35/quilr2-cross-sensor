@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/control/v1/sensor-enrollment-request.schema.json",
+  "title": "Installed Sensor Enrollment Request v1",
+  "description": "Consumes a one-use Discovery bootstrap credential that is already bound server-side to the existing organization tenant UUID, source profile, scope and expiry. The installed product proves possession of its installation key and reports exact component provenance; it never chooses its producer ID, installation ID or producer epoch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "request_id",
+    "idempotency_key_digest",
+    "organization_tenant_id",
+    "bootstrap_id",
+    "intent",
+    "source_profile",
+    "business_scope_id",
+    "environment",
+    "display_name",
+    "requested_at",
+    "client_nonce",
+    "component_set",
+    "installation_proof"
+  ],
+  "properties": {
+    "api_version": { "const": "starliner.control.enrollment-request.v1" },
+    "request_id": { "type": "string", "format": "uuid" },
+    "idempotency_key_digest": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the required Idempotency-Key header. The installation proof signs this digest, and admission rejects a header/body mismatch. The raw key is never persisted."
+    },
+    "organization_tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The existing Quilr organization/workspace tenant UUID carried by the Discovery bootstrap. Admission requires an exact match to the bootstrap's server-side tenant binding."
+    },
+    "bootstrap_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Public identifier for the one-use Discovery bootstrap credential presented in the Authorization header. The raw bootstrap secret MUST NOT appear in this body or be persisted."
+    },
+    "intent": { "enum": ["enroll", "reinstall"] },
+    "source_profile": {
+      "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]
+    },
+    "business_scope_id": { "type": "string", "format": "uuid" },
+    "environment": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+    },
+    "display_name": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "requested_at": { "type": "string", "format": "date-time" },
+    "client_nonce": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{22,128}$",
+      "description": "At least 128 bits of client-generated entropy, encoded base64url without padding."
+    },
+    "component_set": {
+      "$ref": "https://schemas.quilr.com/starliner/control/v1/producer-component-set.schema.json"
+    },
+    "installation_proof": { "$ref": "#/$defs/installationProof" },
+    "replaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "installation_id", "producer_epoch"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "installation_id": { "type": "string", "format": "uuid" },
+        "producer_epoch": { "type": "string", "format": "uuid" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "intent": { "const": "reinstall" } },
+        "required": ["intent"]
+      },
+      "then": { "required": ["replaces"] }
+    },
+    {
+      "if": {
+        "properties": { "intent": { "const": "enroll" } },
+        "required": ["intent"]
+      },
+      "then": { "not": { "required": ["replaces"] } }
+    }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "publicJwk": {
+      "description": "Public asymmetric installation key only. Admission base64url-decodes every coordinate, verifies the exact curve length and point/key validity with a vetted crypto provider, rejects private/unknown members, and never treats this JSON shape as proof by itself.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kty", "crv", "x", "y"],
+          "properties": {
+            "kty": { "const": "EC" },
+            "crv": { "const": "P-256" },
+            "x": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" },
+            "y": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kty", "crv", "x"],
+          "properties": {
+            "kty": { "const": "OKP" },
+            "crv": { "const": "Ed25519" },
+            "x": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" }
+          }
+        }
+      ]
+    },
+    "installationProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "public_jwk",
+        "key_thumbprint",
+        "request_digest",
+        "signed_at",
+        "detached_jws"
+      ],
+      "properties": {
+        "algorithm": { "enum": ["ES256", "EdDSA"] },
+        "public_jwk": { "$ref": "#/$defs/publicJwk" },
+        "key_thumbprint": {
+          "$ref": "#/$defs/sha256",
+          "description": "RFC 7638 SHA-256 thumbprint over exactly the required public JWK members in RFC 8785/JCS lexical order; admission recomputes it after cryptographic key validation."
+        },
+        "request_digest": {
+          "$ref": "#/$defs/sha256",
+          "description": "RFC 8785 JCS SHA-256 of the enrollment request with installation_proof.request_digest and installation_proof.detached_jws omitted."
+        },
+        "signed_at": { "type": "string", "format": "date-time" },
+        "detached_jws": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+\\.\\.[A-Za-z0-9_-]+$",
+          "maxLength": 4096,
+          "description": "RFC 7797 detached JWS over the RFC 8785 canonical request with installation_proof.detached_jws omitted and installation_proof.request_digest present. The protected header requires typ=starliner-installation-proof+jws, the declared alg, key thumbprint as kid, b64=false and crit=[b64]; admission verifies the asymmetric signature and recomputed request digest. Regex acceptance is never sufficient."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "algorithm": { "const": "ES256" } },
+            "required": ["algorithm"]
+          },
+          "then": {
+            "properties": {
+              "public_jwk": {
+                "properties": { "kty": { "const": "EC" }, "crv": { "const": "P-256" } },
+                "required": ["kty", "crv"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "algorithm": { "const": "EdDSA" } },
+            "required": ["algorithm"]
+          },
+          "then": {
+            "properties": {
+              "public_jwk": {
+                "properties": { "kty": { "const": "OKP" }, "crv": { "const": "Ed25519" } },
+                "required": ["kty", "crv"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

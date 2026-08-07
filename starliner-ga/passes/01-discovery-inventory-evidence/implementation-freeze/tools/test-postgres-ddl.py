@@ -58,12 +58,56 @@ def main() -> None:
                 "CREATE OR REPLACE FUNCTION die_audit.compute_audit_event_hash(",
                 "audit_row.occurred_at AT TIME ZONE 'UTC'",
                 "computed_hash := die_audit.compute_audit_event_hash(NEW)",
+                "CREATE TABLE IF NOT EXISTS die_control.sensor_bootstrap",
+                "CREATE TABLE IF NOT EXISTS die_control.organization_tenant",
+                "UNIQUE (tenant_id, organization_tenant_id)",
+                "sensor_bootstrap_business_scope_fk",
+                "CREATE TABLE IF NOT EXISTS die_control.sensor_bootstrap_issue_attempt",
+                "CREATE TABLE IF NOT EXISTS die_control.installation_enrollment",
+                "CREATE TABLE IF NOT EXISTS die_control.producer_component_set",
+                "CREATE TABLE IF NOT EXISTS die_control.workload_credential",
+                "CREATE TABLE IF NOT EXISTS die_control.credential_renewal_attempt",
+                "CREATE TABLE IF NOT EXISTS die_control.workload_proof_replay",
+                "CREATE TABLE IF NOT EXISTS die_control.producer_revocation_attempt",
+                "UNIQUE (tenant_id, producer_id, idempotency_key_digest)",
+                "producer artifact_digest must equal the delivery-owner runtime artifact",
+                "endpoint component set requires exactly one % component",
+                "health policy required_components must equal the active component-set health population",
+                "producer health policy differs from its cryptographically verified manifest effects",
+                "certification fields differ from the cryptographically verified certify manifest",
+                "passed manifest verification must retain verifier-derived semantic effects",
+                "to_jsonb(NEW) - 'applied_at'",
+                "expires_at <= issued_at + interval '15 minutes'",
+                "CREATE POLICY tenant_isolation_sensor_bootstrap",
+                "ALTER TABLE die_control.workload_credential FORCE ROW LEVEL SECURITY",
+                "sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442",
+                "sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e",
+                "browser_backend 1.0.0 has unknown schema digest %; refusing silent convergence",
             ):
                 if required_fragment not in sql:
                     raise AssertionError(
                         "PostgreSQL baseline lacks required runtime-safe "
                         f"fragment: {required_fragment}"
                     )
+            generic_profile_seed = sql[
+                sql.index("INSERT INTO die_control.source_profile_version") :
+                sql.index("-- Browser Backend 1.0.0 was corrected before GA")
+            ]
+            if "('browser_backend', '1.0.0'" in generic_profile_seed:
+                raise AssertionError(
+                    "Browser Backend corrected profile cannot use generic "
+                    "ON CONFLICT DO NOTHING convergence"
+                )
+            if not re.search(
+                r"ELSIF\s+current_digest\s*=\s*"
+                r"'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442'"
+                r"[\s\S]*?UPDATE\s+die_control\.source_profile_version"
+                r"[\s\S]*?'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'",
+                sql,
+            ):
+                raise AssertionError(
+                    "Browser Backend known pre-GA digest has no guarded upgrade path"
+                )
             roles_sql = (ROOT / "sql" / "003-die-roles-and-grants.sql").read_text(
                 encoding="utf-8"
             )
@@ -74,6 +118,64 @@ def main() -> None:
                 raise AssertionError(
                     "maintenance role cannot commit the erasure execution "
                     "linearization fields"
+                )
+            for required_grant in (
+                "'die_enrollment'",
+                "GRANT USAGE ON SCHEMA die_control, die_audit, die_authz TO die_enrollment",
+                "ON die_control.sensor_bootstrap TO die_enrollment",
+                "GRANT INSERT ON die_control.installation_enrollment",
+                "GRANT SELECT, INSERT ON die_control.sensor_bootstrap_issue_attempt",
+                "ON die_control.workload_credential TO die_enrollment",
+                "ALTER ROLE die_enrollment NOBYPASSRLS",
+            ):
+                if required_grant not in roles_sql:
+                    raise AssertionError(
+                        "installed-producer control role lacks least-privilege grant: "
+                        f"{required_grant}"
+                    )
+            if re.search(
+                r"GRANT\s+INSERT[^;]*die_control\.sensor_bootstrap[^;]*TO\s+die_enrollment",
+                roles_sql,
+                flags=re.IGNORECASE | re.DOTALL,
+            ):
+                raise AssertionError(
+                    "network enrollment role must consume but never issue Discovery bootstraps"
+                )
+            if re.search(
+                r"GRANT[^;]*ALL TABLES IN SCHEMA die_control[^;]*TO die_enrollment",
+                roles_sql,
+                flags=re.IGNORECASE | re.DOTALL,
+            ):
+                raise AssertionError(
+                    "network enrollment role received blanket control-plane privileges"
+                )
+            for prohibited_grant in (
+                r"GRANT\s+INSERT[^;]*die_control\.certification[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.manifest_verification[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.producer_capability[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.producer_health_policy[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.expected_population[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.enrollment_manifest[^;]*TO\s+die_enrollment",
+                r"GRANT\s+UPDATE[^;]*die_control\.producer[^;]*TO\s+die_enrollment",
+                r"GRANT\s+INSERT[^;]*die_control\.manifest_verification[^;]*TO\s+die_control_admin",
+                r"GRANT\s+UPDATE\s*\([^)]*applied_effects[^)]*\)[^;]*die_control\.manifest_verification[^;]*TO\s+die_control_admin",
+                r"GRANT\s+(?:SELECT,\s*)?INSERT[^;]*die_control\.manifest_signer_key[^;]*TO\s+die_control_admin",
+            ):
+                if re.search(
+                    prohibited_grant,
+                    roles_sql,
+                    flags=re.IGNORECASE | re.DOTALL,
+                ):
+                    raise AssertionError(
+                        "network enrollment role can self-certify or elevate producer trust"
+                    )
+            if "GRANT INSERT ON die_control.manifest_verification TO die_verifier" not in roles_sql:
+                raise AssertionError("isolated verifier cannot record signature results")
+            if "GRANT INSERT ON die_control.manifest_verification TO die_maintenance" in roles_sql:
+                raise AssertionError("maintenance must not impersonate the isolated verifier")
+            if "GRANT UPDATE (applied_at)\n  ON die_control.manifest_verification TO die_control_admin" not in roles_sql:
+                raise AssertionError(
+                    "control administration must apply but never rewrite verifier-derived effects"
                 )
             if "(to_jsonb(NEW) - 'event_hash')::text" in sql:
                 raise AssertionError(

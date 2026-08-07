@@ -92,13 +92,20 @@
     "contamination": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mixed_candidates", "dirty_components", "manual_database_mutation", "untracked_hotfixes", "overlapping_runtime", "notes"],
+      "required": ["mixed_candidates", "dirty_components", "manual_database_mutation", "untracked_hotfixes", "overlapping_runtime", "manual_configuration_override", "parallel_product_daemon", "devtools_or_storage_injection", "synthetic_identity_or_persona", "fixture_interior_stage", "uninstalled_artifact", "normal_entrypoint_bypassed", "notes"],
       "properties": {
         "mixed_candidates": { "type": "boolean" },
         "dirty_components": { "type": "boolean" },
         "manual_database_mutation": { "type": "boolean" },
         "untracked_hotfixes": { "type": "boolean" },
         "overlapping_runtime": { "type": "boolean" },
+        "manual_configuration_override": { "type": "boolean" },
+        "parallel_product_daemon": { "type": "boolean" },
+        "devtools_or_storage_injection": { "type": "boolean" },
+        "synthetic_identity_or_persona": { "type": "boolean" },
+        "fixture_interior_stage": { "type": "boolean" },
+        "uninstalled_artifact": { "type": "boolean" },
+        "normal_entrypoint_bypassed": { "type": "boolean" },
         "notes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
       }
     },
@@ -127,7 +134,7 @@
     "component": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["component_id", "repository", "branch", "commit_sha", "artifact_digest", "contract_digest", "role", "clean_tree", "provenance", "build_ref"],
+      "required": ["component_id", "repository", "branch", "commit_sha", "artifact_digest", "contract_digest", "role", "clean_tree", "provenance", "build_ref", "installation_class", "install_artifact_digest", "installed_artifact_digest", "installed_path_ref", "supervisor", "service_unit", "runtime_identity", "normal_entrypoint", "effective_configuration_digest", "installation_evidence_ref"],
       "properties": {
         "component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" },
         "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
@@ -138,7 +145,17 @@
         "role": { "enum": ["ingest", "normalizer", "truth", "projector", "api", "maintenance", "bff", "ui", "browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway", "connector_runner", "connector_webhook", "connector_poller", "connector_cdc"] },
         "clean_tree": { "type": "boolean" },
         "provenance": { "enum": ["exact_source_build", "signed_artifact", "immutable_image_digest"] },
-        "build_ref": { "type": "string", "minLength": 1 }
+        "build_ref": { "type": "string", "minLength": 1 },
+        "installation_class": { "enum": ["package", "browser_extension", "container_image", "compiled_binary", "managed_service"] },
+        "install_artifact_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "installed_artifact_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "installed_path_ref": { "type": "string", "minLength": 1 },
+        "supervisor": { "enum": ["launchd", "systemd", "kubernetes", "docker", "browser_runtime", "process_manager", "managed_service"] },
+        "service_unit": { "type": "string", "minLength": 1 },
+        "runtime_identity": { "type": "string", "minLength": 1 },
+        "normal_entrypoint": { "type": "string", "minLength": 1 },
+        "effective_configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "installation_evidence_ref": { "type": "string", "minLength": 1 }
       }
     },
     "store": {
@@ -165,7 +182,7 @@
     "producer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["profile", "profile_version", "producer_id", "installation_id", "certification_id", "component_id", "artifact_digest", "configuration_digest", "credential_class"],
+      "required": ["profile", "profile_version", "producer_id", "installation_id", "certification_id", "component_id", "component_ids", "artifact_digest", "component_set_digest", "configuration_digest", "credential_class", "credential_issuer_class", "enrollment_evidence_ref", "source_product_path_ref", "source_product_path_digest"],
       "properties": {
         "profile": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
         "profile_version": { "type": "string", "pattern": "^[1-9][0-9]*[.][0-9]+[.][0-9]+(?:[-+][0-9A-Za-z.-]+)?$" },
@@ -173,9 +190,26 @@
         "installation_id": { "type": "string", "minLength": 1 },
         "certification_id": { "type": "string", "format": "uuid" },
         "component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" },
-        "artifact_digest": { "$ref": "#/$defs/digest" },
+        "component_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" }
+        },
+        "artifact_digest": {
+          "$ref": "#/$defs/digest",
+          "description": "Exact runtime artifact digest of component_id, which is the component set's single delivery owner. This is not the aggregate component-set digest."
+        },
+        "component_set_digest": {
+          "$ref": "#/$defs/digest",
+          "description": "RFC 8785 digest of the complete admitted package/component set, including every independently installed Browser or Endpoint component."
+        },
         "configuration_digest": { "$ref": "#/$defs/digest" },
-        "credential_class": { "enum": ["preview_synthetic", "mtls", "workload_jwt", "oidc_workload", "platform_signed"] }
+        "credential_class": { "enum": ["preview_synthetic", "dpop_jwt", "mtls", "workload_jwt", "oidc_workload", "platform_signed"] },
+        "credential_issuer_class": { "enum": ["preview_synthetic", "starliner_control", "external_oidc", "platform_pki"] },
+        "enrollment_evidence_ref": { "type": "string", "minLength": 1 },
+        "source_product_path_ref": { "type": "string", "minLength": 1 },
+        "source_product_path_digest": { "$ref": "#/$defs/digestOrUnassigned" }
       }
     },
     "profileRegistryEntry": {
@@ -301,14 +335,74 @@
       "if": { "properties": { "runtime_mode": { "enum": ["COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] } }, "required": ["runtime_mode"] },
       "then": {
         "properties": {
-          "components": { "items": { "properties": { "clean_tree": { "const": true } } } },
+          "components": {
+            "items": {
+              "properties": {
+                "clean_tree": { "const": true },
+                "install_artifact_digest": { "$ref": "#/$defs/digest" },
+                "installed_artifact_digest": { "$ref": "#/$defs/digest" },
+                "installed_path_ref": { "pattern": "^(?!UNASSIGNED$)(?!/)(?!.*[.][.])[A-Za-z0-9_.:/-]+$" },
+              "service_unit": { "pattern": "^(?!UNASSIGNED$).+" },
+              "runtime_identity": { "pattern": "^(?!UNASSIGNED$).+" },
+              "normal_entrypoint": { "pattern": "^(?!UNASSIGNED$).+" },
+                "effective_configuration_digest": { "$ref": "#/$defs/digest" },
+                "installation_evidence_ref": { "pattern": "^(?!UNASSIGNED$)(?!/)(?!.*[.][.])[A-Za-z0-9_.:/-]+$" }
+              }
+            }
+          },
+          "producers": {
+            "items": {
+              "properties": {
+                "credential_class": { "not": { "const": "preview_synthetic" } },
+                "credential_issuer_class": { "not": { "const": "preview_synthetic" } },
+                "enrollment_evidence_ref": { "pattern": "^(?!UNASSIGNED$)(?!/)(?!.*[.][.])[A-Za-z0-9_.:/-]+$" },
+                "source_product_path_ref": { "pattern": "^(?!UNASSIGNED$)(?!/)(?!.*[.][.])(?!.*\\\\)[A-Za-z0-9_./-]+[.]ya?ml$" },
+                "source_product_path_digest": { "$ref": "#/$defs/digest" }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] }
+                    },
+                    "required": ["profile"]
+                  },
+                  "then": {
+                    "properties": { "credential_class": { "const": "dpop_jwt" } }
+                  }
+                }
+              ]
+            }
+          },
           "contamination": {
             "properties": {
               "mixed_candidates": { "const": false },
               "dirty_components": { "const": false },
               "manual_database_mutation": { "const": false },
               "untracked_hotfixes": { "const": false },
-              "overlapping_runtime": { "const": false }
+              "overlapping_runtime": { "const": false },
+              "manual_configuration_override": { "const": false },
+              "parallel_product_daemon": { "const": false },
+              "devtools_or_storage_injection": { "const": false },
+              "synthetic_identity_or_persona": { "const": false },
+              "fixture_interior_stage": { "const": false },
+              "uninstalled_artifact": { "const": false },
+              "normal_entrypoint_bypassed": { "const": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "runtime_mode": { "not": { "const": "DEV_PREVIEW" } } }, "required": ["runtime_mode"] },
+      "then": {
+        "properties": {
+          "producers": {
+            "items": {
+              "properties": {
+                "credential_class": { "not": { "const": "preview_synthetic" } },
+                "credential_issuer_class": { "not": { "const": "preview_synthetic" } }
+              }
             }
           }
         }

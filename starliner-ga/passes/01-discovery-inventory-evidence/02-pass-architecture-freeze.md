@@ -97,12 +97,18 @@ Normal UI requests never query multiple sensor APIs. A screen requiring repeated
 
 ## Source placements
 
-- Browser: embedded background runtime; native host and Browser Backend have distinct producer identities.
+- Browser: one embedded Extension background runtime owns the producer/epoch/sequence/WAL
+  stream for the Browser Extension plus native messaging host, with distinct
+  component/artifact lineage; Browser Backend is a separate hosted producer for
+  server-owned facts or a qualified original-record relay.
 - Endpoint: one supervised installation runtime with authenticated local IPC and local hot-path policy snapshots.
 - LLM Gateway: in-process adapter plus per-pod Starliner sidecar.
 - MCP Gateway: embedded runtime for a certified single-replica profile; sidecar/shared durability required before scale-out.
 
 The [four binding specifications](../../implementation/12-browser-sensor-binding.md) remain authoritative for exact current-code seams.
+Browser installation and producer topology is additionally governed by
+[ADR-0022](../../adrs/0022-installed-product-vertical-delivery.md) and
+[implementation-freeze document 43](implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md).
 
 ## Tenant and environment boundary
 

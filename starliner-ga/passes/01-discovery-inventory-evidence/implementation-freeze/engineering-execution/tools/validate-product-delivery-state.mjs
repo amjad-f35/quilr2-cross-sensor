@@ -17,13 +17,31 @@ const toolDir = dirname(fileURLToPath(import.meta.url))
 const executionRoot = resolve(toolDir, '..')
 const statePath = resolve(process.argv[2] || '')
 if (!process.argv[2]) {
-  console.error('usage: validate-product-delivery-state.mjs <PRODUCT_DELIVERY_STATE.csv> [product-capability-map.csv]')
+  console.error('usage: validate-product-delivery-state.mjs <PRODUCT_DELIVERY_STATE.csv> [product-capability-map.csv] [SENSOR_VERTICAL_STATE.csv] [evidence-root] [GATE_B_CERTIFICATION.csv] [gate-b-obligations.csv] [authority-repo] [authority-commit]')
   process.exit(2)
 }
 const mapPath = resolve(process.argv[3] || resolve(executionRoot, 'registers/product-capability-map.csv'))
 const stateText = readFileSync(statePath, 'utf8')
 const mapText = readFileSync(mapPath, 'utf8')
-const errors = validateProductDeliveryState(stateText, mapText)
+const sensorPath = process.argv[4] ? resolve(process.argv[4]) : null
+const evidenceRoot = process.argv[5] ? resolve(process.argv[5]) : null
+const sensorText = sensorPath ? readFileSync(sensorPath, 'utf8') : null
+const gateBPath = process.argv[6] ? resolve(process.argv[6]) : null
+const gateBObligationPath = process.argv[7]
+  ? resolve(process.argv[7])
+  : resolve(executionRoot, 'registers/gate-b-certification-obligations.csv')
+const authorityRepo = process.argv[8] ? resolve(process.argv[8]) : null
+const authorityCommit = process.argv[9] || null
+const gateBCertificationText = gateBPath ? readFileSync(gateBPath, 'utf8') : null
+const gateBObligationText = gateBPath ? readFileSync(gateBObligationPath, 'utf8') : null
+const errors = validateProductDeliveryState(stateText, mapText, {
+  sensorVerticalText: sensorText,
+  sensorEvidenceRoot: evidenceRoot,
+  gateBCertificationText,
+  gateBObligationText,
+  gateBEvidenceRoot: evidenceRoot,
+  gateBAuthority: { authorityRepo, authorityCommit },
+})
 
 let rows = []
 try {

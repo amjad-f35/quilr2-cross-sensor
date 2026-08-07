@@ -134,7 +134,7 @@ const cases = [
     mutate(text) {
       return replaceRequired(
         text,
-        ',"PC-001 plus ingest profile and receipt contracts","LG004|LG005|LG006",',
+        ',"PC-001 plus exact installed Browser compound artifact ingest profile and receipt contracts","LG004|LG005|LG006",',
         ',"LG005","LG004|LG005|LG006",',
         this.id,
       )
@@ -147,8 +147,8 @@ const cases = [
     mutate(text) {
       return replaceRequired(
         text,
-        '"PC-003","Browser Backend catalog configuration and event evidence as a distinct producer in the shared estate","NATIVE_CAPTURE|LOCAL_WAL|',
-        '"PC-003","Browser Backend catalog configuration and event evidence as a distinct producer in the shared estate","',
+        '"PC-003","Normally deployed Browser Backend server-owned catalog configuration receipt processing heartbeat publication gap and administrative outcome evidence as a distinct producer in the shared estate","NATIVE_CAPTURE|LOCAL_WAL|',
+        '"PC-003","Normally deployed Browser Backend server-owned catalog configuration receipt processing heartbeat publication gap and administrative outcome evidence as a distinct producer in the shared estate","',
         this.id,
       )
     },
@@ -551,7 +551,187 @@ const cases = [
     },
     command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/tools/validate-freeze.mjs'],
   },
+  {
+    // Gate-B replay/degraded proof must assert that the degraded state was customer-visible.
+    id: 'MUT-042',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/gate-b-certification-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "      || assertion.degraded_state_visible !== true) {",
+        ') {',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-gate-b-certification-validator.mjs'],
+  },
+  {
+    // APPROVED_UNSUPPORTED proof must equal the caller-selected immutable authority revision.
+    id: 'MUT-043',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/gate-b-certification-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "  if (proof.authority_commit !== value.authority_commit\n    || proof.authority_commit !== authority?.authorityCommit) {",
+        '  if (proof.authority_commit !== value.authority_commit) {',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-gate-b-certification-validator.mjs'],
+  },
+  {
+    // Product release composition must invoke semantic sensor-evidence validation in the library itself.
+    id: 'MUT-044',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/product-delivery-state-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '    errors.push(...validateSensorVerticalState(sensorVerticalText, sensorEvidenceRoot)\n      .map(error => `SENSOR_VERTICAL_STATE: ${error}`))',
+        '    errors.push(...[])',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-product-delivery-sensor-binding.mjs'],
+  },
+  {
+    // An accepted per-record receipt must name the exact envelope source record.
+    id: 'MUT-045',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/sensor-vertical-state-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (receipt && receipt.receipt_record_id !== first.source_record_id)',
+        'if (false && receipt && receipt.receipt_record_id !== first.source_record_id)',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-sensor-vertical-state-validator.mjs'],
+  },
+  {
+    // A graph result may not cite an invented relationship rule.
+    id: 'MUT-046',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/sensor-vertical-state-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        "  if (!rule) {\n    errors.push(`${path}.rule_id does not exist in the frozen relationship registry`)\n    return\n  }",
+        '  if (!rule)\n    return',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-sensor-vertical-state-validator.mjs'],
+  },
+  {
+    // Customer API proof must name an operation in the frozen die-v1 contract.
+    id: 'MUT-047',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/sensor-vertical-state-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (!OPENAPI_OPERATIONS.has(assertion.operation_id))',
+        'if (false && !OPENAPI_OPERATIONS.has(assertion.operation_id))',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-sensor-vertical-state-validator.mjs'],
+  },
+  {
+    // Every cross-source proof file must bind both exact source-envelope record IDs.
+    id: 'MUT-048',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        '        endpoint_source_record_id: endpointTrace.sourceRecordId,\n        browser_source_record_id: browserTrace.sourceRecordId,\n',
+        '',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
+  {
+    // The positive binding must resolve to the frozen Browser identity assertion rule.
+    id: 'MUT-049',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (!authority)\n      errors.push(`${label}.assertion.binding_rule_id does not resolve to the frozen Browser identity-assertion authority`)',
+        'if (false && !authority)\n      errors.push(`${label}.assertion.binding_rule_id does not resolve to the frozen Browser identity-assertion authority`)',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
+  {
+    // The positive relationship may not substitute an invented rule authority.
+    id: 'MUT-050',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'const authority = frozenRelationshipRule(assertion.relationship_rule_id)',
+        "const authority = frozenRelationshipRule(assertion.relationship_rule_id) || { predicate: assertion.predicate, source: 'Browser + Endpoint', support_state: 'new_capture_required', automatic_materialization: 'conditional' }",
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
+  {
+    // Source object, evidence and canonical entity IDs must come from the validated verticals.
+    id: 'MUT-051',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (context.positiveBinding[field] !== expected)',
+        'if (false && context.positiveBinding[field] !== expected)',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
+  {
+    // The asserted predicate must equal the selected frozen relationship rule.
+    id: 'MUT-052',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (authority.predicate !== assertion.predicate)',
+        'if (false && authority.predicate !== assertion.predicate)',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
+  {
+    // Cross-source relationship direction is semantic and may not be reversed.
+    id: 'MUT-053',
+    path: 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/cross-source-gate-lib.mjs',
+    mutate(text) {
+      return replaceRequired(
+        text,
+        'if (context.positiveRelationship.subject_entity_id !== browserTrace.entityId\n        || context.positiveRelationship.object_entity_id !== endpointTrace.entityId)',
+        'if (false && (context.positiveRelationship.subject_entity_id !== browserTrace.entityId\n        || context.positiveRelationship.object_entity_id !== endpointTrace.entityId))',
+        this.id,
+      )
+    },
+    command: ['node', 'starliner-ga/passes/01-discovery-inventory-evidence/implementation-freeze/engineering-execution/tools/test-cross-source-gate-validator.mjs'],
+  },
 ]
+
+const requestedMutationIds = new Set(
+  (process.env.DIE_MUTATION_IDS || '').split(',').map(value => value.trim()).filter(Boolean),
+)
+const selectedCases = requestedMutationIds.size
+  ? cases.filter(test => requestedMutationIds.has(test.id))
+  : cases
+if (requestedMutationIds.size && selectedCases.length !== requestedMutationIds.size) {
+  const found = new Set(selectedCases.map(test => test.id))
+  const missing = [...requestedMutationIds].filter(id => !found.has(id))
+  throw new Error(`Unknown DIE_MUTATION_IDS: ${missing.join(', ')}`)
+}
 
 function replaceRequired(text, search, replacement, id) {
   const changed = text.replace(search, replacement)
@@ -592,7 +772,7 @@ try {
   // crash would be misreported as successful defect detection merely because
   // the subprocess returned nonzero.
   const baselineCommands = new Map()
-  for (const test of cases) {
+  for (const test of selectedCases) {
     const key = JSON.stringify({ command: test.command, environment: test.environment || {} })
     if (!baselineCommands.has(key))
       baselineCommands.set(key, test)
@@ -617,7 +797,7 @@ try {
   console.log(`Validator mutation baseline preflight passed: ${baselineCommands.size} distinct validator commands.`)
 
   const failures = []
-  for (const test of cases) {
+  for (const test of selectedCases) {
     const path = join(temporaryRoot, test.path)
     const original = readFileSync(path, 'utf8')
     writeFileSync(path, test.mutate(original))
@@ -636,7 +816,7 @@ try {
   }
   if (failures.length)
     throw new Error(failures.join('\n'))
-  console.log(`Validator mutation tests passed: ${cases.length} defects detected.`)
+  console.log(`Validator mutation tests passed: ${selectedCases.length} defects detected.`)
 }
 finally {
   rmSync(temporaryRoot, { recursive: true, force: true })

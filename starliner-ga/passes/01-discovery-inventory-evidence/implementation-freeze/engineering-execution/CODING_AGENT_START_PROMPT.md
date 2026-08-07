@@ -59,11 +59,13 @@ Read these first, progressively rather than loading every dossier:
 1. `README.md`;
 2. `40-final-delta-freeze-closure.md`;
 3. `41-product-first-continuous-delivery-authority.md`;
-4. `23-production-implementation-handoff.md`;
-5. `32-pre-code-system-design-closure.md`;
-6. `39-implementation-conformance-and-transitional-removal.md`;
-7. `engineering-execution/README.md` and the capability map;
-8. the exact schemas, OpenAPI, SQL, authz, ontology, LG-008 rows and source
+4. `43-installed-product-lifecycle-and-source-verticals.md` and
+   `../../../adrs/0022-installed-product-vertical-delivery.md`;
+5. `23-production-implementation-handoff.md`;
+6. `32-pre-code-system-design-closure.md`;
+7. `39-implementation-conformance-and-transitional-removal.md`;
+8. `engineering-execution/README.md` and the capability map;
+9. the exact schemas, OpenAPI, SQL, authz, ontology, LG-008 rows and source
    evidence needed for the active behavior.
 
 Machine contracts outrank prose; prose outranks current code only where the
@@ -117,8 +119,44 @@ support claim.
 Build the minimum real DIE control plane early: tenant bootstrap, producer and
 installation enrollment, workload identity, verified configuration,
 capability/certification history, expected populations, rotation, revocation
-and health. Do not make Quilr 2 sensor operation depend on a Quilr 1 persona or
-preprod tenant mechanism.
+and health. The existing organization tenant UUID selected through the normal
+Discovery/bootstrap workflow remains the logical customer tenant; do not ask
+the customer or sensor to invent a second Quilr 2 tenant. Existing persona,
+device or workload authentication may provide only a bounded bootstrap
+assertion and never becomes the renewable producer credential.
+
+Before modifying a source, trace and record the official install/deploy
+artifact, tenant Discovery/bootstrap, persona/device/workload prerequisite,
+authenticated enrollment, secure credential store, supervisor/entrypoint,
+native capture callback, WAL, sender and receipt owner in
+`SOURCE_PRODUCT_PATH.yaml`. Search current install docs, installer/build source,
+product source/configuration and safe runtime evidence.
+For Browser and Endpoint, start at the pinned `quilrai/installdocs` revision
+and `https://installdocs.quilrai.dev/llms.txt`, follow the applicable linked
+pages, and reconcile them with the package-builder and product repositories in
+`SOURCE_CONTEXT_AND_REPOSITORY_MAP.md`; never improvise installation or tenant
+inputs from chat history.
+Every source-path evidence reference must have a content-addressed
+`evidence_bindings` entry (safe relative ref, exact SHA-256 and closed kind),
+and every file must resolve beneath the runtime evidence root.
+
+If a prerequisite is absent, use document 43's exact disposition. Implement
+`MISSING_PRODUCT_CODE`. For `EXTERNAL_CREDENTIAL`, `EXTERNAL_INFRASTRUCTURE` or
+`PRIVILEGED_USER_ACTION` or `DESTRUCTIVE_APPROVAL`, ask the user for the one
+bounded input/action and its
+objective success condition, block only that action and continue independent
+work. `UNKNOWN_AFTER_EXHAUSTIVE_SEARCH` must list what was searched and ask one
+concrete question before changing the source path. Never circumvent it with a
+fixed identity, second tenant, persona shim, hand-minted token, manual browser
+storage/DevTools injection, manual plist/environment/SQL change, alternate
+daemon, fake digest or fixture interior.
+
+Browser Extension and its native messaging host are one logical Browser
+installation, but the Extension alone owns the producer epoch/sequence,
+durable WAL and delivery stream. The native host is supporting capture only,
+with distinct component/artifact lineage. Browser Backend is a separate hosted producer for
+server-owned facts only; it never republishes received Browser activity as a
+second observation.
 
 Any integrated claim must bind one `RUNTIME_MANIFEST.yaml` containing exact
 repository SHAs, artifacts/digests, contracts, stores, roles, producer
@@ -152,6 +190,11 @@ Do this as a bounded startup step, then immediately change production code:
 2. record the authority SHA and install/update durable `AGENTS.md`, per-repo
    `WORK_STATE.md`, central `PROGRAM_STATE.md`, capability state, topology and
    runtime-manifest files without overwriting compatible local instructions;
+   for a source vertical also install/update `SOURCE_PRODUCT_PATH.yaml`,
+   `REQUIRED_INPUTS.csv`, `SENSOR_VERTICAL_STATE.csv`, the generated
+   `GATE_B_CERTIFICATION.csv` and the immediate Endpoint+Browser
+   `CROSS_SOURCE_GATE.csv`; never advance PC-002..PC-006 beyond the validated
+   source-vertical high-water;
 3. identify the current coherent product candidate and reject mixed/stale
    component evidence;
 4. select the smallest next action that advances `PI-001..PI-007` toward a real
@@ -168,13 +211,32 @@ Build product increments across WPs:
 
 1. real bootstrap/enrollment/configuration/health;
 2. Endpoint native discovery through connected canonical estate and live UI;
-3. Browser plus Browser Backend through surfaces/accounts/activity/evidence and
-   proof-based or explicitly unresolved device association;
-4. real LLM/MCP traffic through model/server/tool/activity/evidence and UI;
-5. continuous cross-source identity, graph, succession, ambiguity, conflict,
+3. Browser Extension plus native host as one installed Browser source through
+   surfaces/accounts/activity/evidence and proof-based or explicitly unresolved
+   device association;
+4. Browser Backend through its separate server-owned catalog, configuration,
+   receipt/processing, health and publication facts;
+5. real LLM Gateway traffic through model/activity/evidence and UI;
+6. real MCP Gateway traffic through server/tool/activity/evidence and UI;
+7. continuous cross-source identity, graph, succession, ambiguity, conflict,
    retraction, coverage and provenance;
-6. all frozen API/UI breadth and RBAC/ABAC/ReBAC/RLS/masking; and
-7. generation lifecycle, rebuild, erasure, operations and release proof.
+8. all frozen API/UI breadth and RBAC/ABAC/ReBAC/RLS/masking; and
+9. generation lifecycle, rebuild, erasure, operations and release proof.
+
+For each source, first prove one continuous record from its exact normally
+installed/deployed artifact through live UI. Endpoint Gate A is followed by
+Browser Gate A and a real cross-source binding/relationship plus an unresolved
+negative; do not wait for Endpoint long-tail breadth before this defining
+graph proof. Then complete Browser Backend, LLM and MCP Gate A. Gate B route,
+replay/restart/offline/gap/health/reconciliation breadth starts immediately per
+source and may close in parallel, but every profile must pass it before release.
+This does not narrow the five-profile release.
+
+Every launch-scope `new_capture_required` route is owned production work. It is
+not optional merely because it was absent from the original sensor. Reclassify
+it only through focused change control backed by executable proof that the
+bounded product cannot or should not capture it; otherwise implement it before
+the source's profile-completeness gate passes.
 
 Implement production components and conformance harnesses together. Test
 doubles are allowed only at genuine external provider boundaries, never in

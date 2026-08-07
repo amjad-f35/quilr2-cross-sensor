@@ -99,14 +99,14 @@ profiles:
     mappings:
       object_observed: [source_object, identifier_claims, attribute_claims]
       object_changed: [attribute_claims, lifecycle_claim]
-      activity: [relay_stage_activity_candidate]
+      source_processing: [lineage_only_observation]
       decision: [activity_candidate_native_control]
-      outcome: [relay_stage_activity_candidate]
+      outcome: [activity_candidate_native_effect]
       reconciliation: [reconciliation_candidate, coverage_candidate]
       coverage: [coverage_candidate]
       gap: [coverage_candidate_gap]
       health: [health_observation, coverage_candidate]
-    relay_rule: "A backend receipt or handoff is a lineage stage and never a second independent client action."
+    relay_rule: "A backend accepted/transformed/published receipt or handoff normalizes as a source_processing lineage-only observation with zero activity candidates. It is never a second independent client action and is excluded from customer activity, recent-activity, activity-count and risk inputs. payload.qualified_client_record is the sole canonical original-client reference; envelope.correlation.qualified_parent_record is forbidden for these records."
     health_mapping:
       record: heartbeat
       component_source: derived
@@ -137,13 +137,16 @@ profiles:
           guest: flyby
           unknown: unknown
         rule: "Admit only when the exact legacy/backend writer and classification authority are identified. A missing stable account_source_id keeps guest/flyby on session/activity context."
-    activity_mapping:
+    source_processing_mapping:
       browser_event:
         discriminator: operation
         cases:
-          accepted: source.relay_accepted
-          transformed: source.relay_transformed
-          published: source.relay_published
+          accepted: source_processing.relay_accepted
+          transformed: source_processing.relay_transformed
+          published: source_processing.relay_published
+        output_rule: "Persist evidence-to-normalization-to-original-client lineage only. activity_candidates MUST be empty; no canonical activity, recent-activity row, customer activity count or risk input may be produced from these stages."
+        lineage_carrier: payload.qualified_client_record
+    activity_mapping:
       native_decision:
         constant: native.decision
       action_outcome:

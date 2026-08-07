@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/control/v1/sensor-enrollment-response.schema.json",
+  "title": "Installed Sensor Enrollment Response v1",
+  "description": "Server-assigned installed-producer identity, a short-lived proof-of-possession workload credential, and the signed producer/configuration authority required to begin durable delivery. Idempotent replay returns the same producer, installation and epoch assignment and may mint a fresh bounded credential for the same installation key; the raw token is intentionally not byte-replayed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "api_version",
+    "request_id",
+    "status",
+    "tenant_id",
+    "producer_id",
+    "installation_id",
+    "producer_epoch",
+    "source_profile",
+    "profile_version",
+    "component_set_digest",
+    "configuration_generation",
+    "workload_identity",
+    "enrollment_manifest",
+    "edge_configuration",
+    "issued_at"
+  ],
+  "properties": {
+    "api_version": { "const": "starliner.control.enrollment-response.v1" },
+    "request_id": { "type": "string", "format": "uuid" },
+    "status": { "enum": ["enrolled", "reinstalled", "idempotent_replay"] },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The existing organization tenant UUID validated from the consumed Discovery bootstrap; enrollment does not invent an unrelated tenant."
+    },
+    "producer_id": { "type": "string", "format": "uuid" },
+    "installation_id": { "type": "string", "format": "uuid" },
+    "producer_epoch": { "type": "string", "format": "uuid" },
+    "source_profile": {
+      "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "component_set_digest": { "$ref": "#/$defs/sha256" },
+    "configuration_generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "workload_identity": { "$ref": "#/$defs/workloadIdentity" },
+    "enrollment_manifest": {
+      "$ref": "https://schemas.quilr.com/starliner/control/v1/producer-enrollment-manifest.schema.json"
+    },
+    "edge_configuration": {
+      "$ref": "https://schemas.quilr.com/starliner/management/v1/edge-configuration.schema.json"
+    },
+    "issued_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "workloadIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "credential_id",
+        "credential_type",
+        "subject",
+        "token_type",
+        "access_token",
+        "confirmation_thumbprint",
+        "scopes",
+        "issued_at",
+        "renew_after",
+        "expires_at",
+        "renewal_url"
+      ],
+      "properties": {
+        "credential_id": { "type": "string", "format": "uuid" },
+        "credential_type": { "const": "dpop_jwt" },
+        "subject": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "token_type": { "const": "DPoP" },
+        "access_token": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 16384,
+          "writeOnly": true,
+          "description": "Returned only over TLS. The server stores a token identifier digest and installation-key confirmation, never this raw credential."
+        },
+        "confirmation_thumbprint": { "$ref": "#/$defs/sha256" },
+        "scopes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "starliner.ingest",
+              "starliner.configuration.read",
+              "starliner.credential.renew",
+              "starliner.health.write"
+            ]
+          },
+          "allOf": [
+            { "contains": { "const": "starliner.ingest" }, "minContains": 1 },
+            { "contains": { "const": "starliner.credential.renew" }, "minContains": 1 }
+          ]
+        },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "renew_after": { "type": "string", "format": "date-time" },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "MUST be no more than 15 minutes after issued_at. Cross-field ordering and lifetime are admission/issuance invariants tested outside JSON Schema."
+        },
+        "renewal_url": { "type": "string", "format": "uri", "maxLength": 2048 }
+      }
+    }
+  }
+}

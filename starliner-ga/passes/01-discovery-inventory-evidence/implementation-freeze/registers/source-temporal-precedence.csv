@@ -13,7 +13,7 @@ browser,browser.health,health,,absent,none,envelope.observed_at,envelope.record_
 browser,browser.gap,gap_interval,,absent,none,from,envelope.record_id,to,none,interval_union_no_inventory_end,never_closes_inventory,
 browser_backend,application_catalog,entity,catalog_revision,required,numeric_decimal_string,envelope.observed_at,envelope.record_id,operation=tombstoned,none,append_history_no_head_change,advance_only_on_higher_precedence,PRC-002|PRC-003|PRC-004|PRC-006|PRC-007
 browser_backend,application_configuration,entity,,absent,none,envelope.observed_at,envelope.record_id,operation=tombstoned,none,append_history_no_head_change,advance_only_on_higher_precedence,
-browser_backend,browser_event,activity,,absent,none,envelope.occurred_at,envelope.record_id,none,authorized_visibility=suppressed,append_or_deduplicate,serialized_version_succession,
+browser_backend,browser_event,source_processing,,absent,none,envelope.occurred_at,envelope.record_id,none,none,append_lineage_only,no_customer_activity_head,
 browser_backend,native_decision,activity,,absent,none,envelope.occurred_at,envelope.record_id,decision_terminal,none,append_or_deduplicate,serialized_version_succession,
 browser_backend,action_outcome,activity,,absent,none,envelope.occurred_at,envelope.record_id,effect_terminal,none,append_or_deduplicate,serialized_version_succession,
 browser_backend,installation,entity,,absent,none,envelope.observed_at,envelope.record_id,operation=tombstoned,none,append_history_no_head_change,advance_only_on_higher_precedence,

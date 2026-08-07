@@ -17,7 +17,7 @@ Accepted ADRs are subordinate only to the architecture constitution. A change re
 | [0009](0009-coverage-before-absence-or-rate-claims.md) | Coverage is required for absence, rate, and completeness claims |
 | [0010](0010-versioned-findings-and-metrics.md) | Findings and metrics are governed versioned contracts |
 | [0011](0011-minimal-product-information-architecture.md) | Product UI exposes decisions, not sensor exhaust |
-| [0012](0012-first-slice-is-cross-sensor.md) | First production slice proves cross-sensor value; original scope superseded by ADR-0019 |
+| [0012](0012-first-slice-is-cross-sensor.md) | First customer release proves cross-sensor value; source-vertical implementation order is clarified by ADR-0022 |
 | [0013](0013-workload-identity-and-certified-capabilities.md) | Producers use workload identity and certified capability manifests |
 | [0014](0014-quilr1-migrates-as-evidence.md) | Quilr 1 state is imported as lineage-preserving evidence |
 | [0015](0015-correlation-identifiers-not-universal-traces.md) | Trace context is causal; scans use observation/reconciliation IDs |
@@ -27,3 +27,4 @@ Accepted ADRs are subordinate only to the architecture constitution. A change re
 | [0019](0019-first-customer-release-is-discovery-inventory-evidence.md) | First customer release ships five-profile discovery, inventory, evidence, coverage, and UI; its migration sequencing is superseded by ADR-0020 |
 | [0020](0020-die-migration-is-a-separate-parallel-track.md) | The bounded five-profile DIE product ships independently; Quilr 1 migration/coexistence remains a separately authorized parallel track |
 | [0021](0021-producer-health-is-a-closed-derived-vocabulary.md) | Producer health is a closed five-value vocabulary derived from a signed policy on scheduled evaluation, independent of trust and coverage |
+| [0022](0022-installed-product-vertical-delivery.md) | Integrate one normally installed or deployed source through the permanent funnel at a time while preserving the all-five-profile release scope |

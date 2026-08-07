@@ -32,8 +32,9 @@ surfaces:
 
 1. tenant bootstrap manifests (`starliner.tenant-bootstrap.v1` and the
    declarative `starliner.bootstrap.v1` applied by the maintenance role);
-2. producer enrollment/revocation/certification manifests
-   (`apply`/`revoke`/`certify`, 02);
+2. producer enrollment/credential-rotation/revocation/certification manifests
+   (`apply`/`rotate`/`revoke`/`certify`, 02), each as an exact discriminated
+   payload with no stale fields from another operation arm;
 3. signed Edge Runtime configuration generations (02).
 
 Cross-sensor assertion issuers keep their own producer/issuer ledger
@@ -162,22 +163,22 @@ closed and steps never reorder:
    manifest kind, environment and tenant scope: state must be `active` or
    `retiring`, the verification time inside `not_before`/`not_after`, and
    the key's `algorithm` byte-equal to `signature.algorithm`;
-5. decode the protected header: exactly `alg`, `kid`,
-   `typ:"application/quilr+jcs"`; `alg`/`kid` byte-equal to the outer
-   `algorithm`/`key_id`; `crit`, `b64:false`, unknown members, embedded key
-   material fail closed (02);
+5. decode the protected header: exactly the operation's frozen `typ`, `alg`,
+   `kid`, `b64:false`, and `crit:["b64"]`; `alg`/`kid` byte-equal to the
+   outer `algorithm`/`key_id`; unknown members and embedded key material fail
+   closed (02);
 6. verify the detached JWS over
-   `ASCII(protected) + "." + BASE64URL(JCS payload bytes)` with the
-   registry's `public_jwk`;
+   `ASCII(BASE64URL(protected)) + "." + JCS payload bytes` with the registry's
+   `public_jwk` (RFC 7797 unencoded payload);
 7. manifest semantic checks (02): unexpired `issued_at`/`expires_at`, tenant
    match, scope/environment match, monotonic revision, unreplayed
    `manifest_id`, artifact/certification digest match, passing unexpired
    certification;
-8. apply the one idempotent control-plane transaction (landed: identical
-   replay is a no-op, any same-ID content difference fails closed);
-9. write the immutable verification audit row **after** the apply and
-   projection declaration succeed (landed audit-last ordering), so the audit
-   row's existence proves the complete apply.
+8. the isolated verifier appends immutable verification evidence with
+   `applied_at = null`; it cannot register keys or apply effects;
+9. control administration applies only the retained operation-specific effects
+   and then sets the existing row's sole mutable field, `applied_at`, in the
+   same transaction. It cannot insert verification evidence or register keys.
 
 Frozen audit-row contents for every **tenant-resolved** verification attempt
 — success and failure — live in immutable
@@ -186,12 +187,14 @@ Frozen audit-row contents for every **tenant-resolved** verification attempt
 ```text
 tenant_id
 manifest_id + manifest kind + schema version
-manifest_digest            (sha256: over the exact received bytes)
+received_document_digest   (sha256: over the exact received signed bytes)
+canonical_payload_digest   (sha256: over the RFC 8785 unsigned payload bytes)
+protected-header + signature digests
 issuer
-signer key_id + key fingerprint + algorithm
-verification_result        (verified | exact fail-closed code | unsigned_dev)
+signer key_id + immutable key revision + key fingerprint + algorithm
+verification_result        (passed | exact fail-closed code)
 verifier artifact digest
-applied effects            (root scope / enrollment revisions / generation), empty on failure
+operation-specific applied effects (exact key set), empty on failure
 verified_at / applied_at
 ```
 
@@ -206,26 +209,15 @@ artifact and fail-closed code. Once tenant identity is schema-resolved, every
 attempt must have a database audit row; an implementation must not use the
 pre-tenant exception to omit ordinary signature failures.
 
-## Unsigned manifests
+## Unsigned documents
 
-An unsigned manifest — missing signature, or verification explicitly
-disabled — is a development and test convenience only. Frozen boundaries:
-
-- **Permitted:** local development, compiled test harnesses, and
-  single-operator preprod verticals on private networks without customer
-  data, and only when the deployment sets the explicit
-  `insecure_dev` manifest-verification mode in its configuration.
-- **Production and preprod fail closed:** the startup guard refuses a
-  production-class configuration whose manifest verification is absent or
-  `insecure_dev`, exactly as the identity startup guard refuses symmetric
-  JWT ([OIDC/JWKS addendum](37-oidc-jwks-and-runtime-session-lifecycle.md)).
-- Every unsigned application is audited with
-  `verification_result = unsigned_dev`; an environment cannot both apply
-  unsigned manifests and claim any `LG-*` production gate.
-- The landed maintenance bootstrap path — which records `issuer` and
-  `signer_key_id` but does not yet verify — is this dev/test mode by
-  definition; production activation of the maintenance bootstrap requires
-  steps 1–9 above implemented and tested.
+Unsigned documents never enter the manifest-application pipeline in any
+environment. Local tests may construct state with explicitly labelled fixture
+loaders, but that state is not an enrollment-manifest application, cannot
+create a `passed` `manifest_verification`, and cannot be promoted or reused as
+preprod/production evidence. Production and preprod startup fail closed when
+the verifier/key registry is absent. There is no `unsigned_dev` verification
+result and no unsigned path to `applied_at`.
 
 ## Outage and failure matrix
 
@@ -255,7 +247,7 @@ vector corpus:
 - verification order: each step 1–9 fails closed independently; audit row
   written on every path with the exact result code; apply-before-audit
   ordering;
-- unsigned mode: production startup refusal; `unsigned_dev` audit rows in
-  permitted environments;
+- unsigned input: rejection before effects in every environment; test fixtures
+  remain out-of-band and non-promotable;
 - cache: revocation observed within the 60-second bound; registry outage
   fail-closed behavior.

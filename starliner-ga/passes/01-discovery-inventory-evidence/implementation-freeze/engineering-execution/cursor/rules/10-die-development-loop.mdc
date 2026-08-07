@@ -24,3 +24,12 @@ alwaysApply: true
 - Missing code, failed tests and open LGs are ACTIVE work, not blockers.
 - Never count fixed IDs, shared preview credentials, persona shims, manual SQL,
   fixture interiors, dirty binaries or mixed runtime manifests as product E2E.
+- For a source vertical, read ADR-0022 and document 43, bind the official
+  installer/deployer and normal tenant/bootstrap/enrollment/supervisor path in
+  `SOURCE_PRODUCT_PATH.yaml`, and prove one continuous exact-artifact trace.
+- If a required external input is missing, ask for the exact bounded
+  credential, infrastructure or privileged action and continue independent
+  work. Never invent a second tenant, hand-mint a credential, inject browser
+  storage, patch service configuration or start an alternate daemon.
+- Treat Browser Extension plus native host as one Browser producer/WAL stream
+  with component lineage; Browser Backend is a separate server-owned producer.

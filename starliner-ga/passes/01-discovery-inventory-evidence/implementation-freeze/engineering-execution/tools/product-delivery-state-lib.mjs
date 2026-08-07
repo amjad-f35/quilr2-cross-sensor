@@ -1,3 +1,9 @@
+import { parseCsv, serializeCsv } from './csv-lib.mjs'
+import { validateGateBCertification } from './gate-b-certification-lib.mjs'
+import { validateSensorVerticalState } from './sensor-vertical-state-lib.mjs'
+
+export { parseCsv, serializeCsv } from './csv-lib.mjs'
+
 export const PRODUCT_DELIVERY_HEADER = [
   'capability_id',
   'implementation_state',
@@ -36,66 +42,19 @@ const BLOCKERS = new Set(['NONE', 'CONTRACT_CONTRADICTION', 'EXTERNAL_CREDENTIAL
 const FORBIDDEN_BLOCKER_TARGET = /\bLG-?00[1-8]\b|\bDIE-WP[0-9]{2}\b|remote validator|pull request|PR review/i
 const OVERBROAD_BLOCKED_ACTION = /\b(?:all|broad|entire) (?:implementation|coding|development|program)\b/i
 const SAFE_EVIDENCE_REF = /^(?!\/)(?!.*\.\.)[A-Za-z0-9_.\/-]+$/
-
-export function parseCsv(text, label = 'CSV') {
-  const rows = []
-  let row = []
-  let field = ''
-  let quoted = false
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index]
-    if (quoted) {
-      if (character === '"' && text[index + 1] === '"') {
-        field += '"'
-        index += 1
-      }
-      else if (character === '"')
-        quoted = false
-      else
-        field += character
-    }
-    else if (character === '"')
-      quoted = true
-    else if (character === ',') {
-      row.push(field)
-      field = ''
-    }
-    else if (character === '\n') {
-      row.push(field.replace(/\r$/, ''))
-      if (row.some(value => value !== ''))
-        rows.push(row)
-      row = []
-      field = ''
-    }
-    else
-      field += character
-  }
-  if (quoted)
-    throw new Error(`${label} has an unterminated quoted field`)
-  if (field || row.length) {
-    row.push(field)
-    rows.push(row)
-  }
-  if (!rows.length)
-    throw new Error(`${label} is empty`)
-  const width = rows[0].length
-  rows.forEach((candidate, index) => {
-    if (candidate.length !== width)
-      throw new Error(`${label}:${index + 1} has ${candidate.length} columns; expected ${width}`)
-  })
-  return rows
-}
-
-function csv(value) {
-  const string = String(value)
-  if (/[",\n\r]/.test(string))
-    return `"${string.replaceAll('"', '""')}"`
-  return string
-}
-
-export function serializeCsv(rows) {
-  return `${rows.map(row => row.map(csv).join(',')).join('\n')}\n`
-}
+const SOURCE_CAPABILITIES = new Set(['PC-002', 'PC-003', 'PC-004', 'PC-005', 'PC-006'])
+const CAPABILITY_PROFILE = new Map([
+  ['PC-002', 'browser'],
+  ['PC-003', 'browser_backend'],
+  ['PC-004', 'endpoint'],
+  ['PC-005', 'llm_gateway'],
+  ['PC-006', 'mcp_gateway'],
+])
+const STAGE_ORDER = [
+  'NONE', 'NATIVE_CAPTURE', 'LOCAL_WAL', 'INGEST_RECEIPT', 'IMMUTABLE_EVIDENCE',
+  'NORMALIZED', 'CANONICAL_ENTITY', 'CANONICAL_GRAPH_ACTIVITY', 'PROJECTED',
+  'AUTHORIZED_API', 'LIVE_UI', 'REBUILD_REPLAY', 'RELEASE_QUALIFIED',
+]
 
 function includes(set, value, path, errors) {
   if (!set.has(value))
@@ -244,6 +203,8 @@ export function validateExecutionStatus(status, label = status.capability_id || 
     if (status.runtime_mode === 'UNIT_HARNESS') {
       if (status.runtime_manifest !== 'NONE' || status.runtime_manifest_digest !== 'NONE')
         errors.push(`${label} UNIT_HARNESS cannot claim an integrated runtime manifest`)
+      if (status.highest_proven_stage !== 'NONE')
+        errors.push(`${label} UNIT_HARNESS cannot claim an integrated product stage`)
     }
     else
       requireManifest()
@@ -257,10 +218,8 @@ export function validateExecutionStatus(status, label = status.capability_id || 
     }
   }
   if (status.implementation_state === 'IMPLEMENTED') {
-    if (status.evidence_state === 'NOT_RUN' || status.runtime_mode === 'NONE'
-      || status.highest_proven_stage === 'NONE') {
-      errors.push(`${label} IMPLEMENTED requires verified production-path code and a proven stage`)
-    }
+    if (status.evidence_state === 'NOT_RUN' || status.runtime_mode === 'NONE')
+      errors.push(`${label} IMPLEMENTED requires verified production-path code`)
     requireVerifiedSha()
   }
   if (status.implementation_state === 'SUPERSEDED' && status.release_state !== 'NOT_ELIGIBLE')
@@ -306,7 +265,17 @@ export function requiredCapabilityIds(capabilityMapText) {
     .map(row => row[idIndex])
 }
 
-export function validateProductDeliveryState(stateText, capabilityMapText) {
+export function validateProductDeliveryState(stateText, capabilityMapText, context = {}) {
+  if (typeof context === 'string' || context === null)
+    context = { sensorVerticalText: context }
+  const {
+    sensorVerticalText = null,
+    sensorEvidenceRoot = null,
+    gateBCertificationText = null,
+    gateBObligationText = null,
+    gateBEvidenceRoot = sensorEvidenceRoot,
+    gateBAuthority = {},
+  } = context
   const errors = []
   let rows
   try {
@@ -318,7 +287,22 @@ export function validateProductDeliveryState(stateText, capabilityMapText) {
   if (JSON.stringify(rows[0]) !== JSON.stringify(PRODUCT_DELIVERY_HEADER))
     errors.push('PRODUCT_DELIVERY_STATE.csv header does not match the execution-state contract')
   const required = new Set(requiredCapabilityIds(capabilityMapText))
+  let sensorRows = []
+  if (sensorVerticalText !== null) {
+    try {
+      const parsed = parseCsv(sensorVerticalText, 'SENSOR_VERTICAL_STATE.csv')
+      const header = parsed[0]
+      sensorRows = parsed.slice(1)
+        .map(row => Object.fromEntries(header.map((field, index) => [field, row[index]])))
+    }
+    catch (error) {
+      errors.push(error.message)
+    }
+    errors.push(...validateSensorVerticalState(sensorVerticalText, sensorEvidenceRoot)
+      .map(error => `SENSOR_VERTICAL_STATE: ${error}`))
+  }
   const seen = new Set()
+  let releaseQualified = false
   rows.slice(1).forEach((row, index) => {
     if (row.length !== PRODUCT_DELIVERY_HEADER.length)
       return
@@ -329,10 +313,73 @@ export function validateProductDeliveryState(stateText, capabilityMapText) {
     if (!required.has(value.capability_id))
       errors.push(`PRODUCT_DELIVERY_STATE.csv contains non-required capability ${value.capability_id}`)
     errors.push(...validateExecutionStatus(value, `PRODUCT_DELIVERY_STATE.csv:${index + 2}`))
+    if (value.highest_proven_stage === 'RELEASE_QUALIFIED' || value.release_state === 'RELEASABLE')
+      releaseQualified = true
+    if (SOURCE_CAPABILITIES.has(value.capability_id) && value.highest_proven_stage !== 'NONE') {
+      if (sensorVerticalText === null) {
+        errors.push(`PRODUCT_DELIVERY_STATE.csv:${index + 2} claims ${value.highest_proven_stage} without SENSOR_VERTICAL_STATE.csv`)
+      }
+      else {
+        const requiredIndex = Math.min(STAGE_ORDER.indexOf(value.highest_proven_stage), STAGE_ORDER.indexOf('LIVE_UI'))
+        const candidates = sensorRows.filter(sensor => sensor.capability_id === value.capability_id)
+        const matching = candidates.filter(sensor => STAGE_ORDER.indexOf(sensor.highest_integrated_stage) >= requiredIndex)
+        if (!matching.length) {
+          errors.push(`PRODUCT_DELIVERY_STATE.csv:${index + 2} exceeds every ${value.capability_id} SENSOR_VERTICAL_STATE high-water`)
+        }
+        else if (requiredIndex >= STAGE_ORDER.indexOf('INGEST_RECEIPT')
+          && !matching.some(sensor => sensor.runtime_manifest_digest === value.runtime_manifest_digest)) {
+          errors.push(`PRODUCT_DELIVERY_STATE.csv:${index + 2} runtime manifest is not bound by a qualifying ${value.capability_id} sensor vertical`)
+        }
+      }
+    }
   })
   for (const id of required) {
     if (!seen.has(id))
       errors.push(`PRODUCT_DELIVERY_STATE.csv omits required capability ${id}`)
+  }
+  if (releaseQualified) {
+    if (sensorVerticalText === null)
+      errors.push('RELEASE_QUALIFIED/RELEASABLE requires the semantically validated SENSOR_VERTICAL_STATE ledger')
+    const includedProfiles = [...required]
+      .filter(id => CAPABILITY_PROFILE.has(id))
+      .map(id => CAPABILITY_PROFILE.get(id))
+    for (const profile of includedProfiles) {
+      const capabilityId = [...CAPABILITY_PROFILE.entries()].find(([, value]) => value === profile)?.[0]
+      const qualifying = sensorRows.filter(row => row.profile === profile && row.capability_id === capabilityId)
+      if (!qualifying.some(row => row.highest_integrated_stage === 'LIVE_UI'
+        && row.normal_path_state === 'COHERENT_E2E')) {
+        errors.push(`RELEASE_QUALIFIED/RELEASABLE requires ${profile} at semantically valid coherent LIVE_UI`)
+      }
+    }
+    if (!gateBCertificationText || !gateBObligationText) {
+      errors.push('RELEASE_QUALIFIED/RELEASABLE requires complete Gate-B certification and obligation ledgers')
+    }
+    else {
+      const gateErrors = validateGateBCertification(
+        gateBCertificationText,
+        gateBObligationText,
+        gateBEvidenceRoot,
+        gateBAuthority,
+      )
+      errors.push(...gateErrors.map(error => `GATE_B_CERTIFICATION: ${error}`))
+      try {
+        const gateRows = parseCsv(gateBCertificationText, 'GATE_B_CERTIFICATION.csv')
+        const header = gateRows[0]
+        const gates = gateRows.slice(1)
+          .map(row => Object.fromEntries(header.map((field, index) => [field, row[index]])))
+        for (const profile of includedProfiles) {
+          const profileRows = gates.filter(row => row.profile === profile)
+          if (!profileRows.length
+            || profileRows.some(row => row.profile_gate_state !== 'COMPLETE'
+              || !['CERTIFIED', 'APPROVED_UNSUPPORTED'].includes(row.outcome))) {
+            errors.push(`RELEASE_QUALIFIED/RELEASABLE requires complete terminal Gate-B evidence for ${profile}`)
+          }
+        }
+      }
+      catch (error) {
+        errors.push(`GATE_B_CERTIFICATION: ${error.message}`)
+      }
+    }
   }
   return errors
 }

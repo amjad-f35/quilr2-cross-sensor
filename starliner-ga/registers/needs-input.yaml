@@ -14,11 +14,11 @@ items:
     consulted: [product_lead, chief_architect, sre_lead]
     evidence: deployment_profile_decision
   - id: NI-003
-    input: Tenant and environment identifier source for the new platform; legacy tenant/environment mapping is isolated to NI-021 and NI-022 under MIGRATION
+    input: Internal tenant-cell alias and environment placement for the new platform. The customer-facing logical tenant is already frozen as the existing organization tenant UUID supplied through the supported installation/deployment workflow; sensors do not receive a second Quilr 2 tenant ID. Legacy data migration remains isolated to NI-021 and NI-022 under MIGRATION.
     blocks: [G1]
     accountable_role: platform_lead
     consulted: [security_lead]
-    evidence: tenant_registry_contract
+    evidence: internal_tenant_cell_assignment_contract
   - id: NI-004
     input: Customer identity issuer, federation modes, and SCIM launch scope
     blocks: [G2]

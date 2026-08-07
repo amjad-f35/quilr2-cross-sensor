@@ -129,3 +129,9 @@ decisions:
     record: ../adrs/0021-producer-health-is-a-closed-derived-vocabulary.md
     owners: [product_lead, chief_architect, program_lead]
     affects: [sensors, evidence, inventory, product, operations, gates]
+  - id: ADR-0022
+    title: Installed-product vertical delivery
+    status: accepted
+    record: ../adrs/0022-installed-product-vertical-delivery.md
+    owners: [product_lead, chief_architect, program_lead, edge_lead]
+    affects: [delivery, sensors, enrollment, evidence, graph, product, gates]

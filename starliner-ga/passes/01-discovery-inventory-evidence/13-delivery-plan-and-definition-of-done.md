@@ -7,6 +7,12 @@ by implementation-freeze document 41**
 gates. Product construction advances through the cross-package `PI-001..PI-007`
 vertical outcomes in document 41. Release evidence remains a separate axis.
 
+[ADR-0022](../../adrs/0022-installed-product-vertical-delivery.md) and
+[implementation-freeze document 43](implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md)
+govern installed-product prerequisites and source-vertical order. The complete
+first customer release remains all five profiles; the first implementation
+vertical is one real source through the permanent funnel.
+
 ## Work packages
 
 ### P01 — Freeze and ownership
@@ -125,7 +131,28 @@ design development but cannot become product proof. Missing code, a failing
 test, an open release gate or unavailable remote validation is active work, not
 a permission stop.
 
-## Production walking scenario
+The primary integration lane advances through:
+
+```text
+PI-001  real tenant/bootstrap/enrollment and source health
+PI-002  Endpoint installed-product vertical
+PI-003A Browser Extension plus native host as one Browser producer stream
+PI-003B Browser Backend server-owned-fact vertical
+PI-004A LLM Gateway deployed-source vertical
+PI-004B MCP Gateway deployed-source vertical
+PI-005  exhaustive cross-source resolution and graph closure
+```
+
+Each source first proves one continuous native-to-UI trace. Endpoint and
+Browser then prove the first real cross-source binding/relationship and an
+unresolved negative before the remaining Gate-A verticals. Full supported-
+profile breadth closes in parallel after that proof and remains mandatory for
+the all-source definition of done.
+
+## Final all-source production walking scenario
+
+This is the customer-release acceptance scenario, not a prerequisite for the
+first real source vertical.
 
 1. Browser discovers a supported AI web surface and activity.
 2. Endpoint discovers a related desktop artifact/process.
@@ -155,11 +182,18 @@ the bounded product scenario above.
 ### Source/evidence
 
 - all advertised event types are implemented and certified;
+- exact official install/deploy artifacts, normal tenant/bootstrap and
+  enrollment, normal supervisor/entrypoint and continuous native-to-UI traces
+  are bound under document 43;
 - WAL, receipts, replay, corrections and gaps pass;
 - source-native IDs/provenance retained;
 - no source canonical IDs;
 - privacy/prohibited content tests pass;
 - exact production artifacts are bound.
+- Browser Extension owns the one logical Browser producer/WAL/delivery stream;
+  the native host is a supporting capture component, never a WAL or delivery
+  owner, and retains component lineage; Browser Backend remains a separate hosted
+  producer and never double-counts relayed client activity.
 
 ### Inventory/activity
 

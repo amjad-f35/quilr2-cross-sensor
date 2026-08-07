@@ -97,11 +97,100 @@ INSERT INTO die_control.source_profile_version (
   accepted_at
 ) VALUES
   ('browser', '1.0.0', 'schemas/profile-browser-v1.schema.json', 'sha256:6cd7d92e293f11f482fe5409132b494f1014c0ec1b3b94d16667b3285a28e7be', 'accepted', '2026-07-30T00:00:00Z'),
-  ('browser_backend', '1.0.0', 'schemas/profile-browser-backend-v1.schema.json', 'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442', 'accepted', '2026-07-30T00:00:00Z'),
   ('endpoint', '1.0.0', 'schemas/profile-endpoint-v1.schema.json', 'sha256:fb686ed047e38ca311cb6fcc724b63b4bf8857f648a438b310dc0403734372d6', 'accepted', '2026-07-30T00:00:00Z'),
   ('llm_gateway', '1.0.0', 'schemas/profile-llm-gateway-v1.schema.json', 'sha256:35008e7bc7bf9586d16b4c1cb7343d5e363b3100c93fa1181f115d63d3356476', 'accepted', '2026-07-30T00:00:00Z'),
   ('mcp_gateway', '1.0.0', 'schemas/profile-mcp-gateway-v1.schema.json', 'sha256:65fc5c9338dd66a239f11e3d529738d8f9b0aec5d7a5e2f6b31ff4c9540b09ad', 'accepted', '2026-07-30T00:00:00Z')
 ON CONFLICT (profile_id, profile_version) DO NOTHING;
+
+-- Browser Backend 1.0.0 was corrected before GA to require a qualified client
+-- reference and to forbid copying client observation fields into a relayed
+-- backend record. Some pre-GA databases may contain the known candidate digest
+-- from the earlier corpus. Converge that one exact digest; accept the corrected
+-- digest idempotently; fail closed on every unknown value. A generic ON
+-- CONFLICT DO NOTHING would silently leave different admission semantics under
+-- the same profile/version and is prohibited here.
+DO $$
+DECLARE
+  current_digest text;
+  current_schema_ref text;
+  current_admission_state text;
+  current_retired_at timestamptz;
+BEGIN
+  SELECT schema_digest, schema_ref, admission_state, retired_at
+    INTO current_digest, current_schema_ref, current_admission_state,
+         current_retired_at
+  FROM die_control.source_profile_version
+  WHERE profile_id = 'browser_backend'
+    AND profile_version = '1.0.0'
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    INSERT INTO die_control.source_profile_version (
+      profile_id, profile_version, schema_ref, schema_digest,
+      admission_state, accepted_at
+    ) VALUES (
+      'browser_backend', '1.0.0',
+      'schemas/profile-browser-backend-v1.schema.json',
+      'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e',
+      'accepted', '2026-08-05T00:00:00Z'
+    );
+  ELSIF current_digest =
+    'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442'
+  THEN
+    IF current_schema_ref IS DISTINCT FROM
+         'schemas/profile-browser-backend-v1.schema.json'
+      OR current_admission_state IS DISTINCT FROM 'accepted'
+      OR current_retired_at IS NOT NULL
+    THEN
+      RAISE EXCEPTION
+        'browser_backend 1.0.0 known candidate digest has conflicting registry state';
+    END IF;
+    UPDATE die_control.source_profile_version
+    SET schema_ref = 'schemas/profile-browser-backend-v1.schema.json',
+        schema_digest =
+          'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e',
+        admission_state = 'accepted',
+        accepted_at = '2026-08-05T00:00:00Z',
+        retired_at = NULL
+    WHERE profile_id = 'browser_backend'
+      AND profile_version = '1.0.0';
+  ELSIF current_digest =
+    'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'
+  THEN
+    IF current_schema_ref IS DISTINCT FROM
+         'schemas/profile-browser-backend-v1.schema.json'
+      OR current_admission_state IS DISTINCT FROM 'accepted'
+      OR current_retired_at IS NOT NULL
+    THEN
+      RAISE EXCEPTION
+        'browser_backend 1.0.0 corrected digest has conflicting registry state';
+    END IF;
+  ELSE
+    RAISE EXCEPTION
+      'browser_backend 1.0.0 has unknown schema digest %; refusing silent convergence',
+      current_digest;
+  END IF;
+END;
+$$;
+
+-- External installation and control APIs address an organization by its
+-- durable UUID. The rest of the DIE schema intentionally retains a bounded
+-- text tenant key so an internal tenant can be moved between cells without
+-- changing every canonical key. This registry is the only permitted mapping
+-- boundary: a caller-supplied organization UUID must resolve to one active
+-- internal tenant and can never be treated as the tenant key by convention.
+CREATE TABLE IF NOT EXISTS die_control.organization_tenant (
+  tenant_id text NOT NULL,
+  organization_tenant_id uuid NOT NULL,
+  state text NOT NULL CHECK (state IN ('active','suspended','retired')),
+  registered_at timestamptz NOT NULL,
+  retired_at timestamptz,
+  PRIMARY KEY (tenant_id),
+  UNIQUE (organization_tenant_id),
+  UNIQUE (tenant_id, organization_tenant_id),
+  CHECK ((state = 'retired') = (retired_at IS NOT NULL)),
+  CHECK (retired_at IS NULL OR retired_at >= registered_at)
+);
 
 CREATE TABLE IF NOT EXISTS die_control.producer (
   tenant_id text NOT NULL,
@@ -111,7 +200,11 @@ CREATE TABLE IF NOT EXISTS die_control.producer (
   business_scope_id uuid NOT NULL,
   display_name text NOT NULL,
   trust_state text NOT NULL CHECK (trust_state IN ('pending','trusted','degraded','revoked','rejected')),
+  -- Primary artifact means the exact running artifact of the component set's
+  -- one delivery owner. Compound-set identity is separate and never overloaded.
   artifact_digest text NOT NULL CHECK (artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
+  component_set_digest text
+    CHECK (component_set_digest IS NULL OR component_set_digest ~ '^sha256:[0-9a-f]{64}$'),
   active_certification_id uuid,
   credential_subject text NOT NULL,
   environment text NOT NULL,
@@ -132,6 +225,597 @@ CREATE TABLE IF NOT EXISTS die_control.producer (
   CHECK (revoked_at IS NULL OR revoked_at >= first_enrolled_at),
   CHECK ((trust_state = 'revoked') = (revoked_at IS NOT NULL)),
   CHECK (trust_state NOT IN ('trusted','degraded') OR active_certification_id IS NOT NULL)
+);
+
+-- Discovery issues this one-use bootstrap against an existing organization
+-- tenant. Only its digest is stored: the bearer secret is never persisted.
+-- The bootstrap decides tenant/profile/scope/environment; an installer cannot
+-- choose a different authority boundary in its enrollment request.
+CREATE TABLE IF NOT EXISTS die_control.sensor_bootstrap (
+  tenant_id text NOT NULL,
+  organization_tenant_id uuid NOT NULL,
+  bootstrap_id uuid NOT NULL,
+  token_digest text NOT NULL CHECK (token_digest ~ '^sha256:[0-9a-f]{64}$'),
+  source_profile text NOT NULL,
+  business_scope_id uuid NOT NULL,
+  environment text NOT NULL CHECK (environment ~ '^[a-z][a-z0-9_.-]{0,127}$'),
+  intent text NOT NULL CHECK (intent IN ('enroll','reinstall')),
+  discovery_issuer text NOT NULL CHECK (length(discovery_issuer) BETWEEN 1 AND 512),
+  discovery_subject_ref text NOT NULL
+    CHECK (length(discovery_subject_ref) BETWEEN 1 AND 1024),
+  issued_at timestamptz NOT NULL,
+  expires_at timestamptz NOT NULL,
+  state text NOT NULL CHECK (state IN ('issued','consumed','expired','revoked')),
+  consumed_at timestamptz,
+  consumed_request_id uuid,
+  consumed_request_digest text
+    CHECK (consumed_request_digest IS NULL OR consumed_request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  installation_key_thumbprint text
+    CHECK (installation_key_thumbprint IS NULL OR installation_key_thumbprint ~ '^sha256:[0-9a-f]{64}$'),
+  terminal_at timestamptz,
+  terminal_reason text,
+  replaces_producer_id uuid,
+  replaces_installation_id uuid,
+  replaces_producer_epoch uuid,
+  PRIMARY KEY (tenant_id, bootstrap_id),
+  UNIQUE (tenant_id, token_digest),
+  FOREIGN KEY (tenant_id, organization_tenant_id)
+    REFERENCES die_control.organization_tenant(
+      tenant_id, organization_tenant_id
+    ),
+  FOREIGN KEY (source_profile)
+    REFERENCES die_control.source_profile(profile_id),
+  CHECK (expires_at > issued_at),
+  CHECK (expires_at <= issued_at + interval '15 minutes'),
+  CHECK (
+    (intent = 'enroll'
+      AND replaces_producer_id IS NULL
+      AND replaces_installation_id IS NULL
+      AND replaces_producer_epoch IS NULL)
+    OR
+    (intent = 'reinstall'
+      AND replaces_producer_id IS NOT NULL
+      AND replaces_installation_id IS NOT NULL
+      AND replaces_producer_epoch IS NOT NULL)
+  ),
+  CHECK (
+    (state = 'issued'
+      AND consumed_at IS NULL
+      AND consumed_request_id IS NULL
+      AND consumed_request_digest IS NULL
+      AND installation_key_thumbprint IS NULL
+      AND terminal_at IS NULL
+      AND terminal_reason IS NULL)
+    OR
+    (state = 'consumed'
+      AND consumed_at IS NOT NULL
+      AND consumed_request_id IS NOT NULL
+      AND consumed_request_digest IS NOT NULL
+      AND installation_key_thumbprint IS NOT NULL
+      AND terminal_at IS NULL
+      AND terminal_reason IS NULL)
+    OR
+    (state IN ('expired','revoked')
+      AND consumed_at IS NULL
+      AND consumed_request_id IS NULL
+      AND consumed_request_digest IS NULL
+      AND installation_key_thumbprint IS NULL
+      AND terminal_at IS NOT NULL
+      AND terminal_reason IS NOT NULL)
+  ),
+  CHECK (consumed_at IS NULL OR consumed_at BETWEEN issued_at AND expires_at),
+  CHECK (terminal_at IS NULL OR terminal_at >= issued_at)
+);
+
+-- Immutable issuance attempts bind operator/Discovery authorization and
+-- idempotency without retaining the raw one-use bootstrap secret. An idempotent
+-- replay returns metadata only; it cannot disclose the secret a second time.
+CREATE TABLE IF NOT EXISTS die_control.sensor_bootstrap_issue_attempt (
+  tenant_id text NOT NULL,
+  attempt_id uuid NOT NULL,
+  issuance_request_id uuid NOT NULL,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  bootstrap_id uuid,
+  actor_subject text NOT NULL CHECK (length(actor_subject) BETWEEN 1 AND 1024),
+  reason_code text NOT NULL CHECK (length(reason_code) BETWEEN 1 AND 128),
+  result text NOT NULL CHECK (result IN ('issued','idempotent_replay','rejected')),
+  response_digest text
+    CHECK (response_digest IS NULL OR response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  failure_code text,
+  attempted_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, attempt_id),
+  FOREIGN KEY (tenant_id, bootstrap_id)
+    REFERENCES die_control.sensor_bootstrap(tenant_id, bootstrap_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  CHECK (
+    (result IN ('issued','idempotent_replay')
+      AND bootstrap_id IS NOT NULL
+      AND response_digest IS NOT NULL
+      AND failure_code IS NULL)
+    OR
+    (result = 'rejected'
+      AND bootstrap_id IS NULL
+      AND response_digest IS NULL
+      AND failure_code IS NOT NULL)
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_sensor_bootstrap_issuance_success
+  ON die_control.sensor_bootstrap_issue_attempt(
+    tenant_id, idempotency_key_digest
+  ) WHERE result = 'issued';
+
+-- One accepted request owns one immutable, server-assigned producer /
+-- installation / sequence-epoch tuple. Replaying the same request reads this
+-- row; it never allocates a second identity.
+CREATE TABLE IF NOT EXISTS die_control.installation_enrollment (
+  tenant_id text NOT NULL,
+  enrollment_request_id uuid NOT NULL,
+  bootstrap_id uuid NOT NULL,
+  source_manifest_id uuid NOT NULL,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  client_nonce_digest text NOT NULL CHECK (client_nonce_digest ~ '^sha256:[0-9a-f]{64}$'),
+  intent text NOT NULL CHECK (intent IN ('enroll','reinstall')),
+  source_profile text NOT NULL,
+  business_scope_id uuid NOT NULL,
+  environment text NOT NULL CHECK (environment ~ '^[a-z][a-z0-9_.-]{0,127}$'),
+  installation_key_thumbprint text NOT NULL
+    CHECK (installation_key_thumbprint ~ '^sha256:[0-9a-f]{64}$'),
+  producer_id uuid NOT NULL,
+  installation_id uuid NOT NULL,
+  producer_epoch uuid NOT NULL,
+  component_set_digest text NOT NULL CHECK (component_set_digest ~ '^sha256:[0-9a-f]{64}$'),
+  assignment_response_digest text NOT NULL
+    CHECK (assignment_response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  result text NOT NULL CHECK (result IN ('enrolled','reinstalled')),
+  enrolled_at timestamptz NOT NULL,
+  replaces_producer_id uuid,
+  replaces_installation_id uuid,
+  replaces_producer_epoch uuid,
+  PRIMARY KEY (tenant_id, enrollment_request_id),
+  UNIQUE (tenant_id, bootstrap_id),
+  UNIQUE (tenant_id, idempotency_key_digest),
+  UNIQUE (tenant_id, producer_id),
+  UNIQUE (tenant_id, producer_id, installation_id, producer_epoch),
+  FOREIGN KEY (tenant_id, bootstrap_id)
+    REFERENCES die_control.sensor_bootstrap(tenant_id, bootstrap_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  FOREIGN KEY (tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  FOREIGN KEY (source_profile)
+    REFERENCES die_control.source_profile(profile_id),
+  CHECK (
+    (intent = 'enroll'
+      AND result = 'enrolled'
+      AND replaces_producer_id IS NULL
+      AND replaces_installation_id IS NULL
+      AND replaces_producer_epoch IS NULL)
+    OR
+    (intent = 'reinstall'
+      AND result = 'reinstalled'
+      AND replaces_producer_id IS NOT NULL
+      AND replaces_installation_id IS NOT NULL
+      AND replaces_producer_epoch IS NOT NULL)
+  )
+);
+
+-- Every call is retained separately so a byte-equivalent retry can be proven to
+-- have returned the original assignment, while a changed body under the same
+-- idempotency key is rejected and auditable.
+CREATE TABLE IF NOT EXISTS die_control.installation_enrollment_attempt (
+  tenant_id text NOT NULL,
+  attempt_id uuid NOT NULL,
+  bootstrap_id uuid NOT NULL,
+  enrollment_request_id uuid NOT NULL,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  result text NOT NULL CHECK (result IN (
+    'enrolled','reinstalled','idempotent_replay','rejected'
+  )),
+  producer_id uuid,
+  installation_id uuid,
+  producer_epoch uuid,
+  credential_id uuid,
+  credential_delivery text CHECK (
+    credential_delivery IS NULL OR credential_delivery IN (
+      'initial','replacement_after_lost_response'
+    )
+  ),
+  response_digest text
+    CHECK (response_digest IS NULL OR response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  reason_code text,
+  attempted_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, attempt_id),
+  FOREIGN KEY (tenant_id, bootstrap_id)
+    REFERENCES die_control.sensor_bootstrap(tenant_id, bootstrap_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  CHECK (
+    (result IN ('enrolled','reinstalled','idempotent_replay')
+      AND producer_id IS NOT NULL
+      AND installation_id IS NOT NULL
+      AND producer_epoch IS NOT NULL
+      AND credential_id IS NOT NULL
+      AND credential_delivery IS NOT NULL
+      AND response_digest IS NOT NULL
+      AND reason_code IS NULL)
+    OR
+    (result = 'rejected'
+      AND producer_id IS NULL
+      AND installation_id IS NULL
+      AND producer_epoch IS NULL
+      AND credential_id IS NULL
+      AND credential_delivery IS NULL
+      AND response_digest IS NULL
+      AND reason_code IS NOT NULL)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS die_control.producer_component_set (
+  tenant_id text NOT NULL,
+  producer_id uuid NOT NULL,
+  component_set_id uuid NOT NULL,
+  component_set_digest text NOT NULL CHECK (component_set_digest ~ '^sha256:[0-9a-f]{64}$'),
+  enrollment_request_id uuid NOT NULL,
+  source_profile text NOT NULL,
+  measured_at timestamptz NOT NULL,
+  state text NOT NULL CHECK (state IN ('active','superseded','revoked')),
+  revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 9007199254740991),
+  activated_at timestamptz NOT NULL,
+  retired_at timestamptz,
+  PRIMARY KEY (tenant_id, producer_id, component_set_digest),
+  UNIQUE (tenant_id, component_set_id),
+  FOREIGN KEY (tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id),
+  FOREIGN KEY (tenant_id, enrollment_request_id)
+    REFERENCES die_control.installation_enrollment(tenant_id, enrollment_request_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  FOREIGN KEY (source_profile)
+    REFERENCES die_control.source_profile(profile_id),
+  CHECK ((state = 'active') = (retired_at IS NULL)),
+  CHECK (retired_at IS NULL OR retired_at >= activated_at)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_producer_component_set_active
+  ON die_control.producer_component_set(tenant_id, producer_id)
+  WHERE state = 'active';
+
+CREATE TABLE IF NOT EXISTS die_control.producer_package (
+  tenant_id text NOT NULL,
+  producer_id uuid NOT NULL,
+  component_set_digest text NOT NULL,
+  package_id text NOT NULL CHECK (length(package_id) BETWEEN 1 AND 256),
+  product text NOT NULL CHECK (length(product) BETWEEN 1 AND 256),
+  version text NOT NULL CHECK (length(version) BETWEEN 1 AND 128),
+  package_format text NOT NULL CHECK (package_format IN (
+    'chrome_extension','firefox_addon','safari_extension','macos_pkg',
+    'windows_msi','linux_package','container_image','binary_bundle'
+  )),
+  source_repository text NOT NULL
+    CHECK (source_repository ~ '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$'),
+  source_commit text NOT NULL CHECK (source_commit ~ '^[0-9a-f]{40}$'),
+  package_digest text NOT NULL CHECK (package_digest ~ '^sha256:[0-9a-f]{64}$'),
+  build_evidence_ref text,
+  PRIMARY KEY (tenant_id, producer_id, component_set_digest, package_id),
+  FOREIGN KEY (tenant_id, producer_id, component_set_digest)
+    REFERENCES die_control.producer_component_set(
+      tenant_id, producer_id, component_set_digest
+    )
+);
+
+CREATE TABLE IF NOT EXISTS die_control.producer_component (
+  tenant_id text NOT NULL,
+  producer_id uuid NOT NULL,
+  component_set_digest text NOT NULL,
+  component_id text NOT NULL CHECK (component_id ~ '^[a-z][a-z0-9_.-]{0,127}$'),
+  package_id text NOT NULL,
+  component_role text NOT NULL CHECK (component_role IN (
+    'browser_extension','browser_native_host','browser_backend',
+    'endpoint_agent','endpoint_monitor','endpoint_proxy','endpoint_ipc_broker',
+    'endpoint_template_engine','endpoint_system_extension','endpoint_network_extension',
+    'llm_gateway','llm_edge_runtime',
+    'mcp_gateway','mcp_edge_runtime'
+  )),
+  product text NOT NULL CHECK (length(product) BETWEEN 1 AND 256),
+  version text NOT NULL CHECK (length(version) BETWEEN 1 AND 128),
+  source_repository text NOT NULL
+    CHECK (source_repository ~ '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$'),
+  source_commit text NOT NULL CHECK (source_commit ~ '^[0-9a-f]{40}$'),
+  package_member_path text,
+  package_member_digest text NOT NULL CHECK (package_member_digest ~ '^sha256:[0-9a-f]{64}$'),
+  installed_artifact_digest text NOT NULL CHECK (installed_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
+  runtime_artifact_digest text NOT NULL CHECK (runtime_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
+  runtime_identity text NOT NULL CHECK (length(runtime_identity) BETWEEN 1 AND 1024),
+  capture_owner boolean NOT NULL,
+  wal_owner boolean NOT NULL,
+  delivery_owner boolean NOT NULL,
+  health_component boolean NOT NULL,
+  PRIMARY KEY (tenant_id, producer_id, component_set_digest, component_id),
+  FOREIGN KEY (tenant_id, producer_id, component_set_digest, package_id)
+    REFERENCES die_control.producer_package(
+      tenant_id, producer_id, component_set_digest, package_id
+    )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_producer_component_set_wal_owner
+  ON die_control.producer_component(tenant_id, producer_id, component_set_digest)
+  WHERE wal_owner;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_producer_component_set_delivery_owner
+  ON die_control.producer_component(tenant_id, producer_id, component_set_digest)
+  WHERE delivery_owner;
+
+ALTER TABLE die_control.installation_enrollment
+  ADD CONSTRAINT installation_enrollment_component_set_fk
+  FOREIGN KEY (tenant_id, producer_id, component_set_digest)
+  REFERENCES die_control.producer_component_set(
+    tenant_id, producer_id, component_set_digest
+  ) DEFERRABLE INITIALLY DEFERRED;
+
+-- Short-lived DPoP-bound workload identities. No raw token or private key is
+-- stored. Rotation appends a new credential and retires/revokes the old row.
+CREATE TABLE IF NOT EXISTS die_control.workload_credential (
+  tenant_id text NOT NULL,
+  credential_id uuid NOT NULL,
+  producer_id uuid NOT NULL,
+  installation_id uuid NOT NULL,
+  producer_epoch uuid NOT NULL,
+  generation bigint NOT NULL CHECK (generation BETWEEN 1 AND 9007199254740991),
+  credential_subject text NOT NULL CHECK (length(credential_subject) BETWEEN 1 AND 1024),
+  installation_key_thumbprint text NOT NULL
+    CHECK (installation_key_thumbprint ~ '^sha256:[0-9a-f]{64}$'),
+  token_jti_digest text NOT NULL CHECK (token_jti_digest ~ '^sha256:[0-9a-f]{64}$'),
+  scopes text[] NOT NULL,
+  state text NOT NULL CHECK (state IN ('active','retiring','expired','revoked')),
+  issued_at timestamptz NOT NULL,
+  renew_after timestamptz NOT NULL,
+  expires_at timestamptz NOT NULL,
+  ended_at timestamptz,
+  end_reason text,
+  PRIMARY KEY (tenant_id, credential_id),
+  UNIQUE (tenant_id, producer_id, credential_id),
+  UNIQUE (tenant_id, producer_id, generation),
+  UNIQUE (tenant_id, token_jti_digest),
+  FOREIGN KEY (tenant_id, producer_id, installation_id, producer_epoch)
+    REFERENCES die_control.installation_enrollment(
+      tenant_id, producer_id, installation_id, producer_epoch
+    ) DEFERRABLE INITIALLY DEFERRED,
+  CHECK (cardinality(scopes) BETWEEN 2 AND 4),
+  CHECK (array_position(scopes, NULL) IS NULL),
+  CHECK (scopes <@ ARRAY[
+    'starliner.ingest','starliner.configuration.read',
+    'starliner.credential.renew','starliner.health.write'
+  ]::text[]),
+  CHECK ('starliner.ingest' = ANY(scopes)),
+  CHECK ('starliner.credential.renew' = ANY(scopes)),
+  CHECK (renew_after > issued_at AND renew_after < expires_at),
+  CHECK (expires_at <= issued_at + interval '15 minutes'),
+  CHECK (
+    (state IN ('active','retiring') AND ended_at IS NULL AND end_reason IS NULL)
+    OR
+    (state IN ('expired','revoked') AND ended_at IS NOT NULL AND end_reason IS NOT NULL)
+  ),
+  CHECK (ended_at IS NULL OR ended_at >= issued_at)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_workload_credential_one_active
+  ON die_control.workload_credential(tenant_id, producer_id)
+  WHERE state = 'active';
+
+-- Server-issued RFC 9449 nonce challenges are short-lived and single use. The
+-- raw nonce exists only in the response; this ledger retains its digest and
+-- exact renewal target. Consumption and the accepted proof replay row commit
+-- together, so neither a crash nor an idempotent retry can reuse the nonce.
+CREATE TABLE IF NOT EXISTS die_control.workload_nonce (
+  tenant_id text NOT NULL,
+  nonce_id uuid NOT NULL,
+  producer_id uuid NOT NULL,
+  credential_id uuid NOT NULL,
+  nonce_digest text NOT NULL CHECK (nonce_digest ~ '^sha256:[0-9a-f]{64}$'),
+  http_method text NOT NULL CHECK (http_method = 'POST'),
+  normalized_http_uri text NOT NULL
+    CHECK (normalized_http_uri ~ '^https://[^?#]{1,2039}$'),
+  state text NOT NULL CHECK (state IN ('issued','consumed','expired')),
+  issued_at timestamptz NOT NULL,
+  expires_at timestamptz NOT NULL,
+  consumed_at timestamptz,
+  accepted_proof_digest text
+    CHECK (accepted_proof_digest IS NULL OR accepted_proof_digest ~ '^sha256:[0-9a-f]{64}$'),
+  PRIMARY KEY (tenant_id, nonce_id),
+  UNIQUE (tenant_id, nonce_digest),
+  UNIQUE (tenant_id, producer_id, credential_id, nonce_digest),
+  FOREIGN KEY (tenant_id, producer_id, credential_id)
+    REFERENCES die_control.workload_credential(
+      tenant_id, producer_id, credential_id
+    ),
+  CHECK (expires_at > issued_at),
+  CHECK (expires_at <= issued_at + interval '5 minutes'),
+  CHECK (
+    (state = 'issued' AND consumed_at IS NULL AND accepted_proof_digest IS NULL)
+    OR
+    (state = 'consumed' AND consumed_at IS NOT NULL AND accepted_proof_digest IS NOT NULL)
+    OR
+    (state = 'expired' AND consumed_at IS NULL AND accepted_proof_digest IS NULL)
+  ),
+  CHECK (consumed_at IS NULL OR consumed_at BETWEEN issued_at AND expires_at)
+);
+
+CREATE TABLE IF NOT EXISTS die_control.credential_renewal (
+  tenant_id text NOT NULL,
+  renewal_request_id uuid NOT NULL,
+  producer_id uuid NOT NULL,
+  source_manifest_id uuid NOT NULL,
+  previous_credential_id uuid NOT NULL,
+  new_credential_id uuid,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  nonce_digest text NOT NULL CHECK (nonce_digest ~ '^sha256:[0-9a-f]{64}$'),
+  proof_key_thumbprint text NOT NULL CHECK (proof_key_thumbprint ~ '^sha256:[0-9a-f]{64}$'),
+  accepted_proof_digest text NOT NULL
+    CHECK (accepted_proof_digest ~ '^sha256:[0-9a-f]{64}$'),
+  proof_jti_digest text NOT NULL
+    CHECK (proof_jti_digest ~ '^sha256:[0-9a-f]{64}$'),
+  normalized_http_uri text NOT NULL
+    CHECK (normalized_http_uri ~ '^https://[^?#]{1,2039}$'),
+  result text NOT NULL CHECK (result = 'rotated'),
+  response_digest text NOT NULL CHECK (response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  requested_at timestamptz NOT NULL,
+  completed_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, renewal_request_id),
+  UNIQUE (tenant_id, producer_id, idempotency_key_digest),
+  FOREIGN KEY (tenant_id, producer_id, previous_credential_id)
+    REFERENCES die_control.workload_credential(
+      tenant_id, producer_id, credential_id
+    ),
+  FOREIGN KEY (tenant_id, producer_id, new_credential_id)
+    REFERENCES die_control.workload_credential(
+      tenant_id, producer_id, credential_id
+    )
+    DEFERRABLE INITIALLY DEFERRED,
+  CHECK (completed_at >= requested_at),
+  CHECK (new_credential_id IS NOT NULL)
+);
+
+-- Every renewal call is retained. The canonical credential_renewal row owns
+-- the one rotation effect; an idempotent replay can re-deliver an equivalent
+-- signed token for that immutable credential without creating a generation.
+CREATE TABLE IF NOT EXISTS die_control.credential_renewal_attempt (
+  tenant_id text NOT NULL,
+  attempt_id uuid NOT NULL,
+  request_id uuid NOT NULL,
+  renewal_request_id uuid,
+  producer_id uuid NOT NULL,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  result text NOT NULL CHECK (result IN ('rotated','idempotent_replay','rejected')),
+  new_credential_id uuid,
+  response_digest text
+    CHECK (response_digest IS NULL OR response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  reason_code text,
+  attempted_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, attempt_id),
+  FOREIGN KEY (tenant_id, renewal_request_id)
+    REFERENCES die_control.credential_renewal(tenant_id, renewal_request_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  CHECK (
+    (result IN ('rotated','idempotent_replay')
+      AND renewal_request_id IS NOT NULL
+      AND new_credential_id IS NOT NULL
+      AND response_digest IS NOT NULL
+      AND reason_code IS NULL)
+    OR
+    (result = 'rejected'
+      AND renewal_request_id IS NULL
+      AND new_credential_id IS NULL
+      AND response_digest IS NULL
+      AND reason_code IS NOT NULL)
+  )
+);
+
+-- RFC 9449 replay ledger. The service cryptographically verifies the DPoP JWT
+-- before insertion; this immutable uniqueness boundary prevents two accepted
+-- proofs with the same installation-key thumbprint and jti.
+CREATE TABLE IF NOT EXISTS die_control.workload_proof_replay (
+  tenant_id text NOT NULL,
+  producer_id uuid NOT NULL,
+  credential_id uuid NOT NULL,
+  installation_key_thumbprint text NOT NULL
+    CHECK (installation_key_thumbprint ~ '^sha256:[0-9a-f]{64}$'),
+  proof_jti_digest text NOT NULL CHECK (proof_jti_digest ~ '^sha256:[0-9a-f]{64}$'),
+  proof_digest text NOT NULL CHECK (proof_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  access_token_hash text NOT NULL CHECK (access_token_hash ~ '^sha256:[0-9a-f]{64}$'),
+  nonce_digest text NOT NULL CHECK (nonce_digest ~ '^sha256:[0-9a-f]{64}$'),
+  proof_typ text NOT NULL CHECK (proof_typ = 'dpop+jwt'),
+  http_method text NOT NULL CHECK (http_method = 'POST'),
+  http_uri text NOT NULL CHECK (http_uri ~ '^https://[^?#]{1,2039}$'),
+  issued_at timestamptz NOT NULL,
+  accepted_at timestamptz NOT NULL,
+  expires_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, installation_key_thumbprint, proof_jti_digest),
+  UNIQUE (tenant_id, proof_digest),
+  UNIQUE (tenant_id, producer_id, credential_id, proof_digest),
+  FOREIGN KEY (tenant_id, producer_id, credential_id)
+    REFERENCES die_control.workload_credential(
+      tenant_id, producer_id, credential_id
+    ),
+  FOREIGN KEY (tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id),
+  FOREIGN KEY (tenant_id, producer_id, credential_id, nonce_digest)
+    REFERENCES die_control.workload_nonce(
+      tenant_id, producer_id, credential_id, nonce_digest
+    ) DEFERRABLE INITIALLY DEFERRED,
+  CHECK (accepted_at >= issued_at),
+  CHECK (expires_at > accepted_at),
+  CHECK (expires_at <= issued_at + interval '5 minutes')
+);
+
+ALTER TABLE die_control.credential_renewal
+  ADD CONSTRAINT credential_renewal_accepted_proof_fk
+  FOREIGN KEY (
+    tenant_id, producer_id, previous_credential_id, accepted_proof_digest
+  ) REFERENCES die_control.workload_proof_replay(
+    tenant_id, producer_id, credential_id, proof_digest
+  ) DEFERRABLE INITIALLY DEFERRED;
+
+-- Revocation is a canonical idempotent effect plus an immutable call ledger.
+-- It has no secret response, so a retry returns the exact terminal resource
+-- identity and response digest from the canonical row.
+CREATE TABLE IF NOT EXISTS die_control.producer_revocation (
+  tenant_id text NOT NULL,
+  revocation_request_id uuid NOT NULL,
+  producer_id uuid NOT NULL,
+  source_manifest_id uuid NOT NULL,
+  expected_revision bigint NOT NULL CHECK (expected_revision BETWEEN 1 AND 9007199254740991),
+  terminal_revision bigint NOT NULL CHECK (terminal_revision BETWEEN 1 AND 9007199254740991),
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  response_digest text NOT NULL CHECK (response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  reason_code text NOT NULL CHECK (length(reason_code) BETWEEN 1 AND 128),
+  revoked_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, revocation_request_id),
+  UNIQUE (tenant_id, producer_id, idempotency_key_digest),
+  FOREIGN KEY (tenant_id, producer_id)
+    REFERENCES die_control.producer(tenant_id, producer_id),
+  CHECK (terminal_revision = expected_revision + 1)
+);
+
+CREATE TABLE IF NOT EXISTS die_control.producer_revocation_attempt (
+  tenant_id text NOT NULL,
+  attempt_id uuid NOT NULL,
+  request_id uuid NOT NULL,
+  revocation_request_id uuid,
+  producer_id uuid NOT NULL,
+  idempotency_key_digest text NOT NULL
+    CHECK (idempotency_key_digest ~ '^sha256:[0-9a-f]{64}$'),
+  request_digest text NOT NULL CHECK (request_digest ~ '^sha256:[0-9a-f]{64}$'),
+  result text NOT NULL CHECK (result IN ('revoked','idempotent_replay','rejected')),
+  response_digest text
+    CHECK (response_digest IS NULL OR response_digest ~ '^sha256:[0-9a-f]{64}$'),
+  reason_code text,
+  attempted_at timestamptz NOT NULL,
+  PRIMARY KEY (tenant_id, attempt_id),
+  FOREIGN KEY (tenant_id, revocation_request_id)
+    REFERENCES die_control.producer_revocation(tenant_id, revocation_request_id)
+    DEFERRABLE INITIALLY DEFERRED,
+  CHECK (
+    (result IN ('revoked','idempotent_replay')
+      AND revocation_request_id IS NOT NULL
+      AND response_digest IS NOT NULL AND reason_code IS NULL)
+    OR
+    (result = 'rejected'
+      AND revocation_request_id IS NULL
+      AND response_digest IS NULL AND reason_code IS NOT NULL)
+  )
 );
 
 -- Tenant IDs are control metadata, not customer data. Cell workers may discover
@@ -155,7 +839,8 @@ CREATE TABLE IF NOT EXISTS die_control.tenant_cell_principal (
   database_principal name NOT NULL,
   workload_role text NOT NULL CHECK (workload_role IN (
     'die_ingest','die_normalizer','die_truth','die_projector',
-    'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
+    'die_api','die_bff','die_maintenance','die_enrollment','die_verifier',
+    'die_control_admin','die_authz_admin'
   )),
   state text NOT NULL CHECK (state IN ('active','revoked')),
   assigned_at timestamptz NOT NULL,
@@ -207,6 +892,7 @@ CREATE TABLE IF NOT EXISTS die_control.producer_capability (
   capability text NOT NULL,
   mode text NOT NULL CHECK (mode IN ('observe','metadata_only','native_enforce','unsupported')),
   profile_version text NOT NULL,
+  source_manifest_id uuid NOT NULL,
   certified boolean NOT NULL DEFAULT false,
   effective_from timestamptz NOT NULL,
   effective_to timestamptz,
@@ -234,6 +920,8 @@ CREATE TABLE IF NOT EXISTS die_control.producer_health_policy (
   tenant_id text NOT NULL,
   producer_id uuid NOT NULL,
   policy_version text NOT NULL,
+  component_set_digest text NOT NULL
+    CHECK (component_set_digest ~ '^sha256:[0-9a-f]{64}$'),
   expected_report_interval_seconds integer NOT NULL
     CHECK (expected_report_interval_seconds BETWEEN 1 AND 86400),
   degraded_after_seconds integer NOT NULL
@@ -251,6 +939,10 @@ CREATE TABLE IF NOT EXISTS die_control.producer_health_policy (
   PRIMARY KEY (tenant_id, producer_id, effective_from),
   FOREIGN KEY (tenant_id, producer_id)
     REFERENCES die_control.producer(tenant_id, producer_id),
+  FOREIGN KEY (tenant_id, producer_id, component_set_digest)
+    REFERENCES die_control.producer_component_set(
+      tenant_id, producer_id, component_set_digest
+    ),
   CHECK (policy_version ~ '^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$'),
   -- The frozen ordering invariant; an out-of-order manifest is never admitted.
   CHECK (expected_report_interval_seconds < degraded_after_seconds),
@@ -300,6 +992,10 @@ CREATE TABLE IF NOT EXISTS die_control.expected_population_version (
   expected_count bigint NOT NULL CHECK (expected_count BETWEEN 0 AND 9007199254740991),
   authority_type text NOT NULL CHECK (authority_type IN ('producer_enrollment','deployment_config','authoritative_connector')),
   authority_ref text NOT NULL,
+  -- Present when the population was authorized by a producer-enrollment
+  -- manifest. Deployment configuration and authoritative connectors retain
+  -- their own authority_ref and are not forced to fabricate a manifest.
+  source_manifest_id uuid,
   lifecycle text NOT NULL CHECK (lifecycle IN ('active','inactive')),
   valid_from timestamptz NOT NULL,
   valid_to timestamptz,
@@ -309,6 +1005,7 @@ CREATE TABLE IF NOT EXISTS die_control.expected_population_version (
   FOREIGN KEY (tenant_id, population_id)
     REFERENCES die_control.expected_population(tenant_id, population_id),
   CHECK (valid_to IS NULL OR valid_to > valid_from),
+  CHECK (authority_type <> 'producer_enrollment' OR source_manifest_id IS NOT NULL),
   CHECK (system_to IS NULL OR system_to > system_from)
 );
 
@@ -331,9 +1028,15 @@ CREATE TABLE IF NOT EXISTS die_control.enrollment_manifest (
   tenant_id text NOT NULL,
   manifest_id uuid NOT NULL,
   producer_id uuid NOT NULL,
-  operation text NOT NULL CHECK (operation IN ('apply','revoke','certify')),
+  operation text NOT NULL CHECK (operation IN ('apply','rotate','revoke','certify')),
   revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 9007199254740991),
-  manifest_digest text NOT NULL CHECK (manifest_digest ~ '^sha256:[0-9a-f]{64}$'),
+  -- Different authorities: exact received signed document bytes versus the
+  -- RFC 8785 canonical unsigned payload carried by RFC 7797 detached JWS.
+  received_document_digest text NOT NULL
+    CHECK (received_document_digest ~ '^sha256:[0-9a-f]{64}$'),
+  canonical_payload_digest text NOT NULL
+    CHECK (canonical_payload_digest ~ '^sha256:[0-9a-f]{64}$'),
+  verification_attempt_id uuid NOT NULL,
   issuer text NOT NULL,
   signer_key_id text NOT NULL,
   issued_at timestamptz NOT NULL,
@@ -353,6 +1056,16 @@ CREATE TABLE IF NOT EXISTS die_control.certification (
   tenant_id text NOT NULL,
   certification_id uuid NOT NULL,
   producer_id uuid NOT NULL,
+  source_manifest_id uuid NOT NULL,
+  source_profile text NOT NULL,
+  profile_version text NOT NULL,
+  component_set_digest text NOT NULL
+    CHECK (component_set_digest ~ '^sha256:[0-9a-f]{64}$'),
+  delivery_artifact_digest text NOT NULL
+    CHECK (delivery_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
+  -- Compatibility name retained for the existing evidence/API vocabulary. It
+  -- is constrained to the delivery-owner runtime artifact below and never
+  -- denotes the aggregate component set.
   artifact_digest text NOT NULL CHECK (artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
   contract_digest text NOT NULL CHECK (contract_digest ~ '^sha256:[0-9a-f]{64}$'),
   profile_versions jsonb NOT NULL,
@@ -365,9 +1078,13 @@ CREATE TABLE IF NOT EXISTS die_control.certification (
   UNIQUE (tenant_id, producer_id, certification_id),
   FOREIGN KEY (tenant_id, producer_id)
     REFERENCES die_control.producer(tenant_id, producer_id),
+  FOREIGN KEY (source_profile, profile_version)
+    REFERENCES die_control.source_profile_version(profile_id, profile_version),
   CHECK (jsonb_typeof(profile_versions) = 'object'),
   CHECK (pg_column_size(profile_versions) <= 16384),
-  CHECK (expires_at IS NULL OR expires_at > certified_at)
+  CHECK (expires_at IS NULL OR expires_at > certified_at),
+  CHECK (artifact_digest = delivery_artifact_digest),
+  CHECK (profile_versions ->> source_profile = profile_version)
 );
 
 -- Tenant-scoped public verification keys for signed bootstrap, enrollment and
@@ -426,16 +1143,23 @@ CREATE TABLE IF NOT EXISTS die_control.manifest_signer_key_version (
     'revoked', 'revoked_compromised'
   )),
   fingerprint text NOT NULL CHECK (fingerprint ~ '^sha256:[0-9a-f]{64}$'),
+  algorithm text NOT NULL CHECK (algorithm IN ('ES256', 'EdDSA')),
+  public_jwk jsonb NOT NULL CHECK (jsonb_typeof(public_jwk) = 'object'),
   manifest_kind text NOT NULL CHECK (manifest_kind IN (
     'tenant_bootstrap', 'producer_enrollment', 'edge_configuration'
   )),
   environment text NOT NULL,
+  issuer text NOT NULL CHECK (length(issuer) BETWEEN 1 AND 512),
+  not_before timestamptz NOT NULL,
+  not_after timestamptz NOT NULL,
   changed_at timestamptz NOT NULL,
   changed_by name NOT NULL,
   reason_code text NOT NULL CHECK (length(reason_code) BETWEEN 1 AND 256),
   PRIMARY KEY (tenant_id, key_id, revision),
   FOREIGN KEY (tenant_id, key_id)
-    REFERENCES die_control.manifest_signer_key(tenant_id, key_id)
+    REFERENCES die_control.manifest_signer_key(tenant_id, key_id),
+  CHECK (not_after > not_before),
+  CHECK (NOT (public_jwk ?| ARRAY['d','p','q','dp','dq','qi','k']))
 );
 
 CREATE TABLE IF NOT EXISTS die_control.manifest_verification (
@@ -446,20 +1170,99 @@ CREATE TABLE IF NOT EXISTS die_control.manifest_verification (
     'tenant_bootstrap', 'producer_enrollment', 'edge_configuration'
   )),
   schema_version text,
-  manifest_digest text NOT NULL CHECK (manifest_digest ~ '^sha256:[0-9a-f]{64}$'),
-  issuer text,
-  key_id text,
-  key_fingerprint text CHECK (
-    key_fingerprint IS NULL OR key_fingerprint ~ '^sha256:[0-9a-f]{64}$'
-  ),
-  algorithm text,
-  verification_result text NOT NULL CHECK (length(verification_result) BETWEEN 1 AND 128),
+  environment text NOT NULL CHECK (length(environment) BETWEEN 1 AND 128),
+  received_document_digest text NOT NULL
+    CHECK (received_document_digest ~ '^sha256:[0-9a-f]{64}$'),
+  canonical_payload_digest text NOT NULL
+    CHECK (canonical_payload_digest ~ '^sha256:[0-9a-f]{64}$'),
+  protected_header_digest text NOT NULL
+    CHECK (protected_header_digest ~ '^sha256:[0-9a-f]{64}$'),
+  signature_digest text NOT NULL
+    CHECK (signature_digest ~ '^sha256:[0-9a-f]{64}$'),
+  issuer text NOT NULL,
+  key_id text NOT NULL,
+  signer_key_revision bigint NOT NULL
+    CHECK (signer_key_revision BETWEEN 1 AND 9007199254740991),
+  key_fingerprint text NOT NULL
+    CHECK (key_fingerprint ~ '^sha256:[0-9a-f]{64}$'),
+  algorithm text NOT NULL CHECK (algorithm IN ('ES256','EdDSA')),
+  verification_result text NOT NULL CHECK (verification_result IN (
+    'passed','invalid_signature','invalid_key','invalid_header','invalid_payload',
+    'expired','not_yet_valid','wrong_scope','revoked_key','replay'
+  )),
   verifier_artifact_digest text NOT NULL CHECK (verifier_artifact_digest ~ '^sha256:[0-9a-f]{64}$'),
   applied_effects jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(applied_effects) = 'object'),
   verified_at timestamptz NOT NULL,
   applied_at timestamptz,
-  PRIMARY KEY (tenant_id, attempt_id)
+  PRIMARY KEY (tenant_id, attempt_id),
+  UNIQUE (
+    tenant_id, attempt_id, manifest_id,
+    received_document_digest, canonical_payload_digest
+  ),
+  FOREIGN KEY (tenant_id, key_id, signer_key_revision)
+    REFERENCES die_control.manifest_signer_key_version(
+      tenant_id, key_id, revision
+    ),
+  CHECK (verification_result = 'passed' OR applied_at IS NULL)
 );
+
+ALTER TABLE die_control.enrollment_manifest
+  ADD CONSTRAINT enrollment_manifest_verification_fk
+  FOREIGN KEY (
+    tenant_id, verification_attempt_id, manifest_id,
+    received_document_digest, canonical_payload_digest
+  ) REFERENCES die_control.manifest_verification(
+    tenant_id, attempt_id, manifest_id,
+    received_document_digest, canonical_payload_digest
+  ) DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.producer_capability
+  ADD CONSTRAINT producer_capability_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.producer_health_policy
+  ADD CONSTRAINT producer_health_policy_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.expected_population_version
+  ADD CONSTRAINT expected_population_version_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.certification
+  ADD CONSTRAINT certification_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.producer_revocation
+  ADD CONSTRAINT producer_revocation_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.installation_enrollment
+  ADD CONSTRAINT installation_enrollment_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.credential_renewal
+  ADD CONSTRAINT credential_renewal_source_manifest_fk
+  FOREIGN KEY (tenant_id, source_manifest_id)
+  REFERENCES die_control.enrollment_manifest(tenant_id, manifest_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE die_control.installation_enrollment_attempt
+  ADD CONSTRAINT installation_enrollment_attempt_credential_fk
+  FOREIGN KEY (tenant_id, credential_id)
+  REFERENCES die_control.workload_credential(tenant_id, credential_id)
+  DEFERRABLE INITIALLY DEFERRED;
 
 ALTER TABLE die_control.producer
   ADD CONSTRAINT producer_active_certification_fk
@@ -2609,6 +3412,12 @@ ALTER TABLE die_control.producer
   REFERENCES die_authz.business_scope(tenant_id, scope_id)
   DEFERRABLE INITIALLY DEFERRED;
 
+ALTER TABLE die_control.sensor_bootstrap
+  ADD CONSTRAINT sensor_bootstrap_business_scope_fk
+  FOREIGN KEY (tenant_id, business_scope_id)
+  REFERENCES die_authz.business_scope(tenant_id, scope_id)
+  DEFERRABLE INITIALLY DEFERRED;
+
 ALTER TABLE die_control.expected_population_version
   ADD CONSTRAINT expected_population_version_business_scope_fk
   FOREIGN KEY (tenant_id, business_scope_id)
@@ -3082,6 +3891,757 @@ BEGIN
 END;
 $$;
 
+-- True only for a producer-enrollment manifest whose detached JWS was checked
+-- by the isolated verifier against one exact accepted signer-key revision and
+-- whose effects were atomically marked applied by the control administrator.
+CREATE OR REPLACE FUNCTION die_control.has_applied_verified_manifest(
+  checked_tenant_id text,
+  checked_producer_id uuid,
+  checked_manifest_id uuid,
+  allowed_operations text[]
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SET search_path = pg_catalog, die_control
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM die_control.enrollment_manifest manifest
+    JOIN die_control.manifest_verification verification
+      ON verification.tenant_id = manifest.tenant_id
+     AND verification.attempt_id = manifest.verification_attempt_id
+     AND verification.manifest_id = manifest.manifest_id
+     AND verification.received_document_digest = manifest.received_document_digest
+     AND verification.canonical_payload_digest = manifest.canonical_payload_digest
+    JOIN die_control.manifest_signer_key_version signer_version
+      ON signer_version.tenant_id = verification.tenant_id
+     AND signer_version.key_id = verification.key_id
+     AND signer_version.revision = verification.signer_key_revision
+    WHERE manifest.tenant_id = checked_tenant_id
+      AND manifest.producer_id = checked_producer_id
+      AND manifest.manifest_id = checked_manifest_id
+      AND manifest.operation = ANY(allowed_operations)
+      AND manifest.result IN ('applied','no_change')
+      AND verification.manifest_kind = 'producer_enrollment'
+      AND verification.verification_result = 'passed'
+      AND verification.applied_at IS NOT NULL
+      AND verification.applied_at = manifest.applied_at
+      AND verification.applied_effects ->> 'producer_id' = manifest.producer_id::text
+      AND verification.applied_effects ->> 'operation' = manifest.operation
+      AND verification.issuer = manifest.issuer
+      AND verification.key_id = manifest.signer_key_id
+      AND verification.algorithm = signer_version.algorithm
+      AND verification.key_fingerprint = signer_version.fingerprint
+      AND verification.environment = signer_version.environment
+      AND verification.issuer = signer_version.issuer
+      AND signer_version.manifest_kind = 'producer_enrollment'
+      AND signer_version.state IN ('active','retiring')
+      AND verification.verified_at BETWEEN signer_version.not_before AND signer_version.not_after
+  )
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_manifest_verification_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  operation_name text;
+  actual_keys text[];
+  expected_keys text[];
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'manifest verification evidence cannot be deleted';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.verification_result = 'passed' AND (
+      NEW.manifest_id IS NULL OR NEW.key_fingerprint IS NULL
+      OR NOT EXISTS (
+        SELECT 1
+        FROM die_control.manifest_signer_key signer
+        JOIN die_control.manifest_signer_key_version signer_version
+          ON signer_version.tenant_id = signer.tenant_id
+         AND signer_version.key_id = signer.key_id
+         AND signer_version.revision = NEW.signer_key_revision
+        WHERE signer.tenant_id = NEW.tenant_id
+          AND signer.key_id = NEW.key_id
+          AND signer.revision = NEW.signer_key_revision
+          AND signer.state IN ('active','retiring')
+          AND signer.algorithm = NEW.algorithm
+          AND signer.fingerprint = NEW.key_fingerprint
+          AND signer.issuer = NEW.issuer
+          AND signer.environment = NEW.environment
+          AND signer.manifest_kind = NEW.manifest_kind
+          AND signer_version.state IN ('active','retiring')
+          AND signer_version.fingerprint = signer.fingerprint
+          AND signer_version.algorithm = signer.algorithm
+          AND signer_version.public_jwk = signer.public_jwk
+          AND signer_version.manifest_kind = signer.manifest_kind
+          AND signer_version.environment = signer.environment
+          AND signer_version.issuer = signer.issuer
+          AND signer_version.not_before = signer.not_before
+          AND signer_version.not_after = signer.not_after
+          AND NEW.verified_at BETWEEN signer_version.not_before AND signer_version.not_after
+      )
+    ) THEN
+      RAISE EXCEPTION 'passed manifest verification requires an accepted exact signer key revision';
+    END IF;
+    IF NEW.applied_at IS NOT NULL THEN
+      RAISE EXCEPTION 'manifest verification must be recorded before effects are applied';
+    END IF;
+    IF NEW.verification_result = 'passed' THEN
+      IF NEW.applied_effects = '{}'::jsonb
+        OR (NEW.manifest_kind = 'producer_enrollment' AND NOT (
+          NEW.applied_effects ?& ARRAY[
+            'tenant_id','organization_tenant_id','manifest_id','producer_id',
+            'operation','revision','manifest_issued_at','manifest_expires_at'
+          ]
+        )) THEN
+        RAISE EXCEPTION 'passed manifest verification must retain verifier-derived semantic effects';
+      END IF;
+      IF NEW.manifest_kind = 'producer_enrollment' THEN
+        operation_name := NEW.applied_effects ->> 'operation';
+        SELECT array_agg(key ORDER BY key) INTO actual_keys
+        FROM jsonb_object_keys(NEW.applied_effects) AS key;
+        expected_keys := CASE operation_name
+          WHEN 'apply' THEN ARRAY[
+            'artifact_digest','bootstrap_id','business_scope_id','capabilities',
+            'component_set_digest','credential_expires_at','credential_id',
+            'credential_subject','delivery_artifact_digest','environment',
+            'expected_populations','health_policy',
+            'installation_id','installation_key_thumbprint','manifest_expires_at',
+            'manifest_id','manifest_issued_at','operation','organization_tenant_id','producer_epoch',
+            'producer_id','revision','source_profile','tenant_id'
+          ]::text[]
+          WHEN 'rotate' THEN ARRAY[
+            'credential_expires_at','credential_id','credential_subject',
+            'installation_key_thumbprint','manifest_expires_at',
+            'manifest_id','manifest_issued_at','operation','organization_tenant_id','producer_epoch',
+            'producer_id','reason_code','revision','tenant_id'
+          ]::text[]
+          WHEN 'revoke' THEN ARRAY[
+            'expected_revision','manifest_expires_at','manifest_id',
+            'manifest_issued_at','operation','organization_tenant_id','producer_id','reason_code',
+            'revision','revoked_at','tenant_id','terminal_revision'
+          ]::text[]
+          WHEN 'certify' THEN ARRAY[
+            'artifact_digest','certification_expires_at','certification_id','certified_at',
+            'component_set_digest','contract_digest','delivery_artifact_digest',
+            'evidence_object_key','manifest_expires_at','manifest_id','manifest_issued_at',
+            'operation','organization_tenant_id','producer_id','profile_version',
+            'profile_versions','result','revision','source_profile','tenant_id',
+            'test_pack_digest'
+          ]::text[]
+          ELSE NULL
+        END;
+        IF expected_keys IS NULL OR actual_keys IS DISTINCT FROM expected_keys
+          OR NEW.applied_effects ->> 'tenant_id' IS DISTINCT FROM NEW.tenant_id
+          OR NEW.applied_effects ->> 'manifest_id' IS DISTINCT FROM NEW.manifest_id::text
+          OR NOT EXISTS (
+            SELECT 1
+            FROM die_control.organization_tenant mapping
+            WHERE mapping.tenant_id = NEW.tenant_id
+              AND mapping.organization_tenant_id::text =
+                NEW.applied_effects ->> 'organization_tenant_id'
+              AND mapping.state = 'active'
+          ) THEN
+          RAISE EXCEPTION 'verified producer manifest effects are not the exact operation-specific authority payload';
+        END IF;
+      END IF;
+    ELSIF NEW.applied_effects <> '{}'::jsonb THEN
+      RAISE EXCEPTION 'failed manifest verification cannot carry applicable effects';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF (to_jsonb(NEW) - 'applied_at')
+     IS DISTINCT FROM
+     (to_jsonb(OLD) - 'applied_at') THEN
+    RAISE EXCEPTION 'manifest verification evidence is immutable';
+  END IF;
+  IF OLD.verification_result <> 'passed'
+    OR OLD.applied_at IS NOT NULL
+    OR NEW.applied_at IS NULL
+    OR NEW.applied_at < OLD.verified_at THEN
+    RAISE EXCEPTION 'only a passed unapplied verification may be marked applied once';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_enrollment_manifest_verification()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.result IN ('applied','no_change') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.manifest_verification verification
+    WHERE verification.tenant_id = NEW.tenant_id
+      AND verification.attempt_id = NEW.verification_attempt_id
+      AND verification.manifest_id = NEW.manifest_id
+      AND verification.manifest_kind = 'producer_enrollment'
+      AND verification.received_document_digest = NEW.received_document_digest
+      AND verification.canonical_payload_digest = NEW.canonical_payload_digest
+      AND verification.issuer = NEW.issuer
+      AND verification.key_id = NEW.signer_key_id
+      AND verification.verification_result = 'passed'
+      AND verification.applied_effects ->> 'producer_id' = NEW.producer_id::text
+      AND verification.applied_effects ->> 'operation' = NEW.operation
+      AND verification.applied_effects ->> 'tenant_id' = NEW.tenant_id
+      AND verification.applied_effects ->> 'manifest_id' = NEW.manifest_id::text
+      AND (verification.applied_effects ->> 'revision')::bigint = NEW.revision
+      AND (verification.applied_effects ->> 'manifest_issued_at')::timestamptz = NEW.issued_at
+      AND (verification.applied_effects ->> 'manifest_expires_at')::timestamptz = NEW.expires_at
+      AND EXISTS (
+        SELECT 1 FROM die_control.organization_tenant mapping
+        WHERE mapping.tenant_id = NEW.tenant_id
+          AND mapping.organization_tenant_id::text =
+            verification.applied_effects ->> 'organization_tenant_id'
+          AND mapping.state = 'active'
+      )
+      AND verification.applied_at = NEW.applied_at
+  ) THEN
+    RAISE EXCEPTION 'applied enrollment manifest requires its exact passed and applied JWS verification';
+  END IF;
+  IF NEW.result IN ('applied','no_change')
+    AND (NEW.applied_at < NEW.issued_at OR NEW.applied_at >= NEW.expires_at) THEN
+    RAISE EXCEPTION 'producer manifest was applied outside its signed validity interval';
+  END IF;
+  IF NEW.result IN ('applied','no_change') AND NEW.operation = 'apply'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM die_control.installation_enrollment enrollment
+      JOIN die_control.sensor_bootstrap bootstrap
+        ON bootstrap.tenant_id = enrollment.tenant_id
+       AND bootstrap.bootstrap_id = enrollment.bootstrap_id
+      JOIN die_control.producer producer
+        ON producer.tenant_id = enrollment.tenant_id
+       AND producer.producer_id = enrollment.producer_id
+      JOIN die_control.workload_credential credential
+        ON credential.tenant_id = enrollment.tenant_id
+       AND credential.producer_id = enrollment.producer_id
+      JOIN die_control.manifest_verification verification
+        ON verification.tenant_id = NEW.tenant_id
+       AND verification.attempt_id = NEW.verification_attempt_id
+      WHERE enrollment.tenant_id = NEW.tenant_id
+        AND enrollment.source_manifest_id = NEW.manifest_id
+        AND enrollment.producer_id = NEW.producer_id
+        AND credential.credential_id =
+          (verification.applied_effects ->> 'credential_id')::uuid
+        AND enrollment.bootstrap_id =
+          (verification.applied_effects ->> 'bootstrap_id')::uuid
+        AND bootstrap.organization_tenant_id::text =
+          verification.applied_effects ->> 'organization_tenant_id'
+        AND enrollment.source_profile = verification.applied_effects ->> 'source_profile'
+        AND enrollment.business_scope_id::text =
+          verification.applied_effects ->> 'business_scope_id'
+        AND enrollment.environment = verification.applied_effects ->> 'environment'
+        AND enrollment.installation_id::text =
+          verification.applied_effects ->> 'installation_id'
+        AND enrollment.producer_epoch::text =
+          verification.applied_effects ->> 'producer_epoch'
+        AND enrollment.component_set_digest =
+          verification.applied_effects ->> 'component_set_digest'
+        AND producer.artifact_digest =
+          verification.applied_effects ->> 'delivery_artifact_digest'
+        AND producer.artifact_digest = verification.applied_effects ->> 'artifact_digest'
+        AND credential.credential_subject =
+          verification.applied_effects ->> 'credential_subject'
+        AND credential.installation_key_thumbprint =
+          verification.applied_effects ->> 'installation_key_thumbprint'
+        AND credential.expires_at =
+          (verification.applied_effects ->> 'credential_expires_at')::timestamptz
+    ) THEN
+    RAISE EXCEPTION 'apply manifest effects do not match the accepted bootstrap, producer, component set and credential';
+  ELSIF NEW.result IN ('applied','no_change') AND NEW.operation = 'rotate'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM die_control.credential_renewal renewal
+      JOIN die_control.workload_credential credential
+        ON credential.tenant_id = renewal.tenant_id
+       AND credential.producer_id = renewal.producer_id
+       AND credential.credential_id = renewal.new_credential_id
+      JOIN die_control.manifest_verification verification
+        ON verification.tenant_id = NEW.tenant_id
+       AND verification.attempt_id = NEW.verification_attempt_id
+      WHERE renewal.tenant_id = NEW.tenant_id
+        AND renewal.source_manifest_id = NEW.manifest_id
+        AND renewal.producer_id = NEW.producer_id
+        AND credential.credential_id::text = verification.applied_effects ->> 'credential_id'
+        AND credential.producer_epoch::text = verification.applied_effects ->> 'producer_epoch'
+        AND credential.credential_subject = verification.applied_effects ->> 'credential_subject'
+        AND credential.installation_key_thumbprint =
+          verification.applied_effects ->> 'installation_key_thumbprint'
+        AND credential.expires_at =
+          (verification.applied_effects ->> 'credential_expires_at')::timestamptz
+    ) THEN
+    RAISE EXCEPTION 'rotate manifest effects do not match the accepted credential renewal';
+  ELSIF NEW.result IN ('applied','no_change') AND NEW.operation = 'revoke'
+    AND NOT EXISTS (
+      SELECT 1 FROM die_control.producer_revocation revocation
+      JOIN die_control.manifest_verification verification
+        ON verification.tenant_id = NEW.tenant_id
+       AND verification.attempt_id = NEW.verification_attempt_id
+      WHERE revocation.tenant_id = NEW.tenant_id
+        AND revocation.source_manifest_id = NEW.manifest_id
+        AND revocation.producer_id = NEW.producer_id
+        AND revocation.expected_revision =
+          (verification.applied_effects ->> 'expected_revision')::bigint
+        AND revocation.terminal_revision =
+          (verification.applied_effects ->> 'terminal_revision')::bigint
+        AND revocation.reason_code = verification.applied_effects ->> 'reason_code'
+        AND revocation.revoked_at =
+          (verification.applied_effects ->> 'revoked_at')::timestamptz
+    ) THEN
+    RAISE EXCEPTION 'revoke manifest effects do not match the exact terminal producer effect';
+  ELSIF NEW.result IN ('applied','no_change') AND NEW.operation = 'certify'
+    AND NOT EXISTS (
+      SELECT 1 FROM die_control.certification certification
+      JOIN die_control.manifest_verification verification
+        ON verification.tenant_id = NEW.tenant_id
+       AND verification.attempt_id = NEW.verification_attempt_id
+      WHERE certification.tenant_id = NEW.tenant_id
+        AND certification.source_manifest_id = NEW.manifest_id
+        AND certification.producer_id = NEW.producer_id
+        AND certification.certification_id::text =
+          verification.applied_effects ->> 'certification_id'
+        AND certification.source_profile = verification.applied_effects ->> 'source_profile'
+        AND certification.profile_version = verification.applied_effects ->> 'profile_version'
+        AND certification.component_set_digest = verification.applied_effects ->> 'component_set_digest'
+        AND certification.delivery_artifact_digest = verification.applied_effects ->> 'delivery_artifact_digest'
+        AND certification.artifact_digest = verification.applied_effects ->> 'artifact_digest'
+        AND certification.contract_digest = verification.applied_effects ->> 'contract_digest'
+        AND certification.profile_versions = verification.applied_effects -> 'profile_versions'
+        AND certification.test_pack_digest = verification.applied_effects ->> 'test_pack_digest'
+        AND certification.result = verification.applied_effects ->> 'result'
+        AND certification.certified_at =
+          (verification.applied_effects ->> 'certified_at')::timestamptz
+        AND certification.expires_at IS NOT DISTINCT FROM
+          (verification.applied_effects ->> 'certification_expires_at')::timestamptz
+        AND certification.evidence_object_key = verification.applied_effects ->> 'evidence_object_key'
+    ) THEN
+    RAISE EXCEPTION 'certify manifest effects do not match the exact certification effect';
+  END IF;
+  RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_sensor_bootstrap_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'sensor bootstrap rows cannot be deleted';
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.state <> 'issued' THEN
+      RAISE EXCEPTION 'sensor bootstrap must begin in issued state';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF (
+    NEW.tenant_id, NEW.organization_tenant_id, NEW.bootstrap_id,
+    NEW.token_digest, NEW.source_profile,
+    NEW.business_scope_id, NEW.environment, NEW.intent,
+    NEW.discovery_issuer, NEW.discovery_subject_ref,
+    NEW.issued_at, NEW.expires_at,
+    NEW.replaces_producer_id, NEW.replaces_installation_id,
+    NEW.replaces_producer_epoch
+  ) IS DISTINCT FROM (
+    OLD.tenant_id, OLD.organization_tenant_id, OLD.bootstrap_id,
+    OLD.token_digest, OLD.source_profile,
+    OLD.business_scope_id, OLD.environment, OLD.intent,
+    OLD.discovery_issuer, OLD.discovery_subject_ref,
+    OLD.issued_at, OLD.expires_at,
+    OLD.replaces_producer_id, OLD.replaces_installation_id,
+    OLD.replaces_producer_epoch
+  ) THEN
+    RAISE EXCEPTION 'sensor bootstrap authority and issuance fields are immutable';
+  END IF;
+
+  IF OLD.state <> 'issued'
+    OR NEW.state NOT IN ('consumed','expired','revoked') THEN
+    RAISE EXCEPTION 'invalid terminal sensor bootstrap transition % to %', OLD.state, NEW.state;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_organization_tenant_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'organization tenant bindings cannot be deleted';
+  END IF;
+  IF (NEW.tenant_id, NEW.organization_tenant_id, NEW.registered_at)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.organization_tenant_id, OLD.registered_at) THEN
+    RAISE EXCEPTION 'organization UUID to internal tenant binding is immutable';
+  END IF;
+  IF NOT (
+    (OLD.state = 'active' AND NEW.state IN ('suspended','retired'))
+    OR (OLD.state = 'suspended' AND NEW.state IN ('active','retired'))
+  ) THEN
+    RAISE EXCEPTION 'invalid organization tenant transition % to %', OLD.state, NEW.state;
+  END IF;
+  IF NEW.state = 'retired' AND NEW.retired_at IS NULL THEN
+    RAISE EXCEPTION 'retired organization tenant requires retired_at';
+  ELSIF NEW.state <> 'retired' AND NEW.retired_at IS NOT NULL THEN
+    RAISE EXCEPTION 'active or suspended organization tenant cannot carry retired_at';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_component_set_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'producer component sets cannot be deleted';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.revision <> 1 OR NEW.state <> 'active' THEN
+      RAISE EXCEPTION 'producer component set must begin active at revision one';
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF (
+    NEW.tenant_id, NEW.producer_id, NEW.component_set_id,
+    NEW.component_set_digest, NEW.enrollment_request_id,
+    NEW.source_profile, NEW.measured_at, NEW.activated_at
+  ) IS DISTINCT FROM (
+    OLD.tenant_id, OLD.producer_id, OLD.component_set_id,
+    OLD.component_set_digest, OLD.enrollment_request_id,
+    OLD.source_profile, OLD.measured_at, OLD.activated_at
+  ) THEN
+    RAISE EXCEPTION 'producer component set identity and measurements are immutable';
+  END IF;
+  IF OLD.state <> 'active' OR NEW.state NOT IN ('superseded','revoked') THEN
+    RAISE EXCEPTION 'invalid component-set transition % to %', OLD.state, NEW.state;
+  END IF;
+  IF NEW.revision <> OLD.revision + 1 THEN
+    RAISE EXCEPTION 'component-set revision must advance exactly one';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_workload_credential_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  previous_generation bigint;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'workload credential history cannot be deleted';
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.state <> 'active' THEN
+      RAISE EXCEPTION 'new workload credential must begin active';
+    END IF;
+    PERFORM pg_advisory_xact_lock(
+      hashtextextended(NEW.tenant_id || ':' || NEW.producer_id::text, 0)
+    );
+    SELECT max(generation)
+      INTO previous_generation
+      FROM die_control.workload_credential
+      WHERE tenant_id = NEW.tenant_id
+        AND producer_id = NEW.producer_id;
+    IF NEW.generation <> COALESCE(previous_generation, 0) + 1 THEN
+      RAISE EXCEPTION 'workload credential generation must advance exactly one';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF (
+    NEW.tenant_id, NEW.credential_id, NEW.producer_id,
+    NEW.installation_id, NEW.producer_epoch, NEW.generation,
+    NEW.credential_subject, NEW.installation_key_thumbprint,
+    NEW.token_jti_digest, NEW.scopes, NEW.issued_at,
+    NEW.renew_after, NEW.expires_at
+  ) IS DISTINCT FROM (
+    OLD.tenant_id, OLD.credential_id, OLD.producer_id,
+    OLD.installation_id, OLD.producer_epoch, OLD.generation,
+    OLD.credential_subject, OLD.installation_key_thumbprint,
+    OLD.token_jti_digest, OLD.scopes, OLD.issued_at,
+    OLD.renew_after, OLD.expires_at
+  ) THEN
+    RAISE EXCEPTION 'workload credential authority, key, scopes and lifetime are immutable';
+  END IF;
+  IF NOT (
+    (OLD.state = 'active' AND NEW.state IN ('retiring','expired','revoked'))
+    OR (OLD.state = 'retiring' AND NEW.state IN ('expired','revoked'))
+  ) THEN
+    RAISE EXCEPTION 'invalid workload credential transition % to %', OLD.state, NEW.state;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_complete_component_set()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  profile text;
+  capture_count integer;
+  wal_count integer;
+  delivery_count integer;
+  health_count integer;
+  total_count integer;
+  role_count integer;
+  required_role text;
+BEGIN
+  SELECT source_profile
+    INTO STRICT profile
+    FROM die_control.producer_component_set
+    WHERE tenant_id = NEW.tenant_id
+      AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest;
+
+  SELECT
+    count(*) FILTER (WHERE capture_owner),
+    count(*) FILTER (WHERE wal_owner),
+    count(*) FILTER (WHERE delivery_owner),
+    count(*) FILTER (WHERE health_component),
+    count(*)
+  INTO capture_count, wal_count, delivery_count, health_count, total_count
+  FROM die_control.producer_component
+  WHERE tenant_id = NEW.tenant_id
+    AND producer_id = NEW.producer_id
+    AND component_set_digest = NEW.component_set_digest;
+
+  IF capture_count < 1 OR wal_count <> 1 OR delivery_count <> 1
+    OR health_count <> total_count THEN
+    RAISE EXCEPTION 'component set requires capture, exactly one WAL owner, exactly one delivery owner and health coverage for every runtime component';
+  END IF;
+
+  IF profile = 'browser' THEN
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role = 'browser_extension';
+    IF role_count <> 1 THEN
+      RAISE EXCEPTION 'browser component set requires exactly one browser extension';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role = 'browser_native_host';
+    IF role_count <> 1 THEN
+      RAISE EXCEPTION 'browser component set requires exactly one browser native host';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role IN ('browser_extension','browser_native_host');
+    IF role_count <> total_count THEN
+      RAISE EXCEPTION 'browser component set contains a foreign-profile component role';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND wal_owner AND delivery_owner AND component_role = 'browser_extension';
+    IF role_count <> 1 THEN
+      RAISE EXCEPTION 'Browser delivery and WAL stream must remain WebExtension-owned';
+    END IF;
+  ELSIF profile = 'browser_backend' THEN
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role = 'browser_backend';
+    IF role_count <> 1 OR total_count <> 1 THEN
+      RAISE EXCEPTION 'browser backend component set requires exactly one backend';
+    END IF;
+  ELSIF profile = 'endpoint' THEN
+    -- Count required roles independently. A single aggregate count can be
+    -- satisfied by duplicate agents while omitting the monitor or proxy.
+    FOREACH required_role IN ARRAY ARRAY[
+      'endpoint_agent','endpoint_monitor','endpoint_proxy',
+      'endpoint_ipc_broker','endpoint_template_engine'
+    ]::text[] LOOP
+      SELECT count(*) INTO role_count
+      FROM die_control.producer_component
+      WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+        AND component_set_digest = NEW.component_set_digest
+        AND component_role = required_role;
+      IF role_count <> 1 THEN
+        RAISE EXCEPTION 'endpoint component set requires exactly one % component', required_role;
+      END IF;
+    END LOOP;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role IN ('endpoint_system_extension','endpoint_network_extension');
+    IF role_count < 1 THEN
+      RAISE EXCEPTION 'endpoint component set requires a system or network extension';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role IN (
+        'endpoint_agent','endpoint_monitor','endpoint_proxy',
+        'endpoint_ipc_broker','endpoint_template_engine',
+        'endpoint_system_extension','endpoint_network_extension'
+      );
+    IF role_count <> total_count THEN
+      RAISE EXCEPTION 'endpoint component set contains a foreign-profile component role';
+    END IF;
+  ELSIF profile = 'llm_gateway' THEN
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role = 'llm_gateway';
+    IF role_count <> 1 THEN
+      RAISE EXCEPTION 'LLM gateway component set requires exactly one gateway';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role IN ('llm_gateway','llm_edge_runtime');
+    IF role_count <> total_count THEN
+      RAISE EXCEPTION 'LLM gateway component set contains a foreign-profile component role';
+    END IF;
+  ELSIF profile = 'mcp_gateway' THEN
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role = 'mcp_gateway';
+    IF role_count <> 1 THEN
+      RAISE EXCEPTION 'MCP gateway component set requires exactly one gateway';
+    END IF;
+    SELECT count(*) INTO role_count
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND component_role IN ('mcp_gateway','mcp_edge_runtime');
+    IF role_count <> total_count THEN
+      RAISE EXCEPTION 'MCP gateway component set contains a foreign-profile component role';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_valid_installation_enrollment()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  bootstrap die_control.sensor_bootstrap%ROWTYPE;
+  producer die_control.producer%ROWTYPE;
+  component_set die_control.producer_component_set%ROWTYPE;
+  active_credentials integer;
+  delivery_artifact_digest text;
+BEGIN
+  IF NOT die_control.has_applied_verified_manifest(
+    NEW.tenant_id, NEW.producer_id, NEW.source_manifest_id,
+    ARRAY['apply']::text[]
+  ) THEN
+    RAISE EXCEPTION 'installation enrollment requires its exact applied verified manifest';
+  END IF;
+  SELECT * INTO STRICT bootstrap
+  FROM die_control.sensor_bootstrap
+  WHERE tenant_id = NEW.tenant_id AND bootstrap_id = NEW.bootstrap_id;
+  IF bootstrap.state <> 'consumed'
+    OR bootstrap.consumed_request_id IS DISTINCT FROM NEW.enrollment_request_id
+    OR bootstrap.consumed_request_digest IS DISTINCT FROM NEW.request_digest
+    OR bootstrap.installation_key_thumbprint IS DISTINCT FROM NEW.installation_key_thumbprint
+    OR bootstrap.source_profile IS DISTINCT FROM NEW.source_profile
+    OR bootstrap.business_scope_id IS DISTINCT FROM NEW.business_scope_id
+    OR bootstrap.environment IS DISTINCT FROM NEW.environment
+    OR bootstrap.intent IS DISTINCT FROM NEW.intent THEN
+    RAISE EXCEPTION 'enrollment does not match its consumed one-use Discovery bootstrap';
+  END IF;
+
+  SELECT * INTO STRICT producer
+  FROM die_control.producer
+  WHERE tenant_id = NEW.tenant_id AND producer_id = NEW.producer_id;
+  IF producer.installation_id IS DISTINCT FROM NEW.installation_id::text
+    OR producer.source_profile IS DISTINCT FROM NEW.source_profile
+    OR producer.business_scope_id IS DISTINCT FROM NEW.business_scope_id
+    OR producer.environment IS DISTINCT FROM NEW.environment
+    OR producer.component_set_digest IS DISTINCT FROM NEW.component_set_digest THEN
+    RAISE EXCEPTION 'server-assigned producer does not match accepted installation enrollment';
+  END IF;
+
+  SELECT * INTO STRICT component_set
+  FROM die_control.producer_component_set
+  WHERE tenant_id = NEW.tenant_id
+    AND producer_id = NEW.producer_id
+    AND component_set_digest = NEW.component_set_digest;
+  IF component_set.state <> 'active'
+    OR component_set.source_profile IS DISTINCT FROM NEW.source_profile
+    OR component_set.enrollment_request_id IS DISTINCT FROM NEW.enrollment_request_id THEN
+    RAISE EXCEPTION 'enrollment component set is not the producer active measured set';
+  END IF;
+
+  SELECT runtime_artifact_digest INTO STRICT delivery_artifact_digest
+  FROM die_control.producer_component
+  WHERE tenant_id = NEW.tenant_id
+    AND producer_id = NEW.producer_id
+    AND component_set_digest = NEW.component_set_digest
+    AND delivery_owner;
+  IF producer.artifact_digest IS DISTINCT FROM delivery_artifact_digest THEN
+    RAISE EXCEPTION 'producer artifact_digest must equal the delivery-owner runtime artifact';
+  END IF;
+
+  SELECT count(*) INTO active_credentials
+  FROM die_control.workload_credential
+  WHERE tenant_id = NEW.tenant_id
+    AND producer_id = NEW.producer_id
+    AND installation_id = NEW.installation_id
+    AND producer_epoch = NEW.producer_epoch
+    AND installation_key_thumbprint = NEW.installation_key_thumbprint
+    AND state = 'active';
+  IF active_credentials <> 1 THEN
+    RAISE EXCEPTION 'accepted enrollment requires exactly one active short-lived workload credential';
+  END IF;
+
+  IF NEW.intent = 'reinstall' THEN
+    IF bootstrap.replaces_producer_id IS DISTINCT FROM NEW.replaces_producer_id
+      OR bootstrap.replaces_installation_id IS DISTINCT FROM NEW.replaces_installation_id
+      OR bootstrap.replaces_producer_epoch IS DISTINCT FROM NEW.replaces_producer_epoch
+      OR NOT EXISTS (
+        SELECT 1 FROM die_control.producer replaced
+        WHERE replaced.tenant_id = NEW.tenant_id
+          AND replaced.producer_id = NEW.replaces_producer_id
+          AND replaced.installation_id = NEW.replaces_installation_id::text
+          AND replaced.trust_state = 'revoked'
+      )
+      OR EXISTS (
+        SELECT 1 FROM die_control.workload_credential old_credential
+        WHERE old_credential.tenant_id = NEW.tenant_id
+          AND old_credential.producer_id = NEW.replaces_producer_id
+          AND old_credential.state IN ('active','retiring')
+      ) THEN
+      RAISE EXCEPTION 'reinstall requires the exact predecessor assignment to be revoked';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION die_control.enforce_producer_transition()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -3097,6 +4657,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     IF NEW.revision <> 1 THEN
       RAISE EXCEPTION 'producer revision must start at one';
+    END IF;
+    IF NEW.trust_state <> 'pending'
+      OR NEW.active_certification_id IS NOT NULL
+      OR NEW.revoked_at IS NOT NULL THEN
+      RAISE EXCEPTION 'network enrollment may create only an uncertified pending producer';
     END IF;
     IF NOT EXISTS (
       SELECT 1
@@ -3141,22 +4706,72 @@ BEGIN
   IF NEW.trust_state IN ('trusted','degraded') AND NOT EXISTS (
     SELECT 1
     FROM die_control.certification certification
+    JOIN die_control.producer_component_set component_set
+      ON component_set.tenant_id = certification.tenant_id
+     AND component_set.producer_id = certification.producer_id
+     AND component_set.component_set_digest = certification.component_set_digest
+     AND component_set.state = 'active'
+    JOIN die_control.producer_component delivery_owner
+      ON delivery_owner.tenant_id = component_set.tenant_id
+     AND delivery_owner.producer_id = component_set.producer_id
+     AND delivery_owner.component_set_digest = component_set.component_set_digest
+     AND delivery_owner.delivery_owner
     JOIN die_control.source_profile profile
       ON profile.profile_id = NEW.source_profile
      AND profile.lifecycle IN ('active','deprecated')
     JOIN die_control.source_profile_version profile_version
       ON profile_version.profile_id = profile.profile_id
      AND profile_version.profile_version =
-       certification.profile_versions ->> NEW.source_profile
+       certification.profile_version
      AND profile_version.admission_state IN ('accepted','deprecated')
     WHERE certification.tenant_id = NEW.tenant_id
       AND certification.producer_id = NEW.producer_id
       AND certification.certification_id = NEW.active_certification_id
-      AND certification.artifact_digest = NEW.artifact_digest
+      AND certification.source_profile = NEW.source_profile
+      AND certification.component_set_digest = NEW.component_set_digest
+      AND certification.delivery_artifact_digest = NEW.artifact_digest
+      AND certification.artifact_digest = delivery_owner.runtime_artifact_digest
       AND certification.result = 'passed'
+      AND die_control.has_applied_verified_manifest(
+        certification.tenant_id,
+        certification.producer_id,
+        certification.source_manifest_id,
+        ARRAY['certify']::text[]
+      )
       AND (certification.expires_at IS NULL OR certification.expires_at > transaction_timestamp())
   ) THEN
-    RAISE EXCEPTION 'trusted or degraded producer requires a current passed certification for its artifact';
+    RAISE EXCEPTION 'trusted producer requires an applied verified manifest and passed certification for its exact component set, delivery artifact and accepted profile version';
+  END IF;
+
+  IF NEW.trust_state IN ('trusted','degraded') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.enrollment_manifest manifest
+    WHERE manifest.tenant_id = NEW.tenant_id
+      AND manifest.producer_id = NEW.producer_id
+      AND manifest.operation = 'apply'
+      AND die_control.has_applied_verified_manifest(
+        manifest.tenant_id,
+        manifest.producer_id,
+        manifest.manifest_id,
+        ARRAY['apply']::text[]
+      )
+  ) THEN
+    RAISE EXCEPTION 'producer trust promotion requires an applied verified enrollment manifest';
+  END IF;
+
+  IF NEW.trust_state IN ('trusted','degraded') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.producer_health_policy health_policy
+    WHERE health_policy.tenant_id = NEW.tenant_id
+      AND health_policy.producer_id = NEW.producer_id
+      AND health_policy.component_set_digest = NEW.component_set_digest
+      AND health_policy.effective_from <= transaction_timestamp()
+      AND (
+        health_policy.effective_to IS NULL
+        OR health_policy.effective_to > transaction_timestamp()
+      )
+  ) THEN
+    RAISE EXCEPTION 'producer trust promotion requires a verified health policy for the certified active component set';
   END IF;
 
   RETURN NEW;
@@ -3172,6 +4787,14 @@ BEGIN
     RAISE EXCEPTION 'producer capability history cannot be deleted';
   END IF;
   IF TG_OP = 'INSERT' THEN
+    IF NOT die_control.has_applied_verified_manifest(
+      NEW.tenant_id,
+      NEW.producer_id,
+      NEW.source_manifest_id,
+      ARRAY['apply','rotate']::text[]
+    ) THEN
+      RAISE EXCEPTION 'producer capability requires an applied verified enrollment manifest';
+    END IF;
     IF NOT EXISTS (
       SELECT 1
       FROM die_control.producer producer
@@ -3198,8 +4821,16 @@ BEGIN
         AND producer.producer_id = NEW.producer_id
         AND producer.trust_state IN ('trusted','degraded')
         AND certification.result = 'passed'
-        AND certification.artifact_digest = producer.artifact_digest
-        AND certification.profile_versions ->> producer.source_profile = NEW.profile_version
+        AND certification.source_profile = producer.source_profile
+        AND certification.profile_version = NEW.profile_version
+        AND certification.component_set_digest = producer.component_set_digest
+        AND certification.delivery_artifact_digest = producer.artifact_digest
+        AND die_control.has_applied_verified_manifest(
+          certification.tenant_id,
+          certification.producer_id,
+          certification.source_manifest_id,
+          ARRAY['certify']::text[]
+        )
         AND (certification.expires_at IS NULL OR certification.expires_at > NEW.effective_from)
     ) THEN
       RAISE EXCEPTION 'certified producer capability requires the active artifact certification and profile version';
@@ -3214,6 +4845,445 @@ BEGIN
     RAISE EXCEPTION 'producer capability interval may be closed exactly once with a nonempty range';
   END IF;
   RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_health_policy_close()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  admitted_components text[];
+  policy_components text[];
+  verified_effects jsonb;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'producer health policy history cannot be deleted';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    IF NOT die_control.has_applied_verified_manifest(
+      NEW.tenant_id, NEW.producer_id, NEW.source_manifest_id,
+      ARRAY['apply','rotate']::text[]
+    ) THEN
+      RAISE EXCEPTION 'producer health policy requires an applied verified enrollment manifest';
+    END IF;
+    SELECT verification.applied_effects
+      INTO STRICT verified_effects
+    FROM die_control.enrollment_manifest manifest
+    JOIN die_control.manifest_verification verification
+      ON verification.tenant_id = manifest.tenant_id
+     AND verification.attempt_id = manifest.verification_attempt_id
+     AND verification.manifest_id = manifest.manifest_id
+     AND verification.received_document_digest = manifest.received_document_digest
+     AND verification.canonical_payload_digest = manifest.canonical_payload_digest
+    WHERE manifest.tenant_id = NEW.tenant_id
+      AND manifest.manifest_id = NEW.source_manifest_id;
+
+    IF verified_effects ->> 'component_set_digest'
+         IS DISTINCT FROM NEW.component_set_digest
+      OR jsonb_typeof(verified_effects -> 'health_policy') IS DISTINCT FROM 'object'
+      OR NOT ((verified_effects -> 'health_policy') ?& ARRAY[
+        'policy_version','expected_report_interval_seconds',
+        'degraded_after_seconds','offline_after_seconds',
+        'queue_degraded_after_ms','queue_unhealthy_after_ms',
+        'required_components'
+      ])
+      OR verified_effects -> 'health_policy' ->> 'policy_version'
+         IS DISTINCT FROM NEW.policy_version
+      OR (verified_effects -> 'health_policy' ->> 'expected_report_interval_seconds')::integer
+         IS DISTINCT FROM NEW.expected_report_interval_seconds
+      OR (verified_effects -> 'health_policy' ->> 'degraded_after_seconds')::integer
+         IS DISTINCT FROM NEW.degraded_after_seconds
+      OR (verified_effects -> 'health_policy' ->> 'offline_after_seconds')::integer
+         IS DISTINCT FROM NEW.offline_after_seconds
+      OR (verified_effects -> 'health_policy' ->> 'queue_degraded_after_ms')::bigint
+         IS DISTINCT FROM NEW.queue_degraded_after_ms
+      OR (verified_effects -> 'health_policy' ->> 'queue_unhealthy_after_ms')::bigint
+         IS DISTINCT FROM NEW.queue_unhealthy_after_ms THEN
+      RAISE EXCEPTION 'producer health policy differs from its cryptographically verified manifest effects';
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM die_control.producer producer
+      JOIN die_control.producer_component_set component_set
+        ON component_set.tenant_id = producer.tenant_id
+       AND component_set.producer_id = producer.producer_id
+       AND component_set.component_set_digest = producer.component_set_digest
+       AND component_set.state = 'active'
+      WHERE producer.tenant_id = NEW.tenant_id
+        AND producer.producer_id = NEW.producer_id
+        AND producer.component_set_digest = NEW.component_set_digest
+    ) THEN
+      RAISE EXCEPTION 'producer health policy must bind the active component set';
+    END IF;
+
+    SELECT array_agg(component_id ORDER BY component_id)
+      INTO admitted_components
+    FROM die_control.producer_component
+    WHERE tenant_id = NEW.tenant_id
+      AND producer_id = NEW.producer_id
+      AND component_set_digest = NEW.component_set_digest
+      AND health_component;
+    SELECT array_agg(component_id ORDER BY component_id)
+      INTO policy_components
+    FROM unnest(NEW.required_components) AS component_id;
+    IF admitted_components IS NULL
+      OR admitted_components IS DISTINCT FROM policy_components THEN
+      RAISE EXCEPTION 'health policy required_components must equal the active component-set health population';
+    END IF;
+
+    SELECT array_agg(value ORDER BY value)
+      INTO policy_components
+    FROM jsonb_array_elements_text(
+      verified_effects -> 'health_policy' -> 'required_components'
+    ) AS value;
+    IF admitted_components IS DISTINCT FROM policy_components THEN
+      RAISE EXCEPTION 'health policy required_components differ from the verified source manifest';
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF (to_jsonb(NEW) - 'effective_to')
+     IS DISTINCT FROM (to_jsonb(OLD) - 'effective_to')
+    OR OLD.effective_to IS NOT NULL
+    OR NEW.effective_to IS NULL
+    OR NEW.effective_to <= OLD.effective_from THEN
+    RAISE EXCEPTION 'producer health policy is immutable and may only be closed once';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_valid_certification()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT die_control.has_applied_verified_manifest(
+    NEW.tenant_id, NEW.producer_id, NEW.source_manifest_id,
+    ARRAY['certify']::text[]
+  ) THEN
+    RAISE EXCEPTION 'certification requires an applied verified certify manifest';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1
+    FROM die_control.enrollment_manifest manifest
+    JOIN die_control.manifest_verification verification
+      ON verification.tenant_id = manifest.tenant_id
+     AND verification.attempt_id = manifest.verification_attempt_id
+     AND verification.manifest_id = manifest.manifest_id
+     AND verification.received_document_digest = manifest.received_document_digest
+     AND verification.canonical_payload_digest = manifest.canonical_payload_digest
+    WHERE manifest.tenant_id = NEW.tenant_id
+      AND manifest.manifest_id = NEW.source_manifest_id
+      AND verification.applied_effects ->> 'producer_id' = NEW.producer_id::text
+      AND verification.applied_effects ->> 'operation' = 'certify'
+      AND verification.applied_effects ->> 'certification_id' = NEW.certification_id::text
+      AND verification.applied_effects ->> 'source_profile' = NEW.source_profile
+      AND verification.applied_effects ->> 'profile_version' = NEW.profile_version
+      AND verification.applied_effects ->> 'component_set_digest' = NEW.component_set_digest
+      AND verification.applied_effects ->> 'delivery_artifact_digest' = NEW.delivery_artifact_digest
+      AND verification.applied_effects ->> 'artifact_digest' = NEW.artifact_digest
+      AND verification.applied_effects ->> 'contract_digest' = NEW.contract_digest
+      AND verification.applied_effects -> 'profile_versions' = NEW.profile_versions
+      AND verification.applied_effects ->> 'test_pack_digest' = NEW.test_pack_digest
+      AND verification.applied_effects ->> 'result' = NEW.result
+      AND (verification.applied_effects ->> 'certified_at')::timestamptz = NEW.certified_at
+      AND (verification.applied_effects ->> 'certification_expires_at')::timestamptz
+          IS NOT DISTINCT FROM NEW.expires_at
+      AND verification.applied_effects ->> 'evidence_object_key' = NEW.evidence_object_key
+  ) THEN
+    RAISE EXCEPTION 'certification fields differ from the cryptographically verified certify manifest';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1
+    FROM die_control.producer producer
+    JOIN die_control.producer_component_set component_set
+      ON component_set.tenant_id = producer.tenant_id
+     AND component_set.producer_id = producer.producer_id
+     AND component_set.component_set_digest = NEW.component_set_digest
+    JOIN die_control.producer_component delivery_owner
+      ON delivery_owner.tenant_id = component_set.tenant_id
+     AND delivery_owner.producer_id = component_set.producer_id
+     AND delivery_owner.component_set_digest = component_set.component_set_digest
+     AND delivery_owner.delivery_owner
+    JOIN die_control.source_profile_version profile_version
+      ON profile_version.profile_id = NEW.source_profile
+     AND profile_version.profile_version = NEW.profile_version
+     AND profile_version.admission_state IN ('accepted','deprecated')
+    WHERE producer.tenant_id = NEW.tenant_id
+      AND producer.producer_id = NEW.producer_id
+      AND producer.source_profile = NEW.source_profile
+      AND producer.component_set_digest = NEW.component_set_digest
+      AND component_set.state = 'active'
+      AND delivery_owner.runtime_artifact_digest = NEW.delivery_artifact_digest
+      AND NEW.artifact_digest = NEW.delivery_artifact_digest
+      AND NEW.profile_versions ->> NEW.source_profile = NEW.profile_version
+  ) THEN
+    RAISE EXCEPTION 'certification does not bind the producer active component set, delivery artifact and accepted profile version';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_enrollment_attempt_consistency()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.result IN ('enrolled','reinstalled','idempotent_replay') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.installation_enrollment enrollment
+    JOIN die_control.workload_credential credential
+      ON credential.tenant_id = enrollment.tenant_id
+     AND credential.credential_id = NEW.credential_id
+     AND credential.producer_id = enrollment.producer_id
+     AND credential.installation_id = enrollment.installation_id
+     AND credential.producer_epoch = enrollment.producer_epoch
+     AND credential.installation_key_thumbprint = enrollment.installation_key_thumbprint
+    WHERE enrollment.tenant_id = NEW.tenant_id
+      AND enrollment.enrollment_request_id = NEW.enrollment_request_id
+      AND enrollment.bootstrap_id = NEW.bootstrap_id
+      AND enrollment.idempotency_key_digest = NEW.idempotency_key_digest
+      AND enrollment.request_digest = NEW.request_digest
+      AND enrollment.producer_id = NEW.producer_id
+      AND enrollment.installation_id = NEW.installation_id
+      AND enrollment.producer_epoch = NEW.producer_epoch
+      AND enrollment.assignment_response_digest = NEW.response_digest
+      AND (
+        (NEW.result = 'idempotent_replay'
+          AND NEW.credential_delivery = 'replacement_after_lost_response')
+        OR
+        (NEW.result = enrollment.result
+          AND NEW.credential_delivery = 'initial')
+      )
+  ) THEN
+    RAISE EXCEPTION 'successful enrollment attempt does not replay the exact accepted assignment and request digest';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_renewal_attempt_consistency()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.result IN ('rotated','idempotent_replay') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.credential_renewal renewal
+    WHERE renewal.tenant_id = NEW.tenant_id
+      AND renewal.renewal_request_id = NEW.renewal_request_id
+      AND renewal.producer_id = NEW.producer_id
+      AND renewal.idempotency_key_digest = NEW.idempotency_key_digest
+      AND renewal.request_digest = NEW.request_digest
+      AND renewal.new_credential_id = NEW.new_credential_id
+      AND renewal.response_digest = NEW.response_digest
+  ) THEN
+    RAISE EXCEPTION 'successful credential-renewal attempt does not replay the exact rotation';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_credential_renewal_binding()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT die_control.has_applied_verified_manifest(
+    NEW.tenant_id, NEW.producer_id, NEW.source_manifest_id,
+    ARRAY['rotate']::text[]
+  ) OR NOT EXISTS (
+    SELECT 1
+    FROM die_control.workload_proof_replay proof
+    JOIN die_control.workload_nonce nonce
+      ON nonce.tenant_id = proof.tenant_id
+     AND nonce.producer_id = proof.producer_id
+     AND nonce.credential_id = proof.credential_id
+     AND nonce.nonce_digest = proof.nonce_digest
+    JOIN die_control.workload_credential previous
+      ON previous.tenant_id = proof.tenant_id
+     AND previous.producer_id = proof.producer_id
+     AND previous.credential_id = proof.credential_id
+    JOIN die_control.workload_credential replacement
+      ON replacement.tenant_id = previous.tenant_id
+     AND replacement.producer_id = previous.producer_id
+     AND replacement.credential_id = NEW.new_credential_id
+    WHERE proof.tenant_id = NEW.tenant_id
+      AND proof.producer_id = NEW.producer_id
+      AND proof.credential_id = NEW.previous_credential_id
+      AND proof.proof_digest = NEW.accepted_proof_digest
+      AND proof.proof_jti_digest = NEW.proof_jti_digest
+      AND proof.request_digest = NEW.request_digest
+      AND proof.idempotency_key_digest = NEW.idempotency_key_digest
+      AND proof.nonce_digest = NEW.nonce_digest
+      AND proof.installation_key_thumbprint = NEW.proof_key_thumbprint
+      AND proof.proof_typ = 'dpop+jwt'
+      AND proof.http_method = 'POST'
+      AND proof.http_uri = NEW.normalized_http_uri
+      AND nonce.state = 'consumed'
+      AND nonce.accepted_proof_digest = proof.proof_digest
+      AND nonce.consumed_at = proof.accepted_at
+      AND replacement.installation_id = previous.installation_id
+      AND replacement.producer_epoch = previous.producer_epoch
+      AND replacement.installation_key_thumbprint = previous.installation_key_thumbprint
+      AND replacement.generation = previous.generation + 1
+      AND replacement.issued_at = NEW.completed_at
+  ) THEN
+    RAISE EXCEPTION 'credential renewal requires one transactionally consumed nonce, exact DPoP transcript and same-producer next generation';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_revocation_effect()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT die_control.has_applied_verified_manifest(
+    NEW.tenant_id, NEW.producer_id, NEW.source_manifest_id,
+    ARRAY['revoke']::text[]
+  ) OR NOT EXISTS (
+    SELECT 1
+    FROM die_control.enrollment_manifest manifest
+    JOIN die_control.manifest_verification verification
+      ON verification.tenant_id = manifest.tenant_id
+     AND verification.attempt_id = manifest.verification_attempt_id
+     AND verification.manifest_id = manifest.manifest_id
+    WHERE manifest.tenant_id = NEW.tenant_id
+      AND manifest.manifest_id = NEW.source_manifest_id
+      AND verification.applied_effects ->> 'producer_id' = NEW.producer_id::text
+      AND (verification.applied_effects ->> 'expected_revision')::bigint = NEW.expected_revision
+      AND (verification.applied_effects ->> 'terminal_revision')::bigint = NEW.terminal_revision
+      AND verification.applied_effects ->> 'reason_code' = NEW.reason_code
+      AND (verification.applied_effects ->> 'revoked_at')::timestamptz = NEW.revoked_at
+  ) OR NOT EXISTS (
+    SELECT 1
+    FROM die_control.producer producer
+    WHERE producer.tenant_id = NEW.tenant_id
+      AND producer.producer_id = NEW.producer_id
+      AND producer.trust_state = 'revoked'
+      AND producer.revision = NEW.terminal_revision
+      AND producer.revoked_at = NEW.revoked_at
+  ) OR EXISTS (
+    SELECT 1 FROM die_control.workload_credential credential
+    WHERE credential.tenant_id = NEW.tenant_id
+      AND credential.producer_id = NEW.producer_id
+      AND credential.state IN ('active','retiring')
+  ) THEN
+    RAISE EXCEPTION 'producer revocation requires its exact verified manifest, terminal revision and atomically revoked credentials';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_revocation_attempt_consistency()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.result IN ('revoked','idempotent_replay') AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.producer_revocation revocation
+    WHERE revocation.tenant_id = NEW.tenant_id
+      AND revocation.revocation_request_id = NEW.revocation_request_id
+      AND revocation.producer_id = NEW.producer_id
+      AND revocation.idempotency_key_digest = NEW.idempotency_key_digest
+      AND revocation.request_digest = NEW.request_digest
+      AND revocation.response_digest = NEW.response_digest
+  ) THEN
+    RAISE EXCEPTION 'successful producer-revocation attempt does not replay the exact terminal effect';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_workload_proof_binding()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM die_control.workload_credential credential
+    WHERE credential.tenant_id = NEW.tenant_id
+      AND credential.credential_id = NEW.credential_id
+      AND credential.producer_id = NEW.producer_id
+      AND credential.installation_key_thumbprint = NEW.installation_key_thumbprint
+      AND credential.state IN ('active','retiring')
+      AND NEW.accepted_at < credential.expires_at
+      AND EXISTS (
+        SELECT 1
+        FROM die_control.workload_nonce nonce
+        WHERE nonce.tenant_id = NEW.tenant_id
+          AND nonce.producer_id = NEW.producer_id
+          AND nonce.credential_id = NEW.credential_id
+          AND nonce.nonce_digest = NEW.nonce_digest
+          AND nonce.state = 'consumed'
+          AND nonce.accepted_proof_digest = NEW.proof_digest
+          AND nonce.consumed_at = NEW.accepted_at
+          AND nonce.http_method = NEW.http_method
+          AND nonce.normalized_http_uri = NEW.http_uri
+          AND NEW.accepted_at BETWEEN nonce.issued_at AND nonce.expires_at
+      )
+  ) THEN
+    RAISE EXCEPTION 'accepted DPoP proof does not bind a live credential and enrolled installation key';
+  END IF;
+  RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.enforce_workload_nonce_transition()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'workload nonce history cannot be deleted';
+  END IF;
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.state <> 'issued' THEN
+      RAISE EXCEPTION 'workload nonce must begin issued';
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF (NEW.tenant_id, NEW.nonce_id, NEW.producer_id, NEW.credential_id,
+      NEW.nonce_digest, NEW.http_method, NEW.normalized_http_uri,
+      NEW.issued_at, NEW.expires_at)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.nonce_id, OLD.producer_id, OLD.credential_id,
+      OLD.nonce_digest, OLD.http_method, OLD.normalized_http_uri,
+      OLD.issued_at, OLD.expires_at)
+    OR OLD.state <> 'issued'
+    OR NEW.state NOT IN ('consumed','expired') THEN
+    RAISE EXCEPTION 'workload nonce authority is immutable and terminal transitions are one-way';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION die_control.require_workload_nonce_consumption()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.state = 'consumed' AND NOT EXISTS (
+    SELECT 1
+    FROM die_control.workload_proof_replay proof
+    WHERE proof.tenant_id = NEW.tenant_id
+      AND proof.producer_id = NEW.producer_id
+      AND proof.credential_id = NEW.credential_id
+      AND proof.nonce_digest = NEW.nonce_digest
+      AND proof.proof_digest = NEW.accepted_proof_digest
+      AND proof.accepted_at = NEW.consumed_at
+      AND proof.http_method = NEW.http_method
+      AND proof.http_uri = NEW.normalized_http_uri
+  ) THEN
+    RAISE EXCEPTION 'consumed workload nonce requires its exact accepted DPoP proof in the same transaction';
+  END IF;
+  RETURN NULL;
 END;
 $$;
 
@@ -3276,7 +5346,8 @@ BEGIN
       INTO effective_die_role_count
       FROM unnest(ARRAY[
         'die_ingest','die_normalizer','die_truth','die_projector',
-        'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
+        'die_api','die_bff','die_maintenance','die_enrollment','die_verifier',
+        'die_control_admin','die_authz_admin'
       ]) AS runtime_role(role_name)
       WHERE pg_has_role(NEW.database_principal, runtime_role.role_name, 'member');
     IF effective_die_role_count <> 1
@@ -3361,15 +5432,22 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   head_revision bigint;
+  head_producer_id uuid;
 BEGIN
-  SELECT current_revision
-    INTO STRICT head_revision
+  SELECT current_revision, producer_id
+    INTO STRICT head_revision, head_producer_id
     FROM die_control.expected_population
     WHERE tenant_id = NEW.tenant_id
       AND population_id = NEW.population_id
     FOR UPDATE;
   IF NEW.revision NOT IN (head_revision, head_revision + 1) THEN
     RAISE EXCEPTION 'expected population version must equal the current or exact next head revision';
+  END IF;
+  IF NEW.source_manifest_id IS NOT NULL AND NOT die_control.has_applied_verified_manifest(
+    NEW.tenant_id, head_producer_id, NEW.source_manifest_id,
+    ARRAY['apply','rotate']::text[]
+  ) THEN
+    RAISE EXCEPTION 'expected population version requires an applied verified enrollment manifest';
   END IF;
   RETURN NEW;
 END;
@@ -5505,11 +7583,14 @@ BEGIN
     RAISE EXCEPTION 'manifest signer key transition requires app.change_reason';
   END IF;
   INSERT INTO die_control.manifest_signer_key_version (
-    tenant_id, key_id, revision, state, fingerprint, manifest_kind,
-    environment, changed_at, changed_by, reason_code
+    tenant_id, key_id, revision, state, fingerprint, algorithm, public_jwk,
+    manifest_kind, environment, issuer, not_before, not_after,
+    changed_at, changed_by, reason_code
   ) VALUES (
     NEW.tenant_id, NEW.key_id, NEW.revision, NEW.state, NEW.fingerprint,
-    NEW.manifest_kind, NEW.environment, NEW.updated_at, session_user, reason
+    NEW.algorithm, NEW.public_jwk, NEW.manifest_kind, NEW.environment,
+    NEW.issuer, NEW.not_before, NEW.not_after,
+    NEW.updated_at, session_user, reason
   );
   RETURN NULL;
 END;
@@ -5700,9 +7781,115 @@ CREATE TRIGGER producer_controlled_transition
 BEFORE INSERT OR UPDATE OR DELETE ON die_control.producer
 FOR EACH ROW EXECUTE FUNCTION die_control.enforce_producer_transition();
 
+CREATE TRIGGER organization_tenant_controlled_transition
+BEFORE UPDATE OR DELETE ON die_control.organization_tenant
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_organization_tenant_transition();
+
+CREATE TRIGGER sensor_bootstrap_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.sensor_bootstrap
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_sensor_bootstrap_transition();
+
+CREATE TRIGGER sensor_bootstrap_issue_attempt_immutable
+BEFORE UPDATE OR DELETE ON die_control.sensor_bootstrap_issue_attempt
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER installation_enrollment_immutable
+BEFORE UPDATE OR DELETE ON die_control.installation_enrollment
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE CONSTRAINT TRIGGER installation_enrollment_authority
+AFTER INSERT ON die_control.installation_enrollment
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_valid_installation_enrollment();
+
+CREATE TRIGGER installation_enrollment_attempt_immutable
+BEFORE UPDATE OR DELETE ON die_control.installation_enrollment_attempt
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER installation_enrollment_attempt_consistency
+BEFORE INSERT ON die_control.installation_enrollment_attempt
+FOR EACH ROW EXECUTE FUNCTION die_control.require_enrollment_attempt_consistency();
+
+CREATE TRIGGER producer_component_set_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.producer_component_set
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_component_set_transition();
+
+CREATE TRIGGER producer_package_immutable
+BEFORE UPDATE OR DELETE ON die_control.producer_package
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER producer_component_immutable
+BEFORE UPDATE OR DELETE ON die_control.producer_component
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE CONSTRAINT TRIGGER producer_component_set_complete
+AFTER INSERT ON die_control.producer_component
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_complete_component_set();
+
+CREATE TRIGGER workload_credential_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.workload_credential
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_workload_credential_transition();
+
+CREATE TRIGGER workload_nonce_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.workload_nonce
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_workload_nonce_transition();
+
+CREATE CONSTRAINT TRIGGER workload_nonce_consumption_proof
+AFTER INSERT OR UPDATE ON die_control.workload_nonce
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_workload_nonce_consumption();
+
+CREATE TRIGGER credential_renewal_immutable
+BEFORE UPDATE OR DELETE ON die_control.credential_renewal
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE CONSTRAINT TRIGGER credential_renewal_exact_binding
+AFTER INSERT ON die_control.credential_renewal
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_credential_renewal_binding();
+
+CREATE TRIGGER credential_renewal_attempt_immutable
+BEFORE UPDATE OR DELETE ON die_control.credential_renewal_attempt
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER credential_renewal_attempt_consistency
+BEFORE INSERT ON die_control.credential_renewal_attempt
+FOR EACH ROW EXECUTE FUNCTION die_control.require_renewal_attempt_consistency();
+
+CREATE TRIGGER workload_proof_replay_immutable
+BEFORE UPDATE OR DELETE ON die_control.workload_proof_replay
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE CONSTRAINT TRIGGER workload_proof_replay_binding
+AFTER INSERT ON die_control.workload_proof_replay
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_workload_proof_binding();
+
+CREATE TRIGGER producer_revocation_immutable
+BEFORE UPDATE OR DELETE ON die_control.producer_revocation
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE CONSTRAINT TRIGGER producer_revocation_effect
+AFTER INSERT ON die_control.producer_revocation
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_revocation_effect();
+
+CREATE TRIGGER producer_revocation_attempt_immutable
+BEFORE UPDATE OR DELETE ON die_control.producer_revocation_attempt
+FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER producer_revocation_attempt_consistency
+BEFORE INSERT ON die_control.producer_revocation_attempt
+FOR EACH ROW EXECUTE FUNCTION die_control.require_revocation_attempt_consistency();
+
 CREATE TRIGGER producer_capability_close_only
 BEFORE INSERT OR UPDATE OR DELETE ON die_control.producer_capability
 FOR EACH ROW EXECUTE FUNCTION die_control.enforce_capability_close();
+
+CREATE TRIGGER producer_health_policy_close_only
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.producer_health_policy
+FOR EACH ROW EXECUTE FUNCTION die_control.enforce_health_policy_close();
 
 CREATE TRIGGER tenant_cell_assignment_controlled_transition
 BEFORE INSERT OR UPDATE OR DELETE ON die_control.tenant_cell_assignment
@@ -5725,9 +7912,18 @@ CREATE TRIGGER enrollment_manifest_immutable
 BEFORE UPDATE OR DELETE ON die_control.enrollment_manifest
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
 
+CREATE CONSTRAINT TRIGGER enrollment_manifest_verified_before_apply
+AFTER INSERT ON die_control.enrollment_manifest
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION die_control.require_enrollment_manifest_verification();
+
 CREATE TRIGGER certification_immutable
 BEFORE UPDATE OR DELETE ON die_control.certification
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+
+CREATE TRIGGER certification_exact_authority
+BEFORE INSERT ON die_control.certification
+FOR EACH ROW EXECUTE FUNCTION die_control.require_valid_certification();
 
 CREATE TRIGGER manifest_signer_key_controlled_transition
 BEFORE INSERT OR UPDATE OR DELETE ON die_control.manifest_signer_key
@@ -5741,9 +7937,9 @@ CREATE TRIGGER manifest_signer_key_version_immutable
 BEFORE UPDATE OR DELETE ON die_control.manifest_signer_key_version
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
 
-CREATE TRIGGER manifest_verification_immutable
-BEFORE UPDATE OR DELETE ON die_control.manifest_verification
-FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
+CREATE TRIGGER manifest_verification_controlled_transition
+BEFORE INSERT OR UPDATE OR DELETE ON die_control.manifest_verification
+FOR EACH ROW EXECUTE FUNCTION die_control.require_manifest_verification_transition();
 
 CREATE TRIGGER oidc_trust_controlled_transition
 BEFORE INSERT OR UPDATE OR DELETE ON die_authz.oidc_trust
@@ -6085,7 +8281,22 @@ CREATE TRIGGER audit_checkpoint_immutable
 BEFORE UPDATE OR DELETE ON die_audit.audit_checkpoint
 FOR EACH ROW EXECUTE FUNCTION die_evidence.reject_immutable_mutation();
 
+ALTER TABLE die_control.organization_tenant ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.sensor_bootstrap ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.sensor_bootstrap_issue_attempt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.installation_enrollment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.installation_enrollment_attempt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_component_set ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_package ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_component ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_credential ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_nonce ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.credential_renewal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.credential_renewal_attempt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_proof_replay ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_revocation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_revocation_attempt ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_signer_key ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_signer_key_version ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.manifest_verification ENABLE ROW LEVEL SECURITY;
@@ -6120,7 +8331,57 @@ ALTER TABLE die_audit.audit_head ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_event ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_audit.audit_checkpoint ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY tenant_isolation_organization_tenant ON die_control.organization_tenant
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_producer ON die_control.producer
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_sensor_bootstrap ON die_control.sensor_bootstrap
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_sensor_bootstrap_issue_attempt
+  ON die_control.sensor_bootstrap_issue_attempt
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_installation_enrollment ON die_control.installation_enrollment
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_installation_enrollment_attempt ON die_control.installation_enrollment_attempt
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_component_set ON die_control.producer_component_set
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_package ON die_control.producer_package
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_component ON die_control.producer_component
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_workload_credential ON die_control.workload_credential
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_workload_nonce ON die_control.workload_nonce
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_credential_renewal ON die_control.credential_renewal
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_credential_renewal_attempt
+  ON die_control.credential_renewal_attempt
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_workload_proof_replay
+  ON die_control.workload_proof_replay
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_revocation
+  ON die_control.producer_revocation
+  USING (tenant_id = die_authz.current_tenant_id())
+  WITH CHECK (tenant_id = die_authz.current_tenant_id());
+CREATE POLICY tenant_isolation_producer_revocation_attempt
+  ON die_control.producer_revocation_attempt
   USING (tenant_id = die_authz.current_tenant_id())
   WITH CHECK (tenant_id = die_authz.current_tenant_id());
 CREATE POLICY tenant_isolation_manifest_signer_key ON die_control.manifest_signer_key
@@ -6226,7 +8487,22 @@ CREATE POLICY tenant_isolation_audit_checkpoint ON die_audit.audit_checkpoint
 
 -- Defense-in-depth applies to internal ledgers as well as product-facing tables.
 -- Runtime roles are not table owners and set app.tenant_id at transaction start.
+ALTER TABLE die_control.organization_tenant FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.producer FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.sensor_bootstrap FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.sensor_bootstrap_issue_attempt FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.installation_enrollment FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.installation_enrollment_attempt FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_component_set FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_package FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_component FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_credential FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_nonce FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.credential_renewal FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.credential_renewal_attempt FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.workload_proof_replay FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_revocation FORCE ROW LEVEL SECURITY;
+ALTER TABLE die_control.producer_revocation_attempt FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.tenant_cell_assignment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE die_control.tenant_cell_assignment FORCE ROW LEVEL SECURITY;
 ALTER TABLE die_control.tenant_cell_principal ENABLE ROW LEVEL SECURITY;

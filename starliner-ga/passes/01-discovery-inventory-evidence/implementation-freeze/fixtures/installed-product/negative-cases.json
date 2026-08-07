@@ -1,0 +1,155 @@
+[
+  {
+    "case_id": "ENR-NEG-001-browser-missing-native-host",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": { "op": "remove", "path": "/component_set/components/1" }
+  },
+  {
+    "case_id": "ENR-NEG-002-client-assigned-producer-id",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "add",
+      "path": "/producer_id",
+      "value": "66666666-6666-4666-8666-666666666666"
+    }
+  },
+  {
+    "case_id": "ENR-NEG-003-private-installation-key",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "add",
+      "path": "/installation_proof/public_jwk/d",
+      "value": "private-key-material-is-prohibited"
+    }
+  },
+  {
+    "case_id": "ENR-NEG-004-reinstall-without-predecessor",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": { "op": "replace", "path": "/intent", "value": "reinstall" }
+  },
+  {
+    "case_id": "ENR-NEG-005-orphan-wal-owner",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/ownership/wal_component_id",
+      "value": "missing-component"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-006-duplicate-component-id",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/components/1/component_id",
+      "value": "browser-extension"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-007-unknown-package-reference",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/components/1/package_id",
+      "value": "missing-package"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-008-long-lived-workload-token",
+    "schema": "sensor-enrollment-response.schema.json",
+    "base_fixture": "browser-enrollment-response.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/workload_identity/expires_at",
+      "value": "2026-08-05T12:15:01Z"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-009-cross-object-producer-mismatch",
+    "schema": "sensor-enrollment-response.schema.json",
+    "base_fixture": "browser-enrollment-response.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/enrollment_manifest/producer_id",
+      "value": "ffffffff-ffff-4fff-8fff-ffffffffffff"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-010-browser-native-host-delivery-owner",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/ownership/delivery_component_id",
+      "value": "browser-native-host"
+    },
+    "recompute_enrollment_digests": true,
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-011-incomplete-component-health-coverage",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "remove",
+      "path": "/component_set/ownership/health_component_ids/1"
+    },
+    "recompute_enrollment_digests": true,
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-012-unbound-jwk-thumbprint",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/installation_proof/key_thumbprint",
+      "value": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "recompute_enrollment_digests": true,
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-013-unbound-dpop-credential",
+    "schema": "sensor-enrollment-response.schema.json",
+    "base_fixture": "browser-enrollment-response.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/workload_identity/confirmation_thumbprint",
+      "value": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "semantic_only": true
+  },
+  {
+    "case_id": "ENR-NEG-014-browser-foreign-component-role",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/components/1/role",
+      "value": "endpoint_agent"
+    }
+  },
+  {
+    "case_id": "ENR-NEG-015-browser-native-host-owner-role",
+    "schema": "sensor-enrollment-request.schema.json",
+    "base_fixture": "browser-enrollment-request.valid.json",
+    "mutation": {
+      "op": "replace",
+      "path": "/component_set/ownership/delivery_component_role",
+      "value": "browser_native_host"
+    }
+  }
+]

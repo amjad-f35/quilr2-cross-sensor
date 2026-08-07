@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0",
+  "schema": "die.source-product-path.v1",
+  "binding_id": "browser-installed-product",
+  "profile": "browser",
+  "logical_sensor": "browser",
+  "authority_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "normal_path_state": "COHERENT_E2E",
+  "installation": {
+    "documentation_refs": ["evidence/install/browser-doc.html"],
+    "installer_repository": "quilrbusiness/Project-Vanguard",
+    "installer_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "install_artifact_ref": "evidence/install/browser-package.zip",
+    "install_artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "normal_install_command_ref": "evidence/install/browser-command.txt",
+    "installation_evidence_ref": "evidence/install/browser-observation.json"
+  },
+  "component_set": {
+    "schema_version": "starliner.producer-component-set.v1",
+    "component_set_id": "55555555-5555-4555-8555-555555555555",
+    "component_set_digest": "sha256:b6200fa8d6de8f6eff069dfceb96573b35a974ab0166d6114f7f11d347ecd846",
+    "source_profile": "browser",
+    "measured_at": "2026-08-05T11:59:58Z",
+    "packages": [
+      {
+        "package_id": "vanguard-chrome",
+        "product": "Quilr Browser Extension",
+        "version": "2.0.0",
+        "format": "chrome_extension",
+        "source_repository": "quilrbusiness/Project-Vanguard",
+        "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "package_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "build_evidence_ref": "evidence/build/vanguard-chrome-2.0.0.json"
+      },
+      {
+        "package_id": "sentinel-native-host-macos",
+        "product": "Quilr Browser Native Host",
+        "version": "2.0.0",
+        "format": "macos_pkg",
+        "source_repository": "quilrbusiness/project-sentinel",
+        "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "package_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "build_evidence_ref": "evidence/build/sentinel-native-host-macos-2.0.0.json"
+      }
+    ],
+    "components": [
+      {
+        "component_id": "browser-extension",
+        "package_id": "vanguard-chrome",
+        "role": "browser_extension",
+        "product": "Quilr Browser Extension",
+        "version": "2.0.0",
+        "source_repository": "quilrbusiness/Project-Vanguard",
+        "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "package_member_path": "chrome-mv3",
+        "package_member_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "installed_artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_identity": "chrome-extension://abcdefghijklmnopabcdefghijklmnop"
+      },
+      {
+        "component_id": "browser-native-host",
+        "package_id": "sentinel-native-host-macos",
+        "role": "browser_native_host",
+        "product": "Quilr Browser Native Host",
+        "version": "2.0.0",
+        "source_repository": "quilrbusiness/project-sentinel",
+        "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "package_member_path": "Library/Application Support/Quilr/native-host",
+        "package_member_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "installed_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "runtime_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "runtime_identity": "ai.quilr.browser.native-host"
+      }
+    ],
+    "ownership": {
+      "capture_component_ids": ["browser-extension", "browser-native-host"],
+      "wal_component_id": "browser-extension",
+      "wal_component_role": "browser_extension",
+      "delivery_component_id": "browser-extension",
+      "delivery_component_role": "browser_extension",
+      "health_component_ids": ["browser-extension", "browser-native-host"]
+    }
+  },
+  "package_installations": [
+    {
+      "package_id": "vanguard-chrome",
+      "component_ids": ["browser-extension"],
+      "package_artifact_ref": "evidence/install/browser-package.zip",
+      "package_artifact_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "install_manifest_ref": "evidence/install/vanguard-chrome-manifest.json",
+      "install_manifest_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "installation_evidence_ref": "evidence/install/browser-observation.json"
+    },
+    {
+      "package_id": "sentinel-native-host-macos",
+      "component_ids": ["browser-native-host"],
+      "package_artifact_ref": "evidence/install/native-host.pkg",
+      "package_artifact_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "install_manifest_ref": "evidence/install/native-host-manifest.json",
+      "install_manifest_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "installation_evidence_ref": "evidence/install/native-host-observation.json"
+    }
+  ],
+  "organization_context": {
+    "tenant_input_kind": "organization_tenant_uuid",
+    "tenant_source_symbol": "enrollment.organization_tenant_id",
+    "discovery_or_bootstrap_symbol": "starliner.control.issueSensorBootstrap",
+    "persona_or_workload_prerequisite": "normal installed product enrollment",
+    "effective_configuration_source": "signed Starliner edge configuration"
+  },
+  "enrollment": {
+    "production_writer_symbol": "starliner.control.enrollSensor",
+    "credential_issuer": "starliner_control",
+    "credential_store": "browser extension secure storage",
+    "producer_identity_source": "signed enrollment response producer_id",
+    "installation_identity_source": "signed enrollment response installation_id",
+    "evidence_ref": "evidence/enrollment/browser.json",
+    "status": "RUNTIME_OBSERVED"
+  },
+  "components": [
+    {
+      "component_id": "browser-extension",
+      "component_kind": "browser_extension",
+      "repository": "quilrbusiness/Project-Vanguard",
+      "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "installed_artifact_ref": "evidence/components/browser-extension.bin",
+      "installed_artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "supervisor": "browser_runtime",
+      "service_unit": "managed-extension-id",
+      "normal_entrypoint": "extension service worker",
+      "effective_configuration_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "installation_evidence_ref": "evidence/components/browser-extension-install.json",
+      "configuration_evidence_ref": "evidence/components/browser-extension-config.json",
+      "observation_ownership": "originating"
+    },
+    {
+      "component_id": "browser-native-host",
+      "component_kind": "browser_native_host",
+      "repository": "quilrbusiness/project-sentinel",
+      "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "installed_artifact_ref": "evidence/components/browser-native-host.bin",
+      "installed_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "supervisor": "launchd",
+      "service_unit": "com.quilr.browser.native-host",
+      "normal_entrypoint": "registered native messaging host",
+      "effective_configuration_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "installation_evidence_ref": "evidence/components/browser-native-host-install.json",
+      "configuration_evidence_ref": "evidence/components/browser-native-host-config.json",
+      "observation_ownership": "supporting"
+    }
+  ],
+  "data_path": {
+    "native_capture_symbols": ["PackageLog.sendLogs", "nativeMessaging.onMessage"],
+    "native_capture_evidence_refs": ["evidence/data/browser-capture.json"],
+    "privacy_mapper_symbol": "browserInventoryAdapter",
+    "wal_owner_component_id": "browser-extension",
+    "wal_owner_component_kind": "browser_extension",
+    "wal_owner_symbol": "extension IndexedDB Starliner WAL",
+    "wal_evidence_ref": "evidence/data/browser-wal.json",
+    "sender_component_id": "browser-extension",
+    "sender_component_kind": "browser_extension",
+    "sender_symbol": "extension delivery worker",
+    "sender_evidence_ref": "evidence/data/browser-sender.json",
+    "receipt_handler_symbol": "extension receipt transition",
+    "receipt_evidence_ref": "evidence/data/browser-receipt.json",
+    "relay_lineage_rule": "native host returns capture results to the extension; it never owns WAL or delivery"
+  },
+  "prerequisites": [
+    {
+      "prerequisite_id": "ORG_TENANT",
+      "class": "EXTERNAL_CREDENTIAL",
+      "required_input_or_action": "Use the normal organization enrollment context.",
+      "status": "SATISFIED",
+      "evidence_ref": "evidence/prerequisites/browser-tenant.json"
+    }
+  ],
+  "prohibited_bypasses": [
+    "fixed_shared_identity_or_token",
+    "second_tenant_or_persona_shim",
+    "manual_storage_or_devtools_injection",
+    "manual_plist_env_or_sql_override",
+    "alternate_or_parallel_daemon",
+    "fake_dirty_or_mixed_artifact_provenance",
+    "fixture_interior_stage",
+    "normal_entrypoint_bypass"
+  ],
+  "evidence_bindings": [
+    { "ref": "evidence/install/browser-doc.html", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "installation_documentation" },
+    { "ref": "evidence/install/browser-package.zip", "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111", "evidence_kind": "installation_artifact" },
+    { "ref": "evidence/build/vanguard-chrome-2.0.0.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "package_build_evidence" },
+    { "ref": "evidence/build/sentinel-native-host-macos-2.0.0.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "package_build_evidence" },
+    { "ref": "evidence/install/vanguard-chrome-manifest.json", "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "evidence_kind": "package_install_manifest" },
+    { "ref": "evidence/install/native-host.pkg", "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222", "evidence_kind": "installation_artifact" },
+    { "ref": "evidence/install/native-host-manifest.json", "digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "evidence_kind": "package_install_manifest" },
+    { "ref": "evidence/install/native-host-observation.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "installation_observation" },
+    { "ref": "evidence/install/browser-command.txt", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "installation_command" },
+    { "ref": "evidence/install/browser-observation.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "installation_observation" },
+    { "ref": "evidence/enrollment/browser.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "enrollment_observation" },
+    { "ref": "evidence/components/browser-extension.bin", "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444", "evidence_kind": "component_installed_artifact" },
+    { "ref": "evidence/components/browser-extension-install.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "component_installation_observation" },
+    { "ref": "evidence/components/browser-extension-config.json", "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333", "evidence_kind": "component_configuration_observation" },
+    { "ref": "evidence/components/browser-native-host.bin", "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666", "evidence_kind": "component_installed_artifact" },
+    { "ref": "evidence/components/browser-native-host-install.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "component_installation_observation" },
+    { "ref": "evidence/components/browser-native-host-config.json", "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555", "evidence_kind": "component_configuration_observation" },
+    { "ref": "evidence/data/browser-capture.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "native_capture_observation" },
+    { "ref": "evidence/data/browser-wal.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "wal_observation" },
+    { "ref": "evidence/data/browser-sender.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "sender_observation" },
+    { "ref": "evidence/data/browser-receipt.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "ingest_receipt" },
+    { "ref": "evidence/prerequisites/browser-tenant.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "prerequisite_observation" },
+    { "ref": "evidence/general/browser-source-path.json", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_kind": "general" }
+  ],
+  "evidence_refs": ["evidence/general/browser-source-path.json"]
+}

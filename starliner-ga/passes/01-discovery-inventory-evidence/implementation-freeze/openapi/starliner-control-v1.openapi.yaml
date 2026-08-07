@@ -1,0 +1,719 @@
+openapi: 3.1.0
+info:
+  title: Starliner Installed-Producer Control API
+  version: 1.0.0
+  description: >-
+    Enrollment, short-lived workload-identity renewal, and revocation for installed
+    sensor products. Discovery supplies a one-use bootstrap bound to the existing
+    organization tenant UUID, profile and scope. Clients prove installation-key
+    possession and exact component provenance; the server assigns producer_id,
+    installation_id and producer_epoch. Raw bootstrap and workload credentials are
+    never persisted.
+servers:
+  - url: https://control.quilr.example
+paths:
+  /starliner/control/v1/sensor-bootstraps:
+    post:
+      operationId: issueSensorBootstrap
+      summary: Issue one short-lived installer bootstrap for an existing organization tenant
+      description: >-
+        Discovery or an authorized control administrator supplies the existing organization
+        tenant UUID, exact profile/scope/environment/intent and an audited installer subject.
+        The server authorizes that scope, generates a random one-use secret, stores only its
+        digest, and returns the raw secret exactly once. Discovery hands this response to the
+        normal installer, MDM deployment or browser-enrollment flow; the sensor never guesses
+        a tenant or converts a persona/user identifier into tenant authority. An idempotent
+        replay returns metadata with secret_delivery=already_delivered and never rediscloses
+        the bootstrap secret; revoke and issue a new bootstrap if delivery was lost.
+      security:
+        - operatorOAuth:
+            - starliner.bootstrap.issue
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorBootstrapIssueRequest'
+      responses:
+        '201':
+          description: Bootstrap issued and raw one-use secret returned exactly once
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorBootstrapIssueResponse'
+        '200':
+          description: Idempotent metadata replay; bootstrap secret is not redisclosed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorBootstrapIssueResponse'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+  /starliner/control/v1/enrollments:
+    post:
+      operationId: enrollInstalledProducer
+      summary: Consume a one-use Discovery bootstrap and enroll or reinstall a sensor
+      description: >-
+        The Authorization credential and bootstrap_id must resolve to one unexpired,
+        unconsumed bootstrap whose tenant, source profile, business scope, environment
+        and intent exactly match the body. The server validates the installation proof,
+        component-set digest and package/component ownership before atomically consuming
+        the bootstrap and allocating identity. A byte-equivalent retry with the same
+        idempotency key returns the original producer/install/epoch assignment and may mint
+        a fresh bounded credential for the same installation key; a changed request under
+        that key is rejected. The signed body carries the SHA-256 of the Idempotency-Key
+        header, and a mismatch is rejected.
+      security:
+        - discoveryBootstrap: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/sensor-enrollment-request.schema.json
+      responses:
+        '201':
+          description: New installed producer enrolled or predecessor reinstalled
+          headers:
+            Starliner-Assignment-Digest:
+              $ref: '#/components/headers/AssignmentDigest'
+            Starliner-Credential-Delivery:
+              $ref: '#/components/headers/InitialCredentialDelivery'
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/sensor-enrollment-response.schema.json
+        '200':
+          description: Assignment-equivalent replay with a fresh bounded credential for the same installation key
+          headers:
+            Starliner-Assignment-Digest:
+              $ref: '#/components/headers/AssignmentDigest'
+            Starliner-Credential-Delivery:
+              $ref: '#/components/headers/ReplacementCredentialDelivery'
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/sensor-enrollment-response.schema.json
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+  /starliner/control/v1/producers/{producer_id}/credentials:renew:
+    post:
+      operationId: renewInstalledProducerCredential
+      summary: Rotate a producer's short-lived proof-of-possession credential
+      description: >-
+        Requires the current unrevoked workload credential and a fresh DPoP proof made
+        by the enrolled installation key. The server MUST parse and cryptographically
+        verify the compact RFC 9449 proof, require typ=dpop+jwt, an accepted asymmetric
+        alg, a public JWK whose RFC 7638 thumbprint equals both the credential cnf.jkt
+        and enrolled installation key, htm=POST, htu normalized to lowercase HTTPS
+        scheme/host plus the effective non-default port and path with query/fragment
+        omitted, exact ath, a fresh single-use server nonce, and iat inside the frozen
+        clock-skew window, and atomically reject replayed
+        (tenant, producer, credential, key thumbprint, jti). Shape or regex
+        checks are not proof validation. Renewal never accepts tenant, installation or
+        epoch overrides. One immutable idempotency row owns one next credential
+        generation; a byte-equivalent retry returns that same generation and an
+        equivalent freshly serialized credential after a lost response.
+      security:
+        - workloadDPoP: []
+      parameters:
+        - $ref: '#/components/parameters/ProducerId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/DPoPProof'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialRenewalRequest'
+      responses:
+        '200':
+          description: Rotated credential or byte-equivalent idempotent replay
+          headers:
+            Starliner-Operation-Digest:
+              $ref: '#/components/headers/OperationDigest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialRenewalResponse'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/DPoPNonceProblem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+  /starliner/control/v1/producers/{producer_id}:revoke:
+    post:
+      operationId: revokeInstalledProducer
+      summary: Revoke a producer assignment and every live workload credential
+      description: >-
+        Operator-only signed revocation. The producer becomes terminally revoked, all
+        active or retiring credentials are revoked in the same transaction, ingest and
+        renewal fail closed, and the immutable enrollment/component history remains.
+      security:
+        - operatorOAuth:
+            - starliner.producer.revoke
+      parameters:
+        - $ref: '#/components/parameters/ProducerId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProducerRevocationRequest'
+      responses:
+        '200':
+          description: Producer and credentials are revoked, including idempotent replay
+          headers:
+            Starliner-Operation-Digest:
+              $ref: '#/components/headers/OperationDigest'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProducerRevocationResponse'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+components:
+  securitySchemes:
+    discoveryBootstrap:
+      type: http
+      scheme: bearer
+      bearerFormat: one-use Discovery bootstrap
+      description: >-
+        Short-lived credential issued for one organization tenant/profile/scope/intent.
+        The raw value is accepted only in Authorization and is stored only as a digest.
+    workloadDPoP:
+      type: http
+      scheme: DPoP
+      description: RFC 9449 DPoP authorization scheme carrying a short-lived proof-of-possession JWT.
+    operatorOAuth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://identity.quilr.example/oauth2/token
+          scopes:
+            starliner.bootstrap.issue: Issue an installer bootstrap for an authorized organization tenant and scope
+            starliner.producer.revoke: Revoke an installed producer
+  parameters:
+    ProducerId:
+      name: producer_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{15,255}$
+    DPoPProof:
+      name: DPoP
+      in: header
+      required: true
+      description: >-
+        Compact RFC 9449 proof. Admission verifies the asymmetric signature and public
+        JWK, RFC 7638 thumbprint binding to cnf.jkt and the enrolled installation key,
+        typ=dpop+jwt, accepted alg, htm=POST and normalized htu (lowercase HTTPS
+        scheme/host, effective non-default port and path, query and fragment omitted),
+        ath, the fresh single-use nonce carried by the DPoP-Nonce challenge, bounded
+        iat, unique jti, and the
+        durable replay ledger before applying effects.
+      schema:
+        type: string
+        minLength: 32
+        maxLength: 4096
+  headers:
+    AssignmentDigest:
+      description: >-
+        Immutable digest of the accepted tenant/producer/installation/epoch/component-set
+        assignment. It is identical on every byte-equivalent enrollment replay.
+      schema:
+        $ref: '#/components/schemas/Sha256'
+    OperationDigest:
+      description: Immutable digest of the canonical renewal or revocation effect.
+      schema:
+        $ref: '#/components/schemas/Sha256'
+    DPoPNonce:
+      description: >-
+        Fresh, single-use RFC 9449 nonce bound server-side to the tenant, producer,
+        current credential, POST method and normalized renewal URI. It expires within
+        five minutes and is consumed atomically with the accepted proof.
+      schema:
+        type: string
+        pattern: ^[A-Za-z0-9_-]{22,128}$
+    InitialCredentialDelivery:
+      description: First credential delivery for this accepted enrollment assignment.
+      schema:
+        type: string
+        const: initial
+    ReplacementCredentialDelivery:
+      description: >-
+        Fresh credential serialization for the same immutable assignment after a lost
+        enrollment response; no producer, installation or epoch is reallocated.
+      schema:
+        type: string
+        const: replacement_after_lost_response
+  responses:
+    Problem:
+      description: Fail-closed RFC 9457 problem response with no secret reflection
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    DPoPNonceProblem:
+      description: >-
+        Fail-closed RFC 9457 challenge or authentication failure. When the client needs
+        a nonce, the response carries a fresh DPoP-Nonce and code use_dpop_nonce.
+      headers:
+        DPoP-Nonce:
+          $ref: '#/components/headers/DPoPNonce'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Sha256:
+      type: string
+      pattern: ^sha256:[0-9a-f]{64}$
+    SensorBootstrapIssueRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - organization_tenant_id
+        - source_profile
+        - business_scope_id
+        - environment
+        - intent
+        - installer_subject_ref
+        - reason_code
+        - requested_ttl_seconds
+        - requested_at
+      properties:
+        api_version:
+          const: starliner.control.bootstrap-issue.v1
+        request_id:
+          type: string
+          format: uuid
+        organization_tenant_id:
+          type: string
+          format: uuid
+        source_profile:
+          enum: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway]
+        business_scope_id:
+          type: string
+          format: uuid
+        environment:
+          type: string
+          pattern: ^[a-z][a-z0-9_.-]{0,127}$
+        intent:
+          enum: [enroll, reinstall]
+        replaces:
+          type: object
+          additionalProperties: false
+          required: [producer_id, installation_id, producer_epoch]
+          properties:
+            producer_id:
+              type: string
+              format: uuid
+            installation_id:
+              type: string
+              format: uuid
+            producer_epoch:
+              type: string
+              format: uuid
+        installer_subject_ref:
+          type: string
+          minLength: 1
+          maxLength: 1024
+          description: Audited operator/deployment subject; never promoted into tenant authority.
+        reason_code:
+          type: string
+          pattern: ^[a-z][a-z0-9_.-]{0,127}$
+        requested_ttl_seconds:
+          type: integer
+          minimum: 60
+          maximum: 900
+        requested_at:
+          type: string
+          format: date-time
+      allOf:
+        - if:
+            properties:
+              intent:
+                const: reinstall
+            required: [intent]
+          then:
+            required: [replaces]
+        - if:
+            properties:
+              intent:
+                const: enroll
+            required: [intent]
+          then:
+            not:
+              required: [replaces]
+    SensorBootstrapIssueResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - status
+        - bootstrap_id
+        - organization_tenant_id
+        - source_profile
+        - business_scope_id
+        - environment
+        - intent
+        - issued_at
+        - expires_at
+        - enrollment_url
+        - secret_delivery
+      properties:
+        api_version:
+          const: starliner.control.bootstrap-issue-response.v1
+        request_id:
+          type: string
+          format: uuid
+        status:
+          enum: [issued, idempotent_replay]
+        bootstrap_id:
+          type: string
+          format: uuid
+        organization_tenant_id:
+          type: string
+          format: uuid
+        source_profile:
+          enum: [browser, browser_backend, endpoint, llm_gateway, mcp_gateway]
+        business_scope_id:
+          type: string
+          format: uuid
+        environment:
+          type: string
+          pattern: ^[a-z][a-z0-9_.-]{0,127}$
+        intent:
+          enum: [enroll, reinstall]
+        replaces:
+          type: object
+          additionalProperties: false
+          required: [producer_id, installation_id, producer_epoch]
+          properties:
+            producer_id:
+              type: string
+              format: uuid
+            installation_id:
+              type: string
+              format: uuid
+            producer_epoch:
+              type: string
+              format: uuid
+        issued_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          description: No more than 15 minutes after issued_at.
+        enrollment_url:
+          type: string
+          format: uri
+        secret_delivery:
+          enum: [returned_once, already_delivered]
+        bootstrap_secret:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          writeOnly: true
+      allOf:
+        - if:
+            properties:
+              status:
+                const: issued
+            required: [status]
+          then:
+            properties:
+              secret_delivery:
+                const: returned_once
+            required: [bootstrap_secret]
+        - if:
+            properties:
+              status:
+                const: idempotent_replay
+            required: [status]
+          then:
+            properties:
+              secret_delivery:
+                const: already_delivered
+            not:
+              required: [bootstrap_secret]
+    CredentialRenewalRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - current_credential_id
+        - idempotency_key_digest
+        - requested_at
+        - nonce
+        - request_digest
+        - detached_jws
+      properties:
+        api_version:
+          const: starliner.control.credential-renewal.v1
+        request_id:
+          type: string
+          format: uuid
+        current_credential_id:
+          type: string
+          format: uuid
+        idempotency_key_digest:
+          $ref: '#/components/schemas/Sha256'
+          description: SHA-256 of the required Idempotency-Key header; a mismatch is rejected.
+        requested_at:
+          type: string
+          format: date-time
+        nonce:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{22,128}$
+        request_digest:
+          $ref: '#/components/schemas/Sha256'
+          description: >-
+            RFC 8785 JCS SHA-256 of this renewal body with request_digest and
+            detached_jws omitted. The accepted detached JWS signs the canonical body
+            with this digest present and only detached_jws omitted.
+        detached_jws:
+          type: string
+          pattern: ^[A-Za-z0-9_-]+\.{2}[A-Za-z0-9_-]+$
+          maxLength: 4096
+          description: >-
+            RFC 7797 detached JWS over the RFC 8785 canonical renewal request with
+            detached_jws omitted and request_digest present. The protected header
+            requires typ=starliner-credential-renewal-proof+jws, alg, kid, b64=false
+            and crit=[b64]; admission validates the asymmetric signature, exact
+            enrolled-key thumbprint and signed request digest rather than accepting
+            this lexical shape alone.
+    CredentialRenewalResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - status
+        - producer_id
+        - installation_id
+        - producer_epoch
+        - workload_identity
+      properties:
+        api_version:
+          const: starliner.control.credential-renewal-response.v1
+        request_id:
+          type: string
+          format: uuid
+        status:
+          enum: [rotated, idempotent_replay]
+          description: >-
+            idempotent_replay returns the same credential_id and generation/effect;
+            the access_token is freshly serialized and is not required to be byte
+            identical to a response that may have been lost.
+        producer_id:
+          type: string
+          format: uuid
+        installation_id:
+          type: string
+          format: uuid
+        producer_epoch:
+          type: string
+          format: uuid
+        workload_identity:
+          $ref: '#/components/schemas/ShortLivedWorkloadIdentity'
+    ShortLivedWorkloadIdentity:
+      type: object
+      additionalProperties: false
+      required:
+        - credential_id
+        - credential_type
+        - subject
+        - token_type
+        - access_token
+        - confirmation_thumbprint
+        - scopes
+        - issued_at
+        - renew_after
+        - expires_at
+        - renewal_url
+      properties:
+        credential_id:
+          type: string
+          format: uuid
+        credential_type:
+          const: dpop_jwt
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        token_type:
+          const: DPoP
+        access_token:
+          type: string
+          minLength: 32
+          maxLength: 16384
+          writeOnly: true
+        confirmation_thumbprint:
+          $ref: '#/components/schemas/Sha256'
+        scopes:
+          type: array
+          minItems: 2
+          maxItems: 4
+          uniqueItems: true
+          items:
+            enum:
+              - starliner.ingest
+              - starliner.configuration.read
+              - starliner.credential.renew
+              - starliner.health.write
+          allOf:
+            - contains:
+                const: starliner.ingest
+              minContains: 1
+            - contains:
+                const: starliner.credential.renew
+              minContains: 1
+        issued_at:
+          type: string
+          format: date-time
+        renew_after:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          description: No more than 15 minutes after issued_at.
+        renewal_url:
+          type: string
+          format: uri
+          maxLength: 2048
+    ProducerRevocationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - expected_revision
+        - idempotency_key_digest
+        - request_digest
+        - manifest
+      properties:
+        api_version:
+          const: starliner.control.producer-revocation.v1
+        request_id:
+          type: string
+          format: uuid
+        expected_revision:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        idempotency_key_digest:
+          $ref: '#/components/schemas/Sha256'
+          description: SHA-256 of the required Idempotency-Key header; a mismatch is rejected.
+        request_digest:
+          $ref: '#/components/schemas/Sha256'
+          description: RFC 8785 digest of this request with request_digest omitted.
+        manifest:
+          allOf:
+            - $ref: ../schemas/producer-enrollment-manifest.schema.json
+            - type: object
+              properties:
+                operation:
+                  const: revoke
+              required: [operation]
+    ProducerRevocationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - api_version
+        - request_id
+        - status
+        - producer_id
+        - producer_revision
+        - revoked_credential_ids
+        - revoked_at
+      properties:
+        api_version:
+          const: starliner.control.producer-revocation-response.v1
+        request_id:
+          type: string
+          format: uuid
+        status:
+          enum: [revoked, idempotent_replay]
+        producer_id:
+          type: string
+          format: uuid
+        producer_revision:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        revoked_credential_ids:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        revoked_at:
+          type: string
+          format: date-time
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, request_id]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+          minLength: 1
+          maxLength: 256
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+          pattern: ^[a-z][a-z0-9_.-]{0,127}$
+        request_id:
+          type: string
+          format: uuid
+        detail:
+          type: string
+          maxLength: 1024

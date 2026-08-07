@@ -111,9 +111,44 @@ execute(
   [join(freezeRoot, 'engineering-execution/tools/test-runtime-manifest-validator.mjs')],
 )
 execute(
+  'installed-source vertical state semantic contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-sensor-vertical-state-validator.mjs')],
+)
+execute(
+  'installed-source required-input semantic contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-required-inputs-validator.mjs')],
+)
+execute(
+  'product-delivery to installed-source high-water binding contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-product-delivery-sensor-binding.mjs')],
+)
+execute(
+  'Gate-B obligations generated-authority drift check',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/build-gate-b-obligations.mjs')],
+)
+execute(
+  'Gate-B certification semantic contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-gate-b-certification-validator.mjs')],
+)
+execute(
+  'Endpoint-Browser cross-source gate semantic contracts',
+  'node',
+  [join(freezeRoot, 'engineering-execution/tools/test-cross-source-gate-validator.mjs')],
+)
+execute(
   'JSON Schema contracts',
   python,
   [join(toolDir, 'test-schema-contracts.py')],
+)
+execute(
+  'installed-product cryptographic semantics',
+  'node',
+  [join(toolDir, 'test-installed-product-crypto.mjs')],
 )
 execute(
   'OpenAPI contracts',

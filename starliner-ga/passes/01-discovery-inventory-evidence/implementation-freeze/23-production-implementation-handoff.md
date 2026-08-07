@@ -19,6 +19,12 @@ When artifacts disagree, use this order:
 Existing code never overrides a frozen invariant merely because it already
 works differently.
 
+[ADR-0022](../../../adrs/0022-installed-product-vertical-delivery.md) and
+[document 43](43-installed-product-lifecycle-and-source-verticals.md) are the
+installed-product lifecycle, required-input and source-vertical execution
+authority. They distinguish the all-five-profile release from one-source-at-a-
+time integration without changing the machine contracts above.
+
 ## Complete target path
 
 ```text
@@ -77,15 +83,33 @@ horizontal gate chain:
 
 1. Build the real minimum control path: tenant bootstrap, signed producer and
    installation enrollment, credentials/configuration, revocation and health.
-2. Drive one real source fact through WAL, admission, evidence, normalization,
-   canonical truth, projection, authorized API and live Nuxt; then expand that
-   same coherent runtime across all five profiles and every supported route.
-3. Materialize exact identity, relationship, activity, coverage, ambiguity,
-   succession and provenance semantics as the native source paths arrive.
-4. Complete all frozen API/UI breadth, authorization, rebuild, lifecycle and
+2. Drive Endpoint from its normally installed compound artifact through WAL,
+   admission, evidence, normalization, canonical truth, projection, authorized
+   API and live Nuxt.
+3. Drive Browser Extension through Gate A as the sole logical Browser
+   producer/WAL/delivery owner, with its native host retained as a supporting
+   capture component with distinct lineage.
+4. Immediately prove one supported Endpoint/Browser cross-source binding or
+   relationship and one weak-evidence unresolved negative on the same runtime.
+5. Add Browser Backend as a separate hosted producer for server-owned facts,
+   then LLM Gateway and MCP Gateway as separate normally deployed Gate-A
+   verticals.
+6. Materialize exact cross-source identity, relationship, activity, coverage,
+   ambiguity, succession and provenance semantics continuously as each native
+   source path arrives.
+7. Complete all frozen API/UI breadth, authorization, rebuild, lifecycle and
    operational behavior on that same product runtime.
-5. Run `LG-001..LG-007` conformance continuously against exact candidates and
+8. Run `LG-001..LG-007` conformance continuously against exact candidates and
    correct failures without stopping independent product lanes.
+
+For each source, prove one continuous exact-artifact native-to-UI trace before
+calling its integration connected. After Endpoint Gate A, complete Browser
+Gate A and the first supported cross-source binding/relationship plus a weak-
+evidence unresolved negative before waiting for Endpoint's long-tail breadth.
+Then complete the other Gate-A verticals. Every supported route and replay/
+restart/offline/gap/health/reconciliation behavior still closes under Gate B
+before release and may proceed in parallel. The first customer release still
+requires all five profiles and exhaustive `PI-005` cross-source closure.
 
 Protocol generation, storage harnesses, native qualification, cryptographic
 vectors, provider lifecycle tests and remote exact-SHA validation run in
@@ -120,6 +144,16 @@ Engineering stops and raises an ADR if implementation would:
 - expose an object-store URL;
 - weaken RLS, cell assignment or runtime grants;
 - make a failed live conformance assertion pass by deleting the invariant.
+
+Before modifying any installed/deployed source path, engineering must trace the
+official installer/deployer, existing organization tenant Discovery/bootstrap,
+persona/device/workload bootstrap prerequisite, enrollment, secure credential
+store, supervisor/entrypoint, capture seam, WAL, sender and receipt owner. If a
+required external input is absent, apply document 43's exact disposition and
+ask one bounded question; pause only that action and continue independent work.
+Never replace the normal path with fixed IDs, a second tenant, persona shim,
+manual environment/plist/storage/SQL mutation, hand-minted token, alternate
+daemon, fake artifact digest or fixture interior.
 
 ## Existing Nuxt seam
 
@@ -170,6 +204,12 @@ evidence schema and exits in
 The active scheduling, status and blocker rules are in
 [document 41](41-product-first-continuous-delivery-authority.md). They
 supersede older gate-first wording without changing any gate assertion.
+
+The normal installed-product lifecycle and source order are in
+[document 43](43-installed-product-lifecycle-and-source-verticals.md). It
+supersedes any wording that treats Browser native host as a second launch
+producer, combines Browser Backend client relays with Browser observations, or
+requires horizontal five-adapter completion before the first real vertical.
 
 The final delta-freeze adds binding authority that supersedes any older open
 wording in this handoff:

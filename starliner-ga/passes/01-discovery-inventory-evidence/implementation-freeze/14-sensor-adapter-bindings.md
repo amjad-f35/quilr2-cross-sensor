@@ -13,6 +13,13 @@ The deeper evidence remains in the normative current-code bindings:
 
 Where those broader documents discuss policy, commands, findings, migration, or deployment portfolio, those sections are outside this pass. Their verified current-code observations and capture seams remain evidence. The executable profile schemas in this package control emitted bytes.
 
+Installed-product lifecycle, required-input handling and source-vertical
+integration are governed by [ADR-0022](../../../adrs/0022-installed-product-vertical-delivery.md)
+and [document 43](43-installed-product-lifecycle-and-source-verticals.md). An
+adapter unit test or diagnostic sender does not replace the official
+installation/deployment, existing organization tenant bootstrap, authenticated
+enrollment, normal supervisor/entrypoint or one continuous source-to-UI trace.
+
 ## Common adapter contract
 
 Every adapter implements the same behavioral boundary:
@@ -49,6 +56,13 @@ Required adapter inputs:
 - actual causal/request/session correlation where available;
 - declared capability and privacy-policy version.
 
+Those inputs come only from the authenticated normal product lifecycle. If an
+exact tenant/bootstrap input, credential, artifact, privileged install action
+or external runtime is unavailable, the affected source follows document 43's
+required-input protocol and asks for that bounded input. It must not invent a
+fixed identity, persona shim, manual service configuration, parallel daemon,
+storage injection, hand-minted credential or fixture interior.
+
 Required adapter outputs:
 
 - one immutable typed source record, or an explicit non-admission result;
@@ -61,16 +75,23 @@ The generated SDK owns envelope construction, UUIDv7 record identity, sequence a
 
 | Source | Adapter placement | Durable owner | Producer identity |
 |---|---|---|---|
-| Browser Extension | extension background/service-worker context | transactional browser WAL in embedded Starliner runtime | extension installation; no current profile identity |
-| Browser native host | native operation seam; normally returns facts to extension runtime | extension WAL unless independently certified for direct delivery | distinct native component identity and lineage |
+| Browser installed sensor | extension background/service-worker adapter plus correlated native-host operation seams | one transactional browser WAL owned by the extension runtime | one Browser installation producer/epoch/sequence stream; extension and native host retain distinct component/artifact lineage |
 | Browser Backend | Spring service boundary after authentication/validation | backend-local durable outbox | backend deployment, never extension identity |
-| Endpoint | adapters in monitor/proxy/hook/agent processes | one device-local supervised Edge Runtime over authenticated bounded IPC | installation plus enrolled component |
+| Endpoint | adapters in monitor/proxy/hook/agent processes | one device-local supervised Edge Runtime over authenticated bounded IPC | one installation producer stream plus enrolled component lineage |
 | LLM Gateway | in-process request/config lifecycle adapter | one sidecar Edge Runtime/WAL per gateway pod | gateway deployment/runtime |
 | MCP Gateway | embedded Python runtime for certified single-replica launch | existing SQLite outbox hardened to frozen WAL contract | gateway deployment/runtime |
 
 The MCP Gateway must move to a per-pod sidecar or a certified shared durable runtime before evidence-producing horizontal replicas are enabled. The current SQLite/process-local state is not multi-replica safe.
 
-## Browser Extension and native host
+## Browser Extension and native host: one logical Browser source
+
+The extension and its native messaging host are installed components of one
+Browser producer, installation, epoch, sequence space, WAL and delivery
+stream. The extension background owns delivery; native results return to it
+with the exact native component/artifact and originating Browser observation.
+The native host is not a second launch producer and cannot create duplicate
+activity. Absence or mismatch is an explicit component health/coverage/gap
+state, not permission to start an alternate sender.
 
 ### Verified capture seams
 
@@ -137,7 +158,18 @@ The single pending response slot and positional upload association must be repla
 - `publication_gap`
 - `reconciliation_snapshot`
 
-A relayed extension record preserves the original signed producer identity, epoch, sequence, record ID and digest. A backend-native processing record uses the backend producer and a parent record ID. These are never counted as two independent browser actions.
+A relayed extension record preserves the original signed Browser producer
+identity, epoch, sequence, record ID and digest. A backend-native processing
+record uses the Backend producer and carries the original
+producer/epoch/record/digest only in `payload.qualified_client_record`;
+`envelope.correlation.qualified_parent_record` is forbidden for this profile
+to prevent two divergent parent authorities. Backend `accepted`, `transformed`
+and `published` records normalize as lineage-only `source_processing` stages
+with zero activity candidates, so they cannot enter customer activity,
+recent-activity, activity-count or risk projections. Browser Backend emits only server-owned catalog,
+configuration, receipt/validation, heartbeat/runtime, publication/gap and
+administrative outcome facts; it cannot relabel received client activity as a
+backend-native observation.
 
 ## Endpoint compound sensor
 
@@ -302,6 +334,8 @@ using length-prefixed UTF-8 components and SHA-256. Empty full snapshots are val
 
 Code can be implemented against these bindings now. A source/capability may be advertised in production only when the exact built sensor, adapter and runtime artifact passes:
 
+- official installed/deployed product-path and continuous-trace verification
+  under document 43, with no prohibited substitute;
 - positive and negative profile corpus;
 - privacy canary tests;
 - native correlation and concurrency tests;

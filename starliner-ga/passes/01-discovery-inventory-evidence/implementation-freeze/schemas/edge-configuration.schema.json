@@ -11,6 +11,10 @@
     "expires_at",
     "tenant_id",
     "producer_id",
+    "installation_id",
+    "producer_epoch",
+    "component_set_digest",
+    "workload_identity",
     "ingest",
     "profiles",
     "privacy",
@@ -23,8 +27,64 @@
     "generation": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
     "issued_at": { "type": "string", "format": "date-time" },
     "expires_at": { "type": "string", "format": "date-time" },
-    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Existing organization/workspace tenant UUID bound by the consumed Discovery bootstrap."
+    },
     "producer_id": { "type": "string", "format": "uuid" },
+    "installation_id": { "type": "string", "format": "uuid" },
+    "producer_epoch": { "type": "string", "format": "uuid" },
+    "component_set_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Exact admitted installed component set. Delivery from a different measured component set requires a signed configuration update or reinstall."
+    },
+    "workload_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "credential_id",
+        "subject",
+        "confirmation_thumbprint",
+        "scopes",
+        "issued_at",
+        "renew_after",
+        "expires_at",
+        "renewal_url"
+      ],
+      "properties": {
+        "credential_id": { "type": "string", "format": "uuid" },
+        "subject": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "confirmation_thumbprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "scopes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "starliner.ingest",
+              "starliner.configuration.read",
+              "starliner.credential.renew",
+              "starliner.health.write"
+            ]
+          },
+          "allOf": [
+            { "contains": { "const": "starliner.ingest" }, "minContains": 1 },
+            { "contains": { "const": "starliner.credential.renew" }, "minContains": 1 }
+          ]
+        },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "renew_after": { "type": "string", "format": "date-time" },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "No more than 15 minutes after issued_at. The signed configuration carries identity metadata, never the raw access token."
+        },
+        "renewal_url": { "type": "string", "format": "uri", "maxLength": 2048 }
+      }
+    },
     "ingest": {
       "type": "object",
       "additionalProperties": false,

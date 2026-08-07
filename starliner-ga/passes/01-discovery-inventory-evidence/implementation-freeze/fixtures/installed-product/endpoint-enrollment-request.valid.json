@@ -1,0 +1,139 @@
+{
+  "api_version": "starliner.control.enrollment-request.v1",
+  "request_id": "99999999-9999-4999-8999-999999999999",
+  "idempotency_key_digest": "sha256:90bc778623c807e9004408133153a66e7fd6d06ef91fb351443f63afb9067dd4",
+  "organization_tenant_id": "22222222-2222-4222-8222-222222222222",
+  "bootstrap_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "intent": "enroll",
+  "source_profile": "endpoint",
+  "business_scope_id": "44444444-4444-4444-8444-444444444444",
+  "environment": "production",
+  "display_name": "Endpoint sensor on test-mac-01",
+  "requested_at": "2026-08-05T12:00:00Z",
+  "client_nonce": "ERITFBUWFxgZGhscHR4fIA",
+  "component_set": {
+    "schema_version": "starliner.producer-component-set.v1",
+    "component_set_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    "component_set_digest": "sha256:d476c57101043a22da327872967f0eeebc8b50c1fe78f14ec9bd80c3f8805014",
+    "source_profile": "endpoint",
+    "measured_at": "2026-08-05T11:59:58Z",
+    "packages": [
+      {
+        "package_id": "sentinel-endpoint-macos",
+        "product": "Quilr Endpoint Agent",
+        "version": "0.30.276",
+        "format": "macos_pkg",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "build_evidence_ref": "evidence/build/sentinel-endpoint-macos-0.30.276.json"
+      }
+    ],
+    "components": [
+      {
+        "component_id": "endpoint-agent",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_agent",
+        "product": "Quilr Endpoint Agent",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/MacOS/SentinelProxy",
+        "package_member_digest": "sha256:abababababababababababababababababababababababababababababababab",
+        "installed_artifact_digest": "sha256:acacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacac",
+        "runtime_artifact_digest": "sha256:acacacacacacacacacacacacacacacacacacacacacacacacacacacacacacacac",
+        "runtime_identity": "ai.quilr.agent.sentinel"
+      },
+      {
+        "component_id": "endpoint-monitor",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_monitor",
+        "product": "sentinel-monitor-v2",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/MacOS/sentinel-monitor-v2",
+        "package_member_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "installed_artifact_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "runtime_artifact_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "runtime_identity": "ai.quilr.agent.sentinel.monitor"
+      },
+      {
+        "component_id": "endpoint-proxy",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_proxy",
+        "product": "Sentinel Proxy",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/MacOS/sentinel-proxy",
+        "package_member_digest": "sha256:bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc",
+        "installed_artifact_digest": "sha256:bdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbd",
+        "runtime_artifact_digest": "sha256:bdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbd",
+        "runtime_identity": "ai.quilr.agent.sentinel.proxy"
+      },
+      {
+        "component_id": "endpoint-ipc-broker",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_ipc_broker",
+        "product": "Sentinel IPC Broker",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/MacOS/sentinel-ipc-broker",
+        "package_member_digest": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "installed_artifact_digest": "sha256:cececececececececececececececececececececececececececececececece",
+        "runtime_artifact_digest": "sha256:cececececececececececececececececececececececececececececececece",
+        "runtime_identity": "ai.quilr.agent.sentinel.ipc-broker"
+      },
+      {
+        "component_id": "endpoint-template-engine",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_template_engine",
+        "product": "Sentinel Template Engine",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/MacOS/sentinel-template-engine",
+        "package_member_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "installed_artifact_digest": "sha256:dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+        "runtime_artifact_digest": "sha256:dfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdfdf",
+        "runtime_identity": "ai.quilr.agent.sentinel.template-engine"
+      },
+      {
+        "component_id": "endpoint-system-extension",
+        "package_id": "sentinel-endpoint-macos",
+        "role": "endpoint_system_extension",
+        "product": "Sentinel Proxy Extension",
+        "version": "0.30.276",
+        "source_repository": "quilrbusiness/sentinel-endpoint-agent",
+        "source_commit": "cccccccccccccccccccccccccccccccccccccccc",
+        "package_member_path": "SentinelProxy.app/Contents/Library/SystemExtensions/ai.quilr.agent.sentinel.extension",
+        "package_member_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "installed_artifact_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "runtime_artifact_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "runtime_identity": "ai.quilr.agent.sentinel.extension"
+      }
+    ],
+    "ownership": {
+      "capture_component_ids": ["endpoint-agent", "endpoint-monitor", "endpoint-proxy", "endpoint-system-extension"],
+      "wal_component_id": "endpoint-monitor",
+      "wal_component_role": "endpoint_monitor",
+      "delivery_component_id": "endpoint-monitor",
+      "delivery_component_role": "endpoint_monitor",
+      "health_component_ids": ["endpoint-agent", "endpoint-monitor", "endpoint-proxy", "endpoint-ipc-broker", "endpoint-template-engine", "endpoint-system-extension"]
+    }
+  },
+  "installation_proof": {
+    "algorithm": "EdDSA",
+    "public_jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+    },
+    "key_thumbprint": "sha256:e48181c3927fba9247098c19665494c112ff6c2e9b81b8f85c1e368d570d6e70",
+    "request_digest": "sha256:4eb6629b5b8584d5c8bf417b1b30b9870d427af8f1372b10d866b8c7bbf19074",
+    "signed_at": "2026-08-05T12:00:00Z",
+    "detached_jws": "e30..ZWREU0FzaWduYXR1cmU"
+  }
+}

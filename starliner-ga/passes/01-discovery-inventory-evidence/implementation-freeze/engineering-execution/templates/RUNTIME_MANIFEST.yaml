@@ -31,6 +31,11 @@ stores:
     version: UNASSIGNED
     endpoint_ref: UNASSIGNED
     configuration_digest: UNASSIGNED
+# Each coherent producer references a SOURCE_PRODUCT_PATH.yaml copy beneath this
+# manifest's evidence-bundle root and binds its exact file-byte SHA-256. The five
+# installed launch profiles use enrollment-issued dpop_jwt credentials. Missing
+# tenant/persona/workload prerequisites remain explicit blockers in that source
+# path; they are never replaced by injected identities, ad-hoc daemons or config.
 producers: []
 customer_endpoints:
   api: UNASSIGNED
@@ -42,6 +47,13 @@ contamination:
   manual_database_mutation: false
   untracked_hotfixes: false
   overlapping_runtime: false
+  manual_configuration_override: false
+  parallel_product_daemon: false
+  devtools_or_storage_injection: false
+  synthetic_identity_or_persona: false
+  fixture_interior_stage: false
+  uninstalled_artifact: false
+  normal_entrypoint_bypassed: false
   notes: []
 created_at: UNASSIGNED
 started_at: UNASSIGNED

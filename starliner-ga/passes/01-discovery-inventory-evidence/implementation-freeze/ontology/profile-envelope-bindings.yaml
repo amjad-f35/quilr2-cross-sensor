@@ -68,11 +68,18 @@ profiles:
         changed: object.changed
         tombstoned: object.tombstoned
     browser_event:
-      record_type: activity.observed
+      record_type: source_processing.observed
+      lineage_carrier: payload.qualified_client_record
+      duplicate_carrier_rule: "envelope.correlation.qualified_parent_record MUST be absent; admission validates the one payload reference against accepted Browser evidence in the same tenant"
+      customer_activity_rule: "accepted/transformed/published are backend source-processing stages only; they never emit a customer activity candidate"
     native_decision:
       record_type: decision.observed
+      lineage_carrier: payload.qualified_client_record
+      duplicate_carrier_rule: "envelope.correlation.qualified_parent_record MUST be absent"
     action_outcome:
       record_type: outcome.observed
+      lineage_carrier: payload.qualified_client_record
+      duplicate_carrier_rule: "envelope.correlation.qualified_parent_record MUST be absent"
     installation:
       selector: operation
       values:

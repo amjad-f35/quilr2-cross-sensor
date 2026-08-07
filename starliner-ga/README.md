@@ -154,6 +154,6 @@ All 25 new inputs (19,397 lines) were read and dispositioned in [`evidence/01-co
 
 ## No invented production values
 
-Unknown environment-specific values use `NEEDS_INPUT` and are registered in [`registers/needs-input.yaml`](registers/needs-input.yaml). This applies to tenant routing, owners, production URLs, regions, identity issuers, JWKS, KMS keys, secrets, deployment paths, SLO commitments, on-call ownership, and infrastructure endpoints.
+Unknown environment-specific values use `NEEDS_INPUT` and are registered in [`registers/needs-input.yaml`](registers/needs-input.yaml). This applies to internal tenant-cell placement, owners, production URLs, regions, identity issuers, JWKS, KMS keys, secrets, deployment paths, SLO commitments, on-call ownership, and infrastructure endpoints. The customer-facing logical tenant is not unknown: installed sources use the existing organization tenant UUID through the supported Discovery/enrollment path defined by ADR-0022.
 
 `NEEDS_INPUT` is not permitted for architecture behavior that this corpus freezes.

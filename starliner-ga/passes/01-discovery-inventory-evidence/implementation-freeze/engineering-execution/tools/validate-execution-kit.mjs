@@ -9,6 +9,17 @@ import {
   PRODUCT_DELIVERY_HEADER,
   validateProductDeliveryState,
 } from './product-delivery-state-lib.mjs'
+import { REQUIRED_INPUTS_HEADER } from './required-inputs-lib.mjs'
+import { SENSOR_VERTICAL_HEADER } from './sensor-vertical-state-lib.mjs'
+import { CROSS_SOURCE_GATE_HEADER } from './cross-source-gate-lib.mjs'
+import {
+  buildGateBObligations,
+  GATE_B_CERTIFICATION_HEADER,
+  GATE_B_OBLIGATION_HEADER,
+  initializeGateBCertification,
+  serializeGateBObligations,
+  validateGateBCertification,
+} from './gate-b-certification-lib.mjs'
 import { validateRuntimeManifestFile } from './validate-runtime-manifest.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -104,6 +115,8 @@ requireFragments('templates/AGENTS.md', [
   'native Vue SFCs',
   'clone existing Button/Dialog/Table',
   'Code that is not yet',
+  'SOURCE_PRODUCT_PATH.yaml',
+  'Required inputs: search, ask, never bypass',
 ])
 requireFragments('templates/WORK_STATE.md', [
   'Architecture authority commit',
@@ -144,6 +157,17 @@ try {
 catch (error) {
   fail(`templates/RUNTIME_MANIFEST.yaml cannot be parsed: ${error.message}`)
 }
+requireFragments('templates/SOURCE_PRODUCT_PATH.yaml', [
+  'schema: die.source-product-path.v1',
+  'normal_path_state:',
+  'organization_context:',
+  'enrollment:',
+  'normal_entrypoint:',
+  'prohibited_bypasses:',
+  'evidence_bindings:',
+  'wal_owner_component_id:',
+  'sender_component_id:',
+])
 requireFragments('BRANCH_HYGIENE_AND_CHANGE_CONTROL.md', [
   'One branch may contain many commits',
   'One writer per branch',
@@ -209,6 +233,8 @@ const ledgerHeaders = new Map([
   ['templates/BRANCH_PR_REGISTER.csv.template', 'repository,branch,base,work_item_id,owner,state,pr_url,head_sha,ahead,behind,last_activity,disposition,delete_after,notes'],
   ['templates/WORK_ITEMS.csv.template', 'work_item_id,parent_id,title,repository,component,product_capabilities,implementation_state,integration_state,evidence_state,release_state,runtime_mode,priority,hard_code_dependencies,release_gates,development_blocked,blocker_class,blocked_on,blocked_action,blocker_evidence,blocker_owner,unblock_condition,blocker_recheck_at,independent_next_action,highest_proven_stage,owner,branch,last_verified_sha,next_product_action,notes'],
   ['templates/PRODUCT_DELIVERY_STATE.csv.template', PRODUCT_DELIVERY_HEADER.join(',')],
+  ['templates/REQUIRED_INPUTS.csv.template', REQUIRED_INPUTS_HEADER.join(',')],
+  ['templates/SENSOR_VERTICAL_STATE.csv.template', SENSOR_VERTICAL_HEADER.join(',')],
 ])
 for (const [path, header] of ledgerHeaders) {
   const text = load(path).trim()
@@ -235,6 +261,7 @@ const expectedJiraHeader = [
 if (JSON.stringify(jiraHeader) !== JSON.stringify(expectedJiraHeader))
   fail('Jira import header changed')
 const jiraIds = new Set()
+const jiraById = new Map()
 for (const row of jiraRows.slice(1)) {
   const id = row[0]
   if (!id)
@@ -242,12 +269,20 @@ for (const row of jiraRows.slice(1)) {
   if (jiraIds.has(id))
     fail(`duplicate Jira External ID: ${id}`)
   jiraIds.add(id)
+  jiraById.set(id, row)
   if (!row[10])
     fail(`Jira item ${id} has no acceptance criteria`)
   if (/LG-?00[1-8]/.test(row[8] || ''))
     fail(`Jira item ${id} uses a release gate as a hard code dependency`)
   if (/\bDIE-WP00\b/.test(row[8] || ''))
     fail(`Jira item ${id} uses program setup DIE-WP00 as a blanket hard code dependency`)
+}
+const graphPi = jiraById.get('DIE-PI005')
+if (!graphPi
+  || !graphPi[8].split(';').includes('DIE-PI002')
+  || !graphPi[8].split(';').includes('DIE-PI003A')
+  || !/unresolved-negative|unresolved association/i.test(`${graphPi[3]} ${graphPi[10]}`)) {
+  fail('DIE-PI005 must follow PI002 plus PI003A and require the immediate unresolved-negative cross-source proof')
 }
 for (let index = 0; index <= 11; index += 1) {
   const id = `DIE-WP${String(index).padStart(2, '0')}`
@@ -259,6 +294,43 @@ for (let index = 1; index <= 7; index += 1) {
   const id = `DIE-PI${String(index).padStart(3, '0')}`
   if (!jiraIds.has(id))
     fail(`Jira import omits product increment ${id}`)
+}
+
+try {
+  const obligations = buildGateBObligations(
+    load('../registers/profile-capability-disposition.csv'),
+    load('../lg008/target-field-traceability.csv'),
+  )
+  const generatedCatalog = serializeGateBObligations(obligations)
+  const catalog = load('registers/gate-b-certification-obligations.csv')
+  if (catalog !== generatedCatalog)
+    fail('Gate-B obligation catalog has generated drift')
+  const gateBTemplate = load('templates/GATE_B_CERTIFICATION.csv.template')
+  if (gateBTemplate !== initializeGateBCertification(obligations))
+    fail('Gate-B certification template has generated drift')
+  for (const error of validateGateBCertification(gateBTemplate, catalog))
+    fail(`Gate-B certification template: ${error}`)
+  if (obligations.length !== 309)
+    fail(`Gate-B obligation coverage changed unexpectedly: ${obligations.length}`)
+  if (parseCsv(catalog, 'gate-b-certification-obligations.csv')[0].join(',')
+    !== GATE_B_OBLIGATION_HEADER.join(',')) {
+    fail('Gate-B obligation catalog header changed')
+  }
+  if (parseCsv(gateBTemplate, 'GATE_B_CERTIFICATION.csv.template')[0].join(',')
+    !== GATE_B_CERTIFICATION_HEADER.join(',')) {
+    fail('Gate-B certification template header changed')
+  }
+}
+catch (error) {
+  fail(`Gate-B certification authority failed: ${error.message}`)
+}
+
+const crossSourceRows = parseCsv(load('templates/CROSS_SOURCE_GATE.csv.template'), 'CROSS_SOURCE_GATE.csv.template')
+if (crossSourceRows[0].join(',') !== CROSS_SOURCE_GATE_HEADER.join(','))
+  fail('cross-source gate template header changed')
+if (crossSourceRows.length !== 2 || crossSourceRows[1][0] !== 'CSG-ENDPOINT-BROWSER-001'
+  || crossSourceRows[1][1] !== 'OPEN') {
+  fail('cross-source gate template must contain exactly the open immediate Endpoint+Browser gate')
 }
 
 const capabilityPath = 'registers/product-capability-map.csv'

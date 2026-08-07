@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import copy
+import base64
 import hashlib
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import yaml
 from jsonschema import Draft202012Validator, FormatChecker
+from referencing import Registry, Resource
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -45,6 +48,12 @@ ATTRIBUTION = {
     "assurance": "signed_starliner_context",
     "signature": SIGNATURE,
 }
+QUALIFIED_BROWSER_RECORD = {
+    "producer_id": UUID_1,
+    "producer_epoch": UUID_2,
+    "record_id": UUID_3,
+    "content_sha256": DIGEST,
+}
 
 
 def reject_duplicate_object_keys(pairs: list[tuple[str, object]]) -> dict:
@@ -66,7 +75,19 @@ def load(name: str) -> dict:
 def validator(name: str) -> Draft202012Validator:
     schema = load(name)
     Draft202012Validator.check_schema(schema)
-    return Draft202012Validator(schema, format_checker=FormatChecker())
+    registry = Registry().with_resources(
+        (
+            candidate["$id"],
+            Resource.from_contents(candidate),
+        )
+        for candidate in (load(path.name) for path in sorted(SCHEMAS.glob("*.json")))
+        if "$id" in candidate
+    )
+    return Draft202012Validator(
+        schema,
+        format_checker=FormatChecker(),
+        registry=registry,
+    )
 
 
 def accept(name: str, value: dict, label: str) -> None:
@@ -79,6 +100,317 @@ def accept(name: str, value: dict, label: str) -> None:
 def reject(name: str, value: dict, label: str) -> None:
     if validator(name).is_valid(value):
         raise AssertionError(f"{name} accepted invalid case {label}")
+
+
+def canonical_sha256(value: dict, omitted_keys: set[str] | None = None) -> str:
+    canonical = copy.deepcopy(value)
+    for key in omitted_keys or set():
+        canonical.pop(key, None)
+    encoded = json.dumps(
+        canonical,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def rfc7638_thumbprint(public_jwk: dict) -> str:
+    """Validate public coordinate encoding and hash only RFC 7638 members."""
+    if public_jwk.get("kty") == "OKP" and public_jwk.get("crv") == "Ed25519":
+        selected = {
+            "crv": public_jwk["crv"],
+            "kty": public_jwk["kty"],
+            "x": public_jwk["x"],
+        }
+        encoded_coordinates = (public_jwk["x"],)
+    elif public_jwk.get("kty") == "EC" and public_jwk.get("crv") == "P-256":
+        selected = {
+            "crv": public_jwk["crv"],
+            "kty": public_jwk["kty"],
+            "x": public_jwk["x"],
+            "y": public_jwk["y"],
+        }
+        encoded_coordinates = (public_jwk["x"], public_jwk["y"])
+    else:
+        raise AssertionError("unsupported installation-key type/curve")
+    for coordinate in encoded_coordinates:
+        try:
+            decoded = base64.urlsafe_b64decode(coordinate + "=" * (-len(coordinate) % 4))
+        except Exception as error:
+            raise AssertionError("installation-key coordinate is not base64url") from error
+        if len(decoded) != 32:
+            raise AssertionError("installation-key coordinate has the wrong curve length")
+    return canonical_sha256(selected)
+
+
+def manifest_operation(value: dict, operation: str, manifest_id: str, revision: int) -> dict:
+    """Create an operation payload without carrying stale fields from another arm."""
+    common = {
+        key: copy.deepcopy(value[key])
+        for key in (
+            "manifest_version",
+            "tenant_id",
+            "producer_id",
+            "issued_at",
+            "expires_at",
+            "issuer",
+            "signature",
+        )
+    }
+    common.update(
+        {
+            "manifest_id": manifest_id,
+            "operation": operation,
+            "revision": revision,
+        }
+    )
+    return common
+
+
+def validate_manifest_state(value: dict, current: dict | None) -> None:
+    """Executable state preconditions that JSON Schema cannot compare."""
+    accept("producer-enrollment-manifest.schema.json", value, value["operation"])
+    operation = value["operation"]
+    if operation == "apply":
+        if current is not None or value["revision"] != 1:
+            raise AssertionError("apply requires a new producer at revision 1")
+        return
+    if current is None:
+        raise AssertionError(f"{operation} requires a current producer")
+    if value["producer_id"] != current["producer_id"]:
+        raise AssertionError("manifest producer differs from current producer")
+    if value["revision"] != current["revision"] + 1:
+        raise AssertionError("manifest revision is stale or noncontiguous")
+    if operation == "rotate":
+        if value["producer_epoch"] != current["producer_epoch"]:
+            raise AssertionError("credential rotation crossed producer epoch")
+        if (
+            value["installation_key_thumbprint"]
+            != current["installation_key_thumbprint"]
+        ):
+            raise AssertionError("credential rotation used a noncurrent installation key")
+        if value["credential_subject"] != current["credential_subject"]:
+            raise AssertionError("credential rotation changed producer subject")
+        if value["credential_id"] == current["credential_id"]:
+            raise AssertionError("credential rotation reused current credential ID")
+    elif operation == "certify":
+        certification = value["certification"]
+        expected = {
+            "source_profile": current["source_profile"],
+            "profile_version": current["profile_version"],
+            "component_set_digest": current["component_set_digest"],
+            "delivery_artifact_digest": current["artifact_digest"],
+            "artifact_digest": current["artifact_digest"],
+            "contract_digest": current["contract_digest"],
+        }
+        for field, expected_value in expected.items():
+            if certification[field] != expected_value:
+                raise AssertionError(f"certification has stale or mismatched {field}")
+        if (
+            certification["profile_versions"].get(certification["source_profile"])
+            != certification["profile_version"]
+        ):
+            raise AssertionError("certification profile_versions does not bind its exact profile")
+        if certification["result"] != "passed":
+            raise AssertionError("only a passing current certification activates trust")
+
+
+def reject_manifest_state(value: dict, current: dict | None, label: str) -> None:
+    try:
+        validate_manifest_state(value, current)
+    except AssertionError:
+        return
+    raise AssertionError(f"manifest state validator accepted invalid case {label}")
+
+
+def validate_component_set(value: dict) -> None:
+    accept("producer-component-set.schema.json", value, "installed component set")
+    package_ids = [item["package_id"] for item in value["packages"]]
+    component_ids = [item["component_id"] for item in value["components"]]
+    if len(package_ids) != len(set(package_ids)):
+        raise AssertionError("component set repeats package_id")
+    if len(component_ids) != len(set(component_ids)):
+        raise AssertionError("component set repeats component_id")
+    unknown_packages = {
+        item["package_id"] for item in value["components"]
+    } - set(package_ids)
+    if unknown_packages:
+        raise AssertionError(f"components reference unknown packages: {unknown_packages}")
+    ownership = value["ownership"]
+    ownership_ids = set(ownership["capture_component_ids"])
+    ownership_ids.add(ownership["wal_component_id"])
+    ownership_ids.add(ownership["delivery_component_id"])
+    ownership_ids.update(ownership["health_component_ids"])
+    unknown_owners = ownership_ids - set(component_ids)
+    if unknown_owners:
+        raise AssertionError(f"ownership references unknown components: {unknown_owners}")
+    role_by_component = {
+        item["component_id"]: item["role"] for item in value["components"]
+    }
+    if set(ownership["health_component_ids"]) != set(component_ids):
+        raise AssertionError("health coverage must name every admitted runtime component")
+    for owner_id_field, owner_role_field in (
+        ("wal_component_id", "wal_component_role"),
+        ("delivery_component_id", "delivery_component_role"),
+    ):
+        if role_by_component[ownership[owner_id_field]] != ownership[owner_role_field]:
+            raise AssertionError(
+                f"{owner_role_field} does not match the referenced component role"
+            )
+    if (
+        value["source_profile"] == "browser"
+        and (
+            role_by_component[ownership["delivery_component_id"]]
+            != "browser_extension"
+            or role_by_component[ownership["wal_component_id"]]
+            != "browser_extension"
+            or ownership["delivery_component_role"] != "browser_extension"
+            or ownership["wal_component_role"] != "browser_extension"
+        )
+    ):
+        raise AssertionError("Browser delivery and WAL stream must remain WebExtension-owned")
+    expected_digest = canonical_sha256(value, {"component_set_digest"})
+    if value["component_set_digest"] != expected_digest:
+        raise AssertionError("component_set_digest does not bind the measured component set")
+
+
+def validate_enrollment_request(value: dict) -> None:
+    accept("sensor-enrollment-request.schema.json", value, "sensor enrollment request")
+    validate_component_set(value["component_set"])
+    if value["source_profile"] != value["component_set"]["source_profile"]:
+        raise AssertionError("enrollment profile differs from component-set profile")
+    proof_input = copy.deepcopy(value)
+    proof_input["installation_proof"].pop("request_digest", None)
+    proof_input["installation_proof"].pop("detached_jws", None)
+    expected_digest = canonical_sha256(proof_input)
+    if value["installation_proof"]["request_digest"] != expected_digest:
+        raise AssertionError("installation proof does not bind the enrollment request")
+    public_jwk = value["installation_proof"]["public_jwk"]
+    expected_thumbprint = rfc7638_thumbprint(public_jwk)
+    if value["installation_proof"]["key_thumbprint"] != expected_thumbprint:
+        raise AssertionError("installation key thumbprint is not the RFC 7638 JWK digest")
+    requested_at = datetime.fromisoformat(value["requested_at"].replace("Z", "+00:00"))
+    signed_at = datetime.fromisoformat(
+        value["installation_proof"]["signed_at"].replace("Z", "+00:00")
+    )
+    if abs(signed_at - requested_at) > timedelta(minutes=5):
+        raise AssertionError("installation proof timestamp is outside request freshness window")
+
+
+def validate_enrollment_response(value: dict, request: dict) -> None:
+    accept("sensor-enrollment-response.schema.json", value, "sensor enrollment response")
+    identity = value["workload_identity"]
+    issued = datetime.fromisoformat(identity["issued_at"].replace("Z", "+00:00"))
+    renew = datetime.fromisoformat(identity["renew_after"].replace("Z", "+00:00"))
+    expires = datetime.fromisoformat(identity["expires_at"].replace("Z", "+00:00"))
+    if not issued < renew < expires <= issued + timedelta(minutes=15):
+        raise AssertionError("workload credential is not ordered and bounded to 15 minutes")
+    manifest = value["enrollment_manifest"]
+    configuration = value["edge_configuration"]
+    manifest_fields = (
+        "tenant_id",
+        "producer_id",
+        "installation_id",
+        "producer_epoch",
+        "source_profile",
+        "component_set_digest",
+    )
+    for field in manifest_fields:
+        if manifest[field] != value[field]:
+            raise AssertionError(f"manifest {field} differs from enrollment response")
+    for field in (
+        "tenant_id",
+        "producer_id",
+        "installation_id",
+        "producer_epoch",
+        "component_set_digest",
+    ):
+        if configuration[field] != value[field]:
+            raise AssertionError(f"edge configuration {field} differs from enrollment response")
+    if not any(
+        profile["profile"] == value["source_profile"]
+        and profile["profile_version"] == value["profile_version"]
+        for profile in configuration["profiles"]
+    ):
+        raise AssertionError("edge configuration does not admit the response profile/version")
+    if value["request_id"] != request["request_id"]:
+        raise AssertionError("response request_id does not match request")
+    if value["tenant_id"] != request["organization_tenant_id"]:
+        raise AssertionError("response tenant is not the bootstrapped organization tenant")
+    if manifest["bootstrap_id"] != request["bootstrap_id"]:
+        raise AssertionError("manifest bootstrap_id does not match consumed bootstrap")
+    if value["component_set_digest"] != request["component_set"]["component_set_digest"]:
+        raise AssertionError("response does not bind the admitted component set")
+    delivery_component_id = request["component_set"]["ownership"]["delivery_component_id"]
+    delivery_artifact = next(
+        component["runtime_artifact_digest"]
+        for component in request["component_set"]["components"]
+        if component["component_id"] == delivery_component_id
+    )
+    if manifest["artifact_digest"] != delivery_artifact:
+        raise AssertionError("manifest artifact_digest is not the delivery-owner runtime artifact")
+    if manifest["installation_key_thumbprint"] != request["installation_proof"]["key_thumbprint"]:
+        raise AssertionError("manifest installation key differs from proof key")
+    if identity["confirmation_thumbprint"] != request["installation_proof"]["key_thumbprint"]:
+        raise AssertionError("DPoP credential is not bound to the installation proof key")
+    if manifest["credential_subject"] != identity["subject"]:
+        raise AssertionError("manifest credential subject differs from the issued identity")
+    edge_identity = configuration["workload_identity"]
+    identity_fields = (
+        "credential_id",
+        "subject",
+        "confirmation_thumbprint",
+        "scopes",
+        "issued_at",
+        "renew_after",
+        "expires_at",
+        "renewal_url",
+    )
+    for field in identity_fields:
+        if edge_identity[field] != identity[field]:
+            raise AssertionError(f"edge workload identity {field} differs from response")
+    if manifest["credential_id"] != identity["credential_id"]:
+        raise AssertionError("manifest credential_id differs from issued credential")
+    if manifest["credential_expires_at"] != identity["expires_at"]:
+        raise AssertionError("manifest credential expiry differs from issued credential")
+    component_ids = {
+        item["component_id"] for item in request["component_set"]["components"]
+    }
+    if set(manifest["health_policy"]["required_components"]) != component_ids:
+        raise AssertionError(
+            "health policy required_components must equal the admitted component set"
+        )
+
+
+def apply_json_pointer_mutation(value: dict, mutation: dict) -> dict:
+    result = copy.deepcopy(value)
+    tokens = [
+        token.replace("~1", "/").replace("~0", "~")
+        for token in mutation["path"].split("/")[1:]
+    ]
+    parent: object = result
+    for token in tokens[:-1]:
+        parent = parent[int(token)] if isinstance(parent, list) else parent[token]
+    key = tokens[-1]
+    operation = mutation["op"]
+    if isinstance(parent, list):
+        index = int(key)
+        if operation == "remove":
+            parent.pop(index)
+        elif operation == "replace":
+            parent[index] = mutation["value"]
+        elif operation == "add":
+            parent.insert(index, mutation["value"])
+        else:
+            raise AssertionError(f"unsupported fixture mutation: {operation}")
+    elif operation == "remove":
+        del parent[key]
+    elif operation in {"add", "replace"}:
+        parent[key] = mutation["value"]
+    else:
+        raise AssertionError(f"unsupported fixture mutation: {operation}")
+    return result
 
 
 def normalization_bundle_digest(output_refs: list[dict]) -> str:
@@ -181,6 +513,363 @@ def run() -> None:
 
     positive_count = 0
     negative_count = 0
+
+    installed_product_fixtures = ROOT / "fixtures" / "installed-product"
+    browser_enrollment_request = json.loads(
+        (installed_product_fixtures / "browser-enrollment-request.valid.json").read_text()
+    )
+    endpoint_enrollment_request = json.loads(
+        (installed_product_fixtures / "endpoint-enrollment-request.valid.json").read_text()
+    )
+    browser_enrollment_response = json.loads(
+        (installed_product_fixtures / "browser-enrollment-response.valid.json").read_text()
+    )
+    browser_source_product_path = json.loads(
+        (installed_product_fixtures / "browser-source-product-path.valid.json").read_text()
+    )
+    validate_enrollment_request(browser_enrollment_request)
+    validate_enrollment_request(endpoint_enrollment_request)
+    validate_enrollment_response(browser_enrollment_response, browser_enrollment_request)
+    accept(
+        "source-product-path.schema.json",
+        browser_source_product_path,
+        "content-addressed Browser installed-product path",
+    )
+    positive_count += 4
+
+    installed_observed = copy.deepcopy(browser_source_product_path)
+    installed_observed["normal_path_state"] = "INSTALLED_OBSERVED"
+    installed_observed["enrollment"]["status"] = "EXTERNAL_INPUT_REQUIRED"
+    installed_observed["prerequisites"][0]["status"] = "MISSING"
+    installed_observed["data_path"].update(
+        {
+            "sender_component_id": "UNASSIGNED",
+            "sender_component_kind": "UNASSIGNED",
+            "sender_symbol": "UNASSIGNED",
+            "sender_evidence_ref": "UNASSIGNED",
+            "receipt_handler_symbol": "UNASSIGNED",
+            "receipt_evidence_ref": "UNASSIGNED",
+        }
+    )
+    accept(
+        "source-product-path.schema.json",
+        installed_observed,
+        "installed components observed before sender and receipt exist",
+    )
+    positive_count += 1
+
+    stage_evidence = {
+        "schema": "die.sensor-stage-evidence.v1",
+        "vertical_id": "SV-BROWSER-001",
+        "capability_id": "PC-002",
+        "profile": "browser",
+        "stage": "NATIVE_CAPTURE",
+        "observed_at": NOW,
+        "integration_run_id": "run-browser-1",
+        "logical_tenant_id": UUID_1,
+        "producer_id": UUID_2,
+        "installation_id": "browser-installation-1",
+        "source_record_id": "record-1",
+        "source_commit": "a" * 40,
+        "source_product_path_digest": DIGEST,
+        "install_artifact_digest": DIGEST,
+        "installed_artifact_digest": DIGEST,
+        "component_set_digest": DIGEST,
+        "runtime_manifest_digest": "NONE",
+        "runtime_manifest_id": "NONE",
+        "proof_origin": "EXACT_INSTALLED_PRODUCT",
+        "runtime_mode": "COHERENT_LOCAL_PRODUCT",
+        "normal_entrypoint": True,
+        "fixture_substitution": False,
+        "manual_bypass": False,
+        "preview_path": False,
+        "contamination_state": "CLEAN",
+        "predecessor_digest": "NONE",
+        "assertion": {
+            "native_record_id": "native-1",
+            "capture_component_id": "browser-extension",
+            "capture_symbol": "PackageLog.sendLogs",
+            "native_record_digest": DIGEST,
+        },
+    }
+    accept(
+        "sensor-stage-evidence.schema.json",
+        stage_evidence,
+        "closed native-capture stage evidence",
+    )
+    generic_stage = copy.deepcopy(stage_evidence)
+    generic_stage["assertion"] = {"status": "passed"}
+    reject(
+        "sensor-stage-evidence.schema.json",
+        generic_stage,
+        "generic self-authored stage pass",
+    )
+    positive_count += 1
+    negative_count += 1
+
+    endpoint_duplicate_agent = copy.deepcopy(endpoint_enrollment_request)
+    for component in endpoint_duplicate_agent["component_set"]["components"]:
+        if component["role"] == "endpoint_monitor":
+            component["role"] = "endpoint_agent"
+            break
+    reject(
+        "sensor-enrollment-request.schema.json",
+        endpoint_duplicate_agent,
+        "Endpoint duplicate agent cannot replace its required monitor role",
+    )
+    negative_count += 1
+
+    browser_health_omission = copy.deepcopy(browser_enrollment_response)
+    browser_health_omission["enrollment_manifest"]["health_policy"][
+        "required_components"
+    ] = ["browser-extension"]
+    accept(
+        "sensor-enrollment-response.schema.json",
+        browser_health_omission,
+        "shape-only Browser health component omission",
+    )
+    try:
+        validate_enrollment_response(browser_health_omission, browser_enrollment_request)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError(
+            "installed-product semantic validator accepted a health policy that omits the native host"
+        )
+    negative_count += 1
+
+    browser_native_wal_owner = copy.deepcopy(browser_source_product_path)
+    browser_native_wal_owner["data_path"].update({
+        "wal_owner_component_id": "browser-native-host",
+        "wal_owner_component_kind": "browser_native_host",
+    })
+    reject(
+        "source-product-path.schema.json",
+        browser_native_wal_owner,
+        "Browser native host claiming WAL ownership",
+    )
+    negative_count += 1
+
+    incomplete_bypass_set = copy.deepcopy(browser_source_product_path)
+    incomplete_bypass_set["prohibited_bypasses"].pop()
+    reject(
+        "source-product-path.schema.json",
+        incomplete_bypass_set,
+        "coherent source path omitting required bypass prohibition",
+    )
+    negative_count += 1
+
+    unknown_bypass = copy.deepcopy(browser_source_product_path)
+    unknown_bypass["prohibited_bypasses"][0] = "none"
+    reject(
+        "source-product-path.schema.json",
+        unknown_bypass,
+        "coherent source path with arbitrary bypass assertion",
+    )
+    negative_count += 1
+
+    browser_reinstall = copy.deepcopy(browser_enrollment_request)
+    browser_reinstall["request_id"] = "dddddddd-dddd-4ddd-8ddd-dddddddddddd"
+    browser_reinstall["bootstrap_id"] = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee"
+    browser_reinstall["idempotency_key_digest"] = (
+        "sha256:9e4e9fb5ef1588e02fc773eec32403a769d2521eeabc6ab020c033ecfe4d213f"
+    )
+    browser_reinstall["intent"] = "reinstall"
+    browser_reinstall["replaces"] = {
+        "producer_id": browser_enrollment_response["producer_id"],
+        "installation_id": browser_enrollment_response["installation_id"],
+        "producer_epoch": browser_enrollment_response["producer_epoch"],
+    }
+    reinstall_proof_input = copy.deepcopy(browser_reinstall)
+    reinstall_proof_input["installation_proof"].pop("request_digest")
+    reinstall_proof_input["installation_proof"].pop("detached_jws")
+    browser_reinstall["installation_proof"]["request_digest"] = canonical_sha256(
+        reinstall_proof_input
+    )
+    validate_enrollment_request(browser_reinstall)
+    positive_count += 1
+
+    replay_response = copy.deepcopy(browser_enrollment_response)
+    replay_response["status"] = "idempotent_replay"
+    validate_enrollment_response(replay_response, browser_enrollment_request)
+    positive_count += 1
+
+    apply_manifest = browser_enrollment_response["enrollment_manifest"]
+    current_manifest_state = {
+        "producer_id": apply_manifest["producer_id"],
+        "revision": 1,
+        "producer_epoch": apply_manifest["producer_epoch"],
+        "credential_subject": apply_manifest["credential_subject"],
+        "credential_id": apply_manifest["credential_id"],
+        "installation_key_thumbprint": apply_manifest[
+            "installation_key_thumbprint"
+        ],
+        "source_profile": apply_manifest["source_profile"],
+        "profile_version": browser_enrollment_response["profile_version"],
+        "component_set_digest": apply_manifest["component_set_digest"],
+        "artifact_digest": apply_manifest["artifact_digest"],
+        "contract_digest": DIGEST,
+    }
+    validate_manifest_state(apply_manifest, None)
+
+    rotate_manifest = manifest_operation(
+        apply_manifest,
+        "rotate",
+        "ffffffff-ffff-4fff-8fff-ffffffffffff",
+        2,
+    )
+    rotate_manifest.update(
+        {
+            "producer_epoch": apply_manifest["producer_epoch"],
+            "credential_subject": apply_manifest["credential_subject"],
+            "credential_id": "abababab-abab-4bab-8bab-abababababab",
+            "installation_key_thumbprint": apply_manifest[
+                "installation_key_thumbprint"
+            ],
+            "credential_expires_at": apply_manifest["credential_expires_at"],
+            "reason_code": "scheduled_rotation",
+        }
+    )
+    validate_manifest_state(rotate_manifest, current_manifest_state)
+    positive_count += 1
+
+    revoke_manifest = manifest_operation(
+        apply_manifest,
+        "revoke",
+        "cdcdcdcd-cdcd-4dcd-8dcd-cdcdcdcdcdcd",
+        2,
+    )
+    revoke_manifest["reason_code"] = "installation_revoked"
+    validate_manifest_state(revoke_manifest, current_manifest_state)
+    positive_count += 1
+
+    certify_manifest = manifest_operation(
+        apply_manifest,
+        "certify",
+        "dededede-dede-4ded-8ded-dededededede",
+        2,
+    )
+    certify_manifest["certification"] = {
+        "certification_id": "efefefef-efef-4fef-8fef-efefefefefef",
+        "source_profile": apply_manifest["source_profile"],
+        "profile_version": "1.0.0",
+        "component_set_digest": apply_manifest["component_set_digest"],
+        "delivery_artifact_digest": apply_manifest["artifact_digest"],
+        "artifact_digest": apply_manifest["artifact_digest"],
+        "contract_digest": DIGEST,
+        "profile_versions": {apply_manifest["source_profile"]: "1.0.0"},
+        "test_pack_digest": DIGEST,
+        "result": "passed",
+        "certified_at": apply_manifest["issued_at"],
+        "evidence_object_key": "certification/browser/test-pack.json",
+    }
+    validate_manifest_state(certify_manifest, current_manifest_state)
+    positive_count += 1
+
+    rotate_with_apply_state = copy.deepcopy(rotate_manifest)
+    rotate_with_apply_state["bootstrap_id"] = apply_manifest["bootstrap_id"]
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        rotate_with_apply_state,
+        "rotate manifest carrying stale apply fields",
+    )
+    negative_count += 1
+
+    revoke_with_credential = copy.deepcopy(revoke_manifest)
+    revoke_with_credential["credential_id"] = apply_manifest["credential_id"]
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        revoke_with_credential,
+        "revoke manifest carrying stale credential fields",
+    )
+    negative_count += 1
+
+    certify_with_reason = copy.deepcopy(certify_manifest)
+    certify_with_reason["reason_code"] = "stale"
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        certify_with_reason,
+        "certify manifest carrying revoke fields",
+    )
+    negative_count += 1
+
+    apply_with_certification = copy.deepcopy(apply_manifest)
+    apply_with_certification["certification"] = copy.deepcopy(
+        certify_manifest["certification"]
+    )
+    reject(
+        "producer-enrollment-manifest.schema.json",
+        apply_with_certification,
+        "apply manifest carrying certify payload",
+    )
+    negative_count += 1
+
+    stale_rotation = copy.deepcopy(rotate_manifest)
+    stale_rotation["revision"] = 1
+    reject_manifest_state(stale_rotation, current_manifest_state, "stale revision")
+    negative_count += 1
+
+    cross_epoch_rotation = copy.deepcopy(rotate_manifest)
+    cross_epoch_rotation["producer_epoch"] = UUID_3
+    reject_manifest_state(
+        cross_epoch_rotation, current_manifest_state, "cross-epoch rotation"
+    )
+    negative_count += 1
+
+    wrong_key_rotation = copy.deepcopy(rotate_manifest)
+    wrong_key_rotation["installation_key_thumbprint"] = "sha256:" + ("c" * 64)
+    reject_manifest_state(
+        wrong_key_rotation, current_manifest_state, "noncurrent installation key"
+    )
+    negative_count += 1
+
+    stale_certification = copy.deepcopy(certify_manifest)
+    stale_certification["certification"]["component_set_digest"] = "sha256:" + (
+        "d" * 64
+    )
+    reject_manifest_state(
+        stale_certification, current_manifest_state, "stale component-set certification"
+    )
+    negative_count += 1
+
+    negative_fixtures = json.loads(
+        (installed_product_fixtures / "negative-cases.json").read_text()
+    )
+    fixture_values = {
+        "browser-enrollment-request.valid.json": browser_enrollment_request,
+        "endpoint-enrollment-request.valid.json": endpoint_enrollment_request,
+        "browser-enrollment-response.valid.json": browser_enrollment_response,
+    }
+    for case in negative_fixtures:
+        mutated = apply_json_pointer_mutation(
+            fixture_values[case["base_fixture"]], case["mutation"]
+        )
+        if case.get("recompute_enrollment_digests", False):
+            mutated["component_set"]["component_set_digest"] = canonical_sha256(
+                mutated["component_set"], {"component_set_digest"}
+            )
+            proof_input = copy.deepcopy(mutated)
+            proof_input["installation_proof"].pop("request_digest")
+            proof_input["installation_proof"].pop("detached_jws")
+            mutated["installation_proof"]["request_digest"] = canonical_sha256(
+                proof_input
+            )
+        if not case.get("semantic_only", False):
+            reject(case["schema"], mutated, case["case_id"])
+        else:
+            accept(case["schema"], mutated, f"shape-only {case['case_id']}")
+            try:
+                if case["schema"] == "sensor-enrollment-request.schema.json":
+                    validate_enrollment_request(mutated)
+                else:
+                    validate_enrollment_response(mutated, browser_enrollment_request)
+            except AssertionError:
+                pass
+            else:
+                raise AssertionError(
+                    f"installed-product semantic validator accepted {case['case_id']}"
+                )
+        negative_count += 1
 
     final_fixtures = ROOT / "fixtures" / "final-delta-freeze"
     fixture_contracts = [
@@ -288,9 +977,9 @@ def run() -> None:
     backend_cases = [
         {"kind": "application_catalog", "operation": "observed", "source_id": "1", "status": "succeeded", "application_source_id": "a", "catalog_revision": "1"},
         {"kind": "application_configuration", "operation": "changed", "source_id": "2", "status": "succeeded", "application_source_id": "a", "config_version": "1"},
-        {"kind": "browser_event", "operation": "accepted", "source_id": "3", "status": "succeeded", "client_record_id": "c", "installation_source_id": "i"},
-        {"kind": "native_decision", "operation": "decided", "source_id": "4", "status": "blocked", "client_record_id": "c", "native_decision": "block"},
-        {"kind": "action_outcome", "operation": "effect_observed", "source_id": "5", "status": "blocked", "client_record_id": "c", "effect": "prevented"},
+        {"kind": "browser_event", "operation": "accepted", "source_id": "3", "status": "succeeded", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "installation_source_id": "i"},
+        {"kind": "native_decision", "operation": "decided", "source_id": "4", "status": "blocked", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "native_decision": "block", "execution_authority": "browser_backend"},
+        {"kind": "action_outcome", "operation": "effect_observed", "source_id": "5", "status": "blocked", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "effect": "prevented", "execution_authority": "browser_backend"},
         {"kind": "installation", "operation": "observed", "source_id": "6", "status": "succeeded", "installation_source_id": "i"},
         {"kind": "heartbeat", "operation": "observed", "source_id": "7", "status": "succeeded", "installation_source_id": "i"},
         {"kind": "publication_gap", "operation": "started", "source_id": "8", "status": "partial", "installation_source_id": "i", "reason_code": "publish_failed"},
@@ -329,13 +1018,123 @@ def run() -> None:
     accept("delivery-batch.schema.json", batch, "minimal batch")
     positive_count += 1
 
+    qualified_parent_batch = copy.deepcopy(batch)
+    qualified_parent_batch["records"][0]["envelope"]["correlation"] = {
+        "qualified_parent_record": QUALIFIED_BROWSER_RECORD,
+    }
+    accept(
+        "delivery-batch.schema.json",
+        qualified_parent_batch,
+        "cross-producer qualified parent record",
+    )
+    positive_count += 1
+
+    backend_relay_batch = copy.deepcopy(batch)
+    backend_relay_envelope = backend_relay_batch["records"][0]["envelope"]
+    backend_relay_envelope["profile"] = "browser_backend"
+    backend_relay_envelope["schema_ref"] = "browser-backend/1.0.0"
+    backend_relay_envelope["record_type"] = "source_processing.observed"
+    backend_relay_envelope["source_object"] = {
+        "type": "browser_backend_deployment",
+        "namespace": "browser-backend",
+        "id": "backend-1",
+    }
+    backend_relay_batch["records"][0]["payload"] = copy.deepcopy(backend_cases[2])
+    accept(
+        "delivery-batch.schema.json",
+        backend_relay_batch,
+        "Browser Backend relay with one canonical payload parent",
+    )
+    positive_count += 1
+    for backend_stage in ("transformed", "published"):
+        backend_stage_batch = copy.deepcopy(backend_relay_batch)
+        backend_stage_batch["records"][0]["payload"]["operation"] = backend_stage
+        accept(
+            "profile-browser-backend-v1.schema.json",
+            backend_stage_batch["records"][0]["payload"],
+            f"Browser Backend {backend_stage} payload",
+        )
+        accept(
+            "delivery-batch.schema.json",
+            backend_stage_batch,
+            f"Browser Backend {backend_stage} lineage stage",
+        )
+        positive_count += 2
+
+    duplicate_backend_parent = copy.deepcopy(backend_relay_batch)
+    duplicate_backend_parent["records"][0]["envelope"]["correlation"] = {
+        "qualified_parent_record": copy.deepcopy(QUALIFIED_BROWSER_RECORD),
+    }
+    reject(
+        "delivery-batch.schema.json",
+        duplicate_backend_parent,
+        "Browser Backend relay with duplicate equal parent carrier",
+    )
+    negative_count += 1
+
+    mismatched_backend_parent = copy.deepcopy(duplicate_backend_parent)
+    mismatched_backend_parent["records"][0]["envelope"]["correlation"][
+        "qualified_parent_record"
+    ]["content_sha256"] = "sha256:" + ("b" * 64)
+    reject(
+        "delivery-batch.schema.json",
+        mismatched_backend_parent,
+        "Browser Backend relay with divergent parent carriers",
+    )
+    negative_count += 1
+
+    double_counted_backend_relay = copy.deepcopy(backend_relay_batch)
+    double_counted_backend_relay["records"][0]["envelope"][
+        "record_type"
+    ] = "activity.observed"
+    reject(
+        "delivery-batch.schema.json",
+        double_counted_backend_relay,
+        "Browser Backend processing stage mislabeled as customer activity",
+    )
+    negative_count += 1
+
+    normalization_rules = yaml.safe_load(
+        (ROOT / "ontology" / "source-normalization.yaml").read_text()
+    )["profiles"]["browser_backend"]
+    if normalization_rules["mappings"].get("source_processing") != [
+        "lineage_only_observation"
+    ]:
+        raise AssertionError("Browser Backend processing must normalize lineage-only")
+    if "activity" in normalization_rules["mappings"]:
+        raise AssertionError(
+            "Browser Backend relay stages cannot use the customer activity mapping"
+        )
+    processing_rule = normalization_rules["source_processing_mapping"][
+        "browser_event"
+    ]
+    if processing_rule.get("lineage_carrier") != "payload.qualified_client_record":
+        raise AssertionError("Browser Backend has no single canonical relay parent")
+    if "activity_candidates MUST be empty" not in processing_rule.get(
+        "output_rule", ""
+    ):
+        raise AssertionError("Browser Backend relay mapping lacks no-double-count rule")
+
     configuration = {
         "api_version": "starliner.management.v1",
         "generation": 1,
         "issued_at": NOW,
         "expires_at": LATER,
-        "tenant_id": "tenant-1",
+        "tenant_id": UUID_2,
         "producer_id": UUID_1,
+        "installation_id": UUID_2,
+        "producer_epoch": UUID_3,
+        "component_set_digest": DIGEST,
+        "workload_identity": {
+            "credential_id": UUID_1,
+            "subject": "urn:quilr:producer:" + UUID_1,
+            "confirmation_thumbprint": DIGEST,
+            "scopes": ["starliner.ingest", "starliner.credential.renew"],
+            "issued_at": NOW,
+            "renew_after": "2026-07-29T12:05:00Z",
+            "expires_at": "2026-07-29T12:10:00Z",
+            "renewal_url": "https://control.example.com/starliner/control/v1/producers/" + UUID_1 + "/credentials:renew",
+        },
         "ingest": {
             "url": "https://ingest.example.com/v1",
             "max_batch_records": 500,
@@ -464,7 +1263,7 @@ def run() -> None:
         "normalization_run_id": UUID_3,
         "output_key": "device:endpoint:d",
         "observation_id": UUID_1,
-        "tenant_id": "tenant-1",
+        "tenant_id": UUID_1,
         "producer_id": UUID_2,
         "evidence_id": UUID_3,
         "normalizer": {"profile": "endpoint", "profile_version": "1.0.0", "name": "endpoint", "version": "1.0.0", "artifact_digest": DIGEST},
@@ -658,19 +1457,26 @@ def run() -> None:
         "manifest_version": "starliner.producer-enrollment.v1",
         "manifest_id": UUID_1,
         "operation": "apply",
-        "tenant_id": "tenant-1",
+        "tenant_id": UUID_3,
         "producer_id": UUID_2,
         "revision": 1,
         "issued_at": NOW,
         "expires_at": LATER,
         "issuer": "quilr-control",
-        "installation_id": "installation-1",
+        "bootstrap_id": UUID_2,
+        "enrollment_intent": "enroll",
+        "installation_id": UUID_1,
+        "producer_epoch": UUID_3,
         "source_profile": "endpoint",
         "business_scope_id": UUID_3,
         "environment": "production",
         "display_name": "Endpoint",
         "credential_subject": "spiffe://quilr/endpoint/1",
+        "credential_id": UUID_1,
+        "installation_key_thumbprint": DIGEST,
+        "credential_expires_at": "2026-07-29T12:10:00Z",
         "artifact_digest": DIGEST,
+        "component_set_digest": DIGEST,
         "capabilities": [{"capability": "inventory", "mode": "observe", "profile_version": "1.0.0", "effective_from": NOW}],
         "health_policy": HEALTH_POLICY,
         "expected_populations": [{
@@ -791,7 +1597,11 @@ def run() -> None:
         ("profile-mcp-gateway-v1.schema.json", {"kind": "mcp.relationship", "subject_type": "server_deployment", "subject_id": "s", "predicate": "exposes", "object_type": "tool", "object_id": "t", "semantic": "structural", "operation": "upsert", "capability_scope": "authorization_context", "authorization_context_token": "not-a-token", "endpoint_configuration_token": "hmac-sha256:" + ("c" * 64)}, "MCP authorization scope with unsafe token shape"),
         ("profile-mcp-gateway-v1.schema.json", {"kind": "mcp.operation", "operation_id": "o", "activity_type": "resource_read", "server_source_id": "s", "status": "succeeded"}, "resource operation without resource"),
         ("profile-mcp-gateway-v1.schema.json", {"kind": "mcp.entity", "entity_type": "agent_deployment", "source_id": "ad", "deployment_locality": "gateway", "lifecycle": "observed"}, "MCP agent deployment without definition"),
-        ("profile-browser-backend-v1.schema.json", {"kind": "browser_event", "operation": "page", "source_id": "1", "status": "succeeded", "client_record_id": "c", "installation_source_id": "i"}, "backend operation mismatch"),
+        ("profile-browser-backend-v1.schema.json", {"kind": "browser_event", "operation": "page", "source_id": "1", "status": "succeeded", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "installation_source_id": "i"}, "backend operation mismatch"),
+        ("profile-browser-backend-v1.schema.json", {"kind": "browser_event", "operation": "accepted", "source_id": "1", "status": "succeeded", "client_record_id": "c", "installation_source_id": "i"}, "backend relay with unqualified client record"),
+        ("profile-browser-backend-v1.schema.json", {"kind": "browser_event", "operation": "accepted", "source_id": "1", "status": "succeeded", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "installation_source_id": "i", "email": "fabricated@example.com"}, "backend relay carrying client observation fields"),
+        ("profile-browser-backend-v1.schema.json", {"kind": "native_decision", "operation": "decided", "source_id": "1", "status": "blocked", "client_record_id": "c", "native_decision": "block"}, "backend decision with unqualified client record"),
+        ("profile-browser-backend-v1.schema.json", {"kind": "native_decision", "operation": "decided", "source_id": "1", "status": "blocked", "qualified_client_record": QUALIFIED_BROWSER_RECORD, "native_decision": "block"}, "backend decision without backend execution authority"),
     ]
     for name, value, label in invalid_cases:
         reject(name, value, label)
@@ -969,7 +1779,7 @@ def run() -> None:
         "evidence_state": "TEST_VERIFIED",
         "release_state": "INTERNAL_ONLY",
         "runtime_mode": "UNIT_HARNESS",
-        "highest_proven_stage": "INGEST_RECEIPT",
+        "highest_proven_stage": "NONE",
         "development_blocked": False,
         "blocker_class": "NONE",
         "blocked_on": "NONE",
@@ -1010,6 +1820,39 @@ def run() -> None:
         "component_role": "endpoint",
         "schema_digest": "sha256:fb686ed047e38ca311cb6fcc724b63b4bf8857f648a438b310dc0403734372d6",
     }]
+    endpoint_runtime_component_ids = [
+        "endpoint-agent",
+        "endpoint-monitor",
+        "endpoint-proxy",
+        "endpoint-ipc-broker",
+        "endpoint-template-engine",
+        "endpoint-system-extension",
+    ]
+    endpoint_runtime_components = [
+        {
+            "component_id": component_id,
+            "repository": "quilrbusiness/sentinel-endpoint-agent",
+            "branch": "feat/die-endpoint",
+            "commit_sha": "b" * 40,
+            "artifact_digest": "sha256:" + ("f" * 64),
+            "contract_digest": DIGEST,
+            "role": "endpoint",
+            "clean_tree": True,
+            "provenance": "exact_source_build",
+            "build_ref": f"evidence/build/{component_id}.json",
+            "installation_class": "package",
+            "install_artifact_digest": "sha256:" + ("f" * 64),
+            "installed_artifact_digest": "sha256:" + ("f" * 64),
+            "installed_path_ref": f"evidence/install/{component_id}-path.json",
+            "supervisor": "launchd",
+            "service_unit": f"com.quilr.{component_id}",
+            "runtime_identity": f"com.quilr.{component_id}",
+            "normal_entrypoint": f"evidence/install/{component_id}-entrypoint.json",
+            "effective_configuration_digest": DIGEST,
+            "installation_evidence_ref": f"evidence/install/{component_id}.json",
+        }
+        for component_id in endpoint_runtime_component_ids
+    ]
     coherent_runtime = {
         "schema_version": "1.0",
         "schema": "die.runtime-manifest.v1",
@@ -1031,18 +1874,7 @@ def run() -> None:
             "registry_digest": runtime_profile_registry_digest(endpoint_registry_entries),
             "entries": endpoint_registry_entries,
         },
-        "components": [{
-            "component_id": "endpoint-agent",
-            "repository": "quilrbusiness/sentinel-endpoint-agent",
-            "branch": "feat/die-endpoint",
-            "commit_sha": "b" * 40,
-            "artifact_digest": "sha256:" + ("f" * 64),
-            "contract_digest": DIGEST,
-            "role": "endpoint",
-            "clean_tree": True,
-            "provenance": "exact_source_build",
-            "build_ref": "evidence/build/endpoint-agent.json",
-        }],
+        "components": endpoint_runtime_components,
         "stores": {
             "postgresql": {"version": "17.10", "endpoint_ref": "secret-ref:pg", "configuration_digest": DIGEST},
             "object_store": {"provider": "s3-compatible", "version": "2026.1", "endpoint_ref": "secret-ref:object", "configuration_digest": DIGEST},
@@ -1055,9 +1887,15 @@ def run() -> None:
             "installation_id": "endpoint-installation-1",
             "certification_id": UUID_3,
             "component_id": "endpoint-agent",
+            "component_ids": endpoint_runtime_component_ids,
             "artifact_digest": "sha256:" + ("f" * 64),
+            "component_set_digest": DIGEST,
             "configuration_digest": DIGEST,
-            "credential_class": "workload_jwt",
+            "credential_class": "dpop_jwt",
+            "credential_issuer_class": "starliner_control",
+            "enrollment_evidence_ref": "evidence/enrollment/endpoint-agent.json",
+            "source_product_path_ref": "source-path/endpoint.yaml",
+            "source_product_path_digest": DIGEST,
         }],
         "customer_endpoints": {
             "api": "http://127.0.0.1:62069/die/v1",
@@ -1070,6 +1908,13 @@ def run() -> None:
             "manual_database_mutation": False,
             "untracked_hotfixes": False,
             "overlapping_runtime": False,
+            "manual_configuration_override": False,
+            "parallel_product_daemon": False,
+            "devtools_or_storage_injection": False,
+            "synthetic_identity_or_persona": False,
+            "fixture_interior_stage": False,
+            "uninstalled_artifact": False,
+            "normal_entrypoint_bypassed": False,
             "notes": [],
         },
         "created_at": NOW,
@@ -1092,18 +1937,28 @@ def run() -> None:
         "registry_digest": runtime_profile_registry_digest(connector_entries),
         "entries": connector_entries,
     }
+    connector_runtime["components"] = [copy.deepcopy(coherent_runtime["components"][0])]
     connector_runtime["components"][0].update({
         "component_id": "salesforce-poller",
         "repository": "quilrbusiness/salesforce-connector",
         "branch": "feat/die-salesforce-discovery",
         "role": "connector_poller",
         "build_ref": "evidence/build/salesforce-poller.json",
+        "installed_path_ref": "evidence/install/salesforce-poller-path.json",
+        "service_unit": "salesforce-poller",
+        "runtime_identity": "salesforce-poller",
+        "normal_entrypoint": "evidence/install/salesforce-poller-entrypoint.json",
+        "installation_evidence_ref": "evidence/install/salesforce-poller.json",
     })
     connector_runtime["producers"][0].update({
         "profile": "salesforce.discovery",
         "profile_version": "1.0.0",
         "installation_id": "salesforce-connection-1",
         "component_id": "salesforce-poller",
+        "component_ids": ["salesforce-poller"],
+        "credential_class": "oidc_workload",
+        "credential_issuer_class": "external_oidc",
+        "source_product_path_ref": "source-path/salesforce-discovery.yaml",
     })
     accept("runtime-manifest.schema.json", connector_runtime, "registered connector runtime")
     positive_count += 1
@@ -1157,7 +2012,22 @@ def run() -> None:
     negative_count += 1
 
     release_qualified_not_releasable = copy.deepcopy(execution_status)
-    release_qualified_not_releasable["highest_proven_stage"] = "RELEASE_QUALIFIED"
+    # Keep this fixture valid under every other execution-status invariant so
+    # MUT-015 can only survive when the RELEASE_QUALIFIED -> RELEASABLE
+    # implication itself is weakened.  A UNIT_HARNESS fixture would also fail
+    # the unrelated UNIT_HARNESS -> highest_proven_stage=NONE rule and could
+    # therefore let a broken release implication pass mutation testing.
+    release_qualified_not_releasable.update({
+        "implementation_state": "IMPLEMENTED",
+        "integration_state": "E2E_EXACT_SHA",
+        "evidence_state": "RELEASE_BOUND",
+        "release_state": "INTERNAL_ONLY",
+        "runtime_mode": "RELEASE_CANDIDATE",
+        "highest_proven_stage": "RELEASE_QUALIFIED",
+        "runtime_manifest": "runtime/release-candidate.yaml",
+        "runtime_manifest_digest": DIGEST,
+        "limitations": ["Release qualification has not authorized release"],
+    })
     reject("execution-status.schema.json", release_qualified_not_releasable, "release-qualified stage without releasable state")
     negative_count += 1
 
@@ -1225,6 +2095,33 @@ def run() -> None:
     dirty_runtime["components"][0]["clean_tree"] = False
     dirty_runtime["contamination"]["dirty_components"] = True
     reject("runtime-manifest.schema.json", dirty_runtime, "dirty coherent runtime")
+    negative_count += 1
+
+    generic_bearer_runtime = copy.deepcopy(coherent_runtime)
+    generic_bearer_runtime["producers"][0]["credential_class"] = "workload_jwt"
+    reject(
+        "runtime-manifest.schema.json",
+        generic_bearer_runtime,
+        "installed launch producer without enrollment-issued DPoP credential",
+    )
+    negative_count += 1
+
+    unbound_installed_artifact = copy.deepcopy(coherent_runtime)
+    del unbound_installed_artifact["components"][0]["installed_artifact_digest"]
+    reject(
+        "runtime-manifest.schema.json",
+        unbound_installed_artifact,
+        "coherent component without installed artifact digest",
+    )
+    negative_count += 1
+
+    unsafe_source_path = copy.deepcopy(coherent_runtime)
+    unsafe_source_path["producers"][0]["source_product_path_ref"] = "../endpoint.yaml"
+    reject(
+        "runtime-manifest.schema.json",
+        unsafe_source_path,
+        "coherent producer with escaping source product path",
+    )
     negative_count += 1
 
     empty_active_runtime = copy.deepcopy(coherent_runtime)

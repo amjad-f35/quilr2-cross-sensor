@@ -14,6 +14,8 @@ BEGIN
     'die_api',
     'die_bff',
     'die_maintenance',
+    'die_enrollment',
+    'die_verifier',
     'die_control_admin',
     'die_authz_admin'
   ]
@@ -44,9 +46,11 @@ GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_outbox,
   die_authz, die_audit
   TO die_ingest;
 GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.organization_tenant,
   die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.tenant_cell_assignment,
-  die_control.tenant_cell_principal TO die_ingest;
+  die_control.tenant_cell_principal, die_control.installation_enrollment,
+  die_control.producer_component_set, die_control.workload_credential TO die_ingest;
 GRANT SELECT, INSERT ON die_evidence.producer_sequence,
   die_evidence.evidence_record, die_evidence.ingest_receipt,
   die_evidence.ingest_receipt_item, die_evidence.evidence_disposition,
@@ -120,7 +124,8 @@ GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
   die_control.certification, die_control.expected_population,
   die_control.expected_population_version,
   die_control.tenant_cell_assignment,
-  die_control.tenant_cell_principal TO die_projector;
+  die_control.tenant_cell_principal, die_control.producer_component_set,
+  die_control.producer_package, die_control.producer_component TO die_projector;
 -- The projector derives producer health from the effective signed policy. It
 -- reads the policy; it never authors one.
 GRANT SELECT ON die_control.producer_health_policy TO die_projector;
@@ -149,7 +154,8 @@ GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
   die_control.producer, die_control.producer_capability,
   die_control.certification, die_control.expected_population,
   die_control.expected_population_version, die_control.tenant_cell_assignment,
-  die_control.tenant_cell_principal TO die_api;
+  die_control.tenant_cell_principal, die_control.producer_component_set,
+  die_control.producer_package, die_control.producer_component TO die_api;
 GRANT SELECT ON die_evidence.evidence_record, die_evidence.sequence_gap
   TO die_api;
 GRANT SELECT ON die_evidence.evidence_disposition TO die_api;
@@ -188,15 +194,79 @@ GRANT UPDATE (
   revoked_at, revocation_reason, purge_after
 ) ON die_authz.runtime_session TO die_bff;
 
+-- Network-facing installed-product enrollment/renewal service. Its
+-- login is still tenant-cell bound and RLS constrained; this role is not a
+-- general control administrator and cannot author profile/schema/signing keys.
+GRANT USAGE ON SCHEMA die_control, die_audit, die_authz TO die_enrollment;
+GRANT SELECT ON die_control.source_profile, die_control.source_profile_version,
+  die_control.organization_tenant,
+  die_control.tenant_cell_assignment, die_control.tenant_cell_principal,
+  die_control.sensor_bootstrap, die_control.installation_enrollment,
+  die_control.installation_enrollment_attempt,
+  die_control.producer, die_control.producer_component_set,
+  die_control.producer_package, die_control.producer_component,
+  die_control.workload_credential, die_control.workload_nonce,
+  die_control.credential_renewal,
+  die_control.credential_renewal_attempt, die_control.workload_proof_replay,
+  die_control.producer_revocation, die_control.producer_revocation_attempt,
+  die_control.producer_capability, die_control.producer_health_policy,
+  die_control.expected_population, die_control.expected_population_version,
+  die_control.enrollment_manifest, die_control.certification,
+  die_control.manifest_signer_key TO die_enrollment;
+GRANT UPDATE (
+  state, consumed_at, consumed_request_id, consumed_request_digest,
+  installation_key_thumbprint, terminal_at, terminal_reason
+) ON die_control.sensor_bootstrap TO die_enrollment;
+GRANT INSERT ON die_control.installation_enrollment,
+  die_control.installation_enrollment_attempt,
+  die_control.producer, die_control.producer_component_set,
+  die_control.producer_package, die_control.producer_component,
+  die_control.workload_credential, die_control.workload_nonce,
+  die_control.credential_renewal,
+  die_control.credential_renewal_attempt, die_control.workload_proof_replay
+  TO die_enrollment;
+GRANT UPDATE (state, ended_at, end_reason)
+  ON die_control.workload_credential TO die_enrollment;
+GRANT UPDATE (state, consumed_at, accepted_proof_digest)
+  ON die_control.workload_nonce TO die_enrollment;
+GRANT SELECT, INSERT ON die_audit.audit_event TO die_enrollment;
+GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_enrollment;
+GRANT SELECT ON die_authz.business_scope TO die_enrollment;
+
+-- Isolated detached-JWS verifier. It can read the immutable trust snapshot and
+-- append verification evidence, but it cannot register keys, apply effects,
+-- enroll producers or mutate a verification after insertion.
+GRANT USAGE ON SCHEMA die_control, die_audit, die_authz TO die_verifier;
+GRANT SELECT ON die_control.organization_tenant,
+  die_control.manifest_signer_key, die_control.manifest_signer_key_version,
+  die_control.source_profile, die_control.source_profile_version,
+  die_control.tenant_cell_assignment, die_control.tenant_cell_principal
+  TO die_verifier;
+GRANT INSERT ON die_control.manifest_verification TO die_verifier;
+GRANT SELECT, INSERT ON die_audit.audit_event TO die_verifier;
+GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_verifier;
+GRANT SELECT ON die_authz.business_scope TO die_verifier;
+
 -- Used only by the maintenance artifact's authenticated enrollment/certification
 -- command. A long-lived API or ingest workload never receives this group role.
 GRANT USAGE ON SCHEMA die_control, die_pipeline, die_audit, die_authz
   TO die_control_admin;
 GRANT SELECT ON die_control.source_profile, die_control.source_profile_version
   TO die_control_admin;
-GRANT SELECT, INSERT, UPDATE ON die_control.producer,
+GRANT SELECT, INSERT, UPDATE ON die_control.organization_tenant,
+  die_control.producer,
   die_control.producer_capability, die_control.expected_population,
   die_control.tenant_cell_assignment, die_control.tenant_cell_principal
+  TO die_control_admin;
+GRANT SELECT, INSERT, UPDATE ON die_control.sensor_bootstrap,
+  die_control.installation_enrollment, die_control.installation_enrollment_attempt,
+  die_control.producer_component_set, die_control.producer_package,
+  die_control.producer_component, die_control.workload_credential,
+  die_control.workload_nonce,
+  die_control.credential_renewal, die_control.credential_renewal_attempt,
+  die_control.producer_revocation, die_control.producer_revocation_attempt
+  TO die_control_admin;
+GRANT SELECT, INSERT ON die_control.sensor_bootstrap_issue_attempt
   TO die_control_admin;
 GRANT SELECT, INSERT, UPDATE ON die_control.expected_population_version
   TO die_control_admin;
@@ -206,12 +276,16 @@ GRANT SELECT, INSERT, UPDATE ON die_control.producer_health_policy
   TO die_control_admin;
 GRANT SELECT, INSERT ON die_control.enrollment_manifest,
   die_control.certification TO die_control_admin;
-GRANT SELECT, INSERT, UPDATE ON die_control.manifest_signer_key
-  TO die_control_admin;
-GRANT SELECT ON die_control.manifest_signer_key_version
-  TO die_control_admin;
-GRANT SELECT, INSERT ON die_control.manifest_verification
-  TO die_control_admin;
+-- Promotion may consume verification evidence but cannot register the key that
+-- authorized that evidence or claim to have performed verification itself.
+GRANT SELECT ON die_control.manifest_signer_key,
+  die_control.manifest_signer_key_version TO die_control_admin;
+GRANT SELECT ON die_control.manifest_verification TO die_control_admin;
+-- The isolated verifier records immutable semantic effects with the passed
+-- signature result. Control administration may only mark those exact effects
+-- applied; it cannot rewrite what the signed manifest authorized.
+GRANT UPDATE (applied_at)
+  ON die_control.manifest_verification TO die_control_admin;
 GRANT SELECT, INSERT ON die_pipeline.work_item TO die_control_admin;
 GRANT SELECT, INSERT ON die_audit.audit_event TO die_control_admin;
 GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_control_admin;
@@ -223,6 +297,9 @@ GRANT USAGE ON SCHEMA die_authz, die_audit, die_control TO die_authz_admin;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA die_authz TO die_authz_admin;
 GRANT SELECT ON die_control.tenant_cell_assignment,
   die_control.tenant_cell_principal TO die_authz_admin;
+GRANT SELECT, INSERT, UPDATE ON die_control.manifest_signer_key
+  TO die_authz_admin;
+GRANT SELECT ON die_control.manifest_signer_key_version TO die_authz_admin;
 GRANT SELECT, INSERT ON die_audit.audit_event TO die_authz_admin;
 GRANT SELECT, INSERT, UPDATE ON die_audit.audit_head TO die_authz_admin;
 
@@ -237,10 +314,11 @@ GRANT USAGE ON SCHEMA die_control, die_evidence, die_pipeline, die_normalized,
 GRANT SELECT ON ALL TABLES IN SCHEMA die_control, die_evidence, die_pipeline,
   die_normalized, die_identity, die_canonical, die_outbox, die_read,
   die_authz, die_audit TO die_maintenance;
+GRANT UPDATE (state, ended_at, end_reason)
+  ON die_control.workload_credential TO die_maintenance;
 GRANT DELETE ON die_authz.runtime_session TO die_maintenance;
 GRANT SELECT ON die_control.manifest_signer_key TO die_maintenance;
 GRANT SELECT ON die_control.manifest_signer_key_version TO die_maintenance;
-GRANT INSERT ON die_control.manifest_verification TO die_maintenance;
 GRANT SELECT, INSERT, UPDATE ON die_pipeline.work_item,
   die_pipeline.projection_generation, die_pipeline.projection_checkpoint
   TO die_maintenance;
@@ -293,19 +371,24 @@ ALTER ROLE die_projector NOBYPASSRLS;
 ALTER ROLE die_api NOBYPASSRLS;
 ALTER ROLE die_bff NOBYPASSRLS;
 ALTER ROLE die_maintenance NOBYPASSRLS;
+ALTER ROLE die_enrollment NOBYPASSRLS;
+ALTER ROLE die_verifier NOBYPASSRLS;
 ALTER ROLE die_control_admin NOBYPASSRLS;
 ALTER ROLE die_authz_admin NOBYPASSRLS;
 
 GRANT EXECUTE ON FUNCTION die_authz.current_tenant_id()
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_bff, die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_enrollment, die_verifier,
+     die_control_admin, die_authz_admin;
 GRANT EXECUTE ON FUNCTION die_authz.jsonb_object_key_count(jsonb)
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_bff, die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_enrollment, die_verifier,
+     die_control_admin, die_authz_admin;
 GRANT EXECUTE ON FUNCTION die_audit.compute_audit_event_hash(die_audit.audit_event)
   TO die_ingest, die_normalizer, die_truth, die_projector, die_api,
-     die_bff, die_maintenance, die_control_admin, die_authz_admin;
+     die_bff, die_maintenance, die_enrollment, die_verifier,
+     die_control_admin, die_authz_admin;
 GRANT EXECUTE ON FUNCTION die_control.record_manifest_signer_key_version()
-  TO die_control_admin;
+  TO die_authz_admin;
 
 COMMIT;

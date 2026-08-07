@@ -20,6 +20,31 @@ The earlier sequence that shipped one unmanaged-application finding and deferred
 
 This is production code and a customer release, not a synthetic event viewer.
 
+## Implementation order is not release scope
+
+The all-five-profile outcome above is the first customer release and remains
+unchanged. It is not a requirement to finish every adapter against fixtures
+before integrating any source.
+
+Under [ADR-0022](../adrs/0022-installed-product-vertical-delivery.md) and
+[document 43](../passes/01-discovery-inventory-evidence/implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md),
+integration proceeds through the same permanent funnel in this order:
+
+1. real tenant/bootstrap/enrollment and source health;
+2. Endpoint from the normally installed compound artifact through live UI;
+3. Browser Extension plus native host as one logical Browser source stream;
+4. Browser Backend as a separate hosted producer for server-owned facts;
+5. LLM Gateway;
+6. MCP Gateway; and
+7. exhaustive cross-source identity, relationship, activity, coverage and
+   provenance closure.
+
+Each source first proves one continuous real native-to-UI trace, then completes
+its frozen supported profile surface. Missing counterparts remain separate or
+`pending_dependency`; they are never fabricated. Parallel common-module work
+is allowed, but a fixture or diagnostic preview cannot advance installed-
+product integration.
+
 ## Permanent components proven
 
 - typed source profiles and adapters;

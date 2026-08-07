@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/sensor-stage-evidence-v1.schema.json",
+  "title": "Installed Sensor Gate-A Stage Evidence v1",
+  "description": "Closed, stage-specific evidence for one continuous exact installed-product trace. Shape validation is necessary but not sufficient: SENSOR_VERTICAL_STATE validation also dereferences every file and enforces cross-stage and source/runtime-manifest identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "vertical_id", "capability_id", "profile", "stage", "observed_at",
+    "integration_run_id", "logical_tenant_id", "producer_id", "installation_id",
+    "source_record_id", "source_commit", "source_product_path_digest",
+    "install_artifact_digest", "installed_artifact_digest", "component_set_digest",
+    "runtime_manifest_digest", "runtime_manifest_id", "proof_origin", "runtime_mode",
+    "normal_entrypoint", "fixture_substitution", "manual_bypass", "preview_path",
+    "contamination_state", "predecessor_digest", "assertion"
+  ],
+  "properties": {
+    "schema": { "const": "die.sensor-stage-evidence.v1" },
+    "vertical_id": { "type": "string", "pattern": "^SV-[A-Z0-9-]{3,64}$" },
+    "capability_id": { "type": "string", "pattern": "^PC-[0-9]{3}$" },
+    "profile": { "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"] },
+    "stage": { "enum": ["NATIVE_CAPTURE", "LOCAL_WAL", "INGEST_RECEIPT", "IMMUTABLE_EVIDENCE", "NORMALIZED", "CANONICAL_ENTITY", "CANONICAL_GRAPH_ACTIVITY", "PROJECTED", "AUTHORIZED_API", "LIVE_UI"] },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "integration_run_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "logical_tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "producer_id": { "type": "string", "format": "uuid" },
+    "installation_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "source_record_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "source_commit": { "$ref": "#/$defs/gitSha" },
+    "source_product_path_digest": { "$ref": "#/$defs/sha256" },
+    "install_artifact_digest": { "$ref": "#/$defs/sha256" },
+    "installed_artifact_digest": { "$ref": "#/$defs/sha256" },
+    "component_set_digest": { "$ref": "#/$defs/sha256" },
+    "runtime_manifest_digest": { "$ref": "#/$defs/digestOrNone" },
+    "runtime_manifest_id": { "oneOf": [{ "const": "NONE" }, { "type": "string", "format": "uuid" }] },
+    "proof_origin": { "enum": ["EXACT_INSTALLED_PRODUCT", "EXACT_DEPLOYED_PRODUCT"] },
+    "runtime_mode": { "enum": ["COHERENT_LOCAL_PRODUCT", "ISOLATED_INTEGRATION", "RELEASE_CANDIDATE"] },
+    "normal_entrypoint": { "const": true },
+    "fixture_substitution": { "const": false },
+    "manual_bypass": { "const": false },
+    "preview_path": { "const": false },
+    "contamination_state": { "const": "CLEAN" },
+    "predecessor_digest": { "$ref": "#/$defs/digestOrNone" },
+    "assertion": { "type": "object" }
+  },
+  "allOf": [
+    { "$ref": "#/$defs/nativeCapture" },
+    { "$ref": "#/$defs/localWal" },
+    { "$ref": "#/$defs/ingestReceipt" },
+    { "$ref": "#/$defs/immutableEvidence" },
+    { "$ref": "#/$defs/normalized" },
+    { "$ref": "#/$defs/canonicalEntity" },
+    { "$ref": "#/$defs/canonicalGraphActivity" },
+    { "$ref": "#/$defs/projected" },
+    { "$ref": "#/$defs/authorizedApi" },
+    { "$ref": "#/$defs/liveUi" }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "digestOrNone": { "type": "string", "pattern": "^(NONE|sha256:[0-9a-f]{64})$" },
+    "gitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "uuid": { "type": "string", "format": "uuid" },
+    "decimal": { "type": "string", "pattern": "^(0|[1-9][0-9]*)$" },
+    "idOrNone": { "type": "string", "pattern": "^(NONE|[A-Za-z0-9_.:/-]{1,512})$" },
+    "stageArm": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "nativeCapture": {
+      "if": { "properties": { "stage": { "const": "NATIVE_CAPTURE" } }, "required": ["stage"] },
+      "then": {
+        "properties": {
+          "runtime_manifest_digest": { "const": "NONE" },
+          "runtime_manifest_id": { "const": "NONE" },
+          "assertion": {
+            "type": "object", "additionalProperties": false,
+            "required": ["native_record_id", "capture_component_id", "capture_symbol", "native_record_digest"],
+            "properties": {
+              "native_record_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+              "capture_component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+              "capture_symbol": { "type": "string", "minLength": 1 },
+              "native_record_digest": { "$ref": "#/$defs/sha256" }
+            }
+          }
+        }
+      }
+    },
+    "localWal": {
+      "if": { "properties": { "stage": { "const": "LOCAL_WAL" } }, "required": ["stage"] },
+      "then": {
+        "properties": {
+          "runtime_manifest_digest": { "const": "NONE" },
+          "runtime_manifest_id": { "const": "NONE" },
+          "assertion": {
+            "type": "object", "additionalProperties": false,
+            "required": ["native_record_id", "wal_entry_id", "wal_component_id", "wal_sequence", "wal_payload_digest", "durable_before_send"],
+            "properties": {
+              "native_record_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+              "wal_entry_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+              "wal_component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" },
+              "wal_sequence": { "$ref": "#/$defs/decimal" },
+              "wal_payload_digest": { "$ref": "#/$defs/sha256" },
+              "durable_before_send": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    "ingestReceipt": {
+      "if": { "properties": { "stage": { "const": "INGEST_RECEIPT" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["wal_entry_id", "batch_id", "receipt_id", "receipt_record_id", "disposition", "ingest_operation_id", "receipt_payload_digest"],
+        "properties": {
+          "wal_entry_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "batch_id": { "$ref": "#/$defs/uuid" },
+          "receipt_id": { "$ref": "#/$defs/uuid" },
+          "receipt_record_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "disposition": { "enum": ["accepted", "duplicate"] },
+          "ingest_operation_id": { "const": "acceptDeliveryBatch" },
+          "receipt_payload_digest": { "$ref": "#/$defs/sha256" }
+        }
+      } } }
+    },
+    "immutableEvidence": {
+      "if": { "properties": { "stage": { "const": "IMMUTABLE_EVIDENCE" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["receipt_id", "evidence_id", "evidence_object_ref", "evidence_payload_digest", "evidence_state"],
+        "properties": {
+          "receipt_id": { "$ref": "#/$defs/uuid" },
+          "evidence_id": { "$ref": "#/$defs/uuid" },
+          "evidence_object_ref": { "type": "string", "minLength": 1 },
+          "evidence_payload_digest": { "$ref": "#/$defs/sha256" },
+          "evidence_state": { "const": "immutable_accepted" }
+        }
+      } } }
+    },
+    "normalized": {
+      "if": { "properties": { "stage": { "const": "NORMALIZED" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["evidence_id", "normalization_run_id", "output_count", "output_ids", "bundle_digest"],
+        "properties": {
+          "evidence_id": { "$ref": "#/$defs/uuid" },
+          "normalization_run_id": { "$ref": "#/$defs/uuid" },
+          "output_count": { "type": "integer", "minimum": 1, "maximum": 1024 },
+          "output_ids": { "type": "array", "minItems": 1, "maxItems": 1024, "uniqueItems": true, "items": { "$ref": "#/$defs/uuid" } },
+          "bundle_digest": { "$ref": "#/$defs/sha256" }
+        }
+      } } }
+    },
+    "canonicalEntity": {
+      "if": { "properties": { "stage": { "const": "CANONICAL_ENTITY" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["normalization_run_id", "evidence_id", "entity_id", "entity_type", "entity_version", "binding_id", "source_object_id", "selected_claim_ids"],
+        "properties": {
+          "normalization_run_id": { "$ref": "#/$defs/uuid" },
+          "evidence_id": { "$ref": "#/$defs/uuid" },
+          "entity_id": { "$ref": "#/$defs/uuid" },
+          "entity_type": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,127}$" },
+          "entity_version": { "$ref": "#/$defs/decimal" },
+          "binding_id": { "$ref": "#/$defs/uuid" },
+          "source_object_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "selected_claim_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/uuid" } }
+        }
+      } } }
+    },
+    "canonicalGraphActivity": {
+      "if": { "properties": { "stage": { "const": "CANONICAL_GRAPH_ACTIVITY" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entity_id", "entity_version", "result_kind", "result_id", "rule_id", "applicability", "reason_code", "dependency_ids"],
+        "properties": {
+          "entity_id": { "$ref": "#/$defs/uuid" },
+          "entity_version": { "$ref": "#/$defs/decimal" },
+          "result_kind": { "enum": ["relationship", "activity", "pending_dependency", "not_applicable"] },
+          "result_id": { "$ref": "#/$defs/idOrNone" },
+          "rule_id": { "type": "string", "minLength": 1 },
+          "applicability": { "enum": ["applicable_supported", "applicable_pending_dependency", "not_applicable_unsupported_source_fact", "not_applicable_no_launch_rule"] },
+          "reason_code": { "type": "string", "minLength": 1 },
+          "dependency_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/idOrNone" } }
+        },
+        "allOf": [
+          { "if": { "properties": { "result_kind": { "enum": ["relationship", "activity"] } }, "required": ["result_kind"] }, "then": { "properties": { "result_id": { "not": { "const": "NONE" } }, "applicability": { "const": "applicable_supported" }, "dependency_ids": { "maxItems": 0 } } } },
+          { "if": { "properties": { "result_kind": { "const": "pending_dependency" } }, "required": ["result_kind"] }, "then": { "properties": { "result_id": { "const": "NONE" }, "applicability": { "const": "applicable_pending_dependency" }, "dependency_ids": { "minItems": 1 } } } },
+          { "if": { "properties": { "result_kind": { "const": "not_applicable" } }, "required": ["result_kind"] }, "then": { "properties": { "result_id": { "const": "NONE" }, "applicability": { "enum": ["not_applicable_unsupported_source_fact", "not_applicable_no_launch_rule"] }, "dependency_ids": { "maxItems": 0 } } } }
+        ]
+      } } }
+    },
+    "projected": {
+      "if": { "properties": { "stage": { "const": "PROJECTED" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entity_id", "graph_result_id", "projection_name", "projection_generation", "canonical_watermark", "projection_watermark", "destination_ack_id"],
+        "properties": {
+          "entity_id": { "$ref": "#/$defs/uuid" },
+          "graph_result_id": { "$ref": "#/$defs/idOrNone" },
+          "projection_name": { "type": "string", "minLength": 1 },
+          "projection_generation": { "$ref": "#/$defs/decimal" },
+          "canonical_watermark": { "$ref": "#/$defs/decimal" },
+          "projection_watermark": { "$ref": "#/$defs/decimal" },
+          "destination_ack_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } }
+        }
+      } } }
+    },
+    "authorizedApi": {
+      "if": { "properties": { "stage": { "const": "AUTHORIZED_API" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["entity_id", "graph_result_id", "projection_generation", "projection_watermark", "operation_id", "request_id", "authorization_revision", "subject_id", "response_member_id", "response_digest", "status_code"],
+        "properties": {
+          "entity_id": { "$ref": "#/$defs/uuid" },
+          "graph_result_id": { "$ref": "#/$defs/idOrNone" },
+          "projection_generation": { "$ref": "#/$defs/decimal" },
+          "projection_watermark": { "$ref": "#/$defs/decimal" },
+          "operation_id": { "type": "string", "minLength": 1 },
+          "request_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "authorization_revision": { "$ref": "#/$defs/decimal" },
+          "subject_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "response_member_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "response_digest": { "$ref": "#/$defs/sha256" },
+          "status_code": { "const": 200 }
+        }
+      } } }
+    },
+    "liveUi": {
+      "if": { "properties": { "stage": { "const": "LIVE_UI" } }, "required": ["stage"] },
+      "then": { "properties": { "assertion": {
+        "type": "object", "additionalProperties": false,
+        "required": ["api_request_id", "operation_id", "authorization_revision", "ui_build_digest", "route", "browser_session_id", "rendered_member_id", "browser_assertions"],
+        "properties": {
+          "api_request_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "operation_id": { "type": "string", "minLength": 1 },
+          "authorization_revision": { "$ref": "#/$defs/decimal" },
+          "ui_build_digest": { "$ref": "#/$defs/sha256" },
+          "route": { "type": "string", "pattern": "^/estate(?:/.*)?$" },
+          "browser_session_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "rendered_member_id": { "$ref": "#/$defs/idOrNone", "not": { "const": "NONE" } },
+          "browser_assertions": {
+            "type": "array", "minItems": 3, "uniqueItems": true,
+            "items": { "enum": ["authorized_member_visible", "fixture_mode_absent", "session_authz_context_matches", "masked_fields_absent", "tenant_boundary_enforced"] },
+            "allOf": [
+              { "contains": { "const": "authorized_member_visible" } },
+              { "contains": { "const": "fixture_mode_absent" } },
+              { "contains": { "const": "session_authz_context_matches" } }
+            ]
+          }
+        }
+      } } }
+    }
+  }
+}

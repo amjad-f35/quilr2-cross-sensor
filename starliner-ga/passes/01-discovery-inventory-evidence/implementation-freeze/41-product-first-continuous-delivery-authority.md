@@ -7,6 +7,12 @@ language only. It does not change any protocol, schema, data authority,
 identity, relationship, activity, authorization, API, UI or storage semantic
 frozen by documents 01 through 40.
 
+[Document 43](43-installed-product-lifecycle-and-source-verticals.md) and
+[ADR-0022](../../../adrs/0022-installed-product-vertical-delivery.md) extend
+this scheduling authority with the normal installed/deployed product lifecycle,
+mandatory required-input/no-bypass protocol and one-source-at-a-time primary
+integration order. The all-five-profile release scope below remains unchanged.
+
 ## Why this amendment exists
 
 Earlier execution language allowed a release-evidence gate, unavailable remote
@@ -111,8 +117,10 @@ surface.
 |---|---|
 | `PI-001` | A real administrator bootstraps a tenant, enrolls/revokes producers and installations, distributes verified configuration and sees source health without fixed UUIDs, persona shims or manual SQL. |
 | `PI-002` | Endpoint native discovery survives WAL/delivery and becomes canonical devices, applications, agents, supported relationships, evidence, authorized APIs and live UI. |
-| `PI-003` | Browser and Browser Backend native facts become canonical surfaces, installations, accounts and activity; Browser-to-device binding is materialized only with frozen proof and otherwise remains visibly unresolved. |
-| `PI-004` | Real LLM and MCP traffic becomes canonical gateway/model/server/tool/activity/evidence state and connected UI, including replay, failure and unsupported-path truth. |
+| `PI-003A` | The normally installed Browser Extension owns the one logical Browser producer, epoch, sequence, durable WAL and delivery stream; its native host is supporting capture only with separate component/artifact lineage. Together their source facts become canonical surfaces, installations, accounts and activity; Browser-to-device binding is materialized only with frozen proof and otherwise remains visibly unresolved. |
+| `PI-003B` | Browser Backend runs as a separate hosted producer and contributes only server-owned catalog, configuration, receipt/processing, heartbeat, publication/gap and administrative outcome facts; relayed Browser records preserve original lineage and are never double counted. |
+| `PI-004A` | Real LLM Gateway traffic becomes canonical gateway/model/activity/evidence state and connected UI, including replay, failure and unsupported-path truth. |
+| `PI-004B` | Real MCP Gateway traffic becomes canonical server/tool/resource/prompt/activity/evidence state and connected UI, including authorization-context scope, replay, failure and unsupported-path truth. |
 | `PI-005` | Cross-source resolution, relationship succession, ambiguity, conflicts, retractions, coverage and provenance operate continuously across all five profiles. |
 | `PI-006` | All frozen API/UI surfaces operate through authorization-before-query-planning, RBAC/ABAC/ReBAC, RLS, field masking, existence hiding and generated clients. |
 | `PI-007` | Generation build/activate/rollback/rebuild, retention/erasure, backup/restore, load, failure recovery, observability and runbooks operate on the coherent candidate. |
@@ -210,6 +218,23 @@ construction or another independent product lane. A
 references, a reproducible counterexample and the focused ADR/change-control
 record; an assertion of ambiguity is insufficient.
 
+## Required input and installed-product boundary
+
+Before changing a sensor or gateway integration, the agent follows document
+43's `SOURCE_PRODUCT_PATH.yaml` and searches the official installer/deployer,
+current product source/configuration and safe runtime evidence for the normal
+tenant/bootstrap, enrollment, credential, supervisor, capture, WAL, sender and
+receipt path. Every prerequisite receives the document 43 disposition.
+
+Missing owned product code is implemented. A genuinely unavailable credential,
+infrastructure resource or privileged user action is requested with the exact
+blocked action and objective success condition, and blocks only that action.
+`UNKNOWN_AFTER_EXHAUSTIVE_SEARCH` requires the searched sources and one concrete
+question before changing the path. None permits a fixed identity, second
+tenant, persona shim, hand-minted token, manual service/storage/SQL mutation,
+alternate daemon, fake provenance or fixture interior to become product code
+or integration evidence.
+
 ## Program state and branch state
 
 Per-repository `WORK_STATE.md` records one writer's exact branch and next
@@ -245,6 +270,10 @@ This document supersedes scheduling, blocking and completion language in 13,
 19 through 24, 30, 31, 34, 39 and the production-readiness/execution-kit
 packages when that language conflicts with product-first continuous delivery.
 It does not supersede their architecture, semantics, tests or release exits.
+
+Document 43 supersedes this document only for installed-product prerequisites,
+required-input handling, Browser producer topology and the primary source-
+vertical order.
 
 A proven conflict with a frozen semantic still requires a focused ADR and an
 atomic cross-contract update. Ordinary implementation difficulty never does.

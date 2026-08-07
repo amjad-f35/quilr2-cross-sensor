@@ -19,14 +19,29 @@
   "properties": {
     "manifest_version": { "const": "starliner.producer-enrollment.v1" },
     "manifest_id": { "type": "string", "format": "uuid" },
-    "operation": { "enum": ["apply", "revoke", "certify"] },
-    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "operation": { "enum": ["apply", "rotate", "revoke", "certify"] },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Existing organization/workspace tenant UUID validated from the one-use Discovery bootstrap."
+    },
     "producer_id": { "type": "string", "format": "uuid" },
     "revision": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
     "issued_at": { "type": "string", "format": "date-time" },
     "expires_at": { "type": "string", "format": "date-time" },
     "issuer": { "type": "string", "minLength": 1, "maxLength": 512 },
-    "installation_id": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "bootstrap_id": { "type": "string", "format": "uuid" },
+    "enrollment_intent": { "enum": ["enroll", "reinstall"] },
+    "installation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned installation identity. It is never accepted from an untrusted installer as authoritative."
+    },
+    "producer_epoch": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Server-assigned sequence epoch. Reinstall creates a new producer/installation/epoch assignment rather than reusing an old sequence namespace."
+    },
     "source_profile": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
@@ -36,7 +51,28 @@
     "environment": { "type": "string", "minLength": 1, "maxLength": 128 },
     "display_name": { "type": "string", "minLength": 1, "maxLength": 512 },
     "credential_subject": { "type": "string", "minLength": 1, "maxLength": 1024 },
-    "artifact_digest": { "$ref": "#/$defs/sha256" },
+    "credential_id": { "type": "string", "format": "uuid" },
+    "installation_key_thumbprint": { "$ref": "#/$defs/sha256" },
+    "credential_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The issued workload credential expires no more than 15 minutes after issuance; renewal proves possession of the installation key."
+    },
+    "artifact_digest": {
+      "$ref": "#/$defs/sha256",
+      "description": "Exact running artifact digest of the admitted component set's single delivery owner. It is distinct from component_set_digest for compound products."
+    },
+    "component_set_digest": { "$ref": "#/$defs/sha256" },
+    "replaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "installation_id", "producer_epoch"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "installation_id": { "type": "string", "format": "uuid" },
+        "producer_epoch": { "type": "string", "format": "uuid" }
+      }
+    },
     "capabilities": {
       "type": "array",
       "minItems": 1,
@@ -96,6 +132,10 @@
       "additionalProperties": false,
       "required": [
         "certification_id",
+        "source_profile",
+        "profile_version",
+        "component_set_digest",
+        "delivery_artifact_digest",
         "artifact_digest",
         "contract_digest",
         "profile_versions",
@@ -106,6 +146,19 @@
       ],
       "properties": {
         "certification_id": { "type": "string", "format": "uuid" },
+        "source_profile": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+        },
+        "profile_version": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+        },
+        "component_set_digest": { "$ref": "#/$defs/sha256" },
+        "delivery_artifact_digest": {
+          "$ref": "#/$defs/sha256",
+          "description": "Exact runtime_artifact_digest of the component set's sole delivery owner."
+        },
         "artifact_digest": { "$ref": "#/$defs/sha256" },
         "contract_digest": { "$ref": "#/$defs/sha256" },
         "profile_versions": {
@@ -125,6 +178,7 @@
     "signature": {
       "type": "object",
       "additionalProperties": false,
+      "description": "RFC 7797 detached JWS over the RFC 8785 canonical manifest with signature omitted. The isolated verifier requires protected alg/kid/b64=false/crit, verifies the signature against one accepted tenant/environment/kind signer-key revision, and records immutable semantic effects before control administration may apply them.",
       "required": ["format", "algorithm", "key_id", "value"],
       "properties": {
         "format": { "const": "jws-detached-jcs" },
@@ -134,32 +188,146 @@
       }
     }
   },
-  "allOf": [
+  "oneOf": [
     {
-      "if": { "properties": { "operation": { "const": "apply" } }, "required": ["operation"] },
-      "then": {
-        "required": [
-          "installation_id",
-          "source_profile",
-          "business_scope_id",
-          "environment",
-          "display_name",
-          "credential_subject",
-          "artifact_digest",
-          "capabilities",
-          "health_policy"
+      "title": "Apply enrollment",
+      "properties": { "operation": { "const": "apply" } },
+      "required": [
+        "operation",
+        "bootstrap_id",
+        "enrollment_intent",
+        "installation_id",
+        "producer_epoch",
+        "source_profile",
+        "business_scope_id",
+        "environment",
+        "display_name",
+        "credential_subject",
+        "credential_id",
+        "installation_key_thumbprint",
+        "credential_expires_at",
+        "artifact_digest",
+        "component_set_digest",
+        "capabilities",
+        "health_policy"
+      ],
+      "not": {
+        "anyOf": [
+          { "required": ["certification"] },
+          { "required": ["reason_code"] }
+        ]
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "enrollment_intent": { "const": "reinstall" } },
+            "required": ["enrollment_intent"]
+          },
+          "then": { "required": ["replaces"] }
+        },
+        {
+          "if": {
+            "properties": { "enrollment_intent": { "const": "enroll" } },
+            "required": ["enrollment_intent"]
+          },
+          "then": { "not": { "required": ["replaces"] } }
+        }
+      ]
+    },
+    {
+      "title": "Rotate workload credential",
+      "properties": { "operation": { "const": "rotate" } },
+      "required": [
+        "operation",
+        "producer_epoch",
+        "credential_subject",
+        "credential_id",
+        "installation_key_thumbprint",
+        "credential_expires_at",
+        "reason_code"
+      ],
+      "not": {
+        "anyOf": [
+          { "required": ["bootstrap_id"] },
+          { "required": ["enrollment_intent"] },
+          { "required": ["installation_id"] },
+          { "required": ["source_profile"] },
+          { "required": ["business_scope_id"] },
+          { "required": ["environment"] },
+          { "required": ["display_name"] },
+          { "required": ["artifact_digest"] },
+          { "required": ["component_set_digest"] },
+          { "required": ["replaces"] },
+          { "required": ["capabilities"] },
+          { "required": ["health_policy"] },
+          { "required": ["expected_populations"] },
+          { "required": ["certification"] }
         ]
       }
     },
     {
-      "if": { "properties": { "operation": { "const": "revoke" } }, "required": ["operation"] },
-      "then": { "required": ["reason_code"] }
+      "title": "Revoke producer",
+      "properties": { "operation": { "const": "revoke" } },
+      "required": ["operation", "reason_code"],
+      "not": {
+        "anyOf": [
+          { "required": ["bootstrap_id"] },
+          { "required": ["enrollment_intent"] },
+          { "required": ["installation_id"] },
+          { "required": ["producer_epoch"] },
+          { "required": ["source_profile"] },
+          { "required": ["business_scope_id"] },
+          { "required": ["environment"] },
+          { "required": ["display_name"] },
+          { "required": ["credential_subject"] },
+          { "required": ["credential_id"] },
+          { "required": ["installation_key_thumbprint"] },
+          { "required": ["credential_expires_at"] },
+          { "required": ["artifact_digest"] },
+          { "required": ["component_set_digest"] },
+          { "required": ["replaces"] },
+          { "required": ["capabilities"] },
+          { "required": ["health_policy"] },
+          { "required": ["expected_populations"] },
+          { "required": ["certification"] }
+        ]
+      }
     },
     {
-      "if": { "properties": { "operation": { "const": "certify" } }, "required": ["operation"] },
-      "then": { "required": ["certification"] }
+      "title": "Certify exact producer artifact and profile",
+      "properties": { "operation": { "const": "certify" } },
+      "required": ["operation", "certification"],
+      "not": {
+        "anyOf": [
+          { "required": ["bootstrap_id"] },
+          { "required": ["enrollment_intent"] },
+          { "required": ["installation_id"] },
+          { "required": ["producer_epoch"] },
+          { "required": ["source_profile"] },
+          { "required": ["business_scope_id"] },
+          { "required": ["environment"] },
+          { "required": ["display_name"] },
+          { "required": ["credential_subject"] },
+          { "required": ["credential_id"] },
+          { "required": ["installation_key_thumbprint"] },
+          { "required": ["credential_expires_at"] },
+          { "required": ["artifact_digest"] },
+          { "required": ["component_set_digest"] },
+          { "required": ["replaces"] },
+          { "required": ["capabilities"] },
+          { "required": ["health_policy"] },
+          { "required": ["expected_populations"] },
+          { "required": ["reason_code"] }
+        ]
+      }
     }
   ],
+  "x-starliner-stateful-rules": {
+    "apply": "The producer must not exist (or reinstall must allocate a new producer). revision MUST equal 1. The bootstrap, tenant, profile, scope, environment, installation key, artifact and component set MUST match the consumed one-use enrollment request.",
+    "rotate": "revision MUST equal current producer revision + 1; producer_epoch and installation_key_thumbprint MUST equal the current active enrollment; credential_id MUST be new and credential_subject MUST remain bound to the same producer.",
+    "revoke": "revision MUST equal current producer revision + 1 and the producer must still be nonterminal. No enrollment, credential, component, capability or certification fields are accepted.",
+    "certify": "revision MUST equal current producer revision + 1; certification producer/profile/component-set/delivery-artifact/contract fields MUST equal the current producer and admitted profile registry; a stale, failed, expired or mismatched certification fails closed."
+  },
   "$defs": {
     "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
     "healthPolicy": {
@@ -187,7 +355,7 @@
           "minItems": 1,
           "maxItems": 64,
           "uniqueItems": true,
-          "description": "Components aggregated into producer health. Only components declared here participate; a missing required component prevents healthy.",
+          "description": "Exact set of health_component IDs in the manifest-bound active component set. Admission rejects any omission, addition or duplicate; a missing report from any required component prevents healthy.",
           "items": { "type": "string", "minLength": 1, "maxLength": 128 }
         }
       }

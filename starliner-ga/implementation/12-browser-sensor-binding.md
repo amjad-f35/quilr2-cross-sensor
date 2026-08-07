@@ -4,13 +4,24 @@ Status: **normative target binding; current behavior verified at the revisions i
 
 ## Scope
 
-The browser product is one customer product but three independently identified producer components:
+The installed Browser sensor is one logical source path composed of:
 
 1. Project Vanguard browser extension;
-2. Project Sentinel Chrome native host used by the extension;
-3. Browser Extension Service backend.
+2. Project Sentinel native messaging host used by the extension.
 
-They share lineage, not runtime identity. Each has its own artifact, version, capability, health, sequence epoch, and certification.
+The extension and native host share one enrolled Browser installation, producer
+identity, producer epoch, sequence space, durable WAL and delivery stream. They
+retain distinct component IDs, artifacts, versions, capabilities, health and
+lineage inside that stream. Native-host work is correlated to the originating
+Browser observation and is never counted as a second Browser activity.
+
+Browser Extension Service is not a third device-local Browser component. It is
+a separate hosted Browser Backend producer with its own deployment identity,
+epoch, durable outbox, capability, health and certification. It emits only
+server-owned facts or a lineage-preserving relay of the original Browser
+record. This topology is frozen by
+[ADR-0022](../adrs/0022-installed-product-vertical-delivery.md) and
+[document 43](../passes/01-discovery-inventory-evidence/implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md).
 
 ## Current execution topology
 
@@ -19,7 +30,7 @@ page MAIN world
 → isolated content bridge
 → extension background/service worker
 → BrowserSession and ProcessChain
-→ optional Chrome native host
+→ registered native messaging host for native operations
 → local file resolution/DLP
 → extension policy result
 → page allow/block/override/cancel effect
@@ -48,13 +59,23 @@ The background runtime delivers directly to the Starliner ingest endpoint where 
 
 ### Native host
 
-The native host remains a browser subcomponent and native enforcement/analysis point. It returns source-native scan facts to the background adapter. It does not independently assign canonical application, file, device, or user identity.
+The native host remains a Browser subcomponent and native
+enforcement/analysis point. It returns source-native scan facts to the
+extension background adapter, which durably enqueues them in the one Browser
+WAL with exact native component/artifact lineage and the originating Browser
+observation ID. It has no independent launch producer identity, epoch,
+sequence space or delivery WAL and does not assign canonical application,
+file, device or user identity.
 
-If a future native-host adapter writes directly to Starliner, it uses a distinct component ID and record lineage and is reconciled with the originating browser action. It must not create a second counted activity.
+If the required native host is absent, mismatched, unavailable or not
+certified for an invoked capability, the Browser producer emits typed degraded
+health, coverage or gap state. It does not silently omit the stage or start a
+parallel native-host sender.
 
 ### Browser backend
 
-Browser Extension Service receives its own producer identity and durable backend outbox. Its records describe:
+Browser Extension Service receives its own hosted producer identity and
+durable backend outbox. Its records describe only facts owned by that backend:
 
 - receipt and validation;
 - enrollment/configuration lifecycle;
@@ -62,7 +83,26 @@ Browser Extension Service receives its own producer identity and durable backend
 - native product handoff stage;
 - backend action result and runtime health.
 
-It does not emit “the browser action happened” unless that statement is explicitly a relayed extension record with original producer lineage.
+It does not emit “the browser action happened” as backend-native evidence. A
+relayed extension record preserves the original Browser producer, epoch,
+sequence, record ID and digest. A backend processing-stage record uses the
+backend producer and a qualified parent reference to that original record.
+
+## Installed-product and required-input law
+
+Before modifying or claiming this source path, engineering binds the official
+Browser package/policy, extension artifact, matching native-host artifact and
+manifest, existing organization tenant Discovery input, authenticated
+enrollment exchange, secure credential store, normal browser/background
+entrypoint, WAL and sender in `SOURCE_PRODUCT_PATH.yaml`.
+
+If a tenant/bootstrap value, credential, exact artifact, privileged install or
+runtime prerequisite is unavailable, follow the disposition and question
+protocol in document 43 and pause only the affected action. Do not replace it
+with a fixed ID, persona shim, DevTools/storage injection, manual native-host
+manifest, hand-minted token, alternate daemon, manual plist/environment edit
+or fixture interior. Missing owned product code is implemented on the normal
+path rather than bypassed.
 
 ## Exact extension capture seams
 
@@ -106,7 +146,7 @@ The current positional response association is not accepted as a GA contract. Ne
 
 ## Browser-to-platform records
 
-The launch browser profile emits only approved subtypes of:
+The launch Browser profile emits only approved subtypes of:
 
 - installation/profile lifecycle;
 - web-surface observation;
@@ -115,8 +155,11 @@ The launch browser profile emits only approved subtypes of:
 - local/native scan outcome;
 - policy decision result;
 - effect observation;
-- health, coverage, gap, and snapshot lifecycle;
-- backend receipt/handoff stage under the backend producer identity.
+- health, coverage, gap, and snapshot lifecycle.
+
+The separate Browser Backend profile emits only its admitted server-owned
+catalog, configuration, receipt/processing, heartbeat, publication/gap and
+administrative outcome records. It never shares the Browser producer stream.
 
 Each record includes tenant, producer/workload, component/artifact, source namespace, source-native IDs, observation ID, sequence/epoch, occurrence time, privacy disposition, capability/certification version, and source lineage.
 
@@ -172,22 +215,32 @@ page capture
 4. Add privacy mapper before persistence and secret-canary tests.
 5. Bind every policy result to bundle/decision version and every effect to the originating decision.
 6. Add snapshot/coverage semantics for installations and managed profiles; activity silence is not removal.
-7. Give Browser Extension Service a distinct producer/outbox and preserve client relay lineage.
+7. Keep Extension and native host on one Browser producer/WAL stream; give
+   Browser Extension Service a distinct hosted producer/outbox and preserve
+   qualified client relay lineage.
 8. Stop using process-memory heartbeat as a population or audit denominator.
-9. Keep current Kafka/graph/DWH transformations as migration-only paths; customer inventory and findings read canonical APIs.
+9. Do not make current Kafka/graph/DWH transformations part of the bounded DIE
+   path; customer inventory reads canonical APIs. Their eventual migration or
+   retirement belongs to the separate MIGRATION program.
 10. Certify service-worker suspend/restart, offline, upgrade, concurrency, and relay failure.
 
-## Migration sequence
+## Bounded DIE implementation increments
 
-1. Add observation IDs and safe-fact mapping without changing current policy behavior.
-2. Add the browser WAL, delivery receipt handling, manifest, health, and self-test.
-3. Dual-emit to legacy browser APIs and Starliner while Starliner is non-authoritative.
-4. Add central normalization and client/backend lineage reconciliation.
-5. Compare legacy event/finding counts by semantics, not row count.
-6. Switch Quilr 2 UI reads to canonical APIs.
-7. Move policy/configuration to signed bundle control with shadow comparison.
-8. Enable certified enforcement cohorts.
-9. retire legacy fanout only after cutover, retention, and rollback closure.
+1. Bind the official Browser installation, tenant/bootstrap, enrollment and
+   normal background/native-host entrypoints in the source-product manifest.
+2. Add observation IDs and safe-fact mapping without changing current policy
+   behavior.
+3. Add the one Browser WAL, authenticated delivery, exact receipt handling,
+   manifest, component health and self-test.
+4. Complete the installed Browser Gate A and Gate B defined in document 43.
+5. Add central normalization and qualified client/backend lineage without
+   duplicating Browser activity.
+6. Verify canonical inventory, relationships/activity, authorized API and live
+   UI from the normally installed artifact.
+
+Legacy dual-run, backfill, customer cutover, rollback and retirement are not
+steps of this bounded pass. They remain governed by the separate MIGRATION
+program and may not be invented while implementing this source vertical.
 
 ## Certification blockers from current evidence
 

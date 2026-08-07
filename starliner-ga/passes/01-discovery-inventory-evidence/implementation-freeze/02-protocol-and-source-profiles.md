@@ -204,7 +204,15 @@ Required record kinds:
 - downstream publication gap or partial-failure evidence.
 - bounded catalog/configuration/installation snapshot start, page, complete and failure.
 
-Browser Backend is a separate producer. It may correlate to a client record using source IDs; it may not impersonate the extension.
+Browser Backend is a separate producer. For relayed client processing,
+`payload.qualified_client_record` is the single canonical parent carrier and
+contains the original Browser producer, epoch, record ID and content digest;
+the duplicate `envelope.correlation.qualified_parent_record` carrier is
+forbidden. Admission resolves that exact tuple to same-tenant accepted Browser
+evidence. `accepted`, `transformed` and `published` normalize only as
+`source_processing` lineage stages with zero activity candidates, so they are
+excluded from customer activity/recent-activity/risk counts. The backend may
+not impersonate the extension.
 
 ### Endpoint
 
@@ -282,7 +290,7 @@ Snapshot pages contain only scoped source references and bounded verification me
 
 ### Producer enrollment and certification
 
-The pass-owned bootstrap contract is [producer-enrollment-manifest.schema.json](schemas/producer-enrollment-manifest.schema.json). `apply`, `revoke` and `certify` are optimistic-revision operations. Before verification, the implementation removes the `signature` member, canonicalizes the remaining JSON with RFC 8785 JCS, and verifies the detached compact JWS against the environment's issuer/key allowlist. V1 permits `ES256` and `EdDSA`; algorithm substitution, an unknown key, an expired manifest, a tenant/scope mismatch, a stale/non-monotonic revision, an artifact/certification mismatch or a replayed `manifest_id` fails closed and is audited.
+The pass-owned bootstrap contract is [producer-enrollment-manifest.schema.json](schemas/producer-enrollment-manifest.schema.json). `apply`, `rotate`, `revoke` and `certify` are exact discriminated payloads and optimistic-revision operations. Fields belonging to another operation arm are rejected rather than ignored. `apply` admits only a new producer at revision 1; every other operation requires `revision = current + 1`. `rotate` must retain the active producer epoch, installation-key thumbprint and credential subject while allocating a new credential ID. `certify` must match the current producer profile, component set, delivery artifact and contract. Before verification, the implementation removes the `signature` member, canonicalizes the remaining JSON with RFC 8785 JCS, and verifies the detached compact JWS against the environment's issuer/key allowlist. V1 permits `ES256` and `EdDSA`; algorithm substitution, an unknown key, an expired manifest, a tenant/scope mismatch, a stale/non-monotonic revision, a cross-epoch/current-key mismatch, an artifact/certification mismatch or a replayed `manifest_id` fails closed and is audited.
 
 The apply transaction assigns a non-null business scope/environment, writes the producer/capabilities/certification, activates only a passing unexpired certification whose artifact and contract digests match, appends audit, and enqueues a producer projection work item keyed by revision. Revocation changes trust state before any subsequent ingest authorization and does not delete evidence. No credential or private key is carried in the manifest.
 

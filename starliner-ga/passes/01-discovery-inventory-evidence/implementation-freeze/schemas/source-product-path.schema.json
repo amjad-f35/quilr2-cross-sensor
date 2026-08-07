@@ -1,0 +1,604 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.ai/die/source-product-path-v1.schema.json",
+  "title": "DIE normal installed source product path",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "schema",
+    "binding_id",
+    "profile",
+    "logical_sensor",
+    "authority_commit",
+    "source_commit",
+    "normal_path_state",
+    "installation",
+    "component_set",
+    "package_installations",
+    "organization_context",
+    "enrollment",
+    "components",
+    "data_path",
+    "prerequisites",
+    "prohibited_bypasses",
+    "evidence_bindings",
+    "evidence_refs"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "schema": { "const": "die.source-product-path.v1" },
+    "binding_id": { "type": "string", "pattern": "^(UNASSIGNED|[a-z][a-z0-9_.-]{2,127})$" },
+    "profile": { "type": "string", "pattern": "^(UNASSIGNED|[a-z][a-z0-9_.-]{0,127})$" },
+    "logical_sensor": { "type": "string", "pattern": "^(UNASSIGNED|browser|browser_backend|endpoint|llm_gateway|mcp_gateway|connector)$" },
+    "authority_commit": { "$ref": "#/$defs/shaOrUnassigned" },
+    "source_commit": { "$ref": "#/$defs/shaOrUnassigned" },
+    "normal_path_state": {
+      "enum": [
+        "UNASSIGNED",
+        "UNKNOWN",
+        "SOURCE_PROVEN",
+        "MISSING_PRODUCT_CODE",
+        "EXTERNAL_INPUT_REQUIRED",
+        "INSTALLED_UNOBSERVED",
+        "INSTALLED_OBSERVED",
+        "COHERENT_E2E"
+      ]
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentation_refs",
+        "installer_repository",
+        "installer_commit",
+        "install_artifact_ref",
+        "install_artifact_digest",
+        "normal_install_command_ref",
+        "installation_evidence_ref"
+      ],
+      "properties": {
+        "documentation_refs": { "$ref": "#/$defs/refArray" },
+        "installer_repository": { "$ref": "#/$defs/repositoryOrUnassigned" },
+        "installer_commit": { "$ref": "#/$defs/shaOrUnassigned" },
+        "install_artifact_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "install_artifact_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "normal_install_command_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "installation_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" }
+      }
+    },
+    "component_set": {
+      "oneOf": [
+        { "const": "UNASSIGNED" },
+        { "$ref": "https://schemas.quilr.com/starliner/control/v1/producer-component-set.schema.json" }
+      ],
+      "description": "The exact producer-component-set submitted to enrollment. It is the package graph authority; this document adds installed-path and retained-evidence bindings without inventing a second topology."
+    },
+    "package_installations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/packageInstallation" },
+      "uniqueItems": true,
+      "description": "One row per official package in component_set.packages. Admission requires exact package and component coverage. Browser therefore binds both the WebExtension package and native-host package, or an explicitly measured compound package containing both components."
+    },
+    "organization_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenant_input_kind",
+        "tenant_source_symbol",
+        "discovery_or_bootstrap_symbol",
+        "persona_or_workload_prerequisite",
+        "effective_configuration_source"
+      ],
+      "properties": {
+        "tenant_input_kind": { "enum": ["UNASSIGNED", "organization_tenant_uuid", "platform_tenant_binding"] },
+        "tenant_source_symbol": { "type": "string", "minLength": 1 },
+        "discovery_or_bootstrap_symbol": { "type": "string", "minLength": 1 },
+        "persona_or_workload_prerequisite": { "type": "string", "minLength": 1 },
+        "effective_configuration_source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "enrollment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "production_writer_symbol",
+        "credential_issuer",
+        "credential_store",
+        "producer_identity_source",
+        "installation_identity_source",
+        "evidence_ref",
+        "status"
+      ],
+      "properties": {
+        "production_writer_symbol": { "type": "string", "minLength": 1 },
+        "credential_issuer": { "type": "string", "minLength": 1 },
+        "credential_store": { "type": "string", "minLength": 1 },
+        "producer_identity_source": { "type": "string", "minLength": 1 },
+        "installation_identity_source": { "type": "string", "minLength": 1 },
+        "evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "status": { "enum": ["UNASSIGNED", "MISSING_PRODUCT_CODE", "EXTERNAL_INPUT_REQUIRED", "SOURCE_PROVEN", "RUNTIME_OBSERVED"] }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" },
+      "uniqueItems": true
+    },
+    "data_path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_capture_symbols",
+        "native_capture_evidence_refs",
+        "privacy_mapper_symbol",
+        "wal_owner_component_id",
+        "wal_owner_component_kind",
+        "wal_owner_symbol",
+        "wal_evidence_ref",
+        "sender_component_id",
+        "sender_component_kind",
+        "sender_symbol",
+        "sender_evidence_ref",
+        "receipt_handler_symbol",
+        "receipt_evidence_ref",
+        "relay_lineage_rule"
+      ],
+      "properties": {
+        "native_capture_symbols": { "$ref": "#/$defs/stringArray" },
+        "native_capture_evidence_refs": { "$ref": "#/$defs/refArray" },
+        "privacy_mapper_symbol": { "type": "string", "minLength": 1 },
+        "wal_owner_component_id": { "type": "string", "pattern": "^(UNASSIGNED|[a-z][a-z0-9_-]{2,63})$" },
+        "wal_owner_component_kind": { "enum": ["UNASSIGNED", "browser_extension", "browser_backend", "endpoint_agent", "endpoint_monitor", "gateway_service", "connector", "sidecar"] },
+        "wal_owner_symbol": { "type": "string", "minLength": 1 },
+        "wal_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "sender_component_id": { "type": "string", "pattern": "^(UNASSIGNED|[a-z][a-z0-9_-]{2,63})$" },
+        "sender_component_kind": { "enum": ["UNASSIGNED", "browser_extension", "browser_backend", "endpoint_agent", "endpoint_monitor", "gateway_service", "connector", "sidecar"] },
+        "sender_symbol": { "type": "string", "minLength": 1 },
+        "sender_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "receipt_handler_symbol": { "type": "string", "minLength": 1 },
+        "receipt_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "relay_lineage_rule": { "type": "string", "minLength": 1 }
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/prerequisite" },
+      "uniqueItems": true
+    },
+    "prohibited_bypasses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/prohibitedBypass" }
+    },
+    "evidence_bindings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidenceBinding" },
+      "uniqueItems": true,
+      "description": "Content-addressed retained files. Runtime validation resolves every ref beneath the evidence root, rejects escape or digest drift, and verifies each semantic reference uses the required evidence_kind."
+    },
+    "evidence_refs": { "$ref": "#/$defs/refArray" }
+  },
+  "$defs": {
+    "shaOrUnassigned": { "type": "string", "pattern": "^(UNASSIGNED|[0-9a-f]{40})$" },
+    "digestOrUnassigned": { "type": "string", "pattern": "^(UNASSIGNED|sha256:[0-9a-f]{64})$" },
+    "repositoryOrUnassigned": { "type": "string", "pattern": "^(UNASSIGNED|[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)$" },
+    "refOrUnassigned": { "type": "string", "pattern": "^(UNASSIGNED|(?!/)(?!.*[.][.])[A-Za-z0-9_.:/-]+)$" },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "refArray": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^(?!/)(?!.*[.][.])[A-Za-z0-9_.:/-]+$" },
+      "uniqueItems": true
+    },
+    "evidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "digest", "evidence_kind"],
+      "properties": {
+        "ref": { "type": "string", "pattern": "^(?!/)(?!.*[.][.])(?!.*\\\\)[A-Za-z0-9_./-]+$" },
+        "digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "evidence_kind": {
+          "enum": [
+            "UNASSIGNED",
+            "installation_documentation",
+            "installation_artifact",
+            "package_build_evidence",
+            "package_install_manifest",
+            "installation_command",
+            "installation_observation",
+            "enrollment_observation",
+            "component_installed_artifact",
+            "component_installation_observation",
+            "component_configuration_observation",
+            "native_capture_observation",
+            "wal_observation",
+            "sender_observation",
+            "ingest_receipt",
+            "prerequisite_observation",
+            "general"
+          ]
+        }
+      }
+    },
+    "prohibitedBypass": {
+      "enum": [
+        "fixed_shared_identity_or_token",
+        "second_tenant_or_persona_shim",
+        "manual_storage_or_devtools_injection",
+        "manual_plist_env_or_sql_override",
+        "alternate_or_parallel_daemon",
+        "fake_dirty_or_mixed_artifact_provenance",
+        "fixture_interior_stage",
+        "normal_entrypoint_bypass"
+      ]
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_id",
+        "component_kind",
+        "repository",
+        "source_commit",
+        "installed_artifact_ref",
+        "installed_artifact_digest",
+        "supervisor",
+        "service_unit",
+        "normal_entrypoint",
+        "effective_configuration_digest",
+        "installation_evidence_ref",
+        "configuration_evidence_ref",
+        "observation_ownership"
+      ],
+      "properties": {
+        "component_id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{2,63}$" },
+        "component_kind": {
+          "enum": [
+            "browser_extension",
+            "browser_native_host",
+            "browser_backend",
+            "endpoint_agent",
+            "endpoint_monitor",
+            "endpoint_proxy",
+            "endpoint_ipc_broker",
+            "endpoint_template_engine",
+            "endpoint_system_extension",
+            "endpoint_network_extension",
+            "gateway_service",
+            "sidecar",
+            "connector"
+          ]
+        },
+        "repository": { "$ref": "#/$defs/repositoryOrUnassigned" },
+        "source_commit": { "$ref": "#/$defs/shaOrUnassigned" },
+        "installed_artifact_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "installed_artifact_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "supervisor": { "enum": ["UNASSIGNED", "browser_runtime", "launchd", "systemd", "kubernetes", "docker", "process_manager", "managed_service"] },
+        "service_unit": { "type": "string", "minLength": 1 },
+        "normal_entrypoint": { "type": "string", "minLength": 1 },
+        "effective_configuration_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "installation_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "configuration_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "observation_ownership": { "enum": ["originating", "supporting", "relay_only"] }
+      }
+    },
+    "packageInstallation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "component_ids",
+        "package_artifact_ref",
+        "package_artifact_digest",
+        "install_manifest_ref",
+        "install_manifest_digest",
+        "installation_evidence_ref"
+      ],
+      "properties": {
+        "package_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "component_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$" }
+        },
+        "package_artifact_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "package_artifact_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "install_manifest_ref": { "$ref": "#/$defs/refOrUnassigned" },
+        "install_manifest_digest": { "$ref": "#/$defs/digestOrUnassigned" },
+        "installation_evidence_ref": { "$ref": "#/$defs/refOrUnassigned" }
+      }
+    },
+    "prerequisite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prerequisite_id", "class", "required_input_or_action", "status", "evidence_ref"],
+      "properties": {
+        "prerequisite_id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_-]{2,63}$" },
+        "class": { "enum": ["PRODUCT_CODE", "EXTERNAL_CREDENTIAL", "EXTERNAL_INFRASTRUCTURE", "PRIVILEGED_USER_ACTION", "DESTRUCTIVE_APPROVAL", "CONTRACT_CONTRADICTION", "UNKNOWN_AFTER_EXHAUSTIVE_SEARCH"] },
+        "required_input_or_action": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["MISSING", "AVAILABLE", "SATISFIED", "NOT_APPLICABLE"] },
+        "evidence_ref": { "$ref": "#/$defs/refOrUnassigned" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "normal_path_state": { "const": "UNASSIGNED" } }, "required": ["normal_path_state"] },
+      "then": {
+        "properties": {
+          "binding_id": { "const": "UNASSIGNED" },
+          "profile": { "const": "UNASSIGNED" },
+          "logical_sensor": { "const": "UNASSIGNED" },
+          "authority_commit": { "const": "UNASSIGNED" },
+          "source_commit": { "const": "UNASSIGNED" },
+          "component_set": { "const": "UNASSIGNED" },
+          "package_installations": { "maxItems": 0 },
+          "components": { "maxItems": 0 },
+          "prerequisites": { "maxItems": 0 },
+          "prohibited_bypasses": { "maxItems": 0 },
+          "evidence_bindings": { "maxItems": 0 },
+          "evidence_refs": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "normal_path_state": { "enum": ["INSTALLED_OBSERVED", "COHERENT_E2E"] } }, "required": ["normal_path_state"] },
+      "then": {
+        "properties": {
+          "authority_commit": { "pattern": "^[0-9a-f]{40}$" },
+          "source_commit": { "pattern": "^[0-9a-f]{40}$" },
+          "component_set": {
+            "not": { "const": "UNASSIGNED" }
+          },
+          "package_installations": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "package_artifact_ref": { "not": { "const": "UNASSIGNED" } },
+                "package_artifact_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+                "install_manifest_ref": { "not": { "const": "UNASSIGNED" } },
+                "install_manifest_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+                "installation_evidence_ref": { "not": { "const": "UNASSIGNED" } }
+              }
+            }
+          },
+          "installation": {
+            "properties": {
+              "documentation_refs": { "minItems": 1 },
+              "installer_repository": { "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+              "installer_commit": { "pattern": "^[0-9a-f]{40}$" },
+              "install_artifact_ref": { "not": { "const": "UNASSIGNED" } },
+              "install_artifact_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+              "normal_install_command_ref": { "not": { "const": "UNASSIGNED" } },
+              "installation_evidence_ref": { "not": { "const": "UNASSIGNED" } }
+            }
+          },
+          "components": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "repository": { "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+                "source_commit": { "pattern": "^[0-9a-f]{40}$" },
+                "installed_artifact_ref": { "not": { "const": "UNASSIGNED" } },
+                "installed_artifact_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+                "installation_evidence_ref": { "not": { "const": "UNASSIGNED" } },
+                "normal_entrypoint": { "minLength": 1 }
+              }
+            }
+          },
+          "evidence_bindings": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "normal_path_state": { "const": "COHERENT_E2E" } }, "required": ["normal_path_state"] },
+      "then": {
+        "properties": {
+          "organization_context": {
+            "properties": {
+              "tenant_input_kind": { "const": "organization_tenant_uuid" },
+              "tenant_source_symbol": { "not": { "const": "UNASSIGNED" } },
+              "discovery_or_bootstrap_symbol": { "not": { "const": "UNASSIGNED" } },
+              "persona_or_workload_prerequisite": { "not": { "const": "UNASSIGNED" } },
+              "effective_configuration_source": { "not": { "const": "UNASSIGNED" } }
+            }
+          },
+          "enrollment": {
+            "properties": {
+              "production_writer_symbol": { "not": { "const": "UNASSIGNED" } },
+              "credential_issuer": { "not": { "const": "UNASSIGNED" } },
+              "credential_store": { "not": { "const": "UNASSIGNED" } },
+              "producer_identity_source": { "not": { "const": "UNASSIGNED" } },
+              "installation_identity_source": { "not": { "const": "UNASSIGNED" } },
+              "evidence_ref": { "not": { "const": "UNASSIGNED" } },
+              "status": { "const": "RUNTIME_OBSERVED" }
+            }
+          },
+          "components": {
+            "items": {
+              "properties": {
+                "effective_configuration_digest": { "pattern": "^sha256:[0-9a-f]{64}$" },
+                "configuration_evidence_ref": { "not": { "const": "UNASSIGNED" } }
+              }
+            }
+          },
+          "data_path": {
+            "properties": {
+              "native_capture_symbols": { "minItems": 1 },
+              "native_capture_evidence_refs": { "minItems": 1 },
+              "privacy_mapper_symbol": { "not": { "const": "UNASSIGNED" } },
+              "wal_owner_component_id": { "not": { "const": "UNASSIGNED" } },
+              "wal_owner_component_kind": { "not": { "const": "UNASSIGNED" } },
+              "wal_owner_symbol": { "not": { "const": "UNASSIGNED" } },
+              "wal_evidence_ref": { "not": { "const": "UNASSIGNED" } },
+              "sender_component_id": { "not": { "const": "UNASSIGNED" } },
+              "sender_component_kind": { "not": { "const": "UNASSIGNED" } },
+              "sender_symbol": { "not": { "const": "UNASSIGNED" } },
+              "sender_evidence_ref": { "not": { "const": "UNASSIGNED" } },
+              "receipt_handler_symbol": { "not": { "const": "UNASSIGNED" } },
+              "receipt_evidence_ref": { "not": { "const": "UNASSIGNED" } },
+              "relay_lineage_rule": { "not": { "const": "UNASSIGNED" } }
+            }
+          },
+          "prerequisites": {
+            "not": {
+              "contains": {
+                "properties": { "status": { "const": "MISSING" } },
+                "required": ["status"]
+              }
+            }
+          },
+          "prohibited_bypasses": {
+            "minItems": 8,
+            "maxItems": 8,
+            "allOf": [
+              { "contains": { "const": "fixed_shared_identity_or_token" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "second_tenant_or_persona_shim" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "manual_storage_or_devtools_injection" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "manual_plist_env_or_sql_override" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "alternate_or_parallel_daemon" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "fake_dirty_or_mixed_artifact_provenance" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "fixture_interior_stage" }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "const": "normal_entrypoint_bypass" }, "minContains": 1, "maxContains": 1 }
+            ]
+          },
+          "evidence_refs": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": { "const": "browser" },
+          "normal_path_state": { "enum": ["INSTALLED_OBSERVED", "COHERENT_E2E"] }
+        },
+        "required": ["profile", "normal_path_state"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "allOf": [
+              {
+                "contains": {
+                  "properties": {
+                    "component_kind": { "const": "browser_extension" },
+                    "observation_ownership": { "const": "originating" }
+                  },
+                  "required": ["component_kind", "observation_ownership"]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "component_kind": { "const": "browser_native_host" },
+                    "observation_ownership": { "const": "supporting" }
+                  },
+                  "required": ["component_kind", "observation_ownership"]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": { "const": "browser" },
+          "normal_path_state": { "const": "COHERENT_E2E" }
+        },
+        "required": ["profile", "normal_path_state"]
+      },
+      "then": {
+        "properties": {
+          "data_path": {
+            "properties": {
+              "wal_owner_component_kind": { "const": "browser_extension" },
+              "sender_component_kind": { "const": "browser_extension" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": { "const": "endpoint" },
+          "normal_path_state": { "enum": ["INSTALLED_OBSERVED", "COHERENT_E2E"] }
+        },
+        "required": ["profile", "normal_path_state"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "allOf": [
+              { "contains": { "properties": { "component_kind": { "const": "endpoint_agent" } }, "required": ["component_kind"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "component_kind": { "const": "endpoint_monitor" } }, "required": ["component_kind"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "component_kind": { "const": "endpoint_proxy" } }, "required": ["component_kind"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "component_kind": { "const": "endpoint_ipc_broker" } }, "required": ["component_kind"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "component_kind": { "const": "endpoint_template_engine" } }, "required": ["component_kind"] }, "minContains": 1, "maxContains": 1 },
+              {
+                "contains": {
+                  "properties": { "component_kind": { "enum": ["endpoint_system_extension", "endpoint_network_extension"] } },
+                  "required": ["component_kind"]
+                },
+                "minContains": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": { "const": "browser_backend" },
+          "normal_path_state": { "enum": ["INSTALLED_OBSERVED", "COHERENT_E2E"] }
+        },
+        "required": ["profile", "normal_path_state"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "properties": { "component_kind": { "const": "browser_backend" } },
+              "required": ["component_kind"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "profile": { "enum": ["llm_gateway", "mcp_gateway"] },
+          "normal_path_state": { "enum": ["INSTALLED_OBSERVED", "COHERENT_E2E"] }
+        },
+        "required": ["profile", "normal_path_state"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "contains": {
+              "properties": { "component_kind": { "const": "gateway_service" } },
+              "required": ["component_kind"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    }
+  ]
+}

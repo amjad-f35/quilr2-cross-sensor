@@ -2,7 +2,7 @@
 
 Status: **normative determination ledger**
 
-Release-sequencing amendment: [ADR-0019](../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md), [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md), and the [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md) define the first customer release. The broader platform determinations below remain the long-term architecture, but findings, policy, cost, broad deployment expansion, Quilr 1 migration/coexistence, and Quilr 1 retirement are not dependencies of `DIE-GA`. Migration remains fully preserved under the independent `MIGRATION` track and G6.
+Release-sequencing amendment: [ADR-0019](../adrs/0019-first-customer-release-is-discovery-inventory-evidence.md), [ADR-0020](../adrs/0020-die-migration-is-a-separate-parallel-track.md), [ADR-0022](../adrs/0022-installed-product-vertical-delivery.md), [installed-product document 43](../passes/01-discovery-inventory-evidence/implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md), and the [Discovery, Inventory, and Evidence Pass](../passes/01-discovery-inventory-evidence/README.md) define the first customer release and source-vertical implementation order. The broader platform determinations below remain the long-term architecture, but findings, policy, cost, broad deployment expansion, Quilr 1 migration/coexistence, and Quilr 1 retirement are not dependencies of `DIE-GA`. Migration remains fully preserved under the independent `MIGRATION` track and G6.
 
 ## Bottom line
 
@@ -28,8 +28,8 @@ The platform is therefore in **architecture-frozen, implementation-inputs-open**
 
 | Sensor | Repository evidence | Physical binding | Adapter seam status | Remaining release evidence |
 |---|---|---|---|---|
-| Browser extension + native host | static source verified at pinned revisions | embedded background runtime; separately authenticated native-host producer where direct emission is used | exact upload/action/messaging/native-host seams mapped | deployed extension/native artifacts, supported versions, effective policy/config, keyed correlation fix, durability and browser certification |
-| Browser backend | static source verified at pinned revision | embedded library or colocated sidecar; distinct producer identity from extension | controllers, risk transform, producer, persona and heartbeat seams mapped | deployed topology, effective auth, downstream guarantees, multi-replica heartbeat, current release artifact |
+| Browser Extension + native host | static source verified at pinned revisions | one embedded Extension background runtime owns the logical Browser installation producer, epoch, sequence, durable WAL and delivery stream; the native host is supporting capture only, retains distinct component/artifact lineage and returns correlated results to the Extension | exact upload/action/messaging/native-host seams mapped | exact installed compound artifacts, normal enrollment, supported versions, effective policy/config, keyed correlation fix, durability and Browser certification |
+| Browser Backend | static source verified at pinned revision | embedded library or colocated sidecar; separate hosted producer identity and sequence space from the Browser installed sensor | controllers, risk transform, producer, persona and heartbeat seams mapped; only server-owned facts or qualified original-record relay are admitted | deployed topology, effective auth, downstream guarantees, multi-replica heartbeat, current release artifact and relay no-double-count proof |
 | Endpoint compound sensor | static source verified at pinned revisions | one supervised device-local runtime; authenticated component IPC; embedded hot PEP snapshots | process, correlation, entity store, sync, proxy, hook, alert and activity seams mapped | credential incident disposition, secure IPC, durable evidence, removal of source ID authority, supported OS/package certification |
 | LLM Gateway | static source verified at pinned revision | in-process adapter plus per-pod sidecar | auth context, OpenAI lifecycle, provider routes, configuration and NATS seams mapped | uniform lifecycle on all transports, streaming/cancel semantics, deployment artifact/config, sidecar resource and failure certification |
 | MCP Gateway | static source verified at pinned revision | embedded runtime for certified single replica; sidecar/shared durable runtime before horizontal scale | registry, Direct MCP, OneMCP gap, tool lifecycle, mapper and SQLite outbox mapped | remove source canonical IDs, cover all MCP surfaces, local bundle PEP, private dependencies, production credentials/config and scaling-state certification |
@@ -68,7 +68,10 @@ The following require a superseding ADR to change:
 - LLM Gateway uses one sidecar per pod plus an in-process typed adapter/PEP boundary.
 - MCP Gateway preserves its embedded runtime for a single-replica first release and must change state architecture before scale-out.
 - Source observations may carry source references and revisioned binding hints, never producer-created canonical entity IDs.
-- Browser extension and browser backend are separate producers.
+- Browser Extension and native messaging host are one logical Browser
+  installation producer/epoch/sequence/WAL stream with distinct component
+  lineage; Browser Backend is a separate hosted producer for server-owned facts
+  or a qualified original-record relay.
 - Direct MCP and OneMCP are separate certified surfaces until parity is proven.
 - Product-native queues and logs do not replace the Starliner WAL or central admission receipt.
 

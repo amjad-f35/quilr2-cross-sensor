@@ -4,12 +4,31 @@ Status: **normative profile; current source binding verified at the pinned audit
 
 ## Boundary
 
-The browser backend/service and the browser extension client are different producers.
+The Browser Backend/service and the installed Browser sensor are different
+producers. The installed Browser sensor consists of the Browser Extension plus
+its native messaging host under one logical Browser installation,
+producer/epoch/sequence, WAL and delivery stream; the native host retains
+distinct component/artifact lineage but is not a second launch producer.
 
-- The extension client observes browser-local actions and may enforce before execution.
-- The browser backend manages enrollment/configuration, receives selected client events and heartbeats, and may fan out to product-native queues/stores.
+- The extension client and its native host observe browser-local actions and
+  may enforce before execution.
+- Browser Backend manages enrollment/configuration, receives selected client
+  events and heartbeats, and may fan out to product-native queues/stores.
 
-They MUST have distinct runtime identities, adapter versions, capability manifests, certification, sequence state, health, coverage, and evidence semantics. A shared product name does not collapse them into one source.
+The installed Browser producer and Browser Backend producer MUST have distinct
+runtime identities, adapter versions, capability manifests, certification,
+sequence state, durable state, health, coverage and evidence semantics. A
+shared product name does not collapse them into one source. Browser Backend is
+authoritative only for server-owned facts below; a relayed Browser record keeps
+the qualified original producer, epoch, record ID and digest in the single
+canonical `payload.qualified_client_record`. It MUST omit the duplicate
+`envelope.correlation.qualified_parent_record`. Admission resolves the exact
+payload tuple to same-tenant accepted Browser evidence. Backend
+`accepted`/`transformed`/`published` observations normalize as
+`source_processing` lineage only and emit no customer activity candidate,
+recent-activity contribution, activity count or risk input. This boundary is governed by
+[ADR-0022](../adrs/0022-installed-product-vertical-delivery.md) and
+[document 43](../passes/01-discovery-inventory-evidence/implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md).
 
 ## Direct authority
 
@@ -57,7 +76,12 @@ The backend emits typed source records for:
 - runtime and dependency health;
 - explicit gap/correction/reconciliation.
 
-It does not re-label received client records as independently observed browser facts. Lineage identifies the original client producer and backend processing step so central correlation can avoid double counting.
+It does not re-label received client records as independently observed browser
+facts. The payload's qualified client reference identifies the original client
+producer while the Backend envelope identifies the processing observation.
+The normalizer emits a lineage-only observation and an empty activity-candidate
+set for accepted/transformed/published stages; double counting is structurally
+impossible rather than a query-time convention.
 
 ## Heartbeat and freshness
 

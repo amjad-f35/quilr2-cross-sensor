@@ -1,0 +1,71 @@
+schema_version: "1.0"
+schema: die.source-product-path.v1
+binding_id: UNASSIGNED
+profile: UNASSIGNED
+logical_sensor: UNASSIGNED
+authority_commit: UNASSIGNED
+source_commit: UNASSIGNED
+normal_path_state: UNASSIGNED
+# Populate only from the real installed product, its normal installer and the
+# production enrollment/configuration path. If tenant, persona, workload,
+# privilege or infrastructure input is absent, record a MISSING prerequisite
+# and stop that vertical at EXTERNAL_INPUT_REQUIRED. Do not inject or bypass it.
+installation:
+  documentation_refs: []
+  installer_repository: UNASSIGNED
+  installer_commit: UNASSIGNED
+  install_artifact_ref: UNASSIGNED
+  install_artifact_digest: UNASSIGNED
+  normal_install_command_ref: UNASSIGNED
+  installation_evidence_ref: UNASSIGNED
+# Exact producer-component-set submitted to enrollment. This is the package
+# graph authority. Browser lists the WebExtension and native-host packages (or
+# one explicitly measured compound package) and binds both component IDs.
+component_set: UNASSIGNED
+# One installation row for every component_set.packages row. INSTALLED_OBSERVED
+# requires exact package bytes, install manifest, component membership and the
+# normal installed entrypoint. It does not falsely require later ingest proof.
+package_installations: []
+organization_context:
+  tenant_input_kind: UNASSIGNED
+  tenant_source_symbol: UNASSIGNED
+  discovery_or_bootstrap_symbol: UNASSIGNED
+  persona_or_workload_prerequisite: UNASSIGNED
+  effective_configuration_source: UNASSIGNED
+enrollment:
+  production_writer_symbol: UNASSIGNED
+  credential_issuer: UNASSIGNED
+  credential_store: UNASSIGNED
+  producer_identity_source: UNASSIGNED
+  installation_identity_source: UNASSIGNED
+  evidence_ref: UNASSIGNED
+  status: UNASSIGNED
+# Every populated component row binds supervisor and service_unit plus:
+# normal_entrypoint: the supported product entrypoint, never a parallel daemon.
+# It also binds content-addressed installation/configuration evidence.
+components: []
+data_path:
+  native_capture_symbols: []
+  native_capture_evidence_refs: []
+  privacy_mapper_symbol: UNASSIGNED
+  wal_owner_component_id: UNASSIGNED
+  wal_owner_component_kind: UNASSIGNED
+  wal_owner_symbol: UNASSIGNED
+  wal_evidence_ref: UNASSIGNED
+  sender_component_id: UNASSIGNED
+  sender_component_kind: UNASSIGNED
+  sender_symbol: UNASSIGNED
+  sender_evidence_ref: UNASSIGNED
+  receipt_handler_symbol: UNASSIGNED
+  receipt_evidence_ref: UNASSIGNED
+  relay_lineage_rule: UNASSIGNED
+prerequisites: []
+# COHERENT_E2E requires exactly all eight machine-defined values from the
+# source-product-path schema. An arbitrary phrase such as "none" is invalid.
+prohibited_bypasses: []
+# Every populated reference above and in evidence_refs must have exactly one
+# content-addressed entry here. COHERENT_E2E validation resolves the exact file
+# under the runtime evidence root and rejects missing files, traversal, symlink
+# escape, kind mismatch or SHA-256 drift.
+evidence_bindings: []
+evidence_refs: []

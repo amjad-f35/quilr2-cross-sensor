@@ -637,3 +637,19 @@ decisions:
     area: producer_health
     decision: maintenance schedules producer-health evaluation and the projector executes it against one exact projection generation; a maintenance role never writes or projects a health read model; component health enters as normalized typed observations with exact per-profile source mappings rather than unconstrained JSON; die_read.producer_health_component_current is generation-bound projection authority carrying native-state provenance freshness and queue metrics; component-current rows and the aggregate producer health state are projected atomically for the same generation; and only the exact allowed health-state and reason-code pairs may be persisted
     status: frozen
+  - id: DIE-INSTALL-001
+    area: installed_product_lifecycle
+    decision: every source integration binds the official exact install or deployment artifact existing organization tenant Discovery or signed bootstrap authenticated installation and producer enrollment renewable workload credential secure store normal supervisor or entrypoint native capture WAL sender and receipt owner; a customer or sensor never invents a second Quilr 2 tenant and a persona device or workload bootstrap assertion never becomes the long-lived producer credential
+    status: frozen
+  - id: DIE-BROWSER-001
+    area: browser_source_topology
+    decision: Browser Extension and its native messaging host are components of one logical Browser installation; the Extension alone owns its producer epoch sequence durable WAL and delivery stream, while the native host is supporting capture only with distinct component artifact capability health and lineage; Browser Backend is a separate hosted producer for server-owned facts and any relay preserves the qualified original Browser producer epoch record and digest without double counting client activity
+    status: frozen
+  - id: DIE-DELIVERY-001
+    area: source_vertical_order
+    decision: the five-profile semantic and release scope remains frozen while the primary integration lane proves Endpoint Gate A then Browser installed-sensor Gate A and an immediate supported cross-source relationship plus weak-evidence unresolved negative before Browser Backend LLM Gateway and MCP Gateway Gate A; Gate B breadth closes in parallel for all profiles and remains mandatory before release; independent common-module work may proceed in parallel
+    status: frozen
+  - id: DIE-INPUT-001
+    area: required_input_protocol
+    decision: before changing a source path every normal-product prerequisite receives the document 43 disposition; missing owned code is implemented and genuinely unavailable external credentials infrastructure or privileged actions are requested explicitly and block only that action; fixed identities persona shims hand-minted tokens manual storage service or SQL mutation alternate daemons fake provenance and fixture interiors never substitute for the product path
+    status: frozen

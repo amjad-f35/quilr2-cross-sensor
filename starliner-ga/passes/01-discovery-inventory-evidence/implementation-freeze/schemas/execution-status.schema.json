@@ -110,6 +110,7 @@
           "integration_state": { "enum": ["NOT_CONNECTED", "PARTIAL_PATH"] },
           "evidence_state": { "const": "TEST_VERIFIED" },
           "release_state": { "enum": ["NOT_ELIGIBLE", "INTERNAL_ONLY"] },
+          "highest_proven_stage": { "const": "NONE" },
           "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" },
           "runtime_manifest": { "const": "NONE" },
           "runtime_manifest_digest": { "const": "NONE" }
@@ -188,7 +189,6 @@
         "properties": {
           "evidence_state": { "not": { "const": "NOT_RUN" } },
           "runtime_mode": { "not": { "const": "NONE" } },
-          "highest_proven_stage": { "not": { "const": "NONE" } },
           "last_verified_sha": { "pattern": "^[0-9a-f]{40}$" }
         }
       }

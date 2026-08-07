@@ -145,12 +145,19 @@ const required = [
   '39-implementation-conformance-and-transitional-removal.md',
   '40-final-delta-freeze-closure.md',
   '41-product-first-continuous-delivery-authority.md',
+  '42-producer-health-implementation-handoff.md',
+  '43-installed-product-lifecycle-and-source-verticals.md',
   'engineering-execution/README.md',
   'engineering-execution/templates/AGENTS.md',
   'engineering-execution/templates/WORK_STATE.md',
   'engineering-execution/templates/PROGRAM_STATE.md',
   'engineering-execution/templates/PRODUCT_DELIVERY_STATE.csv.template',
   'engineering-execution/templates/RUNTIME_MANIFEST.yaml',
+  'engineering-execution/templates/SOURCE_PRODUCT_PATH.yaml',
+  'engineering-execution/templates/REQUIRED_INPUTS.csv.template',
+  'engineering-execution/templates/SENSOR_VERTICAL_STATE.csv.template',
+  'engineering-execution/templates/GATE_B_CERTIFICATION.csv.template',
+  'engineering-execution/templates/CROSS_SOURCE_GATE.csv.template',
   'engineering-execution/templates/TOPOLOGY.md',
   'engineering-execution/templates/CHANGE_LEDGER.csv.template',
   'engineering-execution/templates/REMOTE_VALIDATION_LEDGER.csv.template',
@@ -165,6 +172,7 @@ const required = [
   'engineering-execution/BRANCH_AND_PR_BASELINE.md',
   'engineering-execution/registers/branch-pr-baseline.csv',
   'engineering-execution/registers/product-capability-map.csv',
+  'engineering-execution/registers/gate-b-certification-obligations.csv',
   'engineering-execution/BRANCH_HYGIENE_AND_CHANGE_CONTROL.md',
   'engineering-execution/TWO_AGENT_DEVELOPMENT_AND_REMOTE_VALIDATION.md',
   'engineering-execution/CODING_AGENT_START_PROMPT.md',
@@ -172,9 +180,26 @@ const required = [
   'engineering-execution/tools/validate-execution-kit.mjs',
   'engineering-execution/tools/validate-runtime-manifest.mjs',
   'engineering-execution/tools/test-runtime-manifest-validator.mjs',
+  'engineering-execution/tools/csv-lib.mjs',
+  'engineering-execution/tools/sensor-vertical-state-lib.mjs',
+  'engineering-execution/tools/test-sensor-vertical-state-validator.mjs',
+  'engineering-execution/tools/validate-sensor-vertical-state.mjs',
+  'engineering-execution/tools/required-inputs-lib.mjs',
+  'engineering-execution/tools/test-required-inputs-validator.mjs',
+  'engineering-execution/tools/validate-required-inputs.mjs',
   'engineering-execution/tools/product-delivery-state-lib.mjs',
   'engineering-execution/tools/initialize-product-delivery-state.mjs',
   'engineering-execution/tools/validate-product-delivery-state.mjs',
+  'engineering-execution/tools/test-product-delivery-sensor-binding.mjs',
+  'engineering-execution/tools/gate-b-certification-lib.mjs',
+  'engineering-execution/tools/build-gate-b-obligations.mjs',
+  'engineering-execution/tools/validate-gate-b-certification.mjs',
+  'engineering-execution/tools/test-gate-b-certification-validator.mjs',
+  'engineering-execution/tools/gate-b-test-fixtures.mjs',
+  'engineering-execution/tools/sensor-vertical-test-fixtures.mjs',
+  'engineering-execution/tools/cross-source-gate-lib.mjs',
+  'engineering-execution/tools/validate-cross-source-gate.mjs',
+  'engineering-execution/tools/test-cross-source-gate-validator.mjs',
   'cloud-context/README.md',
   'cloud-context/SELECTION_POLICY.md',
   'cloud-context/CLOUD_AGENT_BOOTSTRAP.md',
@@ -195,6 +220,7 @@ const required = [
   'production-readiness/registers/gate-test-catalog.csv',
   'schemas/execution-status.schema.json',
   'schemas/runtime-manifest.schema.json',
+  'schemas/source-product-path.schema.json',
   'authz/model.yaml',
   'authz/api-field-policy.yaml',
   'ontology/entity-types.yaml',
@@ -206,6 +232,7 @@ const required = [
   'ontology/profile-envelope-bindings.yaml',
   'openapi/die-v1.openapi.yaml',
   'openapi/starliner-ingest-v1.openapi.yaml',
+  'openapi/starliner-control-v1.openapi.yaml',
   'registers/decisions.yaml',
   'registers/input-disposition.yaml',
   'registers/module-disposition.csv',
@@ -249,6 +276,9 @@ const required = [
   'schemas/normalization-bundle.schema.json',
   'schemas/canonical-change-pointer.schema.json',
   'schemas/producer-enrollment-manifest.schema.json',
+  'schemas/sensor-enrollment-request.schema.json',
+  'schemas/sensor-enrollment-response.schema.json',
+  'schemas/producer-component-set.schema.json',
   'schemas/tenant-bootstrap-manifest.schema.json',
   'schemas/gate-evidence-package.schema.json',
   'schemas/trusted-oidc-issuer.schema.json',
@@ -665,10 +695,30 @@ const enrollmentSchema = JSON.parse(requireFile('schemas/producer-enrollment-man
 const enrollmentHealthPolicy = enrollmentSchema.$defs?.healthPolicy
 if (!enrollmentSchema.properties?.health_policy)
   fail('producer enrollment manifest does not carry a signed health policy')
-const enrollmentApplyBranch = (enrollmentSchema.allOf ?? [])
-  .find(branch => branch.if?.properties?.operation?.const === 'apply')
-if (!enrollmentApplyBranch?.then?.required?.includes('health_policy'))
+const enrollmentOperationBranches = enrollmentSchema.oneOf ?? []
+const enrollmentApplyBranch = enrollmentOperationBranches
+  .find(branch => branch.properties?.operation?.const === 'apply')
+if (!enrollmentApplyBranch?.required?.includes('health_policy'))
   fail('producer enrollment apply does not require a signed health policy')
+const expectedManifestOperations = ['apply', 'rotate', 'revoke', 'certify']
+for (const operation of expectedManifestOperations) {
+  const branches = enrollmentOperationBranches.filter(
+    branch => branch.properties?.operation?.const === operation,
+  )
+  if (branches.length !== 1)
+    fail(`producer enrollment ${operation} must have exactly one discriminated oneOf arm`)
+  else if (!(branches[0].not?.anyOf?.length > 0))
+    fail(`producer enrollment ${operation} does not reject stale fields from other operation arms`)
+}
+if ((enrollmentSchema.allOf ?? []).some(
+  branch => branch.if?.properties?.operation?.const,
+)) {
+  fail('producer enrollment operations use overlapping conditional arms instead of exact oneOf payloads')
+}
+for (const operation of expectedManifestOperations) {
+  if (!enrollmentSchema['x-starliner-stateful-rules']?.[operation])
+    fail(`producer enrollment ${operation} lacks a frozen stateful admission rule`)
+}
 const edgeConfigurationSchema = JSON.parse(requireFile('schemas/edge-configuration.schema.json'))
 const edgeHealthPolicy = edgeConfigurationSchema.properties?.health_policy
 if (!edgeConfigurationSchema.required?.includes('health_policy'))
@@ -1150,6 +1200,7 @@ const allowedInputClasses = new Set([
   'sensor_analysis',
   'legacy_platform_analysis',
   'implementation_audit',
+  'official_product_lifecycle',
 ])
 for (const row of sourceInputRows) {
   if (!row.input_id || sourceInputIds.has(row.input_id))
@@ -1168,7 +1219,7 @@ for (const row of sourceInputRows) {
   if (!/^[a-f0-9]{64}$/.test(row.anchor_sha256))
     fail(`source-analysis input ${row.input_id} has invalid anchor SHA-256`)
 }
-for (const requiredId of ['CTX-001', 'CTX-007', 'SRC-001', 'SRC-007', 'SRC-008']) {
+for (const requiredId of ['CTX-001', 'CTX-007', 'SRC-001', 'SRC-007', 'SRC-008', 'SRC-010']) {
   if (!sourceInputIds.has(requiredId))
     fail(`source-analysis input register omits ${requiredId}`)
 }
@@ -1745,6 +1796,44 @@ if (profileBindings) {
   }
 }
 
+const backendRelayBinding = profileBindings?.profiles?.browser_backend?.browser_event
+if (backendRelayBinding?.record_type !== 'source_processing.observed')
+  fail('Browser Backend accepted/transformed/published stages are not bound to source_processing.observed')
+if (backendRelayBinding?.lineage_carrier !== 'payload.qualified_client_record')
+  fail('Browser Backend relay has no single canonical payload lineage carrier')
+const backendNormalization = sourceNormalization?.profiles?.browser_backend
+if (JSON.stringify(backendNormalization?.mappings?.source_processing) !== JSON.stringify(['lineage_only_observation']))
+  fail('Browser Backend source-processing stages do not normalize lineage-only')
+if (backendNormalization?.mappings?.activity)
+  fail('Browser Backend relay still maps to customer activity candidates')
+const backendProcessingRule = backendNormalization?.source_processing_mapping?.browser_event
+if (backendProcessingRule?.lineage_carrier !== 'payload.qualified_client_record'
+  || !backendProcessingRule?.output_rule?.includes('activity_candidates MUST be empty'))
+  fail('Browser Backend source-processing mapping lacks canonical lineage/no-double-count semantics')
+const deliveryRecordText = JSON.stringify(deliverySchema.$defs?.record ?? {})
+for (const fragment of [
+  'source_processing.observed',
+  'qualified_client_record',
+  'qualified_parent_record',
+]) {
+  if (!deliveryRecordText.includes(fragment))
+    fail(`delivery record does not enforce Browser Backend relay rule fragment ${fragment}`)
+}
+
+const browserBackendSchemaText = requireFile('schemas/profile-browser-backend-v1.schema.json')
+const browserBackendSchemaDigest = createHash('sha256').update(browserBackendSchemaText).digest('hex')
+if (browserBackendSchemaDigest !== 'd07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e')
+  fail(`Browser Backend 1.0.0 corrected schema digest drifted: ${browserBackendSchemaDigest}`)
+const postgresCoreText = requireFile('sql/001-die-core.sql')
+for (const fragment of [
+  'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442',
+  `sha256:${browserBackendSchemaDigest}`,
+  'browser_backend 1.0.0 has unknown schema digest %; refusing silent convergence',
+]) {
+  if (!postgresCoreText.includes(fragment))
+    fail(`Browser Backend profile convergence omits ${fragment}`)
+}
+
 const activityOntology = yaml.get(join(root, 'ontology/activity-types.yaml'))
 if (activityOntology && sourceNormalization && profileBindings) {
   const canonicalActivities = new Set()
@@ -1923,6 +2012,21 @@ for (const field of ['producer_id', 'profile', 'namespace', 'type', 'id']) {
 }
 
 const postgres = requireFile('sql/001-die-core.sql')
+for (const [profile, fileName] of Object.entries(profileFileNames)) {
+  const schemaBytes = requireFile(`schemas/${fileName}`)
+  const schemaDigest = `sha256:${createHash('sha256').update(schemaBytes).digest('hex')}`
+  const escapedFileName = fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const seedPattern = profile === 'browser_backend'
+    ? new RegExp(
+      `'browser_backend',\\s*'([^']+)',\\s*'schemas/${escapedFileName}',\\s*'(${schemaDigest})',\\s*'accepted'`,
+    )
+    : new RegExp(
+      `\\('${profile}',\\s*'([^']+)',\\s*'schemas/${escapedFileName}',\\s*'(${schemaDigest})',\\s*'accepted'`,
+    )
+  if (!seedPattern.test(postgres)) {
+    fail(`PostgreSQL accepted profile seed for ${profile} does not bind current ${fileName} digest ${schemaDigest}`)
+  }
+}
 const pointerSchema = JSON.parse(requireFile('schemas/canonical-change-pointer.schema.json'))
 const pointerAggregateTypes = pointerSchema?.properties?.aggregate_type?.enum ?? []
 if ([...pointerAggregateTypes].sort().join(',')

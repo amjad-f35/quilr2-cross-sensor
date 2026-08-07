@@ -40,6 +40,18 @@
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$"
     },
+    "qualifiedRecordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "producer_epoch", "record_id", "content_sha256"],
+      "properties": {
+        "producer_id": { "$ref": "#/$defs/uuid" },
+        "producer_epoch": { "$ref": "#/$defs/uuid" },
+        "record_id": { "$ref": "#/$defs/uuid7" },
+        "content_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "description": "General cross-producer lineage identity. The receiver verifies the referenced evidence tuple; an unqualified record ID can never establish cross-producer parentage. Browser Backend relay/decision/effect records use their profile-owned payload.qualified_client_record as the sole canonical parent carrier and MUST omit this duplicate envelope field."
+    },
     "sourceObjectRef": {
       "type": "object",
       "additionalProperties": false,
@@ -103,7 +115,11 @@
           "type": "string",
           "pattern": "^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
         },
-        "parent_record_id": { "$ref": "#/$defs/opaqueId" }
+        "parent_record_id": {
+          "$ref": "#/$defs/opaqueId",
+          "description": "Same-producer convenience only. Cross-producer lineage normally requires qualified_parent_record; the Browser Backend profile deliberately owns its sole qualified client reference in payload.qualified_client_record."
+        },
+        "qualified_parent_record": { "$ref": "#/$defs/qualifiedRecordRef" }
       }
     },
     "envelope": {
@@ -159,6 +175,7 @@
             "relationship.observed",
             "relationship.ended",
             "activity.observed",
+            "source_processing.observed",
             "decision.observed",
             "outcome.observed",
             "reconciliation.observed",
@@ -224,7 +241,64 @@
       "properties": {
         "envelope": { "$ref": "#/$defs/envelope" },
         "payload": { "type": "object" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "envelope": {
+                "properties": { "profile": { "const": "browser_backend" } },
+                "required": ["profile"]
+              },
+              "payload": {
+                "properties": {
+                  "kind": {
+                    "enum": ["browser_event", "native_decision", "action_outcome"]
+                  }
+                },
+                "required": ["kind"]
+              }
+            },
+            "required": ["envelope", "payload"]
+          },
+          "then": {
+            "properties": {
+              "payload": { "required": ["qualified_client_record"] },
+              "envelope": {
+                "properties": {
+                  "correlation": {
+                    "not": { "required": ["qualified_parent_record"] }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "envelope": {
+                "properties": { "profile": { "const": "browser_backend" } },
+                "required": ["profile"]
+              },
+              "payload": {
+                "properties": { "kind": { "const": "browser_event" } },
+                "required": ["kind"]
+              }
+            },
+            "required": ["envelope", "payload"]
+          },
+          "then": {
+            "properties": {
+              "envelope": {
+                "properties": {
+                  "record_type": { "const": "source_processing.observed" }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -109,6 +109,7 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Final delta-freeze closure](40-final-delta-freeze-closure.md) | Final bounded-pass structural verdict, machine-contract closure and unambiguous build authorization |
 | [Product-first continuous delivery authority](41-product-first-continuous-delivery-authority.md) | FROZEN execution correction: vertical product increments, independent progress/evidence axes, valid blocker classes, coherent runtime law and preview-substitution prohibition |
 | [Producer health implementation handoff](42-producer-health-implementation-handoff.md) | ADR-0021 amendment handoff: forward migration, contract regeneration, transitional `unknown` removal and the required producer-health test list |
+| [Installed-product lifecycle and source verticals](43-installed-product-lifecycle-and-source-verticals.md) | FROZEN edge/execution correction: official installer and tenant bootstrap, real enrollment, compound sensor artifacts, mandatory missing-input escalation, no-bypass rules and one-real-source-at-a-time full-funnel delivery |
 | [Engineering execution kit](engineering-execution/README.md) | Ready-to-install repository instructions, state/topology/ledger templates, repository map and live branch-disposition baseline |
 | [Product capability map](engineering-execution/registers/product-capability-map.csv) | Machine-readable complete product outcomes, required stages, hard code dependencies, release gates and prohibited substitutes |
 | [Portable cloud-agent source context](cloud-context/README.md) | Content-addressed 11.55 MB selection of sensor, legacy-platform and Starliner analysis needed for source-aware implementation without the 28 GB local corpus |
@@ -138,6 +139,11 @@ No stage may be replaced by a frontend join, direct sensor query, source-created
 | [Implementation conformance](registers/implementation-conformance.csv) | Exact inspected implementation revisions, frozen contract, current classification, closure evidence and release effect |
 | [Product OpenAPI](openapi/die-v1.openapi.yaml) | Executable customer API contract |
 | [Edge ingest OpenAPI](openapi/starliner-ingest-v1.openapi.yaml) | Producer batch and signed configuration HTTP contract |
+| [Starliner control OpenAPI](openapi/starliner-control-v1.openapi.yaml) | One-use installed-sensor enrollment, workload credential renewal and revocation contract |
+| [Sensor enrollment request](schemas/sensor-enrollment-request.schema.json) | Installed artifact/component proof, tenant-bound bootstrap and workload public-key request |
+| [Sensor enrollment response](schemas/sensor-enrollment-response.schema.json) | Server-assigned installation/producer epoch, renewable credential descriptor and signed edge configuration response |
+| [Producer component set](schemas/producer-component-set.schema.json) | Package, built, installed and running digest authority for compound Browser and Endpoint sensors |
+| [Source product path](schemas/source-product-path.schema.json) | Machine-valid official install/deployment, tenant, enrollment, supervisor, capture, WAL, sender and receipt ownership contract with content-addressed retained evidence; Browser Extension is the sole Browser WAL/delivery owner |
 | [Producer enrollment manifest](schemas/producer-enrollment-manifest.schema.json) | Signed producer/scope/capability/certification bootstrap and revocation contract |
 | [Tenant bootstrap manifest](schemas/tenant-bootstrap-manifest.schema.json) | Signed one-time tenant-root scope, closure, authorization-revision and audit bootstrap contract |
 | [Trusted OIDC issuer](schemas/trusted-oidc-issuer.schema.json) | Tenant issuer/audience/algorithm/JWKS freshness and token-lifetime authority |

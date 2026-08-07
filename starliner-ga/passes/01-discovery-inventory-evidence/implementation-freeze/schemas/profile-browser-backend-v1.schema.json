@@ -11,7 +11,13 @@
     },
     "operation": { "enum": ["observed", "changed", "tombstoned", "accepted", "transformed", "published", "decided", "effect_observed", "started", "page", "completed", "failed"] },
     "source_id": { "type": "string", "minLength": 1, "maxLength": 1024 },
-    "client_record_id": { "type": "string", "maxLength": 1024 },
+    "client_record_id": {
+      "type": "string",
+      "maxLength": 1024,
+      "deprecated": true,
+      "description": "Legacy unqualified value. It is forbidden for relay, decision and effect records; use qualified_client_record."
+    },
+    "qualified_client_record": { "$ref": "#/$defs/qualifiedClientRecordRef" },
     "application_source_id": { "type": "string", "maxLength": 1024 },
     "application_product_source_id": { "type": "string", "maxLength": 1024 },
     "application_surface_source_id": { "type": "string", "maxLength": 1024 },
@@ -37,6 +43,10 @@
     "classification_authority": { "enum": ["authoritative_catalog", "managed_configuration", "source_native", "unknown"] },
     "installation_source_id": { "type": "string", "maxLength": 1024 },
     "status": { "enum": ["succeeded", "failed", "partial", "blocked", "unknown"] },
+    "execution_authority": {
+      "const": "browser_backend",
+      "description": "Required for decision/effect kinds. It asserts that this backend executed the decision/effect rather than relabeling a client-side observation."
+    },
     "native_decision": { "enum": ["allow", "block", "warn", "redact", "monitor", "unknown"] },
     "effect": { "enum": ["forwarded", "prevented", "modified", "published", "not_observed", "unknown"] },
     "downstream": { "enum": ["kafka", "postgresql", "neo4j", "redis", "dwh", "file", "none", "unknown"] },
@@ -139,7 +149,26 @@
     {
       "if": { "properties": { "kind": { "const": "browser_event" } }, "required": ["kind"] },
       "then": {
-        "required": ["client_record_id", "installation_source_id"],
+        "required": ["qualified_client_record", "installation_source_id"],
+        "not": {
+          "anyOf": [
+            { "required": ["client_record_id"] },
+            { "required": ["application_source_id"] },
+            { "required": ["application_product_source_id"] },
+            { "required": ["application_surface_source_id"] },
+            { "required": ["user_source_id"] },
+            { "required": ["account_source_id"] },
+            { "required": ["observed_identity_source_id"] },
+            { "required": ["account_name"] },
+            { "required": ["email"] },
+            { "required": ["full_name"] },
+            { "required": ["device_source_id"] },
+            { "required": ["authentication_context"] },
+            { "required": ["account_usage_type"] },
+            { "required": ["technology_class"] },
+            { "required": ["agentic_capability"] }
+          ]
+        },
         "properties": {
           "operation": { "enum": ["accepted", "transformed", "published"] }
         }
@@ -148,8 +177,13 @@
     {
       "if": { "properties": { "kind": { "const": "native_decision" } }, "required": ["kind"] },
       "then": {
-        "required": ["client_record_id", "native_decision"],
-        "not": { "required": ["effect"] },
+        "required": ["qualified_client_record", "native_decision", "execution_authority"],
+        "not": {
+          "anyOf": [
+            { "required": ["client_record_id"] },
+            { "required": ["effect"] }
+          ]
+        },
         "properties": {
           "operation": { "const": "decided" }
         }
@@ -158,7 +192,8 @@
     {
       "if": { "properties": { "kind": { "const": "action_outcome" } }, "required": ["kind"] },
       "then": {
-        "required": ["client_record_id", "effect"],
+        "required": ["qualified_client_record", "effect", "execution_authority"],
+        "not": { "required": ["client_record_id"] },
         "properties": {
           "operation": { "const": "effect_observed" }
         }
@@ -191,5 +226,23 @@
         }
       }
     }
-  ]
+  ],
+  "$defs": {
+    "qualifiedClientRecordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_id", "producer_epoch", "record_id", "content_sha256"],
+      "properties": {
+        "producer_id": { "type": "string", "format": "uuid" },
+        "producer_epoch": { "type": "string", "format": "uuid" },
+        "record_id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "content_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      },
+      "description": "Original Browser producer evidence identity. Admission rejects a reference that does not resolve to the same tenant and digest."
+    }
+  }
 }

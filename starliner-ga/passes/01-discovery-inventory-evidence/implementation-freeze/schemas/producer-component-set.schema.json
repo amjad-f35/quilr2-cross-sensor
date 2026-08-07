@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.quilr.com/starliner/control/v1/producer-component-set.schema.json",
+  "title": "Installed Producer Component Set v1",
+  "description": "Exact package, installed-artifact and running-artifact provenance for one installed sensor producer. Compound products remain one producer but every independently installed or executing component is measured explicitly.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "component_set_id",
+    "component_set_digest",
+    "source_profile",
+    "measured_at",
+    "packages",
+    "components",
+    "ownership"
+  ],
+  "properties": {
+    "schema_version": { "const": "starliner.producer-component-set.v1" },
+    "component_set_id": { "type": "string", "format": "uuid" },
+    "component_set_digest": {
+      "$ref": "#/$defs/sha256",
+      "description": "RFC 8785 JCS SHA-256 of this object with component_set_digest omitted. Admission recomputes it; a caller-provided value is never trusted."
+    },
+    "source_profile": {
+      "enum": ["browser", "browser_backend", "endpoint", "llm_gateway", "mcp_gateway"]
+    },
+    "measured_at": { "type": "string", "format": "date-time" },
+    "packages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/package" },
+      "description": "A compound producer may consist of multiple independently built and installed packages. package_id uniqueness and component references are enforced by admission."
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capture_component_ids",
+        "wal_component_id",
+        "wal_component_role",
+        "delivery_component_id",
+        "delivery_component_role",
+        "health_component_ids"
+      ],
+      "properties": {
+        "capture_component_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/componentId" }
+        },
+        "wal_component_id": { "$ref": "#/$defs/componentId" },
+        "wal_component_role": { "$ref": "#/$defs/componentRole" },
+        "delivery_component_id": { "$ref": "#/$defs/componentId" },
+        "delivery_component_role": { "$ref": "#/$defs/componentRole" },
+        "health_component_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/componentId" }
+        }
+      },
+      "description": "Every referenced component ID MUST exist exactly once in components, and each declared owner role MUST equal the referenced component role. Enrollment admission enforces both cross-object constraints. For Browser, JSON Schema and admission require the Browser Extension—not the native host—as WAL and delivery owner."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "source_profile": { "const": "browser" } },
+        "required": ["source_profile"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "allOf": [
+              {
+                "contains": {
+                  "properties": { "role": { "const": "browser_extension" } },
+                  "required": ["role"]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              },
+              {
+                "contains": {
+                  "properties": { "role": { "const": "browser_native_host" } },
+                  "required": ["role"]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            ],
+            "items": {
+              "properties": {
+                "role": { "enum": ["browser_extension", "browser_native_host"] }
+              },
+              "required": ["role"]
+            }
+          },
+          "ownership": {
+            "properties": {
+              "wal_component_role": { "const": "browser_extension" },
+              "delivery_component_role": { "const": "browser_extension" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "source_profile": { "const": "browser_backend" } },
+        "required": ["source_profile"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "items": {
+              "properties": { "role": { "const": "browser_backend" } },
+              "required": ["role"]
+            },
+            "contains": {
+              "properties": { "role": { "const": "browser_backend" } },
+              "required": ["role"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "source_profile": { "const": "endpoint" } },
+        "required": ["source_profile"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "allOf": [
+              { "contains": { "properties": { "role": { "const": "endpoint_agent" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "role": { "const": "endpoint_monitor" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "role": { "const": "endpoint_proxy" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "role": { "const": "endpoint_ipc_broker" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+              { "contains": { "properties": { "role": { "const": "endpoint_template_engine" } }, "required": ["role"] }, "minContains": 1, "maxContains": 1 },
+              {
+                "contains": {
+                  "properties": { "role": { "enum": ["endpoint_system_extension", "endpoint_network_extension"] } },
+                  "required": ["role"]
+                },
+                "minContains": 1
+              }
+            ],
+            "items": {
+              "properties": {
+                "role": {
+                  "enum": [
+                    "endpoint_agent",
+                    "endpoint_monitor",
+                    "endpoint_proxy",
+                    "endpoint_ipc_broker",
+                    "endpoint_template_engine",
+                    "endpoint_system_extension",
+                    "endpoint_network_extension"
+                  ]
+                }
+              },
+              "required": ["role"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "source_profile": { "const": "llm_gateway" } },
+        "required": ["source_profile"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "items": {
+              "properties": {
+                "role": { "enum": ["llm_gateway", "llm_edge_runtime"] }
+              },
+              "required": ["role"]
+            },
+            "contains": {
+              "properties": { "role": { "const": "llm_gateway" } },
+              "required": ["role"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "source_profile": { "const": "mcp_gateway" } },
+        "required": ["source_profile"]
+      },
+      "then": {
+        "properties": {
+          "components": {
+            "items": {
+              "properties": {
+                "role": { "enum": ["mcp_gateway", "mcp_edge_runtime"] }
+              },
+              "required": ["role"]
+            },
+            "contains": {
+              "properties": { "role": { "const": "mcp_gateway" } },
+              "required": ["role"]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "gitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "componentId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,127}$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_id",
+        "package_id",
+        "role",
+        "product",
+        "version",
+        "source_repository",
+        "source_commit",
+        "package_member_digest",
+        "installed_artifact_digest",
+        "runtime_artifact_digest",
+        "runtime_identity"
+      ],
+      "properties": {
+        "component_id": { "$ref": "#/$defs/componentId" },
+        "package_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "role": { "$ref": "#/$defs/componentRole" },
+        "product": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "source_repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "maxLength": 256
+        },
+        "source_commit": { "$ref": "#/$defs/gitSha" },
+        "package_member_path": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "package_member_digest": { "$ref": "#/$defs/sha256" },
+        "installed_artifact_digest": { "$ref": "#/$defs/sha256" },
+        "runtime_artifact_digest": { "$ref": "#/$defs/sha256" },
+        "runtime_identity": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "componentRole": {
+      "enum": [
+        "browser_extension",
+        "browser_native_host",
+        "browser_backend",
+        "endpoint_agent",
+        "endpoint_monitor",
+        "endpoint_proxy",
+        "endpoint_ipc_broker",
+        "endpoint_template_engine",
+        "endpoint_system_extension",
+        "endpoint_network_extension",
+        "llm_gateway",
+        "llm_edge_runtime",
+        "mcp_gateway",
+        "mcp_edge_runtime"
+      ]
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "product",
+        "version",
+        "format",
+        "source_repository",
+        "source_commit",
+        "package_digest"
+      ],
+      "properties": {
+        "package_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "product": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "format": {
+          "enum": [
+            "chrome_extension",
+            "firefox_addon",
+            "safari_extension",
+            "macos_pkg",
+            "windows_msi",
+            "linux_package",
+            "container_image",
+            "binary_bundle"
+          ]
+        },
+        "source_repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "maxLength": 256
+        },
+        "source_commit": { "$ref": "#/$defs/gitSha" },
+        "package_digest": { "$ref": "#/$defs/sha256" },
+        "build_evidence_ref": { "type": "string", "minLength": 1, "maxLength": 2048 }
+      }
+    }
+  }
+}

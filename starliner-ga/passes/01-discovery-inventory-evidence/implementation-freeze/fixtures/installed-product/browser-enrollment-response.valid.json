@@ -1,0 +1,173 @@
+{
+  "api_version": "starliner.control.enrollment-response.v1",
+  "request_id": "11111111-1111-4111-8111-111111111111",
+  "status": "enrolled",
+  "tenant_id": "22222222-2222-4222-8222-222222222222",
+  "producer_id": "66666666-6666-4666-8666-666666666666",
+  "installation_id": "77777777-7777-4777-8777-777777777777",
+  "producer_epoch": "88888888-8888-4888-8888-888888888888",
+  "source_profile": "browser",
+  "profile_version": "1.0.0",
+  "component_set_digest": "sha256:b6200fa8d6de8f6eff069dfceb96573b35a974ab0166d6114f7f11d347ecd846",
+  "configuration_generation": 1,
+  "workload_identity": {
+    "credential_id": "99999999-9999-4999-8999-999999999999",
+    "credential_type": "dpop_jwt",
+    "subject": "urn:quilr:producer:66666666-6666-4666-8666-666666666666",
+    "token_type": "DPoP",
+    "access_token": "fixture-only-short-lived-dpop-access-token-never-persist",
+    "confirmation_thumbprint": "sha256:dd7ef224fe88ca6549161590c561f7a348c3f7482ec9c635e7cfa527f8a55d10",
+    "scopes": [
+      "starliner.ingest",
+      "starliner.configuration.read",
+      "starliner.credential.renew",
+      "starliner.health.write"
+    ],
+    "issued_at": "2026-08-05T12:00:00Z",
+    "renew_after": "2026-08-05T12:05:00Z",
+    "expires_at": "2026-08-05T12:10:00Z",
+    "renewal_url": "https://control.example.test/starliner/control/v1/producers/66666666-6666-4666-8666-666666666666/credentials:renew"
+  },
+  "enrollment_manifest": {
+    "manifest_version": "starliner.producer-enrollment.v1",
+    "manifest_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "operation": "apply",
+    "tenant_id": "22222222-2222-4222-8222-222222222222",
+    "producer_id": "66666666-6666-4666-8666-666666666666",
+    "revision": 1,
+    "issued_at": "2026-08-05T12:00:00Z",
+    "expires_at": "2026-08-05T12:15:00Z",
+    "issuer": "https://control.example.test",
+    "bootstrap_id": "33333333-3333-4333-8333-333333333333",
+    "enrollment_intent": "enroll",
+    "installation_id": "77777777-7777-4777-8777-777777777777",
+    "producer_epoch": "88888888-8888-4888-8888-888888888888",
+    "source_profile": "browser",
+    "business_scope_id": "44444444-4444-4444-8444-444444444444",
+    "environment": "production",
+    "display_name": "Browser sensor on test-mac-01",
+    "credential_subject": "urn:quilr:producer:66666666-6666-4666-8666-666666666666",
+    "credential_id": "99999999-9999-4999-8999-999999999999",
+    "installation_key_thumbprint": "sha256:dd7ef224fe88ca6549161590c561f7a348c3f7482ec9c635e7cfa527f8a55d10",
+    "credential_expires_at": "2026-08-05T12:10:00Z",
+    "artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "component_set_digest": "sha256:b6200fa8d6de8f6eff069dfceb96573b35a974ab0166d6114f7f11d347ecd846",
+    "capabilities": [
+      {
+        "capability": "application_inventory",
+        "mode": "observe",
+        "profile_version": "1.0.0",
+        "effective_from": "2026-08-05T12:00:00Z"
+      },
+      {
+        "capability": "application_activity",
+        "mode": "observe",
+        "profile_version": "1.0.0",
+        "effective_from": "2026-08-05T12:00:00Z"
+      }
+    ],
+    "health_policy": {
+      "policy_version": "health.v1",
+      "expected_report_interval_seconds": 60,
+      "degraded_after_seconds": 300,
+      "offline_after_seconds": 900,
+      "queue_degraded_after_ms": 60000,
+      "queue_unhealthy_after_ms": 300000,
+      "required_components": ["browser-extension", "browser-native-host"]
+    },
+    "expected_populations": [
+      {
+        "population_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "capability": "application_inventory",
+        "population_type": "browser_installation",
+        "source_namespace": "browser.installation",
+        "source_population_id": "77777777-7777-4777-8777-777777777777",
+        "expected_count": 1,
+        "authority_type": "producer_enrollment",
+        "authority_ref": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "valid_from": "2026-08-05T12:00:00Z"
+      }
+    ],
+    "signature": {
+      "format": "jws-detached-jcs",
+      "algorithm": "ES256",
+      "key_id": "control-enrollment-key-1",
+      "value": "e30..c2lnbmF0dXJl"
+    }
+  },
+  "edge_configuration": {
+    "api_version": "starliner.management.v1",
+    "generation": 1,
+    "issued_at": "2026-08-05T12:00:00Z",
+    "expires_at": "2026-08-06T12:00:00Z",
+    "tenant_id": "22222222-2222-4222-8222-222222222222",
+    "producer_id": "66666666-6666-4666-8666-666666666666",
+    "installation_id": "77777777-7777-4777-8777-777777777777",
+    "producer_epoch": "88888888-8888-4888-8888-888888888888",
+    "component_set_digest": "sha256:b6200fa8d6de8f6eff069dfceb96573b35a974ab0166d6114f7f11d347ecd846",
+    "workload_identity": {
+      "credential_id": "99999999-9999-4999-8999-999999999999",
+      "subject": "urn:quilr:producer:66666666-6666-4666-8666-666666666666",
+      "confirmation_thumbprint": "sha256:dd7ef224fe88ca6549161590c561f7a348c3f7482ec9c635e7cfa527f8a55d10",
+      "scopes": [
+        "starliner.ingest",
+        "starliner.configuration.read",
+        "starliner.credential.renew",
+        "starliner.health.write"
+      ],
+      "issued_at": "2026-08-05T12:00:00Z",
+      "renew_after": "2026-08-05T12:05:00Z",
+      "expires_at": "2026-08-05T12:10:00Z",
+      "renewal_url": "https://control.example.test/starliner/control/v1/producers/66666666-6666-4666-8666-666666666666/credentials:renew"
+    },
+    "ingest": {
+      "url": "https://ingest.example.test/starliner/ingest/v1/batches",
+      "max_batch_records": 500,
+      "max_compressed_bytes": 4194304,
+      "max_decompressed_bytes": 8388608,
+      "max_record_bytes": 262144,
+      "compressions": ["zstd"],
+      "retry": {
+        "initial_ms": 100,
+        "maximum_ms": 60000,
+        "multiplier": 2,
+        "full_jitter": true
+      }
+    },
+    "profiles": [
+      {
+        "profile": "browser",
+        "profile_version": "1.0.0",
+        "schema_ref": "schemas/profile-browser-v1.schema.json",
+        "schema_sha256": "sha256:6cd7d92e293f11f482fe5409132b494f1014c0ec1b3b94d16667b3285a28e7be",
+        "capabilities": ["application_inventory", "application_activity"]
+      }
+    ],
+    "privacy": {
+      "policy_version": "privacy.v1",
+      "policy_sha256": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "policy_ref": "privacy/browser/v1"
+    },
+    "trust": {
+      "certification_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "contract_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "health_policy": {
+      "policy_version": "health.v1",
+      "expected_report_interval_seconds": 60,
+      "degraded_after_seconds": 300,
+      "offline_after_seconds": 900,
+      "queue_degraded_after_ms": 60000,
+      "queue_unhealthy_after_ms": 300000,
+      "required_components": ["browser-extension", "browser-native-host"]
+    },
+    "signature": {
+      "format": "jws-detached-jcs",
+      "algorithm": "ES256",
+      "key_id": "control-edge-key-1",
+      "value": "e30..c2lnbmF0dXJl"
+    }
+  },
+  "issued_at": "2026-08-05T12:00:00Z"
+}

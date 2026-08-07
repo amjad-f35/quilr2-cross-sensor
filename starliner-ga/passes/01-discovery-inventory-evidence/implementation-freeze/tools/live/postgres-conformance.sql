@@ -35,7 +35,8 @@ BEGIN
     FROM pg_roles role
     WHERE role.rolname IN (
       'die_ingest','die_normalizer','die_truth','die_projector',
-      'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
+      'die_api','die_bff','die_maintenance','die_enrollment','die_verifier',
+      'die_control_admin','die_authz_admin'
     )
       AND (role.rolsuper OR role.rolbypassrls OR role.rolcanlogin);
   IF violation IS NOT NULL THEN
@@ -46,7 +47,8 @@ BEGIN
     INTO violation
     FROM unnest(ARRAY[
       'die_ingest','die_normalizer','die_truth','die_projector',
-      'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
+      'die_api','die_bff','die_maintenance','die_enrollment','die_verifier',
+      'die_control_admin','die_authz_admin'
     ]) AS runtime_role(role_name)
     WHERE has_table_privilege(
       runtime_role.role_name,
@@ -70,7 +72,8 @@ BEGIN
     WHERE namespace.nspname LIKE 'die\_%' ESCAPE '\'
       AND owner_role.rolname IN (
         'die_ingest','die_normalizer','die_truth','die_projector',
-        'die_api','die_bff','die_maintenance','die_control_admin','die_authz_admin'
+        'die_api','die_bff','die_maintenance','die_enrollment','die_verifier',
+        'die_control_admin','die_authz_admin'
       );
   IF violation IS NOT NULL THEN
     RAISE EXCEPTION 'runtime role owns a DIE relation: %', violation;
@@ -91,6 +94,69 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'PUBLIC retained execution on a DIE security/helper function';
   END IF;
+END
+$$;
+
+-- Pre-GA Browser Backend profile convergence has three explicit cases: clean
+-- install, the one known replaced candidate, and unknown drift. This exercise
+-- runs inside the conformance transaction and is rolled back with the suite.
+DO $$
+DECLARE
+  profile_digest text;
+  rows_changed integer;
+  unknown_rejected boolean := false;
+BEGIN
+  SELECT schema_digest INTO STRICT profile_digest
+  FROM die_control.source_profile_version
+  WHERE profile_id = 'browser_backend' AND profile_version = '1.0.0';
+  IF profile_digest <>
+    'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'
+  THEN
+    RAISE EXCEPTION 'clean Browser Backend profile digest is not corrected';
+  END IF;
+
+  UPDATE die_control.source_profile_version
+  SET schema_digest =
+    'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442'
+  WHERE profile_id = 'browser_backend' AND profile_version = '1.0.0';
+  UPDATE die_control.source_profile_version
+  SET schema_digest =
+    'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'
+  WHERE profile_id = 'browser_backend'
+    AND profile_version = '1.0.0'
+    AND schema_digest =
+      'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442';
+  GET DIAGNOSTICS rows_changed = ROW_COUNT;
+  IF rows_changed <> 1 THEN
+    RAISE EXCEPTION 'known Browser Backend profile digest did not converge once';
+  END IF;
+
+  UPDATE die_control.source_profile_version
+  SET schema_digest =
+    'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+  WHERE profile_id = 'browser_backend' AND profile_version = '1.0.0';
+  BEGIN
+    SELECT schema_digest INTO STRICT profile_digest
+    FROM die_control.source_profile_version
+    WHERE profile_id = 'browser_backend' AND profile_version = '1.0.0';
+    IF profile_digest NOT IN (
+      'sha256:e5bab26ef08a3eea4f96fa8a2919d0a96ba292dd3d650f3051b85bf02e6ed442',
+      'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'
+    ) THEN
+      RAISE check_violation USING
+        MESSAGE = 'unknown Browser Backend schema digest rejected';
+    END IF;
+  EXCEPTION WHEN check_violation THEN
+    unknown_rejected := true;
+  END;
+  IF NOT unknown_rejected THEN
+    RAISE EXCEPTION 'unknown Browser Backend profile digest was accepted';
+  END IF;
+
+  UPDATE die_control.source_profile_version
+  SET schema_digest =
+    'sha256:d07d20c3141e148dcc596ad18d17e537202821789cb3ea5119857404c1d8543e'
+  WHERE profile_id = 'browser_backend' AND profile_version = '1.0.0';
 END
 $$;
 
@@ -213,6 +279,7 @@ CREATE ROLE die_live_bff LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_ingest LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_authz LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_control LOGIN NOBYPASSRLS;
+CREATE ROLE die_live_verifier LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_normalizer LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_truth LOGIN NOBYPASSRLS;
 CREATE ROLE die_live_maintenance LOGIN NOBYPASSRLS;
@@ -224,6 +291,7 @@ GRANT die_bff TO die_live_bff;
 GRANT die_ingest TO die_live_ingest;
 GRANT die_authz_admin TO die_live_authz;
 GRANT die_control_admin TO die_live_control;
+GRANT die_verifier TO die_live_verifier;
 GRANT die_normalizer TO die_live_normalizer;
 GRANT die_truth TO die_live_truth;
 GRANT die_maintenance TO die_live_maintenance;
@@ -253,11 +321,12 @@ INSERT INTO die_control.tenant_cell_principal (
   state, assigned_at, revision
 ) VALUES
   ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa07', 'cell-a', 'die_live_bff', 'die_bff', 'active', '2026-07-30T00:00:00Z', 1),
-  ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa08', 'cell-a', 'die_live_control', 'die_control_admin', 'active', '2026-07-30T00:00:00Z', 1);
+  ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa08', 'cell-a', 'die_live_control', 'die_control_admin', 'active', '2026-07-30T00:00:00Z', 1),
+  ('die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa09', 'cell-a', 'die_live_verifier', 'die_verifier', 'active', '2026-07-30T00:00:00Z', 1);
 
 -- Final-delta trust/session authorities: real RLS, state-machine and uniqueness
 -- execution rather than DDL parsing alone.
-SET ROLE die_live_control;
+SET ROLE die_live_authz;
 SET app.tenant_id = 'die-live-a';
 INSERT INTO die_control.manifest_signer_key (
   tenant_id, key_id, revision, algorithm, public_jwk, fingerprint, state,
@@ -304,22 +373,270 @@ BEGIN
   END IF;
 END
 $$;
+RESET ROLE;
+SET ROLE die_live_verifier;
+SET app.tenant_id = 'die-live-a';
 INSERT INTO die_control.manifest_verification (
   tenant_id, attempt_id, manifest_id, manifest_kind, schema_version,
-  manifest_digest, issuer, key_id, key_fingerprint, algorithm,
+  environment, received_document_digest, canonical_payload_digest,
+  protected_header_digest, signature_digest,
+  issuer, key_id, signer_key_revision, key_fingerprint, algorithm,
   verification_result, verifier_artifact_digest, applied_effects,
   verified_at, applied_at
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa91',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa92', 'tenant_bootstrap',
-  'starliner.tenant-bootstrap.v1',
+  'starliner.tenant-bootstrap.v1', 'test',
+  'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
   'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
-  'die-live-control', 'bootstrap-key-1',
+  'sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  'die-live-control', 'bootstrap-key-1', 2,
   'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  'ES256', 'verified',
+  'ES256', 'passed',
   'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
   '{"root_scope":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1"}',
-  '2026-07-30T00:10:00Z', '2026-07-30T00:10:01Z'
+  '2026-07-30T00:10:00Z', NULL
+);
+RESET ROLE;
+
+SET ROLE die_live_control;
+SET app.tenant_id = 'die-live-a';
+UPDATE die_control.manifest_verification
+SET applied_at = '2026-07-30T00:10:01Z'
+WHERE tenant_id = 'die-live-a'
+  AND attempt_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa91';
+RESET ROLE;
+
+-- Producer enrollment is a three-role protocol, not a privileged shortcut:
+-- control administration binds the organization, authorization administration
+-- registers the public key, the isolated verifier appends signature evidence,
+-- and control administration applies exactly those verified effects.
+SET ROLE die_live_control;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.organization_tenant (
+  tenant_id, organization_tenant_id, state, registered_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa20',
+  'active', '2026-07-30T00:11:00Z'
+);
+RESET ROLE;
+
+SET ROLE die_live_authz;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.manifest_signer_key (
+  tenant_id, key_id, revision, algorithm, public_jwk, fingerprint, state,
+  manifest_kind, environment, not_before, not_after, issuer
+) VALUES (
+  'die-live-a', 'enrollment-key-1', 1, 'EdDSA',
+  '{"kty":"OKP","crv":"Ed25519","x":"11qYAYdk9JHj9-_IhDZMeA5e7sK5mwdWJcyc6P6N4Vs"}',
+  'sha256:2020202020202020202020202020202020202020202020202020202020202020',
+  'active', 'producer_enrollment', 'test',
+  '2026-07-30T00:00:00Z', '2026-10-30T00:00:00Z', 'die-live-enrollment'
+);
+RESET ROLE;
+
+SET ROLE die_live_verifier;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.manifest_verification (
+  tenant_id, attempt_id, manifest_id, manifest_kind, schema_version,
+  environment, received_document_digest, canonical_payload_digest,
+  protected_header_digest, signature_digest,
+  issuer, key_id, signer_key_revision, key_fingerprint, algorithm,
+  verification_result, verifier_artifact_digest, applied_effects,
+  verified_at, applied_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa29',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28', 'producer_enrollment',
+  'starliner.producer-enrollment.v1', 'test',
+  'sha256:2121212121212121212121212121212121212121212121212121212121212121',
+  'sha256:2222222222222222222222222222222222222222222222222222222222222222',
+  'sha256:2323232323232323232323232323232323232323232323232323232323232323',
+  'sha256:2424242424242424242424242424242424242424242424242424242424242424',
+  'die-live-enrollment', 'enrollment-key-1', 1,
+  'sha256:2020202020202020202020202020202020202020202020202020202020202020',
+  'EdDSA', 'passed',
+  'sha256:2525252525252525252525252525252525252525252525252525252525252525',
+  '{
+    "tenant_id":"die-live-a",
+    "organization_tenant_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa20",
+    "manifest_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28",
+    "producer_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21",
+    "operation":"apply",
+    "revision":1,
+    "manifest_issued_at":"2026-07-30T00:11:00Z",
+    "manifest_expires_at":"2026-07-30T00:26:00Z",
+    "bootstrap_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa22",
+    "installation_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa24",
+    "producer_epoch":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa25",
+    "source_profile":"browser_backend",
+    "business_scope_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+    "environment":"test",
+    "credential_subject":"spiffe://die-live-a/browser-backend/a",
+    "credential_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa27",
+    "installation_key_thumbprint":"sha256:2626262626262626262626262626262626262626262626262626262626262626",
+    "credential_expires_at":"2026-07-30T00:25:00Z",
+    "artifact_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "delivery_artifact_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "component_set_digest":"sha256:2727272727272727272727272727272727272727272727272727272727272727",
+    "capabilities":[{"capability":"inventory","mode":"observe","profile_version":"1.0.0","effective_from":"2026-07-30T00:12:00Z","effective_to":null}],
+    "health_policy":{"policy_version":"v1","expected_report_interval_seconds":30,"degraded_after_seconds":90,"offline_after_seconds":300,"queue_degraded_after_ms":1000,"queue_unhealthy_after_ms":5000,"required_components":["browser_backend"]},
+    "expected_populations":[{"population_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6","capability":"inventory","population_type":"device","source_namespace":"browser-backend","source_population_id":"managed-devices","expected_count":1,"authority_type":"producer_enrollment","authority_ref":"manifest:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28","valid_from":"2026-07-30T00:12:00Z","valid_to":null}]
+  }',
+  '2026-07-30T00:11:30Z', NULL
+);
+RESET ROLE;
+
+SET ROLE die_live_control;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.producer (
+  tenant_id, producer_id, installation_id, source_profile, business_scope_id,
+  display_name, trust_state, artifact_digest, component_set_digest,
+  active_certification_id, credential_subject, environment, first_enrolled_at,
+  revision
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa24', 'browser_backend',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'Browser Backend A', 'pending',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  NULL, 'spiffe://die-live-a/browser-backend/a', 'test',
+  '2026-07-30T00:12:00Z', 1
+);
+INSERT INTO die_control.sensor_bootstrap (
+  tenant_id, organization_tenant_id, bootstrap_id, token_digest,
+  source_profile, business_scope_id, environment, intent,
+  discovery_issuer, discovery_subject_ref, issued_at, expires_at, state
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa20',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa22',
+  'sha256:2828282828282828282828282828282828282828282828282828282828282828',
+  'browser_backend', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'test',
+  'enroll', 'die-live-discovery', 'test-subject',
+  '2026-07-30T00:10:00Z', '2026-07-30T00:25:00Z', 'issued'
+);
+UPDATE die_control.sensor_bootstrap
+SET state = 'consumed', consumed_at = '2026-07-30T00:12:00Z',
+    consumed_request_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa23',
+    consumed_request_digest = 'sha256:2929292929292929292929292929292929292929292929292929292929292929',
+    installation_key_thumbprint = 'sha256:2626262626262626262626262626262626262626262626262626262626262626'
+WHERE tenant_id = 'die-live-a'
+  AND bootstrap_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa22';
+INSERT INTO die_control.producer_component_set (
+  tenant_id, producer_id, component_set_id, component_set_digest,
+  enrollment_request_id, source_profile, measured_at, state, revision,
+  activated_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa26',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa23', 'browser_backend',
+  '2026-07-30T00:12:00Z', 'active', 1, '2026-07-30T00:12:00Z'
+);
+INSERT INTO die_control.producer_package (
+  tenant_id, producer_id, component_set_digest, package_id, product,
+  version, package_format, source_repository, source_commit, package_digest,
+  build_evidence_ref
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  'browser-backend-package', 'Quilr Browser Backend', '1.0.0',
+  'container_image', 'quilrbusiness/browser-extension-service',
+  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'fixture://browser-backend-build'
+);
+INSERT INTO die_control.producer_component (
+  tenant_id, producer_id, component_set_digest, component_id, package_id,
+  component_role, product, version, source_repository, source_commit,
+  package_member_path, package_member_digest, installed_artifact_digest,
+  runtime_artifact_digest, runtime_identity, capture_owner, wal_owner,
+  delivery_owner, health_component
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  'browser_backend', 'browser-backend-package', 'browser_backend',
+  'Quilr Browser Backend', '1.0.0', 'quilrbusiness/browser-extension-service',
+  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'app.jar',
+  'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  'spiffe://die-live-a/browser-backend/a', true, true, true, true
+);
+INSERT INTO die_control.installation_enrollment (
+  tenant_id, enrollment_request_id, bootstrap_id, source_manifest_id,
+  idempotency_key_digest, request_digest, client_nonce_digest, intent,
+  source_profile, business_scope_id, environment,
+  installation_key_thumbprint, producer_id, installation_id, producer_epoch,
+  component_set_digest, assignment_response_digest, result, enrolled_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa23',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa22',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28',
+  'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+  'sha256:2929292929292929292929292929292929292929292929292929292929292929',
+  'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+  'enroll', 'browser_backend',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'test',
+  'sha256:2626262626262626262626262626262626262626262626262626262626262626',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa24',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa25',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  'sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+  'enrolled', '2026-07-30T00:12:00Z'
+);
+INSERT INTO die_control.workload_credential (
+  tenant_id, credential_id, producer_id, installation_id, producer_epoch,
+  generation, credential_subject, installation_key_thumbprint,
+  token_jti_digest, scopes, state, issued_at, renew_after, expires_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa27',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa24',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa25', 1,
+  'spiffe://die-live-a/browser-backend/a',
+  'sha256:2626262626262626262626262626262626262626262626262626262626262626',
+  'sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  ARRAY['starliner.ingest','starliner.credential.renew'], 'active',
+  '2026-07-30T00:10:00Z', '2026-07-30T00:20:00Z', '2026-07-30T00:25:00Z'
+);
+UPDATE die_control.manifest_verification
+SET applied_at = '2026-07-30T00:12:00Z'
+WHERE tenant_id = 'die-live-a'
+  AND attempt_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa29';
+INSERT INTO die_control.enrollment_manifest (
+  tenant_id, manifest_id, producer_id, operation, revision,
+  received_document_digest, canonical_payload_digest,
+  verification_attempt_id, issuer, signer_key_id, issued_at, expires_at,
+  applied_at, result, reason_code
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21', 'apply', 1,
+  'sha256:2121212121212121212121212121212121212121212121212121212121212121',
+  'sha256:2222222222222222222222222222222222222222222222222222222222222222',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa29', 'die-live-enrollment',
+  'enrollment-key-1', '2026-07-30T00:11:00Z',
+  '2026-07-30T00:26:00Z', '2026-07-30T00:12:00Z', 'applied', NULL
+);
+INSERT INTO die_control.producer_capability (
+  tenant_id, producer_id, capability, mode, profile_version,
+  source_manifest_id, certified, effective_from, effective_to
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21', 'inventory',
+  'observe', '1.0.0', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28', false,
+  '2026-07-30T00:12:00Z', NULL
+);
+INSERT INTO die_control.producer_health_policy (
+  tenant_id, producer_id, policy_version, component_set_digest,
+  expected_report_interval_seconds, degraded_after_seconds,
+  offline_after_seconds, queue_degraded_after_ms, queue_unhealthy_after_ms,
+  required_components, source_manifest_id, effective_from, effective_to
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21', 'v1',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  30, 90, 300, 1000, 5000, ARRAY['browser_backend'],
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28', '2026-07-30T00:12:00Z', NULL
 );
 RESET ROLE;
 
@@ -456,8 +773,8 @@ DECLARE
   visible_count integer;
 BEGIN
   SELECT count(*) INTO visible_count FROM die_control.producer;
-  IF visible_count <> 1 THEN
-    RAISE EXCEPTION 'RLS tenant isolation failed: expected one producer, got %', visible_count;
+  IF visible_count <> 2 THEN
+    RAISE EXCEPTION 'RLS tenant isolation failed: expected two tenant-A producers, got %', visible_count;
   END IF;
   IF EXISTS (
     SELECT 1 FROM die_control.producer WHERE tenant_id = 'die-live-b'
@@ -662,23 +979,25 @@ INSERT INTO die_control.expected_population (
   created_at, updated_at
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', 'inventory', 'device',
-  'endpoint-agent', 'managed-devices', 1, 'active',
-  '2026-07-30T00:00:00Z', '2026-07-30T00:00:00Z'
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21', 'inventory', 'device',
+  'browser-backend', 'managed-devices', 1, 'active',
+  '2026-07-30T00:12:00Z', '2026-07-30T00:12:00Z'
 );
 INSERT INTO die_control.expected_population_version (
   tenant_id, population_id, revision, business_scope_id, environment,
-  expected_count, authority_type, authority_ref, lifecycle, valid_from,
-  system_from
+  expected_count, authority_type, authority_ref, source_manifest_id,
+  lifecycle, valid_from, system_from
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6', 1,
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'test', 1,
-  'deployment_config', 'fixture:managed-devices', 'active',
-  '2026-07-30T00:00:00Z', '2026-07-30T00:00:00Z'
+  'producer_enrollment',
+  'manifest:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa28', 'active',
+  '2026-07-30T00:12:00Z', '2026-07-30T00:12:00Z'
 );
 UPDATE die_control.expected_population_version
-SET valid_to = '2026-07-30T00:10:00Z',
-    system_to = '2026-07-30T00:10:00Z'
+SET valid_to = '2026-07-30T00:20:00Z',
+    system_to = '2026-07-30T00:20:00Z'
 WHERE tenant_id = 'die-live-a'
   AND population_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6'
   AND revision = 1;
@@ -690,10 +1009,10 @@ INSERT INTO die_control.expected_population_version (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6', 2,
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'test', 2,
   'deployment_config', 'fixture:managed-devices:v2', 'active',
-  '2026-07-30T00:10:00Z', '2026-07-30T00:10:00Z'
+  '2026-07-30T00:20:00Z', '2026-07-30T00:20:00Z'
 );
 UPDATE die_control.expected_population
-SET current_revision = 2, updated_at = '2026-07-30T00:10:00Z'
+SET current_revision = 2, updated_at = '2026-07-30T00:20:00Z'
 WHERE tenant_id = 'die-live-a'
   AND population_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6';
 SET CONSTRAINTS ALL IMMEDIATE;
@@ -796,10 +1115,10 @@ INSERT INTO die_canonical.coverage_interval (
   population_id, state, valid_from, revision, system_from
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'inventory',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6', 'covered',
-  '2026-07-30T00:00:00Z', 1, '2026-07-30T00:00:00Z'
+  '2026-07-30T00:12:00Z', 1, '2026-07-30T00:12:00Z'
 );
 INSERT INTO die_outbox.canonical_change (
   tenant_id, aggregate_type, aggregate_id, aggregate_version, change_type,
@@ -824,7 +1143,7 @@ INSERT INTO die_canonical.coverage_interval (
   population_id, state, valid_from, revision, system_from
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'inventory',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6', 'degraded',
   '2026-07-30T00:20:00Z', 2, '2026-07-30T00:20:00Z'
@@ -856,7 +1175,7 @@ BEGIN
       population_id, state, valid_from, revision, system_from
     ) VALUES (
       'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9',
-      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'inventory',
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa6', 'gap',
       '2026-07-30T00:30:00Z', 4, '2026-07-30T00:30:00Z'
@@ -1174,26 +1493,106 @@ WHERE tenant_id = 'die-live-a' AND projection_name = 'die_product_v1' AND genera
 -- manifest; the executing transition is the database linearization point that
 -- wins or loses atomically against a concurrent legal hold before any provider
 -- operation is allowed.
+SET ROLE die_live_verifier;
+SET app.tenant_id = 'die-live-a';
+INSERT INTO die_control.manifest_verification (
+  tenant_id, attempt_id, manifest_id, manifest_kind, schema_version,
+  environment, received_document_digest, canonical_payload_digest,
+  protected_header_digest, signature_digest,
+  issuer, key_id, signer_key_revision, key_fingerprint, algorithm,
+  verification_result, verifier_artifact_digest, applied_effects,
+  verified_at, applied_at
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa37',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38', 'producer_enrollment',
+  'starliner.producer-enrollment.v1', 'test',
+  'sha256:3636363636363636363636363636363636363636363636363636363636363636',
+  'sha256:3737373737373737373737373737373737373737373737373737373737373737',
+  'sha256:3838383838383838383838383838383838383838383838383838383838383838',
+  'sha256:3939393939393939393939393939393939393939393939393939393939393939',
+  'die-live-enrollment', 'enrollment-key-1', 1,
+  'sha256:2020202020202020202020202020202020202020202020202020202020202020',
+  'EdDSA', 'passed',
+  'sha256:abababababababababababababababababababababababababababababababab',
+  '{
+    "tenant_id":"die-live-a",
+    "organization_tenant_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa20",
+    "manifest_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38",
+    "producer_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21",
+    "operation":"certify",
+    "revision":2,
+    "manifest_issued_at":"2026-07-30T00:29:00Z",
+    "manifest_expires_at":"2026-07-30T00:44:00Z",
+    "certification_id":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30",
+    "source_profile":"browser_backend",
+    "profile_version":"1.0.0",
+    "component_set_digest":"sha256:2727272727272727272727272727272727272727272727272727272727272727",
+    "delivery_artifact_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "artifact_digest":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "contract_digest":"sha256:3030303030303030303030303030303030303030303030303030303030303030",
+    "profile_versions":{"browser_backend":"1.0.0"},
+    "test_pack_digest":"sha256:3131313131313131313131313131313131313131313131313131313131313131",
+    "result":"passed",
+    "certified_at":"2026-07-30T00:30:00Z",
+    "certification_expires_at":"2026-08-30T00:30:00Z",
+    "evidence_object_key":"die-live-a/certifications/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30"
+  }',
+  '2026-07-30T00:29:30Z', NULL
+);
+RESET ROLE;
+
+SET ROLE die_live_control;
+SET app.tenant_id = 'die-live-a';
+UPDATE die_control.manifest_verification
+SET applied_at = '2026-07-30T00:30:00Z'
+WHERE tenant_id = 'die-live-a'
+  AND attempt_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa37';
+INSERT INTO die_control.enrollment_manifest (
+  tenant_id, manifest_id, producer_id, operation, revision,
+  received_document_digest, canonical_payload_digest,
+  verification_attempt_id, issuer, signer_key_id, issued_at, expires_at,
+  applied_at, result, reason_code
+) VALUES (
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21', 'certify', 2,
+  'sha256:3636363636363636363636363636363636363636363636363636363636363636',
+  'sha256:3737373737373737373737373737373737373737373737373737373737373737',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa37', 'die-live-enrollment',
+  'enrollment-key-1', '2026-07-30T00:29:00Z',
+  '2026-07-30T00:44:00Z', '2026-07-30T00:30:00Z', 'applied', NULL
+);
 INSERT INTO die_control.certification (
-  tenant_id, certification_id, producer_id, artifact_digest, contract_digest,
-  profile_versions, test_pack_digest, result, certified_at, expires_at,
-  evidence_object_key
+  tenant_id, certification_id, producer_id, source_manifest_id,
+  source_profile, profile_version, component_set_digest,
+  delivery_artifact_digest, artifact_digest, contract_digest, profile_versions,
+  test_pack_digest, result, certified_at, expires_at, evidence_object_key
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa38',
+  'browser_backend', '1.0.0',
+  'sha256:2727272727272727272727272727272727272727272727272727272727272727',
+  'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   'sha256:3030303030303030303030303030303030303030303030303030303030303030',
-  '{"endpoint":"1.0.0"}',
+  '{"browser_backend":"1.0.0"}',
   'sha256:3131313131313131313131313131313131313131313131313131313131313131',
   'passed', '2026-07-30T00:30:00Z', '2026-08-30T00:30:00Z',
   'die-live-a/certifications/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30'
 );
+UPDATE die_control.producer
+SET trust_state = 'trusted',
+    active_certification_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa30',
+    revision = 2
+WHERE tenant_id = 'die-live-a'
+  AND producer_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21';
+RESET ROLE;
 INSERT INTO die_evidence.producer_sequence (
   tenant_id, producer_id, producer_epoch, sequence_no, record_id,
   content_sha256, evidence_id, received_at
 ) VALUES (
-  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa31', 1,
+  'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa25', 1,
   '018f0000-0000-7000-8000-000000000001',
   'sha256:3232323232323232323232323232323232323232323232323232323232323232',
   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32', '2026-07-30T00:31:00Z'
@@ -1209,11 +1608,13 @@ INSERT INTO die_evidence.evidence_record (
   correlation, retention_class, admitted_by_artifact
 ) VALUES (
   'die-live-a', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', 'endpoint-a',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa31', 1,
-  '018f0000-0000-7000-8000-000000000001', 'endpoint.test',
-  'endpoint', '1.0.0', 'urn:quilr:fixture:endpoint.test:1.0.0',
-  'device_observation', 'fixture', 'device-1',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa21',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa24',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa25', 1,
+  '018f0000-0000-7000-8000-000000000001', 'browser_backend.test',
+  'browser_backend', '1.0.0',
+  'urn:quilr:fixture:browser-backend.test:1.0.0',
+  'browser_installation', 'fixture', 'installation-1',
   '2026-07-30T00:30:00Z', '2026-07-30T00:30:10Z',
   '2026-07-30T00:30:20Z', '2026-07-30T00:31:00Z',
   'die-live-a/evidence/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa32',

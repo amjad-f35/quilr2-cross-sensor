@@ -12,6 +12,21 @@ LG gates are release-acceptance evidence, and the real product advances through
 coherent native-to-UI increments. Never stop independent coding because an LG
 is open or a remote validator is unavailable.
 
+Document 43 and ADR-0022 govern normal installed/deployed product integration.
+The first customer release remains all five profiles, but the primary
+integration lane takes one real Gate-A trace through the permanent funnel at a
+time: control/enrollment, Endpoint, Browser installed sensor and the first
+cross-source graph proof, then Browser Backend, LLM and MCP. Gate-B breadth
+closes concurrently after that proof.
+
+For each source, Gate A proves one continuous native-to-UI trace and Gate B
+completes every supported route plus replay, restart, offline, gap, health and
+reconciliation behavior. After Endpoint Gate A, Browser Gate A and the first
+real cross-source graph plus unresolved-negative proof come next; do not
+postpone them behind Endpoint long-tail breadth. The remaining Gate-A
+verticals follow while Gate B closes in parallel for all profiles. Independent
+common-module work may continue in parallel.
+
 ## Authority
 
 Record the exact installed architecture-authority and execution-kit commits in
@@ -44,6 +59,63 @@ WP outcome. Stubs are allowed only at genuine external provider boundaries.
 An integrated claim requires one exact `RUNTIME_MANIFEST.yaml`; never combine
 results from overlapping preview stacks or different component revisions.
 
+Browser Extension and its native messaging host are components of one logical
+Browser installation. The Extension alone owns its producer epoch/sequence,
+durable WAL and delivery stream; the native host is supporting capture only.
+They retain distinct component/artifact lineage. Browser Backend is a separate
+hosted producer for server-owned facts and never double-counts relayed Browser
+activity.
+
+## Required inputs: search, ask, never bypass
+
+Before modifying a sensor/gateway integration, read document 43 and bind the
+official installer/deployer, existing organization tenant Discovery/bootstrap,
+persona/device/workload bootstrap prerequisite, enrollment, secure credential
+store, supervisor/entrypoint, native capture, WAL, sender and receipt owner in
+`SOURCE_PRODUCT_PATH.yaml`.
+
+For Browser or Endpoint, begin with the pinned `quilrai/installdocs` revision
+and `https://installdocs.quilrai.dev/llms.txt`, follow every applicable linked
+installation page, then reconcile it with the current installer/package-builder
+and product source named in `SOURCE_CONTEXT_AND_REPOSITORY_MAP.md`. Do not
+invent an install command, tenant/persona input or service topology from memory.
+
+Do not treat a path string as evidence. Bind every required file through the
+source path's `evidence_bindings` with its safe relative ref, exact SHA-256 and
+closed evidence kind. `COHERENT_E2E` requires all bindings to resolve beneath
+the runtime evidence root with no traversal, symlink escape or digest drift.
+
+Classify every prerequisite as `FOUND`, `MISSING_PRODUCT_CODE`,
+`EXTERNAL_CREDENTIAL`, `EXTERNAL_INFRASTRUCTURE`, `PRIVILEGED_USER_ACTION`,
+`DESTRUCTIVE_APPROVAL`, `CONTRACT_CONTRADICTION` or
+`UNKNOWN_AFTER_EXHAUSTIVE_SEARCH`. `DESTRUCTIVE_APPROVAL` is only for one exact
+delete, erase, reset, uninstall, reimage, destroy, truncate, revoke or overwrite
+operation and records recovery or irreversibility. Implement missing
+owned code. For an external input/action, record the exact blocked action,
+proof it is unavailable and objective success condition, ask the user one
+bounded question, pause only that action and continue independent work.
+
+Never replace the normal product path with a fixed tenant/producer ID, second
+tenant, persona shim, hand-minted/shared token, unsigned manifest, manual
+browser storage/DevTools injection, manual plist/environment/SQL mutation,
+alternate daemon, fake artifact digest or fixture interior. An authorized
+diagnostic harness remains `UNIT_HARNESS` or `DEV_PREVIEW` and cannot advance
+installed-product integration.
+
+Record installed/deployed source progress in `SENSOR_VERTICAL_STATE.csv`.
+Every stage through `highest_integrated_stage` must reference a retained file
+and exact SHA-256; every later stage must remain `NONE`. Never skip a prior
+stage, combine evidence from different candidates, or advance the ledger from
+a prose report, unit harness, preview fixture or manual bypass.
+
+Copy the generated `GATE_B_CERTIFICATION.csv` template and close every route
+and required-field obligation with exact retained evidence or focused approved
+unsupported change control; an external blocker remains honest but keeps the
+profile gate open. After Endpoint and Browser Gate A, record the positive
+relationship and unresolved-negative proof in `CROSS_SOURCE_GATE.csv`. Product
+capabilities PC-002..PC-006 may never claim a stage beyond the corresponding
+validated sensor vertical.
+
 ## Customer UI
 
 When this repository is `quilr-platform-nuxt`, also read the installed
@@ -69,6 +141,8 @@ At the beginning of every session, after compaction and before modifying code:
 1. Read this file.
 2. Read `docs/engineering/WORK_STATE.md` and `TOPOLOGY.md`.
 3. Read the active work package, contract and acceptance tests.
+   For a source vertical, also read ADR-0022, document 43 and the exact current
+   installation/deployment authority before touching code.
 4. Inspect `git status --short --branch`, recent commits and the branch diff.
 5. Inspect central program/capability state and the current runtime manifest;
    inspect a PR or remote result only when one exists and is relevant.

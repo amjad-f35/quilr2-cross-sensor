@@ -78,3 +78,7 @@ decisions:
     status: accepted
     decision: "quilrbusiness/project-starliner is the core backend repository for the pass; the exact-source fit-gap audit is complete and implementation follows the frozen module disposition."
     consequence: "The program evolves one verified spine, does not create a competing core backend, and classifies existing code as retain, harden, refactor, compatibility-only, replace, delete-later, missing, or unresolved."
+  - id: DIE-ADR-020
+    status: accepted
+    decision: "The all-five-profile architecture remains globally frozen while product integration advances by exact-artifact Gate-A source verticals: Endpoint then Browser and an immediate cross-source graph/negative proof, then Browser Backend, LLM and MCP; Gate-B route breadth closes in parallel and remains mandatory before release."
+    consequence: "The team neither builds five disconnected adapters first nor delays the defining cross-sensor graph behind one sensor's long-tail route surface."

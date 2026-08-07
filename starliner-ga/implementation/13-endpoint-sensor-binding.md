@@ -14,7 +14,14 @@ The endpoint agent is a compound sensor, not one executable:
 - Persona, policy, alerting, diagnostics, updater, and platform helpers;
 - local IPC broker.
 
-The product has one endpoint profile and multiple authenticated producer components. Component evidence is not flattened before lineage and capability checks.
+The product has one Endpoint profile, one enrolled installation-scoped
+producer identity, one producer epoch/sequence space and one durable delivery
+stream. Its local components retain distinct authenticated component/artifact
+identity, capability, health and lineage; they are not independent producer
+streams and their evidence is not flattened before lineage and capability
+checks. This installed-product boundary is frozen by
+[ADR-0022](../adrs/0022-installed-product-vertical-delivery.md) and
+[document 43](../passes/01-discovery-inventory-evidence/implementation-freeze/43-installed-product-lifecycle-and-source-verticals.md).
 
 ## Runtime placement decision
 
@@ -42,6 +49,21 @@ Reasons:
 - a single runtime can bound disk/network/backpressure and report component-specific degradation.
 
 Latency-sensitive PEP evaluation remains embedded in the proxy, monitor, and hook process. The runtime distributes an atomically versioned, already verified local policy snapshot. A proxy request does not synchronously call the central platform or block on the local WAL.
+
+The runtime is reached through the official Endpoint package, existing
+organization tenant/persona bootstrap and normal service supervisor. Before
+changing or claiming this path, engineering binds the exact package and
+component artifacts, Discovery/bootstrap input, enrollment exchange, secure
+credential store, service configuration authority and native entrypoints in
+`SOURCE_PRODUCT_PATH.yaml`.
+
+If a required tenant/bootstrap value, credential, artifact, privileged install
+or runtime prerequisite is unavailable, engineering follows document 43's
+required-input disposition and asks for the exact bounded input or action. It
+does not substitute a preview persona, fixed tenant/producer/certification ID,
+hand-minted token, manually patched launchd/systemd configuration, parallel DIE
+monitor or fixture interior. Missing owned product code is implemented on the
+normal package/supervisor path.
 
 The runtime IPC is not the current unauthenticated hook socket. It uses a dedicated Unix-domain socket or Windows named pipe with:
 
@@ -229,15 +251,27 @@ The current HTTP audit call is not effect verification. A successful `taskkill`/
 
 No endpoint command or enforcement capability can be certified while its relevant blocker remains.
 
-## Migration increments
+## Bounded DIE implementation increments
 
-1. Introduce the supervised runtime and authenticated component IPC in observe-only mode.
-2. Map `EntityStore`, proxy, hooks, lifecycle, and health to safe source records.
-3. Add WAL durability, sequence/replay, manifests, and per-component certification.
-4. dual-emit while current dashboard HTTP remains the mutation authority.
-5. move canonical-ID resolution entirely central and compare mappings.
-6. replace activity/alert best-effort HTTP with Starliner delivery.
-7. distribute signed policy in shadow mode and compare current native policy results.
-8. introduce typed command adapters one family at a time.
-9. require independent effect observation before product claims.
-10. retire endpoint dashboard/API inventory authority only after semantic parity, customer cutover, and rollback closure.
+1. Bind the official Endpoint package, existing organization tenant bootstrap,
+   enrollment, exact component set and normal supervisor in the source-product
+   manifest.
+2. Introduce the supervised runtime and authenticated component IPC in
+   observe-only mode.
+3. Map `EntityStore`, proxy, hooks, lifecycle, health, gaps and reconciliation
+   to safe source records.
+4. Add one installation-scoped WAL, sequence/replay, authenticated delivery,
+   exact receipts and per-component provenance.
+5. Move canonical-ID resolution entirely central; legacy application-ID lookup
+   cannot block source evidence.
+6. Complete Endpoint Gate A from the normally installed compound product,
+   begin Gate B immediately, and advance the primary lane to Browser Gate A;
+   do not postpone the defining Endpoint/Browser graph proof behind Endpoint
+   long-tail breadth. Every Endpoint Gate B route remains mandatory before
+   release.
+7. Require independent effect observation before any action/effect product
+   claim.
+
+Legacy dual-run, mapping comparison, customer cutover, rollback and retirement
+belong to the separate MIGRATION program and are not authorized inside this
+bounded pass.

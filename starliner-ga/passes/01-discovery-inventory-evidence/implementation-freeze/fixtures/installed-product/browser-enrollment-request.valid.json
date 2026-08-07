@@ -1,0 +1,94 @@
+{
+  "api_version": "starliner.control.enrollment-request.v1",
+  "request_id": "11111111-1111-4111-8111-111111111111",
+  "idempotency_key_digest": "sha256:819c1fe022153027cd097f4eb1f8afc2fca29f4a5a941b04d9c1144ced9acce6",
+  "organization_tenant_id": "22222222-2222-4222-8222-222222222222",
+  "bootstrap_id": "33333333-3333-4333-8333-333333333333",
+  "intent": "enroll",
+  "source_profile": "browser",
+  "business_scope_id": "44444444-4444-4444-8444-444444444444",
+  "environment": "production",
+  "display_name": "Browser sensor on test-mac-01",
+  "requested_at": "2026-08-05T12:00:00Z",
+  "client_nonce": "AQIDBAUGBwgJCgsMDQ4PEA",
+  "component_set": {
+    "schema_version": "starliner.producer-component-set.v1",
+    "component_set_id": "55555555-5555-4555-8555-555555555555",
+    "component_set_digest": "sha256:b6200fa8d6de8f6eff069dfceb96573b35a974ab0166d6114f7f11d347ecd846",
+    "source_profile": "browser",
+    "measured_at": "2026-08-05T11:59:58Z",
+    "packages": [
+      {
+        "package_id": "vanguard-chrome",
+        "product": "Quilr Browser Extension",
+        "version": "2.0.0",
+        "format": "chrome_extension",
+        "source_repository": "quilrbusiness/Project-Vanguard",
+        "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "package_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "build_evidence_ref": "evidence/build/vanguard-chrome-2.0.0.json"
+      },
+      {
+        "package_id": "sentinel-native-host-macos",
+        "product": "Quilr Browser Native Host",
+        "version": "2.0.0",
+        "format": "macos_pkg",
+        "source_repository": "quilrbusiness/project-sentinel",
+        "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "package_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "build_evidence_ref": "evidence/build/sentinel-native-host-macos-2.0.0.json"
+      }
+    ],
+    "components": [
+      {
+        "component_id": "browser-extension",
+        "package_id": "vanguard-chrome",
+        "role": "browser_extension",
+        "product": "Quilr Browser Extension",
+        "version": "2.0.0",
+        "source_repository": "quilrbusiness/Project-Vanguard",
+        "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "package_member_path": "chrome-mv3",
+        "package_member_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "installed_artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_artifact_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "runtime_identity": "chrome-extension://abcdefghijklmnopabcdefghijklmnop"
+      },
+      {
+        "component_id": "browser-native-host",
+        "package_id": "sentinel-native-host-macos",
+        "role": "browser_native_host",
+        "product": "Quilr Browser Native Host",
+        "version": "2.0.0",
+        "source_repository": "quilrbusiness/project-sentinel",
+        "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "package_member_path": "Library/Application Support/Quilr/native-host",
+        "package_member_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "installed_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "runtime_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "runtime_identity": "ai.quilr.browser.native-host"
+      }
+    ],
+    "ownership": {
+      "capture_component_ids": ["browser-extension", "browser-native-host"],
+      "wal_component_id": "browser-extension",
+      "wal_component_role": "browser_extension",
+      "delivery_component_id": "browser-extension",
+      "delivery_component_role": "browser_extension",
+      "health_component_ids": ["browser-extension", "browser-native-host"]
+    }
+  },
+  "installation_proof": {
+    "algorithm": "ES256",
+    "public_jwk": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "y": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+    },
+    "key_thumbprint": "sha256:dd7ef224fe88ca6549161590c561f7a348c3f7482ec9c635e7cfa527f8a55d10",
+    "request_digest": "sha256:dc7cd28b9a4c2cb6cea4e4c70d59adaa77a5405abe5e409a8e953c6076e790c6",
+    "signed_at": "2026-08-05T12:00:00Z",
+    "detached_jws": "e30..c2lnbmF0dXJl"
+  }
+}
